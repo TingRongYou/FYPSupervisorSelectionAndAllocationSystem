@@ -1,0 +1,11 @@
+# IDE & OS Files
+# Avoid upload VSCode settings and OS-specific (background) files
+.vscode/ 
+.DS_Store
+Thumbs.db
+
+# Exclude uploaded proposal PDFs and media, but keep the folder structure
+# Avoid uploading PDFs and so on
+storage/*
+# But keep the structure by adding blank .gitkeep file
+!storage/.gitkeep
