@@ -2,64 +2,9 @@
 
 require_once __DIR__ . "/../data/SupervisorDAO.php";
 
-interface QuotaValidationStrategy {
+class SupervisorManagementService {
 
-    public function isValid(
-        $newQuotaLimit
-    );
-
-    public function getFailureMessage();
-}
-
-class FullTimeQuotaStrategy implements QuotaValidationStrategy {
-
-    public function isValid(
-        $newQuotaLimit
-    ) {
-
-        return
-            $newQuotaLimit <= 15;
-    }
-
-    public function getFailureMessage() {
-
-        return "Full-Time lecturers cannot exceed 15 students per semester";
-    }
-}
-
-class PartTimeQuotaStrategy implements QuotaValidationStrategy {
-
-    public function isValid(
-        $newQuotaLimit
-    ) {
-
-        return
-            $newQuotaLimit <= 10;
-    }
-
-    public function getFailureMessage() {
-
-        return "Part-Time lecturers cannot exceed 10 students per semester";
-    }
-}
-
-class ManagementRoleQuotaStrategy implements QuotaValidationStrategy {
-
-    public function isValid(
-        $newQuotaLimit
-    ) {
-
-        return
-            $newQuotaLimit <= 15;
-    }
-
-    public function getFailureMessage() {
-
-        return "Management roles cannot exceed 15 students per academic year";
-    }
-}
-
-class QuotaManager {
+    private const MAX_EMPLOYMENT_CATEGORY_LENGTH = 50;
 
     private $supervisorDAO;
 
@@ -71,11 +16,11 @@ class QuotaManager {
 
     /*
     |--------------------------------------------------------------------------
-    | Quota Management Dashboard Data
+    | Supervisor Directory
     |--------------------------------------------------------------------------
     */
 
-    public function getQuotaDashboard(
+    public function getSupervisorDirectory(
         $filters
     ) {
 
@@ -110,12 +55,6 @@ class QuotaManager {
             $supervisors[$index]["maxSuperviseesAllowed"] =
                 $maxSuperviseesAllowed;
 
-            $supervisors[$index]["remainingSlots"] =
-                max(
-                    0,
-                    $maxSuperviseesAllowed - $currentSupervisees
-                );
-
             $supervisors[$index]["loadPercentage"] =
                 $maxSuperviseesAllowed > 0
                 ? min(
@@ -132,18 +71,25 @@ class QuotaManager {
                 )
                 : 0;
 
-            $supervisors[$index]["quotaStatus"] =
-                $currentSupervisees > $maxSuperviseesAllowed
-                ? "Overloaded"
-                : (
-                    $currentSupervisees === $maxSuperviseesAllowed
-                    ? "Full"
-                    : "Valid"
-                );
+            $supervisors[$index]["quotaText"] =
+                $currentSupervisees
+                . "/"
+                . $maxSuperviseesAllowed;
+
+            $supervisors[$index]["availabilityStatus"] =
+                $currentSupervisees < $maxSuperviseesAllowed
+                ? "Available"
+                : "Full";
         }
 
         return $supervisors;
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Quota Options
+    |--------------------------------------------------------------------------
+    */
 
     public function getQuotaOptions() {
 
@@ -151,6 +97,12 @@ class QuotaManager {
             $this->supervisorDAO
             ->getAllQuotaConfigurations();
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Programme Options
+    |--------------------------------------------------------------------------
+    */
 
     public function getProgrammeOptions() {
 
@@ -161,13 +113,14 @@ class QuotaManager {
 
     /*
     |--------------------------------------------------------------------------
-    | Update Quota Definition
+    | Classify Supervisor Role
     |--------------------------------------------------------------------------
     */
 
-    public function updateSupervisorQuota(
+    public function classifySupervisorRole(
         $administratorRole,
         $supervisorID,
+        $employmentCategory,
         $quotaID
     ) {
 
@@ -181,17 +134,33 @@ class QuotaManager {
         $supervisorID =
             trim($supervisorID);
 
+        $employmentCategory =
+            trim($employmentCategory);
+
         $quotaID =
             trim($quotaID);
 
         if (
             $supervisorID === ""
             ||
+            $employmentCategory === ""
+            ||
             $quotaID === ""
         ) {
 
             return $this->failure(
-                "Supervisor and quota are required"
+                "Supervisor, classification, and quota are required"
+            );
+        }
+
+        if (
+            strlen($employmentCategory)
+            >
+            self::MAX_EMPLOYMENT_CATEGORY_LENGTH
+        ) {
+
+            return $this->failure(
+                "Classification cannot exceed 50 characters"
             );
         }
 
@@ -202,26 +171,26 @@ class QuotaManager {
             );
         }
 
-        $supervisorLoad =
+        $currentLoad =
             $this->supervisorDAO
             ->getSupervisorLoad(
                 $supervisorID
             );
 
-        if (!$supervisorLoad) {
+        if (!$currentLoad) {
 
             return $this->failure(
                 "Supervisor record was not found"
             );
         }
 
-        $quota =
+        $newQuota =
             $this->supervisorDAO
             ->getQuotaByID(
                 (int) $quotaID
             );
 
-        if (!$quota) {
+        if (!$newQuota) {
 
             return $this->failure(
                 "Selected quota tier does not exist"
@@ -229,100 +198,44 @@ class QuotaManager {
         }
 
         $currentSupervisees =
-            (int) $supervisorLoad["currentSupervisees"];
+            (int) $currentLoad["currentSupervisees"];
 
         $newQuotaLimit =
-            (int) $quota["maxSuperviseesAllowed"];
+            (int) $newQuota["maxSuperviseesAllowed"];
 
         /*
         |--------------------------------------------------------------------------
-        | Quota Load Validation
+        | Quota Conflict Validation
         |--------------------------------------------------------------------------
-        | UC200 blocks any quota change that would make the current load invalid.
+        | UC100 prevents a role/quota change if the supervisor's current load
+        | exceeds the selected classification quota.
         */
 
         if ($currentSupervisees > $newQuotaLimit) {
 
             return $this->failure(
-                "Quota exceeded: current supervisee count is greater than the selected quota"
-            );
-        }
-
-        $strategy =
-            $this->resolveQuotaStrategy(
-                $supervisorLoad["employmentCategory"]
-            );
-
-        if (!$strategy->isValid($newQuotaLimit)) {
-
-            return $this->failure(
-                $strategy->getFailureMessage()
+                "Quota conflict: current supervisee count exceeds the selected quota limit"
             );
         }
 
         $updated =
             $this->supervisorDAO
-            ->updateSupervisorQuota(
+            ->updateSupervisorClassification(
                 $supervisorID,
+                $employmentCategory,
                 (int) $quotaID
             );
 
         if (!$updated) {
 
             return $this->failure(
-                "Supervisor quota could not be updated"
+                "Supervisor classification could not be updated"
             );
         }
 
         return $this->success(
-            "Supervisor quota updated successfully"
+            "Supervisor classification updated successfully"
         );
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Strategy Resolution
-    |--------------------------------------------------------------------------
-    */
-
-    private function resolveQuotaStrategy(
-        $employmentCategory
-    ) {
-
-        $normalizedCategory =
-            strtolower(
-                trim($employmentCategory)
-            );
-
-        if (
-            strpos($normalizedCategory, "part-time") !== false
-            ||
-            strpos($normalizedCategory, "part time") !== false
-        ) {
-
-            return new PartTimeQuotaStrategy();
-        }
-
-        if (
-            in_array(
-                $normalizedCategory,
-                [
-                    "dean",
-                    "deputy dean",
-                    "academic director",
-                    "programme leader",
-                    "program leader",
-                    "ad",
-                    "pl"
-                ],
-                true
-            )
-        ) {
-
-            return new ManagementRoleQuotaStrategy();
-        }
-
-        return new FullTimeQuotaStrategy();
     }
 
     private function success(

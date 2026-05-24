@@ -388,6 +388,3 @@ git push
 * Security Testing
 * Integration Testing
 * Deployment Preparation
-
-```
-```

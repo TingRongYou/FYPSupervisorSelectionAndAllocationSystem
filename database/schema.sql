@@ -18,6 +18,7 @@ CREATE TABLE STUDENT_PROFILE (
     studentID VARCHAR(20) PRIMARY KEY, 
     programme VARCHAR(100) NOT NULL,
     intakeBatch VARCHAR(20) NOT NULL,
+    currentSem VARCHAR(10) NOT NULL,
     academicStatus VARCHAR(50) NOT NULL,
     cgpa DECIMAL(5, 4) NOT NULL,
     contactNumber VARCHAR(20) NULL,
@@ -26,6 +27,7 @@ CREATE TABLE STUDENT_PROFILE (
     linkedInURL VARCHAR(255) NULL,
     githubURL VARCHAR(255) NULL,
     portfolioURL VARCHAR(255) NULL,
+    eligibilityStatus BOOLEAN NOT NULL DEFAULT FALSE,
 
     -- If userID is deleted from USER table, delete the student profile as well
     FOREIGN KEY (studentID) REFERENCES USER(userID) ON DELETE CASCADE ON UPDATE CASCADE
