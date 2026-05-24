@@ -1,3 +1,10 @@
 <?php
-    echo "<h1>Welcome to the SSAS Development Environment!</h1>";
+
+require_once "server/data/database.php";
+
+$db = new Database();
+$conn = $db->connect();
+
+echo "<h1>SSAS Database Connected Successfully</h1>";
+
 ?>
