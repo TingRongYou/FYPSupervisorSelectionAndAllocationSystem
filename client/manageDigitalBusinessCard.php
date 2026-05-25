@@ -2,80 +2,65 @@
 
 require_once __DIR__ . "/../server/application/SessionManager.php";
 require_once __DIR__ . "/../server/business/SupervisorProfileService.php";
+require_once __DIR__ . "/../server/business/TagManagementService.php";
+require_once __DIR__ . "/supervisorLayout.php";
 
 SessionManager::startSession();
-
-/*
-|--------------------------------------------------------------------------
-| Authentication + RBAC
-|--------------------------------------------------------------------------
-*/
-if (!SessionManager::isLoggedIn()) {
-
-    die("Access Denied");
-}
-
 SessionManager::requireRole("Supervisor");
 
-/*
-|--------------------------------------------------------------------------
-| CSRF Protection
-|--------------------------------------------------------------------------
-*/
 if (empty($_SESSION["csrf_token"])) {
 
     $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
 }
 
-/*
-|--------------------------------------------------------------------------
-| Service Layer
-|--------------------------------------------------------------------------
-*/
 $profileService = new SupervisorProfileService();
+$tagService = new TagManagementService();
+
 $profile = $profileService->getDigitalBusinessCard($_SESSION["userID"]);
+$selectedTagIDs = $tagService->getSupervisorTagIDs($_SESSION["userID"]);
+$allTags = $tagService->getAllTags();
+$selectedTags = [];
 
-/*
-|--------------------------------------------------------------------------
-| Output Escaping
-|--------------------------------------------------------------------------
-*/
-function e($value) {
+foreach ($allTags as $tag) {
 
-    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
+    if (in_array((int) $tag["tagID"], $selectedTagIDs, true)) {
+
+        $selectedTags[] = $tag["tagName"];
+    }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Status Message
-|--------------------------------------------------------------------------
-*/
-function statusMessage() {
+$completion = 45;
+$defaultBio = "";
 
-    if (!isset($_GET["status"], $_GET["message"])) {
+if ($profile) {
 
-        return "";
+    $defaultBio =
+        $profile["supervisorBio"]
+        ??
+        (
+            "Specializing in "
+            . $profile["programme"]
+            . ", I guide students through applied research and final year project development at TAR UMT."
+        );
+
+    $filled = 0;
+    $fields = ["programme", "employmentCategory", "introVideoLink", "supervisorBio"];
+
+    foreach ($fields as $field) {
+
+        if (!empty($profile[$field])) {
+
+            $filled++;
+        }
     }
 
-    $class = $_GET["status"] === "success"
-        ? "success"
-        : "error";
+    if (!empty($selectedTags)) {
 
-    return '
-        <div class="message ' . $class . '">
-            ' . e($_GET["message"]) . '
-        </div>
-    ';
+        $filled++;
+    }
+
+    $completion = min(100, 45 + ($filled * 10));
 }
-
-/*
-|--------------------------------------------------------------------------
-| Safe Defaults
-|--------------------------------------------------------------------------
-*/
-$availableSlots = $profile["availableSlots"] ?? 0;
-$currentSupervisees = $profile["currentSupervisees"] ?? 0;
-$maxSuperviseesAllowed = $profile["maxSuperviseesAllowed"] ?? 0;
 
 ?>
 
@@ -83,602 +68,193 @@ $maxSuperviseesAllowed = $profile["maxSuperviseesAllowed"] ?? 0;
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        Manage Digital Business Card | SSAS
-    </title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Business Card | SSAS</title>
     <style>
-
-        * {
-
-            box-sizing: border-box;
-        }
-
-        body {
-
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f4f8fc;
-            color: #1d2b3a;
-        }
-
-        .layout {
-
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Sidebar
-        |--------------------------------------------------------------------------
-        */
-
-        .sidebar {
-
-            width: 260px;
-            background: #0b4f8a;
-            color: #ffffff;
-            padding: 28px 22px;
-        }
-
-        .brand {
-
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .subtitle {
-
-            color: #cfe5f8;
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 32px;
-        }
-
-        .nav-link {
-
-            display: block;
-            color: #eaf5ff;
-            text-decoration: none;
-            padding: 12px 14px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            transition:
-                background 0.2s ease,
-                transform 0.2s ease;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-
-            background: #176fac;
-            transform: translateX(2px);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Main
-        |--------------------------------------------------------------------------
-        */
-
-        .main {
-
-            flex: 1;
-            padding: 34px;
-        }
-
-        h1 {
-
-            margin: 0 0 8px;
-            color: #0b3760;
-            font-size: 30px;
-        }
-
-        .hint {
-
-            margin: 0 0 24px;
-            color: #5c6f82;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Cards
-        |--------------------------------------------------------------------------
-        */
-
-        .grid {
-
-            display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
-            gap: 20px;
-        }
-
-        .card {
-
-            background: #ffffff;
-            border: 1px solid #d9e7f3;
-            border-radius: 8px;
-            padding: 22px;
-            box-shadow:
-                0 8px 22px rgba(11, 79, 138, 0.08);
-        }
-
-        .card h2 {
-
-            margin: 0 0 18px;
-            color: #0b3760;
-            font-size: 20px;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Forms
-        |--------------------------------------------------------------------------
-        */
-
-        .field {
-
-            margin-bottom: 16px;
-        }
-
-        label,
-        .label {
-
-            display: block;
-            font-size: 13px;
-            font-weight: 700;
-            color: #35546d;
-            margin-bottom: 7px;
-        }
-
-        input,
-        select {
-
-            width: 100%;
-            height: 42px;
-            border: 1px solid #c6d8e8;
-            border-radius: 6px;
-            padding: 0 12px;
-            font-size: 14px;
-            background: #ffffff;
-        }
-
-        input[readonly] {
-
-            background: #eef5fb;
-            color: #526a7f;
-        }
-
-        input:focus,
-        select:focus {
-
-            outline: 2px solid #9dccf1;
-            border-color: #2179b8;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Buttons
-        |--------------------------------------------------------------------------
-        */
-
-        .button {
-
-            height: 42px;
-            border: 0;
-            border-radius: 6px;
-            padding: 0 18px;
-            background: #0b66ad;
-            color: #ffffff;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition:
-                background 0.2s ease,
-                transform 0.2s ease,
-                box-shadow 0.2s ease;
-        }
-
-        .button:hover {
-
-            background: #084f88;
-            transform: translateY(-1px);
-
-            box-shadow:
-                0 8px 18px rgba(11, 102, 173, 0.2);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Metrics
-        |--------------------------------------------------------------------------
-        */
-
-        .metric {
-
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .metric-item {
-
-            background: #e8f2fb;
-            border-radius: 8px;
-            padding: 16px;
-        }
-
-        .metric-value {
-
-            color: #0b4f8a;
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Messages
-        |--------------------------------------------------------------------------
-        */
-
-        .message {
-
-            border-radius: 8px;
-            padding: 12px 14px;
-            margin-bottom: 18px;
-            font-weight: 700;
-        }
-
-        .message.success {
-
-            background: #e5f6ed;
-            color: #177345;
-            border: 1px solid #a9dfbf;
-        }
-
-        .message.error {
-
-            background: #fdeaea;
-            color: #a52d2d;
-            border: 1px solid #f0b8b8;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Empty State
-        |--------------------------------------------------------------------------
-        */
-
-        .empty {
-
-            background: #ffffff;
-            border: 1px dashed #aac7df;
-            border-radius: 8px;
-            padding: 28px;
-            color: #526a7f;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Responsive
-        |--------------------------------------------------------------------------
-        */
-
-        @media (max-width: 900px) {
-
-            .layout {
-
-                display: block;
-            }
-
-            .sidebar {
-
-                width: 100%;
-            }
-
-            .main {
-
-                padding: 22px;
-            }
-
-            .grid,
-            .metric {
-
-                grid-template-columns: 1fr;
-            }
-        }
-
+        <?php echo supervisorBaseStyles(); ?>
+        .profile-grid { display: grid; grid-template-columns: 1.25fr .85fr; gap: 24px; align-items: start; }
+        .form-card { padding: 26px; }
+        .form-title { margin: 0 0 22px; color: #1d2b3a; font-size: 19px; display: flex; gap: 8px; align-items: center; }
+        .basic-layout { display: grid; grid-template-columns: 130px 1fr; gap: 24px; }
+        .photo-box { width: 116px; height: 116px; border-radius: 8px; border: 2px dashed #aab9ca; background: #e9eef5; display: grid; place-items: center; color: #41556b; font-size: 38px; position: relative; }
+        .photo-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+        .photo-box span { position: absolute; right: -8px; bottom: -8px; width: 26px; height: 26px; border-radius: 6px; background: #0d5be8; color: #fff; display: grid; place-items: center; font-size: 13px; }
+        .photo-upload { margin-top: 12px; }
+        .photo-upload input { font-size: 12px; padding: 9px; }
+        .photo-hint { margin: 7px 0 0; color: #71859a; font-size: 12px; line-height: 1.4; }
+        .field-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .tag-pill { border-radius: 999px; padding: 7px 10px; background: #e9f1ff; color: #0d5be8; font-size: 12px; font-weight: 800; }
+        .actions { display: flex; gap: 12px; margin-top: 24px; }
+        .preview-card { overflow: hidden; }
+        .preview-band { height: 110px; background: #0d5be8; }
+        .preview-body { padding: 0 28px 24px; }
+        .preview-avatar { width: 84px; height: 84px; border-radius: 12px; border: 4px solid #fff; background: #26384c; color: #fff; display: grid; place-items: center; font-size: 24px; font-weight: 900; margin-top: -42px; overflow: hidden; }
+        .preview-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .preview-name { margin: 18px 0 4px; color: #1d2b3a; font-size: 23px; }
+        .preview-role { color: #0d5be8; font-weight: 800; margin-bottom: 5px; }
+        .preview-text { color: #526a7f; line-height: 1.6; font-size: 14px; }
+        .insight { margin-top: 18px; padding: 18px; background: #eef6ff; border: 1px solid #d9e7f3; border-radius: 10px; color: #526a7f; font-size: 13px; line-height: 1.6; }
+        .empty { padding: 24px; }
+        @media (max-width: 1100px) { .profile-grid, .basic-layout, .two-col { grid-template-columns: 1fr; } }
     </style>
 </head>
-
 <body>
+    <?php echo supervisorTopbar(); ?>
+    <div class="content-shell">
+        <?php echo supervisorSidebar("business-card"); ?>
+        <main class="main">
+            <?php echo statusMessage(); ?>
 
-<div class="layout">
+            <section class="hero">
+                <div>
+                    <h1>Digital Business Card</h1>
+                    <p>Manage your academic profile and how it appears to students across the university portal.</p>
+                </div>
+                <div class="hero-stat">
+                    <div class="stat-label">Profile Completion</div>
+                    <div class="stat-value"><?php echo e($completion); ?>%</div>
+                    <div class="progress"><span style="width: <?php echo e($completion); ?>%;"></span></div>
+                </div>
+            </section>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-
-        <div class="brand">
-            SSAS
-        </div>
-
-        <div class="subtitle">
-            TAR UMT Supervisor Selection and Allocation System
-        </div>
-
-        <a
-            class="nav-link"
-            href="supervisorDashboard.php"
-        >
-            Dashboard
-        </a>
-
-        <a
-            class="nav-link active"
-            href="manageDigitalBusinessCard.php"
-        >
-            Digital Business Card
-        </a>
-
-        <a
-            class="nav-link"
-            href="manageExpertiseTags.php"
-        >
-            Expertise & Tags
-        </a>
-
-        <a
-            class="nav-link"
-            href="manageIntroVideo.php"
-        >
-            Introductory Video
-        </a>
-
-        <a
-            class="nav-link"
-            href="managePastProjects.php"
-        >
-            Past Projects
-        </a>
-
-        <a
-            class="nav-link"
-            href="../server/application/logout.php"
-        >
-            Logout
-        </a>
-
-    </aside>
-
-    <!-- MAIN -->
-    <main class="main">
-
-        <h1>
-            Manage Digital Business Card
-        </h1>
-
-        <p class="hint">
-            Maintain the profile information displayed
-            to students during supervisor discovery.
-        </p>
-
-        <?php echo statusMessage(); ?>
-
-        <?php if (!$profile): ?>
-
-            <div class="empty">
-                Supervisor profile was not found.
-            </div>
-
-        <?php else: ?>
-
-            <div class="grid">
-
-                <!-- PROFILE FORM -->
-                <form
-                    class="card"
-                    action="../server/application/updateSupervisorProfile.php"
-                    method="POST"
-                >
-
-                    <h2>
-                        Profile Details
-                    </h2>
-
-                    <!-- CSRF -->
-                    <input
-                        type="hidden"
-                        name="csrf_token"
-                        value="<?php echo e($_SESSION["csrf_token"]); ?>"
-                    >
-
-                    <div class="field">
-
-                        <label for="fullName">
-                            Full Name
-                        </label>
-
-                        <input
-                            type="text"
-                            id="fullName"
-                            value="<?php echo e($profile["fullName"]); ?>"
-                            readonly
-                        >
-                    </div>
-
-                    <div class="field">
-
-                        <label for="universityEmail">
-                            University Email
-                        </label>
-
-                        <input
-                            type="email"
-                            id="universityEmail"
-                            value="<?php echo e($profile["universityEmail"]); ?>"
-                            readonly
-                        >
-                    </div>
-
-                    <div class="field">
-
-                        <label for="programme">
-                            Programme
-                        </label>
-
-                        <input
-                            type="text"
-                            id="programme"
-                            name="programme"
-                            value="<?php echo e($profile["programme"]); ?>"
-                            required
-                        >
-                    </div>
-
-                    <!-- IMPROVED -->
-                    <div class="field">
-
-                        <label for="employmentCategory">
-                            Employment Category
-                        </label>
-
-                        <select
-                            id="employmentCategory"
-                            name="employmentCategory"
-                            required
-                        >
-
-                            <option value="">
-                                Select Category
-                            </option>
-
-                            <option
-                                value="Full-Time"
-                                <?php echo ($profile["employmentCategory"] === "Full-Time") ? "selected" : ""; ?>
-                            >
-                                Full-Time
-                            </option>
-
-                            <option
-                                value="Part-Time"
-                                <?php echo ($profile["employmentCategory"] === "Part-Time") ? "selected" : ""; ?>
-                            >
-                                Part-Time
-                            </option>
-
-                            <option
-                                value="Admin"
-                                <?php echo ($profile["employmentCategory"] === "Admin") ? "selected" : ""; ?>
-                            >
-                                Admin
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                    <div class="field">
-
-                        <label for="introVideoLink">
-                            Introductory Video Link
-                        </label>
-
-                        <input
-                            type="url"
-                            id="introVideoLink"
-                            name="introVideoLink"
-                            placeholder="https://youtube.com/..."
-                            value="<?php echo e($profile["introVideoLink"]); ?>"
-                        >
-                    </div>
-
-                    <button
-                        class="button"
-                        type="submit"
-                    >
-                        Save Business Card
-                    </button>
-
-                </form>
-
-                <!-- QUOTA -->
-                <section class="card">
-
-                    <h2>
-                        Quota Summary
-                    </h2>
-
-                    <div class="field">
-
-                        <span class="label">
-                            Quota Tier
-                        </span>
-
-                        <p>
-                            <?php echo e($profile["quotaTierName"] ?? "N/A"); ?>
-                        </p>
-
-                    </div>
-
-                    <div class="metric">
-
-                        <div class="metric-item">
-
-                            <div class="metric-value">
-                                <?php echo e($profile["quotaText"] ?? "0 / 0"); ?>
+            <?php if (!$profile): ?>
+                <section class="card empty">Supervisor profile was not found.</section>
+            <?php else: ?>
+                <section class="profile-grid">
+                    <form class="card form-card" action="../server/application/updateSupervisorProfile.php" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
+                        <h2 class="form-title">Basic Information</h2>
+                        <div class="basic-layout">
+                            <div>
+                                <div class="photo-box" id="photoPreview">
+                                    <?php if (!empty($profile["profilePhotoPath"])): ?>
+                                        <img src="<?php echo e($profile["profilePhotoPath"]); ?>" alt="Profile photo">
+                                    <?php else: ?>
+                                        <?php echo e(supervisorInitials($profile["fullName"])); ?>
+                                    <?php endif; ?>
+                                    <span>*</span>
+                                </div>
+                                <div class="photo-upload">
+                                    <label>Profile Photo</label>
+                                    <input type="hidden" name="MAX_FILE_SIZE" value="5242880">
+                                    <input type="file" id="profilePhoto" name="profilePhoto" accept="image/jpeg,image/png">
+                                    <p class="photo-hint">JPG or PNG only. Maximum 5MB.</p>
+                                </div>
                             </div>
-
-                            <div class="label">
-                                Current Quota
+                            <div class="field-grid">
+                                <div>
+                                    <label>Full Name</label>
+                                    <input type="text" value="<?php echo e($profile["fullName"]); ?>" readonly>
+                                </div>
+                                <div class="two-col">
+                                    <div>
+                                        <label>Employment Category</label>
+                                        <select name="employmentCategory" required>
+                                            <?php foreach (["Full-Time Lecturer", "Part-Time Lecturer", "Dean", "Deputy Dean", "Academic Director", "Programme Leader"] as $category): ?>
+                                                <option value="<?php echo e($category); ?>" <?php echo $profile["employmentCategory"] === $category ? "selected" : ""; ?>>
+                                                    <?php echo e($category); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label>Programme</label>
+                                        <input type="text" name="programme" value="<?php echo e($profile["programme"]); ?>" required>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>Short Biography</label>
+                                    <textarea name="supervisorBio" maxlength="500" required><?php echo e($defaultBio); ?></textarea>
+                                </div>
+                                <div class="two-col">
+                                    <div>
+                                        <label>Email Address</label>
+                                        <input type="email" value="<?php echo e($profile["universityEmail"]); ?>" readonly>
+                                    </div>
+                                    <div>
+                                        <label>Introductory Video Link</label>
+                                        <input type="text" name="introVideoLink" value="<?php echo e($profile["introVideoLink"]); ?>" placeholder="https://youtube.com/...">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>Expertise Tags</label>
+                                    <div class="tag-list">
+                                        <?php if (empty($selectedTags)): ?>
+                                            <span class="tag-pill">No tags selected</span>
+                                        <?php else: ?>
+                                            <?php foreach ($selectedTags as $tagName): ?>
+                                                <span class="tag-pill"><?php echo e($tagName); ?></span>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
                             </div>
-
                         </div>
-
-                        <div class="metric-item">
-
-                            <div class="metric-value">
-                                <?php echo e($availableSlots); ?>
-                            </div>
-
-                            <div class="label">
-                                Available Slots
-                            </div>
-
+                        <div class="actions">
+                            <button class="button" type="submit">Save Card Changes</button>
+                            <a class="button secondary" href="manageDigitalBusinessCard.php">Discard Changes</a>
                         </div>
+                    </form>
 
-                    </div>
-
-                    <div class="field" style="margin-top: 18px;">
-
-                        <span class="label">
-                            Active Supervisees
-                        </span>
-
-                        <p>
-                            <?php echo e($currentSupervisees); ?>
-                            /
-                            <?php echo e($maxSuperviseesAllowed); ?>
-                        </p>
-
-                    </div>
-
+                    <aside>
+                        <section class="card preview-card">
+                            <div class="preview-band"></div>
+                            <div class="preview-body">
+                                <div class="preview-avatar">
+                                    <?php if (!empty($profile["profilePhotoPath"])): ?>
+                                        <img src="<?php echo e($profile["profilePhotoPath"]); ?>" alt="Profile photo">
+                                    <?php else: ?>
+                                        <?php echo e(supervisorInitials($profile["fullName"])); ?>
+                                    <?php endif; ?>
+                                </div>
+                                <h2 class="preview-name"><?php echo e($profile["fullName"]); ?></h2>
+                                <div class="preview-role"><?php echo e($profile["employmentCategory"]); ?></div>
+                                <div class="preview-text">Programme: <?php echo e($profile["programme"]); ?></div>
+                                <p class="preview-text"><?php echo e($defaultBio); ?></p>
+                                <p class="preview-text">Current supervision load: <?php echo e($profile["quotaText"] ?? "0/0 supervisees"); ?>.</p>
+                                <p class="preview-text"><?php echo e($profile["universityEmail"]); ?></p>
+                                <a class="button secondary" href="#">Share Profile Link</a>
+                            </div>
+                        </section>
+                        <section class="insight">
+                            <strong>Design Insight</strong><br>
+                            This card adapts automatically to university branding. Contact details remain visible only to authorized users according to SSAS security rules.
+                        </section>
+                    </aside>
                 </section>
+            <?php endif; ?>
+        </main>
+    </div>
+    <script>
+        const profilePhoto = document.getElementById("profilePhoto");
+        const photoPreview = document.getElementById("photoPreview");
 
-            </div>
+        if (profilePhoto) {
+            profilePhoto.addEventListener("change", function() {
+                const file = profilePhoto.files[0];
 
-        <?php endif; ?>
+                if (!file) {
+                    return;
+                }
 
-    </main>
+                if (!["image/jpeg", "image/png"].includes(file.type)) {
+                    alert("Only JPG or PNG profile photos are allowed.");
+                    profilePhoto.value = "";
+                    return;
+                }
 
-</div>
+                if (file.size > 5 * 1024 * 1024) {
+                    alert("Profile photo cannot exceed 5MB.");
+                    profilePhoto.value = "";
+                    return;
+                }
 
+                const previewUrl = URL.createObjectURL(file);
+                photoPreview.innerHTML = '<img src="' + previewUrl + '" alt="Profile photo preview"><span>*</span>';
+            });
+        }
+    </script>
 </body>
 </html>

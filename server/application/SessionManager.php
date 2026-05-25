@@ -83,6 +83,9 @@ class SessionManager {
         $_SESSION["systemRole"] =
             $user["systemRole"];
 
+        $_SESSION["profilePhotoPath"] =
+            $user["profilePhotoPath"] ?? "";
+
         /*
         |--------------------------------------------------------------------------
         | Session Activity Tracking
@@ -91,6 +94,20 @@ class SessionManager {
 
         $_SESSION["lastActivity"] =
             time();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update Session Profile Photo
+    |--------------------------------------------------------------------------
+    */
+
+    public static function setProfilePhotoPath(
+        $profilePhotoPath
+    ) {
+
+        $_SESSION["profilePhotoPath"] =
+            $profilePhotoPath ?? "";
     }
 
     /*

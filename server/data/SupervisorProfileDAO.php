@@ -47,11 +47,17 @@ class SupervisorProfileDAO {
 
                 U.universityEmail,
 
+                U.profilePhotoPath,
+
                 SP.programme,
 
                 SP.employmentCategory,
 
+                SP.supervisorBio,
+
                 SP.introVideoLink,
+
+                SP.introVideoDescription,
 
                 QC.quotaID,
 
@@ -88,11 +94,17 @@ class SupervisorProfileDAO {
 
                 U.universityEmail,
 
+                U.profilePhotoPath,
+
                 SP.programme,
 
                 SP.employmentCategory,
 
+                SP.supervisorBio,
+
                 SP.introVideoLink,
+
+                SP.introVideoDescription,
 
                 QC.quotaID,
 
@@ -129,7 +141,8 @@ class SupervisorProfileDAO {
         $supervisorID,
         $programme,
         $employmentCategory,
-        $introVideoLink
+        $introVideoLink,
+        $supervisorBio
     ) {
 
         $query = "
@@ -142,7 +155,9 @@ class SupervisorProfileDAO {
 
                 employmentCategory = :employmentCategory,
 
-                introVideoLink = :introVideoLink
+                introVideoLink = :introVideoLink,
+
+                supervisorBio = :supervisorBio
 
             WHERE supervisorID = :supervisorID
         ";
@@ -168,6 +183,11 @@ class SupervisorProfileDAO {
         );
 
         $statement->bindParam(
+            ":supervisorBio",
+            $supervisorBio
+        );
+
+        $statement->bindParam(
             ":supervisorID",
             $supervisorID
         );
@@ -184,7 +204,8 @@ class SupervisorProfileDAO {
 
     public function updateIntroVideo(
         $supervisorID,
-        $introVideoLink
+        $introVideoLink,
+        $introVideoDescription
     ) {
 
         $query = "
@@ -192,7 +213,9 @@ class SupervisorProfileDAO {
             UPDATE SUPERVISOR_PROFILE
 
             SET
-                introVideoLink = :introVideoLink
+                introVideoLink = :introVideoLink,
+
+                introVideoDescription = :introVideoDescription
 
             WHERE supervisorID = :supervisorID
         ";
@@ -205,6 +228,11 @@ class SupervisorProfileDAO {
         $statement->bindParam(
             ":introVideoLink",
             $introVideoLink
+        );
+
+        $statement->bindParam(
+            ":introVideoDescription",
+            $introVideoDescription
         );
 
         $statement->bindParam(

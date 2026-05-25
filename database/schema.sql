@@ -10,6 +10,7 @@ CREATE TABLE USER (
     universityEmail VARCHAR(100) UNIQUE NOT NULL,
     systemRole VARCHAR(50) NOT NULL,
     activeStatus BOOLEAN NOT NULL DEFAULT TRUE,
+    profilePhotoPath VARCHAR(255) NULL,
     password VARCHAR(255) NOT NULL
 );
 
@@ -46,6 +47,8 @@ CREATE TABLE SUPERVISOR_PROFILE (
     quotaID INT NOT NULL,
     employmentCategory VARCHAR(50) NOT NULL,
     introVideoLink VARCHAR(255) NULL,
+    introVideoDescription VARCHAR(500) NULL,
+    supervisorBio VARCHAR(500) NULL,
     programme VARCHAR(100) NOT NULL,
 
     FOREIGN KEY (supervisorID) REFERENCES USER(userID) ON DELETE CASCADE ON UPDATE CASCADE,

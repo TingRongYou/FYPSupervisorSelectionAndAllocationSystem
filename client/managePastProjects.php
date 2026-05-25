@@ -2,903 +2,161 @@
 
 require_once __DIR__ . "/../server/application/SessionManager.php";
 require_once __DIR__ . "/../server/business/PastProjectService.php";
-
-/*
-|--------------------------------------------------------------------------
-| Session + RBAC
-|--------------------------------------------------------------------------
-*/
+require_once __DIR__ . "/supervisorLayout.php";
 
 SessionManager::startSession();
-
-if (!SessionManager::isLoggedIn()) {
-
-    die("Access Denied");
-}
-
 SessionManager::requireRole("Supervisor");
-
-/*
-|--------------------------------------------------------------------------
-| CSRF Protection
-|--------------------------------------------------------------------------
-*/
 
 if (empty($_SESSION["csrf_token"])) {
 
     $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
 }
 
-/*
-|--------------------------------------------------------------------------
-| Service Layer
-|--------------------------------------------------------------------------
-*/
-
 $pastProjectService = new PastProjectService();
-
-$projects = $pastProjectService
-    ->getProjectsBySupervisor(
-        $_SESSION["userID"]
-    );
-
+$projects = $pastProjectService->getProjectsBySupervisor($_SESSION["userID"]);
+$summary = $pastProjectService->getShowcaseSummary($_SESSION["userID"]);
 $editingProject = null;
-
-/*
-|--------------------------------------------------------------------------
-| Edit Mode
-|--------------------------------------------------------------------------
-*/
+$showProjectForm = isset($_GET["addProject"]);
 
 if (isset($_GET["editProjectID"])) {
 
-    $editingProject =
-        $pastProjectService
-        ->getProjectByID(
-            $_GET["editProjectID"],
-            $_SESSION["userID"]
-        );
+    $editingProject = $pastProjectService->getProjectByID($_GET["editProjectID"], $_SESSION["userID"]);
+    $showProjectForm = $editingProject !== null;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Output Escaping
-|--------------------------------------------------------------------------
-*/
-
-function e($value) {
-
-    return htmlspecialchars(
-        (string) $value,
-        ENT_QUOTES,
-        "UTF-8"
-    );
-}
-
-/*
-|--------------------------------------------------------------------------
-| Status Messages
-|--------------------------------------------------------------------------
-*/
-
-function statusMessage() {
-
-    if (!isset($_GET["status"], $_GET["message"])) {
-
-        return "";
-    }
-
-    $class = $_GET["status"] === "success"
-        ? "success"
-        : "error";
-
-    return '
-        <div class="message ' . $class . '">
-            ' . e($_GET["message"]) . '
-        </div>
-    ';
-}
+$projectCount = $summary["totalProjects"];
+$studentsSupervised = $summary["studentsSupervised"];
 
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        Manage Past Projects | SSAS
-    </title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Past Projects Showcase | SSAS</title>
     <style>
-
-        * {
-
-            box-sizing: border-box;
-        }
-
-        body {
-
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f4f8fc;
-            color: #1d2b3a;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Layout
-        |--------------------------------------------------------------------------
-        */
-
-        .layout {
-
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Sidebar
-        |--------------------------------------------------------------------------
-        */
-
-        .sidebar {
-
-            width: 260px;
-            background: #0b4f8a;
-            color: #ffffff;
-            padding: 28px 22px;
-        }
-
-        .brand {
-
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .subtitle {
-
-            color: #cfe5f8;
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 28px;
-        }
-
-        .nav-link {
-
-            display: block;
-            color: #eaf5ff;
-            text-decoration: none;
-
-            padding: 12px 14px;
-            border-radius: 8px;
-
-            margin-bottom: 8px;
-
-            transition:
-                background 0.2s ease,
-                transform 0.2s ease;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-
-            background: #176fac;
-            transform: translateX(2px);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Main
-        |--------------------------------------------------------------------------
-        */
-
-        .main {
-
-            flex: 1;
-            padding: 34px;
-        }
-
-        h1 {
-
-            margin: 0 0 8px;
-            color: #0b3760;
-            font-size: 30px;
-        }
-
-        .hint {
-
-            margin: 0 0 24px;
-            color: #5c6f82;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Grid
-        |--------------------------------------------------------------------------
-        */
-
-        .grid {
-
-            display: grid;
-            grid-template-columns: 0.85fr 1.15fr;
-            gap: 20px;
-
-            align-items: start;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Card
-        |--------------------------------------------------------------------------
-        */
-
-        .card {
-
-            background: #ffffff;
-            border: 1px solid #d9e7f3;
-            border-radius: 8px;
-            padding: 22px;
-
-            box-shadow:
-                0 8px 22px rgba(11,79,138,.08);
-        }
-
-        .card h2 {
-
-            margin: 0 0 18px;
-            color: #0b3760;
-            font-size: 20px;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Form
-        |--------------------------------------------------------------------------
-        */
-
-        .field {
-
-            margin-bottom: 16px;
-        }
-
-        label {
-
-            display: block;
-            font-size: 13px;
-            font-weight: 700;
-            color: #35546d;
-            margin-bottom: 7px;
-        }
-
-        input {
-
-            width: 100%;
-            height: 42px;
-
-            border: 1px solid #c6d8e8;
-            border-radius: 6px;
-
-            padding: 0 12px;
-
-            font-size: 14px;
-            background: #ffffff;
-        }
-
-        input:focus {
-
-            outline: 2px solid #9dccf1;
-            border-color: #2179b8;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Buttons
-        |--------------------------------------------------------------------------
-        */
-
-        .button {
-
-            min-height: 38px;
-
-            border: 0;
-            border-radius: 6px;
-
-            padding: 0 14px;
-
-            background: #0b66ad;
-            color: #ffffff;
-
-            font-size: 14px;
-            font-weight: 700;
-
-            cursor: pointer;
-            text-decoration: none;
-
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-
-            transition:
-                background 0.2s ease,
-                transform 0.2s ease,
-                box-shadow 0.2s ease;
-        }
-
-        .button:hover {
-
-            background: #084f88;
-
-            transform: translateY(-1px);
-
-            box-shadow:
-                0 8px 18px rgba(11,102,173,.2);
-        }
-
-        .button.secondary {
-
-            background: #e8f2fb;
-            color: #0b4f8a;
-        }
-
-        .button.danger {
-
-            background: #c93838;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Projects
-        |--------------------------------------------------------------------------
-        */
-
-        .project-list {
-
-            display: grid;
-            gap: 14px;
-        }
-
-        .project {
-
-            border: 1px solid #d9e7f3;
-            border-radius: 8px;
-            padding: 16px;
-
-            transition:
-                transform 0.2s ease,
-                box-shadow 0.2s ease;
-        }
-
-        .project:hover {
-
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 10px 18px rgba(11,79,138,.1);
-        }
-
-        .project h3 {
-
-            margin: 0 0 8px;
-            color: #0b3760;
-        }
-
-        .project-meta {
-
-            margin: 0 0 12px;
-            color: #526a7f;
-            line-height: 1.5;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Actions
-        |--------------------------------------------------------------------------
-        */
-
-        .actions {
-
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .inline-form {
-
-            display: inline;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Messages
-        |--------------------------------------------------------------------------
-        */
-
-        .message {
-
-            border-radius: 8px;
-            padding: 12px 14px;
-            margin-bottom: 18px;
-            font-weight: 700;
-        }
-
-        .message.success {
-
-            background: #e5f6ed;
-            color: #177345;
-            border: 1px solid #a9dfbf;
-        }
-
-        .message.error {
-
-            background: #fdeaea;
-            color: #a52d2d;
-            border: 1px solid #f0b8b8;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Empty State
-        |--------------------------------------------------------------------------
-        */
-
-        .empty {
-
-            border: 1px dashed #aac7df;
-            border-radius: 8px;
-            padding: 20px;
-            color: #526a7f;
-            line-height: 1.6;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Info
-        |--------------------------------------------------------------------------
-        */
-
-        .info {
-
-            background: #eef6fc;
-            border-left: 4px solid #0b66ad;
-
-            padding: 14px 16px;
-            border-radius: 6px;
-
-            color: #35546d;
-            line-height: 1.6;
-
-            margin-bottom: 18px;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Responsive
-        |--------------------------------------------------------------------------
-        */
-
-        @media (max-width: 900px) {
-
-            .layout {
-
-                display: block;
-            }
-
-            .sidebar {
-
-                width: 100%;
-            }
-
-            .main {
-
-                padding: 22px;
-            }
-
-            .grid {
-
-                grid-template-columns: 1fr;
-            }
-        }
-
+        <?php echo supervisorBaseStyles(); ?>
+        .hero { position: relative; overflow: hidden; }
+        .hero:after { content: ""; position: absolute; right: -55px; top: -35px; width: 230px; height: 230px; border-radius: 50%; background: rgba(255,255,255,.12); }
+        .hero > * { position: relative; z-index: 1; }
+        .hero .button { background: #fff; color: #0d5be8; }
+        .project-form { padding: 22px; margin-bottom: 24px; display: <?php echo $showProjectForm ? "block" : "none"; ?>; }
+        .form-grid { display: grid; grid-template-columns: 1.5fr .6fr .9fr auto; gap: 12px; align-items: end; }
+        .project-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+        .project-card { overflow: hidden; }
+        .project-visual { height: 150px; background: radial-gradient(circle at 45% 42%, rgba(35,210,255,.45), transparent 0 28%, rgba(5,24,39,.95) 29% 100%), linear-gradient(135deg, #08233d, #0d5be8); color: #fff; display: grid; place-items: center; font-weight: 900; text-align: center; padding: 16px; position: relative; text-transform: uppercase; letter-spacing: .8px; }
+        .project-visual.alt1 { background: radial-gradient(circle at center, rgba(255,255,255,.55), transparent 0 18%, rgba(5,24,39,.94) 19% 100%), linear-gradient(135deg, #10223a, #30b6a5); }
+        .project-visual.alt2 { background: repeating-linear-gradient(0deg, rgba(44,255,148,.2) 0 2px, transparent 2px 14px), linear-gradient(135deg, #091b23, #194060); }
+        .complete { position: absolute; top: 12px; right: 12px; background: #dff8e6; color: #14733e; border-radius: 999px; padding: 5px 9px; font-size: 10px; font-weight: 900; }
+        .project-body { padding: 18px; }
+        .year { color: #0d5be8; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .7px; }
+        .project-title { margin: 6px 0 8px; color: #1d2b3a; font-size: 17px; line-height: 1.35; }
+        .project-desc { color: #526a7f; line-height: 1.55; font-size: 13px; min-height: 58px; }
+        .pill-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+        .pill { background: #eef3f8; color: #526a7f; border-radius: 6px; padding: 5px 8px; font-size: 11px; font-weight: 800; }
+        .card-actions { display: flex; gap: 8px; margin-top: 14px; }
+        .small-button { min-height: 32px; padding: 0 12px; border-radius: 6px; font-size: 12px; }
+        .danger { background: #c93838; color: #fff; }
+        .footer-page { display: flex; justify-content: space-between; align-items: center; color: #6b7f91; font-size: 13px; margin-top: 26px; }
+        .pages span { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: #fff; margin-left: 5px; }
+        .pages .active { background: #0d5be8; color: #fff; }
+        .empty { padding: 26px; color: #526a7f; }
+        @media (max-width: 1100px) { .project-grid, .form-grid { grid-template-columns: 1fr; } .project-form { display: block; } }
     </style>
-
 </head>
-
 <body>
-
-<div class="layout">
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-
-        <div class="brand">
-            SSAS
-        </div>
-
-        <div class="subtitle">
-            Supervisor Professional Profile
-        </div>
-
-        <a
-            class="nav-link"
-            href="supervisorDashboard.php"
-        >
-            Dashboard
-        </a>
-
-        <a
-            class="nav-link"
-            href="manageDigitalBusinessCard.php"
-        >
-            Digital Business Card
-        </a>
-
-        <a
-            class="nav-link"
-            href="manageExpertiseTags.php"
-        >
-            Expertise & Tags
-        </a>
-
-        <a
-            class="nav-link"
-            href="manageIntroVideo.php"
-        >
-            Introductory Video
-        </a>
-
-        <a
-            class="nav-link active"
-            href="managePastProjects.php"
-        >
-            Past Projects
-        </a>
-
-        <a
-            class="nav-link"
-            href="../server/application/logout.php"
-        >
-            Logout
-        </a>
-
-    </aside>
-
-    <!-- MAIN -->
-    <main class="main">
-
-        <h1>
-            Manage Past Projects Showcase
-        </h1>
-
-        <p class="hint">
-
-            Showcase completed FYP projects
-            to help students understand
-            your supervision domains.
-
-        </p>
-
-        <?php echo statusMessage(); ?>
-
-        <div class="info">
-
-            Past project showcases improve
-            student understanding of your
-            research expertise and supervision
-            experience.
-
-        </div>
-
-        <div class="grid">
-
-            <!-- FORM -->
-            <form
-                class="card"
-                action="../server/application/managePastProjectProcess.php"
-                method="POST"
-                id="projectForm"
-            >
-
-                <h2>
-
-                    <?php echo $editingProject
-                        ? "Edit Past Project"
-                        : "Add Past Project"; ?>
-
-                </h2>
-
-                <!-- CSRF -->
-                <input
-                    type="hidden"
-                    name="csrf_token"
-                    value="<?php echo e($_SESSION["csrf_token"]); ?>"
-                >
-
-                <input
-                    type="hidden"
-                    name="action"
-                    value="<?php echo $editingProject
-                        ? "update"
-                        : "add"; ?>"
-                >
-
-                <?php if ($editingProject): ?>
-
-                    <input
-                        type="hidden"
-                        name="projectID"
-                        value="<?php echo e(
-                            $editingProject["projectID"]
-                        ); ?>"
-                    >
-
-                <?php endif; ?>
-
-                <div class="field">
-
-                    <label for="projectTitle">
-                        Project Title
-                    </label>
-
-                    <input
-                        type="text"
-                        id="projectTitle"
-                        name="projectTitle"
-
-                        maxlength="255"
-
-                        value="<?php echo e(
-                            $editingProject["projectTitle"] ?? ""
-                        ); ?>"
-
-                        required
-                    >
-
-                </div>
-
-                <div class="field">
-
-                    <label for="completionYear">
-                        Completion Year
-                    </label>
-
-                    <input
-                        type="number"
-                        id="completionYear"
-                        name="completionYear"
-
-                        min="2000"
-
-                        max="<?php echo e(
-                            ((int) date("Y")) + 1
-                        ); ?>"
-
-                        value="<?php echo e(
-                            $editingProject["completionYear"] ?? ""
-                        ); ?>"
-
-                        required
-                    >
-
-                </div>
-
-                <div class="field">
-
-                    <label for="alumniName">
-                        Alumni Name
-                    </label>
-
-                    <input
-                        type="text"
-                        id="alumniName"
-                        name="alumniName"
-
-                        maxlength="100"
-
-                        value="<?php echo e(
-                            $editingProject["alumniName"] ?? ""
-                        ); ?>"
-
-                        required
-                    >
-
-                </div>
-
-                <div class="actions">
-
-                    <button
-                        class="button"
-                        type="submit"
-                    >
-
-                        <?php echo $editingProject
-                            ? "Update Project"
-                            : "Add Project"; ?>
-
-                    </button>
-
-                    <?php if ($editingProject): ?>
-
-                        <a
-                            class="button secondary"
-                            href="managePastProjects.php"
-                        >
-                            Cancel
-                        </a>
-
-                    <?php endif; ?>
-
-                </div>
-
-            </form>
-
-            <!-- PROJECT LIST -->
-            <section class="card">
-
-                <h2>
-                    Past Projects
-                </h2>
-
-                <?php if (empty($projects)): ?>
-
-                    <div class="empty">
-
-                        No past projects
-                        have been added yet.
-
-                        <br><br>
-
-                        Add completed projects
-                        to strengthen your
-                        professional showcase.
-
+    <?php echo supervisorTopbar(); ?>
+    <div class="content-shell">
+        <?php echo supervisorSidebar("past-projects"); ?>
+        <main class="main">
+            <?php echo statusMessage(); ?>
+
+            <section class="hero">
+                <div>
+                    <h1>Past Projects Showcase</h1>
+                    <p>A record of successfully completed student research projects.</p>
+                    <div style="display:flex; gap:44px; margin-top:26px;">
+                        <div><div class="stat-label">Total Projects</div><div class="stat-value"><?php echo e($projectCount); ?></div></div>
+                        <div><div class="stat-label">Students Supervised</div><div class="stat-value"><?php echo e($studentsSupervised); ?></div></div>
                     </div>
-
-                <?php else: ?>
-
-                    <div class="project-list">
-
-                        <?php foreach ($projects as $project): ?>
-
-                            <article class="project">
-
-                                <h3>
-                                    <?php echo e(
-                                        $project["projectTitle"]
-                                    ); ?>
-                                </h3>
-
-                                <p class="project-meta">
-
-                                    <?php echo e(
-                                        $project["completionYear"]
-                                    ); ?>
-
-                                    · Alumni:
-
-                                    <?php echo e(
-                                        $project["alumniName"]
-                                    ); ?>
-
-                                </p>
-
-                                <div class="actions">
-
-                                    <!-- EDIT -->
-                                    <a
-                                        class="button secondary"
-
-                                        href="managePastProjects.php?editProjectID=<?php echo e(
-                                            $project["projectID"]
-                                        ); ?>"
-                                    >
-                                        Edit
-                                    </a>
-
-                                    <!-- DELETE -->
-                                    <form
-                                        class="inline-form"
-
-                                        action="../server/application/managePastProjectProcess.php"
-
-                                        method="POST"
-                                    >
-
-                                        <!-- CSRF -->
-                                        <input
-                                            type="hidden"
-                                            name="csrf_token"
-
-                                            value="<?php echo e(
-                                                $_SESSION["csrf_token"]
-                                            ); ?>"
-                                        >
-
-                                        <input
-                                            type="hidden"
-                                            name="action"
-                                            value="delete"
-                                        >
-
-                                        <input
-                                            type="hidden"
-                                            name="projectID"
-
-                                            value="<?php echo e(
-                                                $project["projectID"]
-                                            ); ?>"
-                                        >
-
-                                        <button
-                                            class="button danger"
-                                            type="submit"
-
-                                            onclick="return confirm('Delete this project?')"
-                                        >
-                                            Delete
-                                        </button>
-
-                                    </form>
-
-                                </div>
-
-                            </article>
-
-                        <?php endforeach; ?>
-
-                    </div>
-
-                <?php endif; ?>
-
+                </div>
+                <a class="button" href="managePastProjects.php?addProject=1">+ Add New Project</a>
             </section>
 
-        </div>
+            <form class="card project-form" action="../server/application/managePastProjectProcess.php" method="POST" id="projectForm">
+                <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
+                <input type="hidden" name="action" value="<?php echo $editingProject ? "update" : "add"; ?>">
+                <?php if ($editingProject): ?>
+                    <input type="hidden" name="projectID" value="<?php echo e($editingProject["projectID"]); ?>">
+                <?php endif; ?>
+                <div class="form-grid">
+                    <div>
+                        <label>Project Title</label>
+                        <input type="text" id="projectTitle" name="projectTitle" maxlength="255" value="<?php echo e($editingProject["projectTitle"] ?? ""); ?>" required>
+                    </div>
+                    <div>
+                        <label>Completion Year</label>
+                        <input type="number" id="completionYear" name="completionYear" min="2000" max="<?php echo e(((int) date("Y")) + 1); ?>" value="<?php echo e($editingProject["completionYear"] ?? ""); ?>" required>
+                    </div>
+                    <div>
+                        <label>Alumni Name</label>
+                        <input type="text" id="alumniName" name="alumniName" maxlength="100" value="<?php echo e($editingProject["alumniName"] ?? ""); ?>" required>
+                    </div>
+                    <button class="button" type="submit"><?php echo $editingProject ? "Update Project" : "Add Project"; ?></button>
+                </div>
+            </form>
 
-    </main>
-
-</div>
-
-<!-- FRONTEND VALIDATION -->
-<script>
-
-document
-.getElementById("projectForm")
-.addEventListener("submit", function(event) {
-
-    const year =
-        parseInt(
-            document
-            .getElementById("completionYear")
-            .value
-        );
-
-    const currentYear =
-        new Date().getFullYear() + 1;
-
-    if (
-        isNaN(year) ||
-        year < 2000 ||
-        year > currentYear
-    ) {
-
-        event.preventDefault();
-
-        alert(
-            "Please enter a valid completion year."
-        );
-    }
-});
-
-</script>
-
+            <?php if (empty($projects)): ?>
+                <section class="card empty">No past projects have been added yet.</section>
+            <?php else: ?>
+                <section class="project-grid">
+                    <?php foreach ($projects as $index => $project): ?>
+                        <article class="card project-card">
+                            <div class="project-visual alt<?php echo e($index % 3); ?>">
+                                <span class="complete">Completed</span>
+                                <?php echo e($project["projectTitle"]); ?>
+                            </div>
+                            <div class="project-body">
+                                <div class="year"><?php echo e($project["completionYear"]); ?> Academic Year</div>
+                                <h2 class="project-title"><?php echo e($project["projectTitle"]); ?></h2>
+                                <p class="project-desc">Completed by <?php echo e($project["alumniName"]); ?> as part of the supervisor project showcase.</p>
+                                <div class="pill-row">
+                                    <span class="pill">Research</span>
+                                    <span class="pill">FYP</span>
+                                </div>
+                                <div class="card-actions">
+                                    <a class="button secondary small-button" href="managePastProjects.php?editProjectID=<?php echo e($project["projectID"]); ?>">Edit</a>
+                                    <form action="../server/application/managePastProjectProcess.php" method="POST">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="projectID" value="<?php echo e($project["projectID"]); ?>">
+                                        <button class="button danger small-button" type="submit" onclick="return confirm('Delete this project?')">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                </section>
+                <div class="footer-page">
+                    <span>Showing <?php echo e($projectCount); ?> archived projects</span>
+                    <div class="pages"><span class="active">1</span><span>2</span><span>3</span></div>
+                </div>
+            <?php endif; ?>
+        </main>
+    </div>
+    <script>
+        const form = document.getElementById("projectForm");
+        if (form) {
+            form.addEventListener("submit", function(event) {
+                const year = parseInt(document.getElementById("completionYear").value);
+                const currentYear = new Date().getFullYear() + 1;
+                if (isNaN(year) || year < 2000 || year > currentYear) {
+                    event.preventDefault();
+                    alert("Please enter a valid completion year.");
+                }
+            });
+        }
+    </script>
 </body>
 </html>

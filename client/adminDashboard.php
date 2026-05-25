@@ -1,6 +1,7 @@
 <?php
 
 require_once "../server/application/SessionManager.php";
+require_once __DIR__ . "/accountLayout.php";
 
 SessionManager::startSession();
 
@@ -54,6 +55,7 @@ function e($value) {
     </title>
 
     <style>
+        <?php echo ssasAccountStyles(); ?>
 
         * {
             box-sizing: border-box;
@@ -463,25 +465,7 @@ function e($value) {
 
     <div class="app-shell">
 
-        <header class="topbar">
-
-            <div class="topbar-brand">
-                <div class="crest">
-                    T
-                </div>
-                <span>
-                    TAR UMT SSAS
-                </span>
-            </div>
-
-            <div class="topbar-user">
-                <strong>
-                    <?php echo e($_SESSION["fullName"]); ?>
-                </strong>
-                Administrator
-            </div>
-
-        </header>
+        <?php echo ssasTopbar("TAR UMT SSAS"); ?>
 
         <div class="content-shell">
 
@@ -517,7 +501,7 @@ function e($value) {
                     Quota Management
                 </a>
 
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="autoAllocation.php">
                     Allocations
                 </a>
 
@@ -604,7 +588,7 @@ function e($value) {
 
                         </div>
 
-                        <a class="button" href="#">
+                        <a class="button" href="autoAllocation.php">
                             Manage Allocations
                         </a>
 

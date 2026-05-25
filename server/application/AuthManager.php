@@ -16,7 +16,15 @@ class AuthManager {
 
         $user = $this->userDAO->getUserByEmail($email);
 
-        if ($user && $user['password'] === $password) {
+        if (
+            $user
+            &&
+            (
+                password_verify($password, $user["password"])
+                ||
+                hash_equals($user["password"], $password)
+            )
+        ) {
 
             SessionManager::startSession();
 

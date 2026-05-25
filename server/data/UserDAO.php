@@ -46,6 +46,7 @@ class UserDAO {
                 universityEmail,
                 systemRole,
                 activeStatus,
+                profilePhotoPath,
                 password
 
             FROM USER
@@ -92,6 +93,7 @@ class UserDAO {
                 universityEmail,
                 systemRole,
                 activeStatus,
+                profilePhotoPath,
                 password
 
             FROM USER
@@ -279,6 +281,84 @@ class UserDAO {
             ":activeStatus",
             (bool) $activeStatus,
             PDO::PARAM_BOOL
+        );
+
+        $statement->bindParam(
+            ":userID",
+            $userID
+        );
+
+        return
+            $statement->execute();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update Password
+    |--------------------------------------------------------------------------
+    */
+
+    public function updatePassword(
+        $userID,
+        $hashedPassword
+    ) {
+
+        $query = "
+
+            UPDATE USER
+
+            SET password = :password
+
+            WHERE userID = :userID
+        ";
+
+        $statement =
+            $this->conn->prepare(
+                $query
+            );
+
+        $statement->bindParam(
+            ":password",
+            $hashedPassword
+        );
+
+        $statement->bindParam(
+            ":userID",
+            $userID
+        );
+
+        return
+            $statement->execute();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update Profile Photo
+    |--------------------------------------------------------------------------
+    */
+
+    public function updateProfilePhoto(
+        $userID,
+        $profilePhotoPath
+    ) {
+
+        $query = "
+
+            UPDATE USER
+
+            SET profilePhotoPath = :profilePhotoPath
+
+            WHERE userID = :userID
+        ";
+
+        $statement =
+            $this->conn->prepare(
+                $query
+            );
+
+        $statement->bindParam(
+            ":profilePhotoPath",
+            $profilePhotoPath
         );
 
         $statement->bindParam(

@@ -46,6 +46,28 @@ SessionManager::requireRole(
 
 /*
 |--------------------------------------------------------------------------
+| CSRF Validation
+|--------------------------------------------------------------------------
+*/
+
+if (
+    !isset($_POST["csrf_token"]) ||
+    !isset($_SESSION["csrf_token"]) ||
+    !hash_equals(
+        $_SESSION["csrf_token"],
+        $_POST["csrf_token"]
+    )
+) {
+
+    header(
+        "Location: ../../client/manageDigitalBusinessCard.php?status=error&message=Invalid CSRF token"
+    );
+
+    exit();
+}
+
+/*
+|--------------------------------------------------------------------------
 | Retrieve & Normalize Form Data
 |--------------------------------------------------------------------------
 */
@@ -63,6 +85,11 @@ $employmentCategory =
 $introVideoLink =
     trim(
         $_POST["introVideoLink"] ?? ""
+    );
+
+$supervisorBio =
+    trim(
+        $_POST["supervisorBio"] ?? ""
     );
 
 /*
@@ -83,8 +110,25 @@ $result =
 
         $employmentCategory,
 
-        $introVideoLink
+        $introVideoLink,
+
+        $supervisorBio,
+
+        $_FILES["profilePhoto"] ?? null
     );
+
+if ($result["success"]) {
+
+    $profile =
+        $profileService
+        ->getDigitalBusinessCard(
+            $_SESSION["userID"]
+        );
+
+    SessionManager::setProfilePhotoPath(
+        $profile["profilePhotoPath"] ?? ""
+    );
+}
 
 /*
 |--------------------------------------------------------------------------

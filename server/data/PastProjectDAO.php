@@ -69,6 +69,46 @@ class PastProjectDAO {
 
     /*
     |--------------------------------------------------------------------------
+    | Count Active Supervisees
+    |--------------------------------------------------------------------------
+    */
+
+    public function countActiveSuperviseesBySupervisor(
+        $supervisorID
+    ) {
+
+        $query = "
+            SELECT COUNT(*) AS total
+            FROM ALLOCATION_RECORD
+            WHERE supervisorID = :supervisorID
+        ";
+
+        $statement =
+            $this->conn->prepare(
+                $query
+            );
+
+        $statement->bindParam(
+            ":supervisorID",
+            $supervisorID
+        );
+
+        $statement->execute();
+
+        $result =
+            $statement->fetch(
+                PDO::FETCH_ASSOC
+            );
+
+        return
+            (int) (
+                $result["total"]
+                ?? 0
+            );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Retrieve Single Project
     |--------------------------------------------------------------------------
     */

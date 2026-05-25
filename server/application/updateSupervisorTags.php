@@ -46,6 +46,28 @@ SessionManager::requireRole(
 
 /*
 |--------------------------------------------------------------------------
+| CSRF Validation
+|--------------------------------------------------------------------------
+*/
+
+if (
+    !isset($_POST["csrf_token"]) ||
+    !isset($_SESSION["csrf_token"]) ||
+    !hash_equals(
+        $_SESSION["csrf_token"],
+        $_POST["csrf_token"]
+    )
+) {
+
+    header(
+        "Location: ../../client/manageExpertiseTags.php?status=error&message=Invalid CSRF token"
+    );
+
+    exit();
+}
+
+/*
+|--------------------------------------------------------------------------
 | Retrieve Form Data
 |--------------------------------------------------------------------------
 */

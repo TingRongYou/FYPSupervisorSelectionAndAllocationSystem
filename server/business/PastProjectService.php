@@ -50,6 +50,35 @@ class PastProjectService {
 
     /*
     |--------------------------------------------------------------------------
+    | Retrieve Showcase Summary
+    |--------------------------------------------------------------------------
+    */
+
+    public function getShowcaseSummary(
+        $supervisorID
+    ) {
+
+        $projects =
+            $this->getProjectsBySupervisor(
+                $supervisorID
+            );
+
+        $studentsSupervised =
+            $this->pastProjectDAO
+            ->countActiveSuperviseesBySupervisor(
+                $supervisorID
+            );
+
+        return [
+
+            "totalProjects" => count($projects),
+
+            "studentsSupervised" => $studentsSupervised
+        ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Retrieve Single Project
     |--------------------------------------------------------------------------
     */

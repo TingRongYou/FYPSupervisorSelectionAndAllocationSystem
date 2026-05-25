@@ -2,6 +2,7 @@
 
 require_once "../server/application/SessionManager.php";
 require_once "../server/business/SupervisorManagementService.php";
+require_once __DIR__ . "/accountLayout.php";
 
 SessionManager::startSession();
 
@@ -114,6 +115,7 @@ function statusMessage() {
     </title>
 
     <style>
+        <?php echo ssasAccountStyles(); ?>
 
         * {
             box-sizing: border-box;
@@ -548,19 +550,7 @@ function statusMessage() {
 
 <body>
 
-    <header class="topbar">
-
-        <div class="topbar-brand">
-            <div class="crest">T</div>
-            <span>TAR UMT SSAS</span>
-        </div>
-
-        <div class="topbar-user">
-            <strong><?php echo e($_SESSION["fullName"]); ?></strong>
-            Administrator
-        </div>
-
-    </header>
+    <?php echo ssasTopbar("TAR UMT SSAS"); ?>
 
     <div class="content-shell">
 
@@ -578,7 +568,7 @@ function statusMessage() {
             <a class="nav-link active" href="supervisorsManagement.php">Supervisors Management</a>
             <a class="nav-link" href="#">Students Eligibility</a>
             <a class="nav-link" href="quotaManagement.php">Quota Management</a>
-            <a class="nav-link" href="#">Allocations</a>
+            <a class="nav-link" href="autoAllocation.php">Allocations</a>
             <a class="nav-link" href="#">Reports</a>
             <a class="nav-link" href="../server/application/logout.php">Logout</a>
 

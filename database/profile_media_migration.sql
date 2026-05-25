@@ -1,0 +1,3 @@
+ALTER TABLE SUPERVISOR_PROFILE
+    ADD COLUMN supervisorBio VARCHAR(500) NULL AFTER programme,
+    ADD COLUMN introVideoDescription VARCHAR(500) NULL AFTER introVideoLink;

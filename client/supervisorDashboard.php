@@ -1,20 +1,14 @@
 <?php
 
 require_once "../server/application/SessionManager.php";
+require_once "../server/business/SupervisorDashboardService.php";
+require_once __DIR__ . "/supervisorLayout.php";
 
 SessionManager::startSession();
 
 /*
 |--------------------------------------------------------------------------
-| Authentication Validation
-|--------------------------------------------------------------------------
-*/
-
-SessionManager::requireLogin();
-
-/*
-|--------------------------------------------------------------------------
-| RBAC Validation
+| Authentication and RBAC Validation
 |--------------------------------------------------------------------------
 */
 
@@ -22,20 +16,14 @@ SessionManager::requireRole(
     "Supervisor"
 );
 
-/*
-|--------------------------------------------------------------------------
-| Escape Output Helper
-|--------------------------------------------------------------------------
-*/
+$dashboardService =
+    new SupervisorDashboardService();
 
-function e($value) {
-
-    return htmlspecialchars(
-        (string) $value,
-        ENT_QUOTES,
-        "UTF-8"
+$dashboard =
+    $dashboardService
+    ->getDashboardData(
+        $_SESSION["userID"]
     );
-}
 
 ?>
 
@@ -54,294 +42,611 @@ function e($value) {
     </title>
 
     <style>
+        <?php echo ssasAccountStyles(); ?>
 
         * {
             box-sizing: border-box;
         }
 
         body {
-
             margin: 0;
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
+            font-family: Arial, Helvetica, sans-serif;
             background: #f4f8fc;
-
             color: #1d2b3a;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Layout
-        |--------------------------------------------------------------------------
-        */
-
-        .layout {
-
+        .topbar {
+            height: 64px;
+            background: #0b95c5;
+            color: #ffffff;
             display: flex;
-
-            min-height: 100vh;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            box-shadow: 0 4px 14px rgba(11, 79, 138, .16);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Sidebar
-        |--------------------------------------------------------------------------
-        */
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+        }
+
+        .crest {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            display: grid;
+            place-items: center;
+            background: #ffffff;
+            color: #0b4f8a;
+            font-weight: 800;
+        }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: right;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .topbar-user strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #0b4f8a;
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+        }
+
+        .content-shell {
+            display: flex;
+            min-height: calc(100vh - 64px);
+        }
 
         .sidebar {
-
             width: 260px;
+            background: #ffffff;
+            border-right: 1px solid #dde8f2;
+            padding: 26px 18px;
+        }
 
-            background: #0b4f8a;
+        .role-card {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            background: #eef6fc;
+            margin-bottom: 20px;
+        }
 
+        .role-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: #0b66d8;
             color: #ffffff;
-
-            padding: 28px 22px;
-        }
-
-        .brand {
-
-            font-size: 24px;
-
+            display: grid;
+            place-items: center;
             font-weight: 700;
-
-            margin-bottom: 8px;
         }
 
-        .subtitle {
+        .role-title {
+            margin: 0;
+            color: #0b3760;
+            font-weight: 700;
+            font-size: 15px;
+        }
 
-            color: #cfe5f8;
-
-            font-size: 14px;
-
-            line-height: 1.5;
-
-            margin-bottom: 28px;
+        .role-subtitle {
+            margin: 2px 0 0;
+            color: #6b7f91;
+            font-size: 12px;
         }
 
         .nav-link {
-
-            display: block;
-
-            color: #eaf5ff;
-
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #526a7f;
             text-decoration: none;
-
             padding: 12px 14px;
-
             border-radius: 8px;
-
             margin-bottom: 8px;
-
-            transition:
-                background .2s,
-                transform .2s;
+            font-size: 14px;
+            transition: background .2s, color .2s, transform .2s;
         }
 
         .nav-link:hover,
         .nav-link.active {
-
-            background: #176fac;
-
+            background: #eaf3ff;
+            color: #0b66d8;
             transform: translateX(2px);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Main Content
-        |--------------------------------------------------------------------------
-        */
-
         .main {
-
             flex: 1;
-
-            padding: 34px;
+            padding: 28px 34px 40px;
         }
 
-        .page-header {
-
+        .alert {
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
+            gap: 14px;
+            background: #ffd9d2;
+            color: #7f2a1d;
+            border-left: 4px solid #eb5b32;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
 
-            gap: 16px;
+        .alert strong {
+            color: #5b1d14;
+        }
 
+        .hero-card {
+            background: #0d5be8;
+            color: #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 12px 24px rgba(13, 91, 232, .22);
             margin-bottom: 28px;
         }
 
-        h1 {
-
+        .hero-card h1 {
             margin: 0 0 8px;
-
-            color: #0b3760;
-
-            font-size: 32px;
-        }
-
-        .welcome {
-
-            margin: 0;
-
-            color: #5c6f82;
-
-            font-size: 15px;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Dashboard Cards
-        |--------------------------------------------------------------------------
-        */
-
-        .dashboard-grid {
-
-            display: grid;
-
-            grid-template-columns:
-                repeat(
-                    2,
-                    minmax(0, 1fr)
-                );
-
-            gap: 20px;
-        }
-
-        .card {
-
-            background: #ffffff;
-
-            border: 1px solid #d9e7f3;
-
-            border-radius: 10px;
-
-            padding: 24px;
-
-            box-shadow:
-                0 8px 22px
-                rgba(11,79,138,.08);
-
-            transition:
-                transform .2s,
-                box-shadow .2s;
-        }
-
-        .card:hover {
-
-            transform: translateY(-3px);
-
-            box-shadow:
-                0 14px 26px
-                rgba(11,79,138,.14);
-        }
-
-        .card-title {
-
-            margin: 0 0 12px;
-
-            color: #0b3760;
-
-            font-size: 20px;
-
+            font-size: 30px;
             font-weight: 700;
         }
 
-        .card-description {
-
-            margin: 0 0 20px;
-
-            color: #526a7f;
-
-            line-height: 1.6;
-
-            font-size: 14px;
+        .hero-card p {
+            margin: 0;
+            color: #dbe9ff;
+            line-height: 1.5;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Buttons
-        |--------------------------------------------------------------------------
-        */
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin: 28px 0 24px;
+        }
+
+        .metric {
+            background: rgba(255, 255, 255, .13);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .metric-label {
+            color: #b9d2ff;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            margin-bottom: 7px;
+        }
+
+        .metric-value {
+            font-size: 26px;
+            font-weight: 800;
+        }
+
+        .quota-line {
+            display: inline-block;
+            width: 42%;
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .25);
+            overflow: hidden;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+
+        .quota-line span {
+            display: block;
+            height: 100%;
+            background: #ffffff;
+            border-radius: inherit;
+        }
 
         .button {
-
             display: inline-flex;
-
             align-items: center;
-
             justify-content: center;
-
             min-height: 42px;
-
-            padding: 0 18px;
-
+            border: 0;
             border-radius: 6px;
-
-            background: #0b66ad;
-
-            color: #ffffff;
-
+            padding: 0 18px;
+            background: #ffffff;
+            color: #0d5be8;
             text-decoration: none;
-
             font-size: 14px;
-
-            font-weight: 700;
-
-            transition:
-                background .2s,
-                transform .2s,
-                box-shadow .2s;
+            font-weight: 800;
+            transition: transform .2s, box-shadow .2s;
         }
 
         .button:hover {
-
-            background: #084f88;
-
             transform: translateY(-1px);
-
-            box-shadow:
-                0 8px 18px
-                rgba(11,102,173,.2);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, .14);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Responsive
-        |--------------------------------------------------------------------------
-        */
+        .applications {
+            background: #ffffff;
+            border: 1px solid #d9e7f3;
+            border-radius: 10px;
+            box-shadow: 0 8px 22px rgba(11, 79, 138, .08);
+            overflow: hidden;
+        }
 
-        @media (max-width: 900px) {
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 22px 24px;
+            border-bottom: 1px solid #e3edf6;
+        }
 
-            .layout {
+        .section-header h2 {
+            margin: 0;
+            color: #0b3760;
+            font-size: 20px;
+        }
 
+        .filter-chip {
+            background: #eef2f6;
+            color: #526a7f;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e3edf6;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            color: #526a7f;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+        }
+
+        .student-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .student-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #0b66d8;
+            color: #ffffff;
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            font-size: 12px;
+        }
+
+        .student-name {
+            color: #0b3760;
+            font-weight: 800;
+        }
+
+        .muted {
+            color: #6b7f91;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        .focus-tag {
+            display: inline-flex;
+            max-width: 220px;
+            border-radius: 4px;
+            padding: 5px 8px;
+            background: #e8f2fb;
+            color: #0b4f8a;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .status {
+            display: inline-flex;
+            min-width: 92px;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 7px 10px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .status.pending {
+            background: #fff2bf;
+            color: #a96a00;
+        }
+
+        .status.accepted {
+            background: #dff8e6;
+            color: #14733e;
+        }
+
+        .status.rejected {
+            background: #fdeaea;
+            color: #a52d2d;
+        }
+
+        .action-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 100px;
+            min-height: 42px;
+            border-radius: 8px;
+            background: #0d5be8;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .empty-state {
+            padding: 28px;
+            color: #526a7f;
+            text-align: center;
+        }
+
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 24px;
+            color: #6b7f91;
+            font-size: 13px;
+        }
+
+        @media (max-width: 980px) {
+            .content-shell {
                 display: block;
             }
 
             .sidebar {
-
                 width: 100%;
+                border-right: 0;
+                border-bottom: 1px solid #dde8f2;
+            }
+
+            .metric-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .topbar {
+                height: auto;
+                align-items: flex-start;
+                padding: 18px;
             }
 
             .main {
-
                 padding: 22px;
             }
 
-            .dashboard-grid {
-
-                grid-template-columns: 1fr;
+            .hero-card {
+                padding: 22px;
             }
 
-            .page-header {
-
+            .section-header,
+            .table-footer {
                 display: block;
             }
+
+            .filter-chip {
+                display: inline-flex;
+                margin-top: 12px;
+            }
+        }
+
+        .sidebar {
+            width: 212px;
+            flex: 0 0 212px;
+            background: #ffffff;
+            border-right: 1px solid #dce8f3;
+            padding: 16px 10px;
+        }
+
+        .role-card {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 6px 9px 14px;
+            margin-bottom: 8px;
+            background: transparent;
+        }
+
+        .role-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            background: #0d5be8;
+            color: #ffffff;
+            display: grid;
+            place-items: center;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .role-title {
+            margin: 0;
+            color: #10263d;
+            font-weight: 900;
+            font-size: 14px;
+        }
+
+        .role-subtitle {
+            margin: 2px 0 0;
+            color: #6b7f91;
+            font-size: 10px;
+        }
+
+        .nav-link,
+        .nav-parent {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: flex-start;
+            color: #526a7f;
+            text-decoration: none;
+            padding: 9px 10px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            font-size: 12px;
+            background: #f1f5f9;
+            border: 0;
+            width: 100%;
+            min-height: 32px;
+            cursor: pointer;
+            transform: none;
+        }
+
+        .nav-link:hover,
+        .nav-link.active,
+        .nav-parent.active {
+            background: #eaf3ff;
+            color: #0d5be8;
+            transform: none;
+        }
+
+        .nav-text {
+            flex: 1;
+        }
+
+        .nav-icon {
+            width: 16px;
+            height: 16px;
+            flex: 0 0 16px;
+            border-radius: 4px;
+            display: grid;
+            place-items: center;
+            color: #0d5be8;
+            font-size: 0;
+            border: 1px solid #c7d9ee;
+            background: #ffffff;
+            position: relative;
+        }
+
+        .nav-icon:before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border: 1px solid #7d96b4;
+            border-radius: 2px;
+            display: block;
+        }
+
+        .profile-icon:before {
+            width: 9px;
+            height: 6px;
+            border-radius: 2px;
+            box-shadow: -4px -4px 0 -2px #7d96b4, 4px -4px 0 -2px #7d96b4;
+        }
+
+        .request-icon:before {
+            width: 3px;
+            height: 9px;
+            border-radius: 1px;
+            box-shadow: 4px 0 0 -1px #7d96b4, -4px 0 0 -1px #7d96b4;
+        }
+
+        .supervision-icon:before {
+            width: 9px;
+            height: 5px;
+            border-radius: 999px 999px 2px 2px;
+        }
+
+        .report-icon:before {
+            width: 7px;
+            height: 9px;
+            border-radius: 1px;
+        }
+
+        .logout-icon:before {
+            width: 8px;
+            height: 1px;
+            border-width: 0 0 1px;
+            border-radius: 0;
+            box-shadow: -3px -3px 0 -1px #7d96b4, -3px 3px 0 -1px #7d96b4;
+        }
+
+        .nav-chevron {
+            color: #315e8c;
+            font-weight: 900;
+        }
+
+        .subnav {
+            position: relative;
+            margin: -3px 0 10px 26px;
+            padding: 3px 0 3px 14px;
+            border-left: 1px solid #bfcbd8;
+        }
+
+        .subnav a {
+            position: relative;
+            display: block;
+            color: #6b7f91;
+            text-decoration: none;
+            font-size: 11px;
+            padding: 5px 0;
+            line-height: 1.25;
+        }
+
+        .subnav a:before {
+            content: "";
+            position: absolute;
+            left: -14px;
+            top: 12px;
+            width: 10px;
+            height: 1px;
+            background: #bfcbd8;
+        }
+
+        .subnav a.active {
+            color: #0d5be8;
+            font-weight: 800;
         }
 
     </style>
@@ -349,186 +654,134 @@ function e($value) {
 
 <body>
 
-    <div class="layout">
+    <?php echo supervisorTopbar(); ?>
 
-        <!-- Sidebar -->
+    <div class="content-shell">
 
-        <aside class="sidebar">
-
-            <div class="brand">
-                SSAS
-            </div>
-
-            <div class="subtitle">
-                Supervisor Selection and Allocation System
-            </div>
-
-            <a
-                class="nav-link active"
-                href="supervisorDashboard.php"
-            >
-                Dashboard
-            </a>
-
-            <a
-                class="nav-link"
-                href="manageDigitalBusinessCard.php"
-            >
-                Digital Business Card
-            </a>
-
-            <a
-                class="nav-link"
-                href="manageExpertiseTags.php"
-            >
-                Expertise & Tags
-            </a>
-
-            <a
-                class="nav-link"
-                href="manageIntroVideo.php"
-            >
-                Introductory Video
-            </a>
-
-            <a
-                class="nav-link"
-                href="managePastProjects.php"
-            >
-                Past Projects
-            </a>
-
-            <a
-                class="nav-link"
-                href="../server/application/logout.php"
-            >
-                Logout
-            </a>
-
-        </aside>
-
-        <!-- Main Content -->
+        <?php echo supervisorSidebar("dashboard"); ?>
 
         <main class="main">
 
-            <section class="page-header">
+            <?php if ($dashboard["deadlineAlert"]["show"]): ?>
+                <section class="alert">
+                    <div>
+                        <strong>!</strong>
+                        <?php echo e($dashboard["deadlineAlert"]["message"]); ?>
+                    </div>
+                    <span>x</span>
+                </section>
+            <?php endif; ?>
 
-                <div>
+            <section class="hero-card">
+                <h1>Welcome back, <?php echo e($_SESSION["fullName"]); ?>.</h1>
+                <p>
+                    You have <?php echo e($dashboard["pendingRequests"]); ?> new applications requiring your immediate attention.
+                    <br>
+                    Your current supervision load is healthy.
+                </p>
 
-                    <h1>
-                        Supervisor Dashboard
-                    </h1>
+                <div class="metric-grid">
+                    <div class="metric">
+                        <div class="metric-label">Incoming Requests</div>
+                        <div class="metric-value"><?php echo e($dashboard["pendingRequests"]); ?></div>
+                    </div>
 
-                    <p class="welcome">
-                        Welcome back,
-                        <?php echo e($_SESSION["fullName"]); ?>
-                    </p>
+                    <div class="metric">
+                        <div class="metric-label">Active Supervisees</div>
+                        <div class="metric-value">
+                            <?php echo e($dashboard["activeSupervisees"]); ?>
+                            <span style="font-size: 15px; color: #b9d2ff;">/ <?php echo e($dashboard["maxSuperviseesAllowed"]); ?></span>
+                        </div>
+                    </div>
 
+                    <div class="metric">
+                        <div class="metric-label">Quota Usage</div>
+                        <div class="metric-value">
+                            <?php echo e($dashboard["quotaUsage"]); ?>%
+                            <span class="quota-line">
+                                <span style="width: <?php echo e($dashboard["quotaUsage"]); ?>%;"></span>
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
+                <a class="button" href="#">
+                    View All Requests
+                </a>
             </section>
 
-            <!-- Dashboard Modules -->
+            <section class="applications">
+                <div class="section-header">
+                    <h2>Recent Student Applications</h2>
+                    <span class="filter-chip">Filter</span>
+                </div>
 
-            <section class="dashboard-grid">
+                <?php if (empty($dashboard["recentApplications"])): ?>
+                    <div class="empty-state">
+                        No student applications have been submitted to you yet.
+                    </div>
+                <?php else: ?>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Programme</th>
+                                    <th>Research Focus</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($dashboard["recentApplications"] as $application): ?>
+                                    <tr>
+                                        <td>
+                                            <div class="student-cell">
+                                                <div class="student-avatar">
+                                                    <?php echo e(supervisorInitials($application["fullName"])); ?>
+                                                </div>
+                                                <div>
+                                                    <div class="student-name">
+                                                        <?php echo e($application["fullName"]); ?>
+                                                    </div>
+                                                    <div class="muted">
+                                                        <?php echo e($application["studentID"]); ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><?php echo e($application["programme"]); ?></td>
+                                        <td>
+                                            <span class="focus-tag">
+                                                <?php echo e($application["researchFocus"]); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="status <?php echo e($application["statusClass"]); ?>">
+                                                <?php echo e($application["decisionStatus"]); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a class="action-button" href="#">
+                                                <?php echo e($application["actionText"]); ?>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
 
-                <!-- Digital Business Card -->
-
-                <article class="card">
-
-                    <h2 class="card-title">
-                        Digital Business Card
-                    </h2>
-
-                    <p class="card-description">
-                        Manage your supervisor profile,
-                        programme details,
-                        and professional information
-                        visible to students.
-                    </p>
-
-                    <a
-                        class="button"
-                        href="manageDigitalBusinessCard.php"
-                    >
-                        Manage Profile
-                    </a>
-
-                </article>
-
-                <!-- Expertise Tags -->
-
-                <article class="card">
-
-                    <h2 class="card-title">
-                        Expertise & Tags
-                    </h2>
-
-                    <p class="card-description">
-                        Configure your research interests
-                        and expertise tags for intelligent
-                        student-supervisor matching.
-                    </p>
-
-                    <a
-                        class="button"
-                        href="manageExpertiseTags.php"
-                    >
-                        Manage Tags
-                    </a>
-
-                </article>
-
-                <!-- Introductory Video -->
-
-                <article class="card">
-
-                    <h2 class="card-title">
-                        Introductory Video
-                    </h2>
-
-                    <p class="card-description">
-                        Add or update a YouTube or Vimeo
-                        introduction video for students
-                        during supervisor discovery.
-                    </p>
-
-                    <a
-                        class="button"
-                        href="manageIntroVideo.php"
-                    >
-                        Manage Video
-                    </a>
-
-                </article>
-
-                <!-- Past Projects -->
-
-                <article class="card">
-
-                    <h2 class="card-title">
-                        Past Projects Showcase
-                    </h2>
-
-                    <p class="card-description">
-                        Showcase previous FYP projects
-                        supervised to help students
-                        understand your supervision domain.
-                    </p>
-
-                    <a
-                        class="button"
-                        href="managePastProjects.php"
-                    >
-                        Manage Projects
-                    </a>
-
-                </article>
-
+                    <div class="table-footer">
+                        <span>
+                            Showing <?php echo e(count($dashboard["recentApplications"])); ?> recent applications
+                        </span>
+                        <span>&lt; &gt;</span>
+                    </div>
+                <?php endif; ?>
             </section>
 
         </main>
-
     </div>
 
 </body>

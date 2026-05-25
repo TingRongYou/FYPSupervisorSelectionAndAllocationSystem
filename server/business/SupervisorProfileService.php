@@ -1,6 +1,9 @@
 <?php
 
 require_once __DIR__ . "/../data/SupervisorProfileDAO.php";
+require_once __DIR__ . "/../data/VideoStorageDAO.php";
+require_once __DIR__ . "/../data/ImageStorageDAO.php";
+require_once __DIR__ . "/../data/UserDAO.php";
 
 class SupervisorProfileService {
 
@@ -16,6 +19,10 @@ class SupervisorProfileService {
 
     private const MAX_VIDEO_URL_LENGTH = 255;
 
+    private const MAX_BIO_LENGTH = 500;
+
+    private const MAX_VIDEO_DESCRIPTION_LENGTH = 500;
+
     /*
     |--------------------------------------------------------------------------
     | Properties
@@ -23,6 +30,12 @@ class SupervisorProfileService {
     */
 
     private $profileDAO;
+
+    private $videoStorageDAO;
+
+    private $imageStorageDAO;
+
+    private $userDAO;
 
     /*
     |--------------------------------------------------------------------------
@@ -34,6 +47,15 @@ class SupervisorProfileService {
 
         $this->profileDAO =
             new SupervisorProfileDAO();
+
+        $this->videoStorageDAO =
+            new VideoStorageDAO();
+
+        $this->imageStorageDAO =
+            new ImageStorageDAO();
+
+        $this->userDAO =
+            new UserDAO();
     }
 
     /*
@@ -136,7 +158,9 @@ class SupervisorProfileService {
         $supervisorID,
         $programme,
         $employmentCategory,
-        $introVideoLink
+        $introVideoLink,
+        $supervisorBio,
+        $profilePhotoFile = null
     ) {
 
         /*
@@ -153,6 +177,9 @@ class SupervisorProfileService {
 
         $introVideoLink =
             trim($introVideoLink);
+
+        $supervisorBio =
+            trim($supervisorBio);
 
         /*
         |--------------------------------------------------------------------------
@@ -220,6 +247,17 @@ class SupervisorProfileService {
         }
 
         if (
+            strlen($supervisorBio)
+            >
+            self::MAX_BIO_LENGTH
+        ) {
+
+            return $this->failure(
+                "Short biography cannot exceed 500 characters"
+            );
+        }
+
+        if (
             $introVideoLink !== ""
             &&
             !$this->isValidVideoUrl(
@@ -240,6 +278,51 @@ class SupervisorProfileService {
 
         try {
 
+            if ($profilePhotoFile !== null) {
+
+                $photoResult =
+                    $this->imageStorageDAO
+                    ->storeProfilePhoto(
+                        $profilePhotoFile,
+                        $supervisorID
+                    );
+
+                if (!$photoResult["success"]) {
+
+                    return $this->failure(
+                        $photoResult["message"]
+                    );
+                }
+
+                if ($photoResult["path"] !== null) {
+
+                    $currentProfile =
+                        $this->userDAO
+                        ->getUserByID(
+                            $supervisorID
+                        );
+
+                    $photoUpdated =
+                        $this->userDAO
+                        ->updateProfilePhoto(
+                            $supervisorID,
+                            $photoResult["path"]
+                        );
+
+                    if (!$photoUpdated) {
+
+                        return $this->failure(
+                            "Profile photo could not be updated"
+                        );
+                    }
+
+                    $this->imageStorageDAO
+                    ->deleteStoredImage(
+                        $currentProfile["profilePhotoPath"] ?? ""
+                    );
+                }
+            }
+
             $updated =
                 $this->profileDAO
                 ->updateDigitalBusinessCard(
@@ -250,7 +333,9 @@ class SupervisorProfileService {
 
                     $employmentCategory,
 
-                    $introVideoLink
+                    $introVideoLink,
+
+                    $supervisorBio
                 );
 
             if (!$updated) {
@@ -280,7 +365,8 @@ class SupervisorProfileService {
 
     public function updateIntroVideo(
         $supervisorID,
-        $introVideoLink
+        $introVideoLink,
+        $introVideoDescription
     ) {
 
         /*
@@ -291,6 +377,9 @@ class SupervisorProfileService {
 
         $introVideoLink =
             trim($introVideoLink);
+
+        $introVideoDescription =
+            trim($introVideoDescription);
 
         /*
         |--------------------------------------------------------------------------
@@ -322,6 +411,17 @@ class SupervisorProfileService {
             );
         }
 
+        if (
+            strlen($introVideoDescription)
+            >
+            self::MAX_VIDEO_DESCRIPTION_LENGTH
+        ) {
+
+            return $this->failure(
+                "Video description cannot exceed 500 characters"
+            );
+        }
+
         /*
         |--------------------------------------------------------------------------
         | Validate URL
@@ -335,7 +435,7 @@ class SupervisorProfileService {
         ) {
 
             return $this->failure(
-                "Introductory video must be a valid YouTube or Vimeo URL"
+                "Introductory video must be a valid YouTube or Vimeo URL, or an uploaded MP4/WebM video"
             );
         }
 
@@ -353,7 +453,9 @@ class SupervisorProfileService {
 
                     $supervisorID,
 
-                    $introVideoLink
+                    $introVideoLink,
+
+                    $introVideoDescription
                 );
 
             if (!$updated) {
@@ -375,6 +477,96 @@ class SupervisorProfileService {
         );
     }
 
+    public function updateIntroVideoFromUpload(
+        $supervisorID,
+        $uploadedFile,
+        $introVideoDescription
+    ) {
+
+        $introVideoDescription =
+            trim($introVideoDescription);
+
+        if (
+            strlen($introVideoDescription)
+            >
+            self::MAX_VIDEO_DESCRIPTION_LENGTH
+        ) {
+
+            return $this->failure(
+                "Video description cannot exceed 500 characters"
+            );
+        }
+
+        $storageResult =
+            $this->videoStorageDAO
+            ->storeIntroVideo(
+                $uploadedFile,
+                $supervisorID
+            );
+
+        if (!$storageResult["success"]) {
+
+            return $this->failure(
+                $storageResult["message"]
+            );
+        }
+
+        return $this->updateIntroVideo(
+            $supervisorID,
+            $storageResult["path"],
+            $introVideoDescription
+        );
+    }
+
+    public function removeIntroVideo($supervisorID) {
+
+        $profile =
+            $this->profileDAO
+            ->getSupervisorProfile(
+                $supervisorID
+            );
+
+        if (!$profile) {
+
+            return $this->failure(
+                "Supervisor profile was not found"
+            );
+        }
+
+        try {
+
+            $updated =
+                $this->profileDAO
+                ->updateIntroVideo(
+                    $supervisorID,
+                    "",
+                    ""
+                );
+
+            if (!$updated) {
+
+                return $this->failure(
+                    "Introductory video could not be removed"
+                );
+            }
+
+            $this->videoStorageDAO
+            ->deleteStoredVideo(
+                $profile["introVideoLink"] ?? ""
+            );
+
+        } catch (Exception $exception) {
+
+            return $this->failure(
+                "System error occurred while removing introductory video"
+            );
+        }
+
+        return $this->success(
+            "Introductory video removed successfully"
+        );
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Validate Video URL
@@ -384,6 +576,17 @@ class SupervisorProfileService {
     private function isValidVideoUrl(
         $url
     ) {
+
+        if (preg_match(
+
+            "/^\.\.\/storage\/intro_videos\/[A-Za-z0-9_-]+\.(mp4|webm)$/i",
+
+            $url
+
+        ) === 1) {
+
+            return true;
+        }
 
         /*
         |--------------------------------------------------------------------------

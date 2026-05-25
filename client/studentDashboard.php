@@ -1,6 +1,7 @@
 <?php
 
 require_once "../server/application/SessionManager.php";
+require_once __DIR__ . "/accountLayout.php";
 
 SessionManager::startSession();
 
@@ -54,6 +55,7 @@ function e($value) {
     </title>
 
     <style>
+        <?php echo ssasAccountStyles(); ?>
 
         * {
             box-sizing: border-box;
@@ -83,7 +85,7 @@ function e($value) {
 
             display: flex;
 
-            min-height: 100vh;
+            min-height: calc(100vh - 52px);
         }
 
         /*
@@ -348,6 +350,8 @@ function e($value) {
 </head>
 
 <body>
+
+    <?php echo ssasTopbar("TAR UMT SSAS"); ?>
 
     <div class="layout">
 

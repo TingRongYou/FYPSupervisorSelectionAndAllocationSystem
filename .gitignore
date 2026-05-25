@@ -9,3 +9,7 @@ Thumbs.db
 storage/*
 # But keep the structure by adding blank .gitkeep file
 !storage/.gitkeep
+!storage/intro_videos/
+!storage/intro_videos/.gitkeep
+!storage/profile_photos/
+!storage/profile_photos/.gitkeep
