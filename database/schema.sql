@@ -45,7 +45,9 @@ CREATE TABLE QUOTA_CONFIGURATION (
 CREATE TABLE SUPERVISOR_PROFILE (
     supervisorID VARCHAR(20) PRIMARY KEY,
     quotaID INT NOT NULL,
+    assignedQuotaLimit INT NULL,
     employmentCategory VARCHAR(50) NOT NULL,
+    activeTime VARCHAR(100) NULL,
     introVideoLink VARCHAR(255) NULL,
     introVideoDescription VARCHAR(500) NULL,
     supervisorBio VARCHAR(500) NULL,
