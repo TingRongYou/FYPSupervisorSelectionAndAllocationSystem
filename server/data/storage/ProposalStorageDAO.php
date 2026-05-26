@@ -4,6 +4,8 @@ class ProposalStorageDAO {
 
     private const MAX_PROPOSAL_SIZE = 5242880;
 
+    private const WEB_STORAGE_ROOT = "/FYPSupervisorSelectionAndAllocationSystem/storage";
+
     public function storeProposalPDF($uploadedFile, $studentID) {
 
         if (!isset($uploadedFile["error"]) || (int) $uploadedFile["error"] === UPLOAD_ERR_NO_FILE) {
@@ -88,7 +90,7 @@ class ProposalStorageDAO {
 
         return [
             "success" => true,
-            "path" => "../storage/proposals/" . $fileName
+            "path" => self::WEB_STORAGE_ROOT . "/proposals/" . $fileName
         ];
     }
 }

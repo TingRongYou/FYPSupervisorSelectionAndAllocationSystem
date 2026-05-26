@@ -69,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password â€“ SSAS</title>
+    <title>Forgot Password - SSAS</title>
 
     <style>
         * { box-sizing: border-box; }
@@ -212,7 +212,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <?php endif; ?>
             </div>
 
-            <a class="back" href="login.html">â¬… Back to Login</a>
+            <a class="back" href="login.html">Back to Login</a>
         </section>
     </main>
 </body>

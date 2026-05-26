@@ -4,6 +4,8 @@ class ImageStorageDAO {
 
     private const MAX_IMAGE_SIZE = 2097152;
 
+    private const WEB_STORAGE_ROOT = "/FYPSupervisorSelectionAndAllocationSystem/storage";
+
     private const ALLOWED_MIME_TYPES = [
         "image/jpeg",
         "image/png"
@@ -108,7 +110,7 @@ class ImageStorageDAO {
 
         return [
             "success" => true,
-            "path" => "../storage/profile_photos/" . $fileName
+            "path" => self::WEB_STORAGE_ROOT . "/profile_photos/" . $fileName
         ];
     }
 
@@ -120,7 +122,7 @@ class ImageStorageDAO {
         }
 
         $absolutePath =
-            realpath(__DIR__ . "/../../../" . substr($imagePath, 3));
+            realpath($this->managedImageAbsolutePath($imagePath));
 
         if ($absolutePath !== false && is_file($absolutePath)) {
 
@@ -131,9 +133,24 @@ class ImageStorageDAO {
     private function isManagedProfilePhotoPath($imagePath) {
 
         return preg_match(
-            "/^\.\.\/storage\/profile_photos\/[A-Za-z0-9_-]+\.(jpg|png)$/i",
+            "/^(?:\.\.\/storage|\/FYPSupervisorSelectionAndAllocationSystem\/storage)\/profile_photos\/[A-Za-z0-9_-]+\.(jpg|png)$/i",
             (string) $imagePath
         ) === 1;
+    }
+
+    private function managedImageAbsolutePath($imagePath) {
+
+        $relativePath =
+            str_replace(
+                [
+                    "../storage/",
+                    self::WEB_STORAGE_ROOT . "/"
+                ],
+                "",
+                (string) $imagePath
+            );
+
+        return __DIR__ . "/../../../storage/" . $relativePath;
     }
 
     private function uploadErrorMessage($uploadErrorCode) {

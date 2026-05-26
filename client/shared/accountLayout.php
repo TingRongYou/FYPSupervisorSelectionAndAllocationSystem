@@ -133,7 +133,7 @@ if (!function_exists("ssasTopbar")) {
         return "
             <header class=\"topbar\">
                 <div class=\"topbar-brand\">
-                    <img class=\"brand-logo\" src=\"assets/logo.png\" alt=\"TAR UMT logo\">
+                    <img class=\"brand-logo\" src=\"/FYPSupervisorSelectionAndAllocationSystem/client/assets/logo.png\" alt=\"TAR UMT logo\">
                     <span>" . ssasEscape($title) . "</span>
                 </div>
                 <div class=\"topbar-right\">

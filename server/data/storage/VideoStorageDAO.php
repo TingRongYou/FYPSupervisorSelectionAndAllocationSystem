@@ -4,6 +4,8 @@ class VideoStorageDAO {
 
     private const MAX_VIDEO_SIZE = 52428800;
 
+    private const WEB_STORAGE_ROOT = "/FYPSupervisorSelectionAndAllocationSystem/storage";
+
     private const ALLOWED_MIME_TYPES = [
         "video/mp4",
         "video/webm"
@@ -102,7 +104,7 @@ class VideoStorageDAO {
 
         return [
             "success" => true,
-            "path" => "../storage/intro_videos/" . $fileName
+            "path" => self::WEB_STORAGE_ROOT . "/intro_videos/" . $fileName
         ];
     }
 
@@ -114,7 +116,7 @@ class VideoStorageDAO {
         }
 
         $absolutePath =
-            realpath(__DIR__ . "/../../../" . substr($videoPath, 3));
+            realpath($this->managedVideoAbsolutePath($videoPath));
 
         if ($absolutePath !== false && is_file($absolutePath)) {
 
@@ -125,9 +127,24 @@ class VideoStorageDAO {
     private function isManagedVideoPath($videoPath) {
 
         return preg_match(
-            "/^\.\.\/storage\/intro_videos\/[A-Za-z0-9_-]+\.(mp4|webm)$/i",
+            "/^(?:\.\.\/storage|\/FYPSupervisorSelectionAndAllocationSystem\/storage)\/intro_videos\/[A-Za-z0-9_-]+\.(mp4|webm)$/i",
             (string) $videoPath
         ) === 1;
+    }
+
+    private function managedVideoAbsolutePath($videoPath) {
+
+        $relativePath =
+            str_replace(
+                [
+                    "../storage/",
+                    self::WEB_STORAGE_ROOT . "/"
+                ],
+                "",
+                (string) $videoPath
+            );
+
+        return __DIR__ . "/../../../storage/" . $relativePath;
     }
 
     private function uploadErrorMessage($uploadErrorCode) {
