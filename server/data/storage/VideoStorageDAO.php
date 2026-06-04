@@ -240,13 +240,7 @@ class VideoStorageDAO {
         */
         return [
             "success" => true,
-<<<<<<< HEAD
             "path" => self::WEB_STORAGE_ROOT . "/intro_videos/" . $fileName
-=======
-            "path" =>
-                "../storage/intro_videos/" .
-                $fileName
->>>>>>> Admin
         ];
     }
 
@@ -278,15 +272,7 @@ class VideoStorageDAO {
         |--------------------------------------------------------------------------
         */
         $absolutePath =
-<<<<<<< HEAD
             realpath($this->managedVideoAbsolutePath($videoPath));
-=======
-            realpath(
-                __DIR__ .
-                "/../../../" .
-                substr($videoPath, 3)
-            );
->>>>>>> Admin
 
         /*
         |--------------------------------------------------------------------------
@@ -316,7 +302,6 @@ class VideoStorageDAO {
         ) === 1;
     }
 
-<<<<<<< HEAD
     private function managedVideoAbsolutePath($videoPath) {
 
         $relativePath =
@@ -332,14 +317,12 @@ class VideoStorageDAO {
         return __DIR__ . "/../../../storage/" . $relativePath;
     }
 
-=======
     /*
     |--------------------------------------------------------------------------
     | Upload Error Message Resolver
     |--------------------------------------------------------------------------
     | Converts PHP upload error codes into readable messages.
     */
->>>>>>> Admin
     private function uploadErrorMessage($uploadErrorCode) {
 
         /*

@@ -5,50 +5,57 @@ require_once "../../server/business/services/EligibilityService.php";
 require_once __DIR__ . "/../shared/accountLayout.php";
 
 // Administrator Access Control
-// Restricts eligibility management to administrator accounts only.
 SessionManager::startSession();
 SessionManager::requireRole("Administrator");
 
 $csrfToken = SessionManager::getCsrfToken();
 
-// Eligibility Service
-// Loads the dashboard list, status summary, and editable validation rules.
 $eligibilityService = new EligibilityService();
 
-// Dashboard Data
-// Keeps eligible and ineligible students visible while account creation remains limited to eligible students.
 $students           = $eligibilityService->getEligibilityDashboard([]);
 $summary            = $eligibilityService->getEligibilitySummary();
 $rules              = $eligibilityService->getEligibilityRules();
+
+// Eligibility filter: all | eligible | ineligible
+$filterStatus = trim($_GET["filterStatus"] ?? "all");
+if (!in_array($filterStatus, ["all", "eligible", "ineligible"])) {
+    $filterStatus = "all";
+}
+
+// Apply filter before pagination
+$filteredStudents = $students;
+if ($filterStatus === "eligible") {
+    $filteredStudents = array_values(array_filter($students, fn($s) => (bool) $s["eligibilityStatus"]));
+} elseif ($filterStatus === "ineligible") {
+    $filteredStudents = array_values(array_filter($students, fn($s) => !(bool) $s["eligibilityStatus"]));
+}
+
 $currentPage        = max(1, (int) ($_GET["page"] ?? 1));
 $rowsPerPage        = 10;
 
-// Summary Metrics
-// Prepares the status card percentages and counts from the latest imported eligibility records.
 $totalStudents      = (int) ($summary["totalStudents"]      ?? 0);
 $eligibleStudents   = (int) ($summary["eligibleStudents"]   ?? 0);
 $ineligibleStudents = (int) ($summary["ineligibleStudents"] ?? max(0, $totalStudents - $eligibleStudents));
 $eligibleRate       = (int) ($summary["eligibleRate"]       ?? 0);
-$totalPages         = max(1, (int) ceil(count($students) / $rowsPerPage));
+
+$totalFiltered      = count($filteredStudents);
+$totalPages         = max(1, (int) ceil($totalFiltered / $rowsPerPage));
 $currentPage        = min($currentPage, $totalPages);
-$visibleStudents    = array_slice($students, ($currentPage - 1) * $rowsPerPage, $rowsPerPage);
+$visibleStudents    = array_slice($filteredStudents, ($currentPage - 1) * $rowsPerPage, $rowsPerPage);
 $firstVisibleEntry  = empty($visibleStudents) ? 0 : (($currentPage - 1) * $rowsPerPage) + 1;
 $lastVisibleEntry   = empty($visibleStudents) ? 0 : $firstVisibleEntry + count($visibleStudents) - 1;
 $uploadedFileName   = trim($_GET["uploadedFile"] ?? "");
 
-// HTML Escape Helper
 function e($value) {
     return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
-// Status Message Helper
 function statusMessage() {
     if (!isset($_GET["status"], $_GET["message"])) return "";
     $class = $_GET["status"] === "success" ? "success" : "error";
     return '<div class="message ' . $class . '">' . e($_GET["message"]) . '</div>';
 }
 
-// Student Avatar Helper
 function studentInitials($name) {
     $parts  = preg_split("/\s+/", trim((string) $name));
     $first  = strtoupper(substr($parts[0] ?? "S", 0, 1));
@@ -56,9 +63,17 @@ function studentInitials($name) {
     return $first . $second;
 }
 
-// Pagination URL Helper
-function pageUrl($page) {
-    return "studentEligibility.php?page=" . max(1, (int) $page);
+function pageUrl($page, $filterStatus = "all") {
+    $q = ["page" => max(1, (int) $page)];
+    if ($filterStatus !== "all") {
+        $q["filterStatus"] = $filterStatus;
+    }
+    return "studentEligibility.php?" . http_build_query($q);
+}
+
+function filterUrl($status) {
+    if ($status === "all") return "studentEligibility.php";
+    return "studentEligibility.php?filterStatus=" . urlencode($status);
 }
 ?>
 <!DOCTYPE html>
@@ -70,13 +85,12 @@ function pageUrl($page) {
     <style>
         <?php echo ssasAccountStyles(); ?>
 
-        /* Global page reset */
         *, *::before, *::after { box-sizing: border-box; }
         body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f4f8fc; color: #10263d; }
 
         .content-shell { display: flex; min-height: calc(100vh - 52px); }
 
-        /* â”€â”€ Sidebar â”€â”€ */
+        /* Sidebar */
         .sidebar { width: 220px; flex: 0 0 220px; background: #fff; border-right: 1px solid #dce8f3; padding: 16px 10px; }
         .role-card { display: flex; gap: 10px; align-items: center; padding: 6px 9px 14px; margin-bottom: 8px; }
         .role-icon { width: 34px; height: 34px; border-radius: 8px; background: #0d5be8; color: #fff; display: grid; place-items: center; font-size: 14px; font-weight: 900; flex-shrink: 0; }
@@ -104,25 +118,22 @@ function pageUrl($page) {
         .sidebar .nav-link:hover,
         .sidebar .nav-link.active { min-height: 40px; padding: 12px 14px; margin-bottom: 8px; border-radius: 8px; font-size: 14px; font-weight: 600; line-height: 1.2; white-space: nowrap; }
 
-        /* Main content area */
         .main { flex: 1; padding: 26px 28px 70px; min-width: 0; overflow-x: hidden; }
 
         .message { border-radius: 8px; padding: 12px 14px; margin-bottom: 18px; font-weight: 700; font-size: 14px; }
         .message.success { background: #e5f6ed; color: #177345; border: 1px solid #a9dfbf; }
         .message.error   { background: #fdeaea; color: #a52d2d; border: 1px solid #f0b8b8; }
 
-        /* Page grid */
         .page-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 240px;
+            grid-template-columns: minmax(0, 1fr) 300px;
             gap: 22px;
             align-items: stretch;
         }
 
-        /* Left content stack */
         .left-stack { display: grid; gap: 22px; min-width: 0; align-content: start; }
 
-        /* Hero summary */
+        /* Hero */
         .hero {
             background: linear-gradient(135deg, #1565e8 0%, #0d48c0 100%);
             color: #fff; border-radius: 14px; padding: 28px 30px;
@@ -137,7 +148,6 @@ function pageUrl($page) {
         .metric-label { color: #a8c8ff; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; }
         .metric-value { margin-top: 6px; font-size: 28px; font-weight: 900; }
 
-        /* Buttons */
         .btn { border: 0; height: 38px; border-radius: 8px; padding: 0 18px; font-weight: 800; font-size: 13px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
         .btn-light     { background: #fff; color: #0d5be8; }
         .btn-secondary { background: #eef3f8; color: #2f4053; }
@@ -145,10 +155,9 @@ function pageUrl($page) {
         .btn-upload { background: #0d5be8; color: #fff; }
         .btn-upload:hover { background: #0947c2; }
 
-        /* Panels */
         .panel { background: #fff; border: 1px solid #d9e7f3; border-radius: 14px; overflow: hidden; }
 
-        /* Criteria panel and editable rules */
+        /* Criteria panel */
         .criteria-panel { padding: 22px; }
         .panel-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
         .panel-title h2 { margin: 0; color: #10263d; font-size: 18px; font-weight: 900; }
@@ -167,16 +176,48 @@ function pageUrl($page) {
         .rules-form input { width: 100%; height: 40px; border: 1px solid #dbe6f0; border-radius: 8px; background: #fff; color: #10263d; padding: 0 12px; font-size: 15px; font-weight: 700; }
         .rules-actions { display: flex; gap: 8px; }
 
-        /* CSV upload strip */
         .upload-strip { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; margin-top: 18px; padding-top: 16px; border-top: 1px solid #edf2f7; }
         .upload-strip p { margin: 0; color: #6b7f91; font-size: 15px; line-height: 1.6; }
         .upload-control { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
         input[type="file"] { display: none; }
         .file-name { font-size: 14px; color: #526a7f; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        /* Batch results table */
-        .results-title { padding: 18px 22px 14px; border-bottom: 1px solid #edf2f7; }
-        .results-title h2 { margin: 0; color: #10263d; font-size: 18px; font-weight: 900; }
+        /* Results panel header with filter */
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 18px 22px 14px;
+            border-bottom: 1px solid #edf2f7;
+            flex-wrap: wrap;
+        }
+        .results-header h2 { margin: 0; color: #10263d; font-size: 18px; font-weight: 900; flex-shrink: 0; }
+
+        /* Filter pill group */
+        .filter-group { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+        .filter-pill {
+            display: inline-flex; align-items: center; height: 32px;
+            border-radius: 999px; padding: 0 14px;
+            font-size: 13px; font-weight: 800;
+            text-decoration: none; white-space: nowrap;
+            border: 1px solid #dbe6f0;
+            background: #fff; color: #526a7f;
+            transition: background .15s, color .15s, border-color .15s;
+        }
+        .filter-pill:hover { border-color: #0d5be8; color: #0d5be8; }
+        .filter-pill.active { background: #0d5be8; color: #fff; border-color: #0d5be8; }
+        .filter-pill.eligible-pill.active   { background: #118549; border-color: #118549; }
+        .filter-pill.ineligible-pill.active { background: #c02d2d; border-color: #c02d2d; }
+
+        /* Count badge inside pill */
+        .pill-count {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 20px; height: 18px; border-radius: 999px;
+            background: rgba(255,255,255,.28); color: inherit;
+            font-size: 11px; font-weight: 900; margin-left: 6px; padding: 0 5px;
+        }
+        .filter-pill:not(.active) .pill-count { background: #edf2f7; color: #526a7f; }
 
         .table-head,
         .student-row {
@@ -216,28 +257,22 @@ function pageUrl($page) {
         .page-pill { width: 30px; height: 30px; border: 1px solid #dce8f3; border-radius: 6px; display: grid; place-items: center; color: #6b7f91; background: #fff; font-size: 14px; font-weight: 800; cursor: pointer; text-decoration: none; }
         .page-pill.active { background: #0d5be8; color: #fff; border-color: #0d5be8; }
 
-        /* â”€â”€ Status card â”€â”€ */
+        /* Status card */
         .status-card {
-            background: #fff;
-            border: 1px solid #d9e7f3;
-            border-radius: 14px;
-            padding: 24px 20px 22px;
-            display: flex;
-            flex-direction: column;
+            background: #fff; border: 1px solid #d9e7f3; border-radius: 14px;
+            padding: 24px 24px 22px; display: flex; flex-direction: column;
         }
-        .status-card h2 { margin: 0; color: #10263d; font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: .9px; }
-        .status-subtitle { margin: 5px 0 0; color: #8a9caf; font-size: 13px; line-height: 1.4; }
+        .status-card h2 { margin: 0; color: #10263d; font-size: 19px; font-weight: 900; text-transform: uppercase; letter-spacing: .9px; line-height: 1.25; }
+        .status-subtitle { margin: 8px 0 0; color: #8a9caf; font-size: 14px; line-height: 1.45; max-width: 220px; }
 
-        /* SVG ring */
-        .ring-wrap  { position: relative; width: 146px; height: 146px; margin: 22px auto 22px; }
-        .ring-svg   { width: 146px; height: 146px; transform: rotate(-90deg); filter: drop-shadow(0 8px 14px rgba(13,91,232,.12)); }
+        .ring-wrap  { position: relative; width: 158px; height: 158px; margin: 28px auto 24px; flex: 0 0 158px; }
+        .ring-svg   { width: 158px; height: 158px; transform: rotate(-90deg); filter: drop-shadow(0 8px 14px rgba(13,91,232,.12)); }
         .ring-bg    { fill: none; stroke: #edf3fb; stroke-width: 8; }
         .ring-fill  { fill: none; stroke: #0d5be8; stroke-width: 8; stroke-linecap: round; }
-        .ring-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .ring-label strong { color: #0d5be8; font-size: 30px; font-weight: 900; line-height: 1; }
-        .ring-label span   { color: #8a9caf; font-size: 12px; text-transform: uppercase; letter-spacing: .9px; margin-top: 6px; font-weight: 900; }
+        .ring-label { position: absolute; inset: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .ring-label strong { color: #0d5be8; font-size: 28px; font-weight: 900; line-height: 1; }
+        .ring-label span   { color: #8a9caf; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; margin-top: 7px; font-weight: 900; line-height: 1.25; max-width: 92px; }
 
-        /* Summary bars */
         .summary-bars { display: grid; gap: 12px; }
         .bar-row  { display: grid; gap: 8px; padding: 12px; border: 1px solid #edf2f7; border-radius: 10px; background: #fbfdff; }
         .bar-info { display: flex; justify-content: space-between; align-items: center; }
@@ -250,25 +285,16 @@ function pageUrl($page) {
         .bar-fill  { display: block; height: 100%; background: #0d5be8; border-radius: 999px; }
         .bar-fill.red { background: #e33434; }
 
-        /* Spacer pushes insight to bottom */
         .status-spacer { flex: 1; }
 
-        /* Insight */
         .insight {
-            margin-top: auto;
-            background: #f7fbff;
-            border: 1px solid #e4eef8;
-            border-radius: 10px;
-            padding: 14px;
-            display: flex;
-            gap: 10px;
-            align-items: flex-start;
+            margin-top: auto; background: #f7fbff; border: 1px solid #e4eef8;
+            border-radius: 10px; padding: 14px; display: flex; gap: 10px; align-items: flex-start;
         }
         .insight-icon { width: 26px; height: 26px; border-radius: 6px; background: #ddeaff; color: #0d5be8; display: grid; place-items: center; font-size: 13px; font-weight: 900; flex-shrink: 0; }
         .insight strong { display: block; font-size: 14px; color: #10263d; margin-bottom: 5px; font-weight: 800; }
         .insight p { margin: 0; color: #8a9caf; font-size: 13px; line-height: 1.55; }
 
-        /* Responsive */
         @media (max-width: 1080px) {
             .page-grid { grid-template-columns: 1fr; align-items: start; }
             .status-card { flex-direction: row; flex-wrap: wrap; gap: 20px; }
@@ -283,12 +309,14 @@ function pageUrl($page) {
             .main { padding: 16px 14px 60px; }
             .hero { grid-template-columns: 1fr; }
             .hero-actions { justify-content: flex-start; }
-                .criteria-grid { grid-template-columns: 1fr; }
+            .criteria-grid { grid-template-columns: 1fr; }
             .rules-form { grid-template-columns: 1fr; }
             .upload-strip { grid-template-columns: 1fr; }
             .upload-control { flex-wrap: wrap; }
             .table-head { display: none; }
             .student-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .results-header { flex-direction: column; align-items: flex-start; }
+            .filter-group { flex-wrap: wrap; }
         }
     </style>
 </head>
@@ -331,9 +359,7 @@ function pageUrl($page) {
                         <div class="hero-actions">
                             <form action="../../server/application/admin/runEligibilityBatch.php" method="POST">
                                 <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
-                                <button class="btn btn-light" type="submit">
-                                    Run Eligibility Batch
-                                </button>
+                                <button class="btn btn-light" type="submit">Run Eligibility Batch</button>
                             </form>
                         </div>
                         <div class="hero-metrics">
@@ -414,8 +440,27 @@ function pageUrl($page) {
 
                     <!-- Batch Results -->
                     <section class="panel">
-                        <div class="results-title">
+
+                        <!-- Header with filter pills -->
+                        <div class="results-header">
                             <h2>Batch Processing Results</h2>
+                            <div class="filter-group" role="group" aria-label="Filter by eligibility status">
+                                <a href="<?php echo e(filterUrl('all')); ?>"
+                                   class="filter-pill <?php echo $filterStatus === 'all' ? 'active' : ''; ?>">
+                                    All
+                                    <span class="pill-count"><?php echo e(count($students)); ?></span>
+                                </a>
+                                <a href="<?php echo e(filterUrl('eligible')); ?>"
+                                   class="filter-pill eligible-pill <?php echo $filterStatus === 'eligible' ? 'active' : ''; ?>">
+                                    Eligible
+                                    <span class="pill-count"><?php echo e($eligibleStudents); ?></span>
+                                </a>
+                                <a href="<?php echo e(filterUrl('ineligible')); ?>"
+                                   class="filter-pill ineligible-pill <?php echo $filterStatus === 'ineligible' ? 'active' : ''; ?>">
+                                    Ineligible
+                                    <span class="pill-count"><?php echo e($ineligibleStudents); ?></span>
+                                </a>
+                            </div>
                         </div>
 
                         <div class="table-head">
@@ -427,7 +472,7 @@ function pageUrl($page) {
 
                         <?php if (empty($visibleStudents)): ?>
                             <div class="empty">
-                                No Record: No Student Record Found
+                                No students found<?php echo $filterStatus !== 'all' ? ' for the selected filter' : ''; ?>.
                             </div>
                         <?php else: ?>
                             <?php foreach ($visibleStudents as $student): ?>
@@ -445,15 +490,9 @@ function pageUrl($page) {
                                     <div class="cell-text"><?php echo e($student["programme"]); ?></div>
                                     <div>
                                         <?php if ((bool) $student["eligibilityStatus"]): ?>
-                                            <span class="badge eligible"
-                                                title="<?php echo e($student["eligibilityReason"]); ?>">
-                                                Eligible
-                                            </span>
+                                            <span class="badge eligible" title="<?php echo e($student["eligibilityReason"]); ?>">Eligible</span>
                                         <?php else: ?>
-                                            <span class="badge ineligible"
-                                                title="<?php echo e($student["eligibilityReason"]); ?>">
-                                                Ineligible
-                                            </span>
+                                            <span class="badge ineligible" title="<?php echo e($student["eligibilityReason"]); ?>">Ineligible</span>
                                         <?php endif; ?>
                                     </div>
                                 </article>
@@ -462,18 +501,21 @@ function pageUrl($page) {
 
                         <div class="results-footer">
                             <span>
-                                Showing <?php echo e($firstVisibleEntry); ?>-<?php echo e($lastVisibleEntry); ?> of
-                                <?php echo e(number_format($totalStudents)); ?> entries
+                                Showing <?php echo e($firstVisibleEntry); ?>–<?php echo e($lastVisibleEntry); ?> of
+                                <?php echo e(number_format($totalFiltered)); ?> entries
+                                <?php if ($filterStatus !== 'all'): ?>
+                                    &nbsp;<span style="color:#0d5be8; font-weight:700;">(filtered)</span>
+                                <?php endif; ?>
                             </span>
                             <nav class="pager" aria-label="Pagination">
-                                <a class="page-pill" href="<?php echo e(pageUrl(max(1, $currentPage - 1))); ?>">&lt;</a>
+                                <a class="page-pill" href="<?php echo e(pageUrl(max(1, $currentPage - 1), $filterStatus)); ?>">&lt;</a>
                                 <?php for ($page = 1; $page <= $totalPages; $page++): ?>
-                                    <a class="page-pill <?php echo $page === $currentPage ? "active" : ""; ?>"
-                                    href="<?php echo e(pageUrl($page)); ?>">
+                                    <a class="page-pill <?php echo $page === $currentPage ? 'active' : ''; ?>"
+                                       href="<?php echo e(pageUrl($page, $filterStatus)); ?>">
                                         <?php echo e($page); ?>
                                     </a>
                                 <?php endfor; ?>
-                                <a class="page-pill" href="<?php echo e(pageUrl(min($totalPages, $currentPage + 1))); ?>">&gt;</a>
+                                <a class="page-pill" href="<?php echo e(pageUrl(min($totalPages, $currentPage + 1), $filterStatus)); ?>">&gt;</a>
                             </nav>
                         </div>
                     </section>
@@ -505,9 +547,7 @@ function pageUrl($page) {
                     <div class="summary-bars">
                         <div class="bar-row">
                             <div class="bar-info">
-                                <span class="bar-label">
-                                    <span class="dot blue"></span> Eligible Students
-                                </span>
+                                <span class="bar-label"><span class="dot blue"></span> Eligible Students</span>
                                 <span class="bar-count"><?php echo e(number_format($eligibleStudents)); ?></span>
                             </div>
                             <div class="bar-track">
@@ -516,9 +556,7 @@ function pageUrl($page) {
                         </div>
                         <div class="bar-row">
                             <div class="bar-info">
-                                <span class="bar-label">
-                                    <span class="dot red"></span> Ineligible Students
-                                </span>
+                                <span class="bar-label"><span class="dot red"></span> Ineligible Students</span>
                                 <span class="bar-count"><?php echo e(number_format($ineligibleStudents)); ?></span>
                             </div>
                             <div class="bar-track">
@@ -546,7 +584,6 @@ function pageUrl($page) {
         document.getElementById("studentCSV").addEventListener("change", function () {
             const label = document.getElementById("fileName");
             label.textContent = this.files.length ? this.files[0].name : "No file uploaded";
-
             if (this.files.length) {
                 this.closest("form").submit();
             }

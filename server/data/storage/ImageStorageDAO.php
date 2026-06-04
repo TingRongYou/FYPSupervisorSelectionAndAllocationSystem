@@ -211,11 +211,7 @@ class ImageStorageDAO {
 
         return [
             "success" => true,
-<<<<<<< HEAD
             "path" => self::WEB_STORAGE_ROOT . "/profile_photos/" . $fileName
-=======
-            "path" => "/FYPSupervisorSelectionAndAllocationSystem/storage/profile_photos/" . $fileName
->>>>>>> Admin
         ];
     }
 
@@ -254,17 +250,13 @@ class ImageStorageDAO {
         }
 
         $absolutePath =
-<<<<<<< HEAD
-            realpath($this->managedImageAbsolutePath($imagePath));
-=======
             realpath(__DIR__ . "/../../../" . $relativeImagePath);
 
         /*
-        |--------------------------------------------------------------------------
+        |-------------------------------------------------------------------------- 
         | Delete Existing File
         |--------------------------------------------------------------------------
         */
->>>>>>> Admin
 
         if ($absolutePath !== false && is_file($absolutePath)) {
 
@@ -281,29 +273,6 @@ class ImageStorageDAO {
 
     private function isManagedProfilePhotoPath($imagePath) {
 
-<<<<<<< HEAD
-        return preg_match(
-            "/^(?:\.\.\/storage|\/FYPSupervisorSelectionAndAllocationSystem\/storage)\/profile_photos\/[A-Za-z0-9_-]+\.(jpg|png)$/i",
-            (string) $imagePath
-        ) === 1;
-    }
-
-    private function managedImageAbsolutePath($imagePath) {
-
-        $relativePath =
-            str_replace(
-                [
-                    "../storage/",
-                    self::WEB_STORAGE_ROOT . "/"
-                ],
-                "",
-                (string) $imagePath
-            );
-
-        return __DIR__ . "/../../../storage/" . $relativePath;
-    }
-
-=======
         return $this->normaliseManagedProfilePhotoPath($imagePath) !== null;
     }
 
@@ -334,7 +303,6 @@ class ImageStorageDAO {
     | Converts PHP upload error codes into readable messages.
     */
 
->>>>>>> Admin
     private function uploadErrorMessage($uploadErrorCode) {
 
     /*

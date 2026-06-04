@@ -199,16 +199,12 @@ if (!$validToken) {
 
     <!-- Character encoding -->
     <meta charset="UTF-8">
-<<<<<<< HEAD
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-=======
 
     <!-- Responsive layout for mobile devices -->
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0">
 
     <!-- Browser page title -->
->>>>>>> Admin
     <title>Change Password - SSAS</title>
 
     <style>
@@ -644,15 +640,11 @@ if (!$validToken) {
 
             </div>
 
-<<<<<<< HEAD
-            <a class="back" href="login.html">Back to Login</a>
-=======
             <!-- Back to login link -->
             <a class="back" href="login.html">
                 Back to Login
             </a>
 
->>>>>>> Admin
         </section>
 
     </main>

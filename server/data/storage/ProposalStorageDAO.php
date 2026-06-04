@@ -17,10 +17,8 @@ class ProposalStorageDAO {
     */
     private const MAX_PROPOSAL_SIZE = 5242880; // 5MB in bytes
 
-<<<<<<< HEAD
     private const WEB_STORAGE_ROOT = "/FYPSupervisorSelectionAndAllocationSystem/storage";
 
-=======
     private const INVALID_FILE_MESSAGE =
         "Upload failed. The document must be in PDF format and cannot exceed 5.0 MB in size.";
 
@@ -30,7 +28,6 @@ class ProposalStorageDAO {
     |--------------------------------------------------------------------------
     | Validates and stores uploaded proposal documents securely.
     */
->>>>>>> Admin
     public function storeProposalPDF($uploadedFile, $studentID) {
 
         /*

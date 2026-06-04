@@ -177,15 +177,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <!-- Character encoding -->
     <meta charset="UTF-8">
-<<<<<<< HEAD
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-=======
-
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0">
 
     <!-- Browser page title -->
->>>>>>> Admin
     <title>Forgot Password - SSAS</title>
 
     <style>
@@ -625,15 +620,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             </div>
 
-<<<<<<< HEAD
-            <a class="back" href="login.html">Back to Login</a>
-=======
             <!-- Back to login link -->
             <a class="back" href="login.html">
                 Back to Login
             </a>
-
->>>>>>> Admin
         </section>
 
     </main>
