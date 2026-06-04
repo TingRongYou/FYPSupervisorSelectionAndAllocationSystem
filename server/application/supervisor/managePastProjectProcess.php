@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../auth/SessionManager.php";
 require_once __DIR__ . "/../../business/services/PastProjectService.php";
@@ -96,6 +96,23 @@ $completionYear =
 $alumniName =
     trim($_POST["alumniName"] ?? "");
 
+$projectDescription =
+    trim($_POST["projectDescription"] ?? "");
+
+$projectPDF =
+    $_FILES["projectPDF"] ?? null;
+
+$projectImage =
+    $_FILES["projectImage"] ?? null;
+
+$removeProjectPDF =
+    isset($_POST["removeProjectPDF"]) &&
+    $_POST["removeProjectPDF"] === "1";
+
+$removeProjectImage =
+    isset($_POST["removeProjectImage"]) &&
+    $_POST["removeProjectImage"] === "1";
+
 /*
 |--------------------------------------------------------------------------
 | Backend Validation
@@ -117,11 +134,12 @@ if (
     if (
         empty($projectTitle) ||
         empty($completionYear) ||
-        empty($alumniName)
+        empty($alumniName) ||
+        empty($projectDescription)
     ) {
 
         header(
-            "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=All fields are required"
+            "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Please%20enter%20all%20the%20required%20information."
         );
 
         exit();
@@ -136,7 +154,7 @@ if (
     if (strlen($projectTitle) > 255) {
 
         header(
-            "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Project title too long"
+            "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Please%20enter%20all%20the%20required%20information."
         );
 
         exit();
@@ -151,7 +169,16 @@ if (
     if (strlen($alumniName) > 100) {
 
         header(
-            "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Alumni name too long"
+            "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Please%20enter%20all%20the%20required%20information."
+        );
+
+        exit();
+    }
+
+    if (strlen($projectDescription) > 1000) {
+
+        header(
+            "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Project%20description%20cannot%20exceed%201000%20characters."
         );
 
         exit();
@@ -170,7 +197,7 @@ if (
     ) {
 
         header(
-            "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Invalid completion year"
+            "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Please%20enter%20all%20the%20required%20information."
         );
 
         exit();
@@ -194,7 +221,13 @@ if ($action === "add") {
 
             (int) $completionYear,
 
-            $alumniName
+            $alumniName,
+
+            $projectDescription,
+
+            $projectPDF,
+
+            $projectImage
         );
 
 } elseif ($action === "update") {
@@ -219,7 +252,17 @@ if ($action === "add") {
 
                 (int) $completionYear,
 
-                $alumniName
+                $alumniName,
+
+                $projectDescription,
+
+                $projectPDF,
+
+                $removeProjectPDF,
+
+                $projectImage,
+
+                $removeProjectImage
             );
     }
 
@@ -272,6 +315,3 @@ header(
 exit();
 
 ?>
-
-
-

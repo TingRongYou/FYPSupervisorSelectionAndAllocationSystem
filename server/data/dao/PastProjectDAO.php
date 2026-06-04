@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../database/database.php";
 
@@ -24,6 +24,8 @@ class PastProjectDAO {
 
         $this->conn =
             $database->connect();
+
+        $this->ensurePastProjectColumns();
     }
 
     /*
@@ -42,7 +44,10 @@ class PastProjectDAO {
                 supervisorID,
                 projectTitle,
                 completionYear,
-                alumniName
+                alumniName,
+                COALESCE(projectDescription, '') AS projectDescription,
+                projectPDFPath,
+                projectImagePath
             FROM PAST_PROJECT
             WHERE supervisorID = :supervisorID
             ORDER BY completionYear DESC,
@@ -124,7 +129,10 @@ class PastProjectDAO {
                 supervisorID,
                 projectTitle,
                 completionYear,
-                alumniName
+                alumniName,
+                COALESCE(projectDescription, '') AS projectDescription,
+                projectPDFPath,
+                projectImagePath
             FROM PAST_PROJECT
             WHERE projectID = :projectID
             AND supervisorID = :supervisorID
@@ -276,7 +284,10 @@ class PastProjectDAO {
         $supervisorID,
         $projectTitle,
         $completionYear,
-        $alumniName
+        $alumniName,
+        $projectDescription,
+        $projectPDFPath,
+        $projectImagePath
     ) {
 
         $query = "
@@ -285,14 +296,20 @@ class PastProjectDAO {
                 supervisorID,
                 projectTitle,
                 completionYear,
-                alumniName
+                alumniName,
+                projectDescription,
+                projectPDFPath,
+                projectImagePath
             )
             VALUES
             (
                 :supervisorID,
                 :projectTitle,
                 :completionYear,
-                :alumniName
+                :alumniName,
+                :projectDescription,
+                :projectPDFPath,
+                :projectImagePath
             )
         ";
 
@@ -322,6 +339,21 @@ class PastProjectDAO {
             $alumniName
         );
 
+        $statement->bindParam(
+            ":projectDescription",
+            $projectDescription
+        );
+
+        $statement->bindParam(
+            ":projectPDFPath",
+            $projectPDFPath
+        );
+
+        $statement->bindParam(
+            ":projectImagePath",
+            $projectImagePath
+        );
+
         return
             $statement->execute();
     }
@@ -337,7 +369,10 @@ class PastProjectDAO {
         $supervisorID,
         $projectTitle,
         $completionYear,
-        $alumniName
+        $alumniName,
+        $projectDescription,
+        $projectPDFPath,
+        $projectImagePath
     ) {
 
         $query = "
@@ -345,7 +380,10 @@ class PastProjectDAO {
             SET
                 projectTitle = :projectTitle,
                 completionYear = :completionYear,
-                alumniName = :alumniName
+                alumniName = :alumniName,
+                projectDescription = :projectDescription,
+                projectPDFPath = :projectPDFPath,
+                projectImagePath = :projectImagePath
             WHERE projectID = :projectID
             AND supervisorID = :supervisorID
         ";
@@ -369,6 +407,21 @@ class PastProjectDAO {
         $statement->bindParam(
             ":alumniName",
             $alumniName
+        );
+
+        $statement->bindParam(
+            ":projectDescription",
+            $projectDescription
+        );
+
+        $statement->bindParam(
+            ":projectPDFPath",
+            $projectPDFPath
+        );
+
+        $statement->bindParam(
+            ":projectImagePath",
+            $projectImagePath
         );
 
         $statement->bindParam(
@@ -422,8 +475,32 @@ class PastProjectDAO {
         return
             $statement->execute();
     }
+
+    private function ensurePastProjectColumns() {
+
+        $columns =
+            $this->conn
+            ->query("SHOW COLUMNS FROM PAST_PROJECT")
+            ->fetchAll(PDO::FETCH_COLUMN);
+
+        if (!in_array("projectDescription", $columns, true)) {
+
+            $this->conn
+                ->exec("ALTER TABLE PAST_PROJECT ADD projectDescription TEXT NULL AFTER alumniName");
+        }
+
+        if (!in_array("projectPDFPath", $columns, true)) {
+
+            $this->conn
+                ->exec("ALTER TABLE PAST_PROJECT ADD projectPDFPath VARCHAR(255) NULL AFTER projectDescription");
+        }
+
+        if (!in_array("projectImagePath", $columns, true)) {
+
+            $this->conn
+                ->exec("ALTER TABLE PAST_PROJECT ADD projectImagePath VARCHAR(255) NULL AFTER projectPDFPath");
+        }
+    }
 }
 
 ?>
-
-

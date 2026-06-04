@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../database/database.php";
 
@@ -217,8 +217,37 @@ class UserDAO {
         |--------------------------------------------------------------------------
         */
 
-        return
+        $updated =
             $statement->execute();
+
+        if ($updated) {
+
+            $studentQuery = "
+                UPDATE STUDENT_PROFILE
+                SET avatarFilePath = :profilePhotoPath
+                WHERE studentID = :userID
+            ";
+
+            $studentStatement =
+                $this->conn->prepare(
+                    $studentQuery
+                );
+
+            $studentStatement->bindParam(
+                ":profilePhotoPath",
+                $profilePhotoPath
+            );
+
+            $studentStatement->bindParam(
+                ":userID",
+                $userID
+            );
+
+            $studentStatement->execute();
+        }
+
+        return
+            $updated;
     }
 
     /*
@@ -546,5 +575,3 @@ class UserDAO {
 }
 
 ?>
-
-

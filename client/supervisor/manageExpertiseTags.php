@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/TagManagementService.php";
@@ -45,11 +45,11 @@ $strength = $tagCount >= 7 ? "High" : ($tagCount >= 4 ? "Medium" : "Low");
         .tags-layout { display: grid; grid-template-columns: minmax(0, 1.32fr) minmax(300px, .68fr); gap: 22px; align-items: start; }
         .tag-card { padding: 24px; border-radius: 8px; }
         .card-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 22px; }
-        .card-title { margin: 0; color: #1d2b3a; font-size: 13px; text-transform: uppercase; letter-spacing: .8px; display: flex; align-items: center; gap: 8px; }
+        .card-title { margin: 0; color: #1d2b3a; font-size: 14px; text-transform: uppercase; letter-spacing: .8px; display: flex; align-items: center; gap: 8px; }
         .card-title:before { content: ""; width: 12px; height: 8px; border: 2px solid #0d5be8; border-radius: 3px; display: inline-block; }
-        .active-badge { padding: 5px 9px; border-radius: 999px; background: #eaf3ff; color: #0d5be8; font-size: 10px; font-weight: 900; text-transform: uppercase; }
+        .active-badge { padding: 6px 10px; border-radius: 999px; background: #eaf3ff; color: #0d5be8; font-size: 12px; font-weight: 900; text-transform: uppercase; }
         .selected-box { border: 1px dashed #cfe0ef; border-radius: 12px; padding: 20px; min-height: 120px; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; margin-bottom: 24px; background: #fbfdff; }
-        .selected-pill { background: #fff; border: 1px solid #dbe6f0; color: #2f4053; border-radius: 8px; padding: 9px 12px; font-weight: 800; font-size: 12px; box-shadow: 0 1px 2px rgba(11,79,138,.04); }
+        .selected-pill { background: #fff; border: 1px solid #dbe6f0; color: #2f4053; border-radius: 8px; padding: 9px 12px; font-weight: 800; font-size: 14px; box-shadow: 0 1px 2px rgba(11,79,138,.04); }
         .selected-pill.selected-tag { cursor: pointer; }
         .selected-pill.selected-tag:after { content: "x"; margin-left: 8px; color: #0d5be8; }
         .tag-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 10px; }
@@ -57,18 +57,18 @@ $strength = $tagCount >= 7 ? "High" : ($tagCount >= 4 ? "Medium" : "Low");
         .tag-option:hover { border-color: #b9d4f3; box-shadow: 0 8px 18px rgba(11,79,138,.08); }
         .tag-option:has(input:checked) { border-color: #0d5be8; background: #f5f9ff; }
         .tag-option input { width: 18px; height: 18px; margin: 0; appearance: none; border: 1px solid #c7d9ee; border-radius: 50%; display: grid; place-items: center; background: #fff; cursor: pointer; }
-        .tag-option input:before { content: "+"; color: #8fa5bc; font-size: 13px; font-weight: 900; line-height: 1; }
+        .tag-option input:before { content: "+"; color: #8fa5bc; font-size: 14px; font-weight: 900; line-height: 1; }
         .tag-option input:checked { border-color: #0d5be8; background: #0d5be8; }
         .tag-option input:checked:before { content: "x"; color: #fff; }
-        .tag-name { display: flex; align-items: center; gap: 10px; font-weight: 800; color: #2f4053; font-size: 13px; min-width: 0; }
-        .tag-code { width: 32px; height: 32px; border-radius: 9px; background: #eaf3ff; color: #0d5be8; display: grid; place-items: center; font-size: 11px; font-weight: 900; flex: 0 0 auto; }
+        .tag-name { display: flex; align-items: center; gap: 10px; font-weight: 800; color: #2f4053; font-size: 14px; min-width: 0; }
+        .tag-code { width: 32px; height: 32px; border-radius: 9px; background: #eaf3ff; color: #0d5be8; display: grid; place-items: center; font-size: 14px; font-weight: 900; flex: 0 0 auto; }
         .tag-option:nth-child(3n+1) .tag-code { background: #eaf3ff; color: #0d5be8; }
         .tag-option:nth-child(3n+2) .tag-code { background: #f5edff; color: #7a4de2; }
         .tag-option:nth-child(3n+3) .tag-code { background: #e9fbf2; color: #15975d; }
         .side-stack { display: grid; gap: 18px; }
         .insight-card { padding: 24px; border-radius: 8px; position: relative; overflow: hidden; }
         .score { font-size: 36px; color: #0d5be8; font-weight: 900; margin: 14px 0 4px; }
-        .visibility { color: #b4c5d8; font-size: 10px; font-weight: 900; letter-spacing: .8px; text-transform: uppercase; }
+        .visibility { color: #b4c5d8; font-size: 14px; font-weight: 900; letter-spacing: .8px; text-transform: uppercase; }
         .bars { display: flex; align-items: end; gap: 6px; height: 70px; margin-top: 18px; }
         .bars span { width: 10px; border-radius: 999px; background: #0d5be8; opacity: .35; }
         .bars span:nth-child(2) { height: 40px; }
@@ -77,7 +77,7 @@ $strength = $tagCount >= 7 ? "High" : ($tagCount >= 4 ? "Medium" : "Low");
         .bars.strength-low span:nth-child(n+2) { opacity: .18; }
         .bars.strength-medium span:nth-child(3) { opacity: .85; }
         .bars.strength-medium span:nth-child(4) { opacity: .22; }
-        .trend-list { margin: 0; padding-left: 18px; color: #2f4053; line-height: 1.9; font-weight: 700; font-size: 13px; }
+        .trend-list { margin: 0; padding-left: 18px; color: #2f4053; line-height: 1.9; font-weight: 700; font-size: 14px; }
         .trend-list li::marker { color: #0d5be8; }
         .actions { display: grid; gap: 12px; }
         @media (max-width: 1100px) { .tags-layout, .tag-options { grid-template-columns: 1fr; } }
@@ -239,5 +239,3 @@ $strength = $tagCount >= 7 ? "High" : ($tagCount >= 4 ? "Medium" : "Low");
     </script>
 </body>
 </html>
-
-

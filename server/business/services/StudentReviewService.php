@@ -1,0 +1,151 @@
+<?php
+
+require_once __DIR__ . "/../../data/dao/SupervisorReviewDAO.php";
+require_once __DIR__ . "/SupervisorReviewProxy.php";
+
+class StudentReviewService {
+
+    private const MAX_FEEDBACK_LENGTH = 1000;
+
+    private $reviewDAO;
+
+    public function __construct() {
+
+        $this->reviewDAO = new SupervisorReviewDAO();
+    }
+
+    public function getReviewPagePayload($studentID) {
+
+        $context = $this->reviewDAO->getReviewContextForStudent($studentID);
+        $phase = $this->reviewDAO->getActiveSystemPhase();
+        $isReviewPeriod = $this->isReviewPeriod($phase);
+
+        $statistics = null;
+
+        if ($context && !empty($context["supervisorID"])) {
+
+            $statistics = $this->reviewDAO
+                ->getSupervisorReviewStatistics($context["supervisorID"]);
+        }
+
+        return [
+            "context" => $context,
+            "phase" => $phase,
+            "isReviewPeriod" => $isReviewPeriod,
+            "statistics" => $statistics,
+            "canSubmit" => $context &&
+                !$context["reviewID"] &&
+                $isReviewPeriod
+        ];
+    }
+
+    public function submitReview($studentID, $allocationID, $starRating, $textFeedback, $isAnonymous) {
+
+        $studentID = trim((string) $studentID);
+        $allocationID = (int) $allocationID;
+        $starRating = (int) $starRating;
+        $textFeedback = trim((string) $textFeedback);
+        $isAnonymous = (bool) $isAnonymous;
+
+        if (!$this->isReviewPeriod($this->reviewDAO->getActiveSystemPhase())) {
+
+            return $this->failure(
+                "Submission failed. Reviews can only be submitted during the Review Period."
+            );
+        }
+
+        if (!$this->reviewDAO->allocationBelongsToStudent($allocationID, $studentID)) {
+
+            return $this->failure(
+                "Submission failed. You must have a completed allocation before submitting a review."
+            );
+        }
+
+        if ($this->reviewDAO->reviewExistsForAllocation($allocationID)) {
+
+            return $this->failure(
+                "You have already submitted an evaluation for your supervisor this semester."
+            );
+        }
+
+        if ($starRating < 1 || $starRating > 5) {
+
+            return $this->failure(
+                "Err Missing Rating - Submission failed. You must select a star rating (1-5) to submit a review. Text feedback is optional."
+            );
+        }
+
+        if (strlen($textFeedback) > self::MAX_FEEDBACK_LENGTH) {
+
+            return $this->failure(
+                "Submission failed. Feedback cannot exceed 1000 characters."
+            );
+        }
+
+        $created = $this->reviewDAO->createReview(
+            $allocationID,
+            $studentID,
+            $starRating,
+            $textFeedback,
+            $isAnonymous
+        );
+
+        if (!$created) {
+
+            return $this->failure(
+                "Submission failed. Please try again."
+            );
+        }
+
+        return $this->success(
+            "Your review has been successfully submitted. Thank you for your feedback."
+        );
+    }
+
+    public function getSanitizedReviewsForSupervisor($supervisorID) {
+
+        $reviews = $this->reviewDAO
+            ->getSanitizedReviewsForSupervisor($supervisorID);
+
+        return array_map(
+            function ($review) {
+
+                return (new AnonymousReviewProxy(
+                    new SupervisorReviewRecord($review)
+                ))->display();
+            },
+            $reviews
+        );
+    }
+
+    public function getReviewAuditRecords($supervisorID = "") {
+
+        return
+            $this->reviewDAO
+                ->getReviewAuditRecords($supervisorID);
+    }
+
+    private function isReviewPeriod($phase) {
+
+        return $phase &&
+            strtolower(trim((string) $phase["phaseName"])) === "review period";
+    }
+
+    private function success($message) {
+
+        return [
+            "success" => true,
+            "message" => $message
+        ];
+    }
+
+    private function failure($message) {
+
+        return [
+            "success" => false,
+            "message" => $message
+        ];
+    }
+}
+
+?>

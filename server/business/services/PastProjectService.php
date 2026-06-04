@@ -1,6 +1,8 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../../data/dao/PastProjectDAO.php";
+require_once __DIR__ . "/../../data/storage/PastProjectDocumentStorageDAO.php";
+require_once __DIR__ . "/../../data/storage/PastProjectImageStorageDAO.php";
 
 class PastProjectService {
 
@@ -12,6 +14,8 @@ class PastProjectService {
 
     private const MIN_COMPLETION_YEAR = 2000;
 
+    private const MAX_DESCRIPTION_LENGTH = 1000;
+
     /*
     |--------------------------------------------------------------------------
     | Properties
@@ -19,6 +23,10 @@ class PastProjectService {
     */
 
     private $pastProjectDAO;
+
+    private $documentStorageDAO;
+
+    private $imageStorageDAO;
 
     /*
     |--------------------------------------------------------------------------
@@ -30,6 +38,12 @@ class PastProjectService {
 
         $this->pastProjectDAO =
             new PastProjectDAO();
+
+        $this->documentStorageDAO =
+            new PastProjectDocumentStorageDAO();
+
+        $this->imageStorageDAO =
+            new PastProjectImageStorageDAO();
     }
 
     /*
@@ -114,7 +128,10 @@ class PastProjectService {
         $supervisorID,
         $projectTitle,
         $completionYear,
-        $alumniName
+        $alumniName,
+        $projectDescription,
+        $projectPDFFile = null,
+        $projectImageFile = null
     ) {
 
         /*
@@ -127,7 +144,8 @@ class PastProjectService {
             $this->validateProjectInput(
                 $projectTitle,
                 $completionYear,
-                $alumniName
+                $alumniName,
+                $projectDescription
             );
 
         if (!$validation["success"]) {
@@ -150,6 +168,42 @@ class PastProjectService {
         $alumniName =
             trim($alumniName);
 
+        $projectDescription =
+            trim($projectDescription);
+
+        $documentResult =
+            $this->documentStorageDAO
+            ->storeProjectPDF(
+                $projectPDFFile,
+                $supervisorID
+            );
+
+        if (!$documentResult["success"]) {
+
+            return $this->failure($documentResult["message"]);
+        }
+
+        $projectPDFPath =
+            $documentResult["path"];
+
+        $imageResult =
+            $this->imageStorageDAO
+            ->storeProjectImage(
+                $projectImageFile,
+                $supervisorID
+            );
+
+        if (!$imageResult["success"]) {
+
+            $this->documentStorageDAO
+                ->deleteStoredPDF($projectPDFPath);
+
+            return $this->failure($imageResult["message"]);
+        }
+
+        $projectImagePath =
+            $imageResult["path"];
+
         /*
         |--------------------------------------------------------------------------
         | Duplicate Protection
@@ -171,12 +225,24 @@ class PastProjectService {
 
             if ($exists) {
 
+                $this->documentStorageDAO
+                    ->deleteStoredPDF($projectPDFPath);
+
+                $this->imageStorageDAO
+                    ->deleteStoredImage($projectImagePath);
+
                 return $this->failure(
                     "This past project already exists"
                 );
             }
 
         } catch (Exception $exception) {
+
+            $this->documentStorageDAO
+                ->deleteStoredPDF($projectPDFPath);
+
+            $this->imageStorageDAO
+                ->deleteStoredImage($projectImagePath);
 
             return $this->failure(
                 "Unable to validate project duplication"
@@ -201,10 +267,22 @@ class PastProjectService {
 
                     $completionYear,
 
-                    $alumniName
+                    $alumniName,
+
+                    $projectDescription,
+
+                    $projectPDFPath,
+
+                    $projectImagePath
                 );
 
             if (!$created) {
+
+                $this->documentStorageDAO
+                    ->deleteStoredPDF($projectPDFPath);
+
+                $this->imageStorageDAO
+                    ->deleteStoredImage($projectImagePath);
 
                 return $this->failure(
                     "Past project could not be added"
@@ -213,13 +291,19 @@ class PastProjectService {
 
         } catch (Exception $exception) {
 
+            $this->documentStorageDAO
+                ->deleteStoredPDF($projectPDFPath);
+
+            $this->imageStorageDAO
+                ->deleteStoredImage($projectImagePath);
+
             return $this->failure(
                 "System error occurred while adding project"
             );
         }
 
         return $this->success(
-            "Past project added successfully"
+            "Update Successful - Your past projects have been successfully updated in the showcase."
         );
     }
 
@@ -234,7 +318,12 @@ class PastProjectService {
         $supervisorID,
         $projectTitle,
         $completionYear,
-        $alumniName
+        $alumniName,
+        $projectDescription,
+        $projectPDFFile = null,
+        $removeProjectPDF = false,
+        $projectImageFile = null,
+        $removeProjectImage = false
     ) {
 
         /*
@@ -293,7 +382,8 @@ class PastProjectService {
             $this->validateProjectInput(
                 $projectTitle,
                 $completionYear,
-                $alumniName
+                $alumniName,
+                $projectDescription
             );
 
         if (!$validation["success"]) {
@@ -315,6 +405,75 @@ class PastProjectService {
 
         $alumniName =
             trim($alumniName);
+
+        $projectDescription =
+            trim($projectDescription);
+
+        $projectPDFPath =
+            $project["projectPDFPath"] ?? null;
+
+        $oldProjectPDFPath =
+            $projectPDFPath;
+
+        $projectImagePath =
+            $project["projectImagePath"] ?? null;
+
+        $oldProjectImagePath =
+            $projectImagePath;
+
+        if ($removeProjectPDF) {
+
+            $projectPDFPath =
+                null;
+        }
+
+        if ($removeProjectImage) {
+
+            $projectImagePath =
+                null;
+        }
+
+        $documentResult =
+            $this->documentStorageDAO
+            ->storeProjectPDF(
+                $projectPDFFile,
+                $supervisorID
+            );
+
+        if (!$documentResult["success"]) {
+
+            return $this->failure($documentResult["message"]);
+        }
+
+        if ($documentResult["path"] !== null) {
+
+            $projectPDFPath =
+                $documentResult["path"];
+        }
+
+        $imageResult =
+            $this->imageStorageDAO
+            ->storeProjectImage(
+                $projectImageFile,
+                $supervisorID
+            );
+
+        if (!$imageResult["success"]) {
+
+            if ($documentResult["path"] !== null) {
+
+                $this->documentStorageDAO
+                    ->deleteStoredPDF($projectPDFPath);
+            }
+
+            return $this->failure($imageResult["message"]);
+        }
+
+        if ($imageResult["path"] !== null) {
+
+            $projectImagePath =
+                $imageResult["path"];
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -339,12 +498,36 @@ class PastProjectService {
 
             if ($exists) {
 
+                if ($documentResult["path"] !== null) {
+
+                    $this->documentStorageDAO
+                        ->deleteStoredPDF($projectPDFPath);
+                }
+
+                if ($imageResult["path"] !== null) {
+
+                    $this->imageStorageDAO
+                        ->deleteStoredImage($projectImagePath);
+                }
+
                 return $this->failure(
                     "Another project with the same title and year already exists"
                 );
             }
 
         } catch (Exception $exception) {
+
+            if ($documentResult["path"] !== null) {
+
+                $this->documentStorageDAO
+                    ->deleteStoredPDF($projectPDFPath);
+            }
+
+            if ($imageResult["path"] !== null) {
+
+                $this->imageStorageDAO
+                    ->deleteStoredImage($projectImagePath);
+            }
 
             return $this->failure(
                 "Unable to validate duplicate project"
@@ -371,17 +554,59 @@ class PastProjectService {
 
                     $completionYear,
 
-                    $alumniName
+                    $alumniName,
+
+                    $projectDescription,
+
+                    $projectPDFPath,
+
+                    $projectImagePath
                 );
 
             if (!$updated) {
+
+                if ($documentResult["path"] !== null) {
+
+                    $this->documentStorageDAO
+                        ->deleteStoredPDF($projectPDFPath);
+                }
+
+                if ($imageResult["path"] !== null) {
+
+                    $this->imageStorageDAO
+                        ->deleteStoredImage($projectImagePath);
+                }
 
                 return $this->failure(
                     "Past project could not be updated"
                 );
             }
 
+            if ($removeProjectPDF || $documentResult["path"] !== null) {
+
+                $this->documentStorageDAO
+                    ->deleteStoredPDF($oldProjectPDFPath);
+            }
+
+            if ($removeProjectImage || $imageResult["path"] !== null) {
+
+                $this->imageStorageDAO
+                    ->deleteStoredImage($oldProjectImagePath);
+            }
+
         } catch (Exception $exception) {
+
+            if ($documentResult["path"] !== null) {
+
+                $this->documentStorageDAO
+                    ->deleteStoredPDF($projectPDFPath);
+            }
+
+            if ($imageResult["path"] !== null) {
+
+                $this->imageStorageDAO
+                    ->deleteStoredImage($projectImagePath);
+            }
 
             return $this->failure(
                 "System error occurred while updating project"
@@ -389,7 +614,7 @@ class PastProjectService {
         }
 
         return $this->success(
-            "Past project updated successfully"
+            "Update Successful - Your past projects have been successfully updated in the showcase."
         );
     }
 
@@ -472,6 +697,12 @@ class PastProjectService {
                 );
             }
 
+            $this->documentStorageDAO
+                ->deleteStoredPDF($project["projectPDFPath"] ?? "");
+
+            $this->imageStorageDAO
+                ->deleteStoredImage($project["projectImagePath"] ?? "");
+
         } catch (Exception $exception) {
 
             return $this->failure(
@@ -480,7 +711,7 @@ class PastProjectService {
         }
 
         return $this->success(
-            "Past project deleted successfully"
+            "Update Successful - Your past projects have been successfully updated in the showcase."
         );
     }
 
@@ -493,7 +724,8 @@ class PastProjectService {
     private function validateProjectInput(
         $projectTitle,
         $completionYear,
-        $alumniName
+        $alumniName,
+        $projectDescription
     ) {
 
         /*
@@ -511,6 +743,9 @@ class PastProjectService {
         $alumniName =
             trim($alumniName);
 
+        $projectDescription =
+            trim($projectDescription);
+
         /*
         |--------------------------------------------------------------------------
         | Empty Validation
@@ -520,14 +755,21 @@ class PastProjectService {
         if ($projectTitle === "") {
 
             return $this->failure(
-                "Project title is required"
+                "Validation Error - Please enter all the required information."
             );
         }
 
         if ($alumniName === "") {
 
             return $this->failure(
-                "Alumni name is required"
+                "Validation Error - Please enter all the required information."
+            );
+        }
+
+        if ($projectDescription === "") {
+
+            return $this->failure(
+                "Validation Error - Please enter all the required information."
             );
         }
 
@@ -542,7 +784,7 @@ class PastProjectService {
         ) {
 
             return $this->failure(
-                "Project title cannot exceed 255 characters"
+                "Validation Error - Please enter all the required information."
             );
         }
 
@@ -551,7 +793,16 @@ class PastProjectService {
         ) {
 
             return $this->failure(
-                "Alumni name cannot exceed 100 characters"
+                "Validation Error - Please enter all the required information."
+            );
+        }
+
+        if (
+            strlen($projectDescription) > self::MAX_DESCRIPTION_LENGTH
+        ) {
+
+            return $this->failure(
+                "Validation Error - Project description cannot exceed 1000 characters."
             );
         }
 
@@ -566,7 +817,7 @@ class PastProjectService {
         ) {
 
             return $this->failure(
-                "Completion year must be numeric"
+                "Validation Error - Please enter all the required information."
             );
         }
 
@@ -582,7 +833,7 @@ class PastProjectService {
         ) {
 
             return $this->failure(
-                "Completion year is outside the allowed range"
+                "Validation Error - Please enter all the required information."
             );
         }
 
@@ -653,5 +904,3 @@ class PastProjectService {
 }
 
 ?>
-
-

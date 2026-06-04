@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../entities/User.php";
 
@@ -8,5 +8,3 @@ interface RoleFactory {
 }
 
 ?>
-
-

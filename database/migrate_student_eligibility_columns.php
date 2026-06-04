@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../server/data/database/database.php";
 
@@ -41,4 +41,3 @@ foreach ($requiredColumns as $columnName => $alterSql) {
 echo "student eligibility column migration ok" . PHP_EOL;
 
 ?>
-

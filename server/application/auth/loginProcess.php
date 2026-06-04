@@ -1,4 +1,5 @@
-﻿<?php
+<?php
+
 
 require_once "AuthManager.php";
 require_once "SessionManager.php";
@@ -57,10 +58,7 @@ $authManager =
     new AuthManager();
 
 $isLoggedIn =
-    $authManager->login(
-        $email,
-        $password
-    );
+    $authManager->login($email,$password);
 
 /*
 |--------------------------------------------------------------------------
@@ -131,6 +129,3 @@ header("Location: ../../../client/auth/login.html?status=error&message=Invalid s
 exit();
 
 ?>
-
-
-

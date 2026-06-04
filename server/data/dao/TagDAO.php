@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../database/database.php";
 
@@ -100,6 +100,108 @@ class TagDAO {
             $statement->fetchAll(
                 PDO::FETCH_COLUMN
             );
+    }
+
+    public function getStudentTagIDs(
+        $studentID
+    ) {
+
+        $query = "
+
+            SELECT
+
+                tagID
+
+            FROM STUDENT_TAG_SELECTION
+
+            WHERE studentID = :studentID
+
+            ORDER BY tagID ASC
+        ";
+
+        $statement =
+            $this->conn->prepare(
+                $query
+            );
+
+        $statement->bindParam(
+            ":studentID",
+            $studentID
+        );
+
+        $statement->execute();
+
+        return $statement
+            ->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    public function getSupervisorTagMap(
+        $supervisorIDs
+    ) {
+
+        if (empty($supervisorIDs)) {
+
+            return [];
+        }
+
+        $placeholders =
+            implode(
+                ",",
+                array_fill(0, count($supervisorIDs), "?")
+            );
+
+        $query = "
+            SELECT
+                STS.supervisorID,
+                RT.tagID,
+                RT.tagName
+            FROM SUPERVISOR_TAG_SELECTION STS
+            INNER JOIN RESEARCH_TAG RT
+                ON STS.tagID = RT.tagID
+            WHERE STS.supervisorID IN ({$placeholders})
+            ORDER BY RT.tagName ASC
+        ";
+
+        $statement =
+            $this->conn->prepare($query);
+
+        foreach ($supervisorIDs as $index => $supervisorID) {
+
+            $statement->bindValue(
+                $index + 1,
+                $supervisorID
+            );
+        }
+
+        $statement->execute();
+
+        $rows =
+            $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        $tagMap =
+            [];
+
+        foreach ($rows as $row) {
+
+            $supervisorID =
+                $row["supervisorID"];
+
+            if (!isset($tagMap[$supervisorID])) {
+
+                $tagMap[$supervisorID] =
+                    [];
+            }
+
+            $tagMap[$supervisorID][] = [
+                "tagID" =>
+                    (int) $row["tagID"],
+
+                "tagName" =>
+                    $row["tagName"]
+            ];
+        }
+
+        return $tagMap;
     }
 
     /*
@@ -460,4 +562,3 @@ class TagDAO {
 }
 
 ?>
-

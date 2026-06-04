@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../../data/dao/SupervisorDAO.php";
 require_once __DIR__ . "/../../data/dao/UserDAO.php";
@@ -484,5 +484,3 @@ class SupervisorManagementService {
 }
 
 ?>
-
-

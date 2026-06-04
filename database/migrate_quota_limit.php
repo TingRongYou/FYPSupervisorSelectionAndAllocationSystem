@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../server/data/database/database.php";
 
@@ -26,4 +26,3 @@ if ((int) $result["total"] === 0) {
 echo "quota limit migration ok" . PHP_EOL;
 
 ?>
-

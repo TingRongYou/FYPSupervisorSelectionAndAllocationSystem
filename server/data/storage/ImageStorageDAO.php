@@ -1,8 +1,21 @@
-﻿<?php
+<?php
+/*
+|--------------------------------------------------------------------------
+| Image Storage DAO
+|--------------------------------------------------------------------------
+| Handles profile photo upload validation, storage, and deletion.
+| Only JPG and PNG images under 2MB are accepted.
+*/
 
 class ImageStorageDAO {
 
-    private const MAX_IMAGE_SIZE = 2097152;
+    /*
+    |--------------------------------------------------------------------------
+    | Upload Constraints
+    |--------------------------------------------------------------------------
+    */
+
+    private const MAX_IMAGE_SIZE = 2097152; // 2MB in bytes
 
     private const WEB_STORAGE_ROOT = "/FYPSupervisorSelectionAndAllocationSystem/storage";
 
@@ -11,7 +24,20 @@ class ImageStorageDAO {
         "image/png"
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | Store Profile Photo
+    |--------------------------------------------------------------------------
+    | Validates and stores uploaded profile photos securely.
+    */
+
     public function storeProfilePhoto($uploadedFile, $userID) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Upload Error Validation
+        |--------------------------------------------------------------------------
+        */
 
         if (!isset($uploadedFile["error"])) {
 
@@ -21,6 +47,12 @@ class ImageStorageDAO {
             ];
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | No File Uploaded
+        |--------------------------------------------------------------------------
+        */
+
         if ((int) $uploadedFile["error"] === UPLOAD_ERR_NO_FILE) {
 
             return [
@@ -28,6 +60,12 @@ class ImageStorageDAO {
                 "path" => null
             ];
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | PHP Upload Error Handling
+        |--------------------------------------------------------------------------
+        */
 
         if ((int) $uploadedFile["error"] !== UPLOAD_ERR_OK) {
 
@@ -37,13 +75,25 @@ class ImageStorageDAO {
             ];
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | File Size Validation
+        |--------------------------------------------------------------------------
+        */
+
         if ((int) $uploadedFile["size"] > self::MAX_IMAGE_SIZE) {
 
             return [
                 "success" => false,
-                "message" => "Invalid Image Format - The uploaded file is not a supported image format. Please upload a JPG or PNG file under 2MB."
+                "message" => "Invalid Image Format - The uploaded file is not supported image format. Please upload a JPG or PNG file under 2MB."
             ];
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Temporary File Validation
+        |--------------------------------------------------------------------------
+        */
 
         if (
             !isset($uploadedFile["tmp_name"]) ||
@@ -52,9 +102,16 @@ class ImageStorageDAO {
 
             return [
                 "success" => false,
-                "message" => "Invalid Image Format - The uploaded file is not a supported image format. Please upload a JPG or PNG file under 2MB."
+                "message" => "Invalid Image Format - The uploaded file is not supported image format. Please upload a JPG or PNG file under 2MB."
             ];
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | MIME Type Validation
+        |--------------------------------------------------------------------------
+        | Ensures only JPG and PNG files are accepted.
+        */
 
         $finfo = new finfo(FILEINFO_MIME_TYPE);
         $mimeType = $finfo->file($uploadedFile["tmp_name"]);
@@ -63,13 +120,27 @@ class ImageStorageDAO {
 
             return [
                 "success" => false,
-                "message" => "Invalid Image Format - The uploaded file is not a supported image format. Please upload a JPG or PNG file under 2MB."
+                "message" => "Invalid Image Format - The uploaded file is not supported image format. Please upload a JPG or PNG file under 2MB."
             ];
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | File Name Generation
+        |--------------------------------------------------------------------------
+        | Generates a safe and unique file name.
+        */
 
         $extension = $mimeType === "image/png" ? "png" : "jpg";
         $safeUserID = preg_replace("/[^A-Za-z0-9_-]/", "", $userID);
         $fileName = $safeUserID . "_" . date("YmdHis") . "." . $extension;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Storage Directory Resolution
+        |--------------------------------------------------------------------------
+        */
+
         $storageDirectory = realpath(__DIR__ . "/../../../storage");
 
         if ($storageDirectory === false) {
@@ -78,6 +149,12 @@ class ImageStorageDAO {
         }
 
         $photoDirectory = $storageDirectory . DIRECTORY_SEPARATOR . "profile_photos";
+
+        /*
+        |--------------------------------------------------------------------------
+        | Create Profile Photo Directory
+        |--------------------------------------------------------------------------
+        */
 
         if (!is_dir($photoDirectory)) {
 
@@ -90,6 +167,12 @@ class ImageStorageDAO {
             }
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Directory Write Permission Validation
+        |--------------------------------------------------------------------------
+        */
+
         if (!is_writable($photoDirectory)) {
 
             return [
@@ -98,7 +181,19 @@ class ImageStorageDAO {
             ];
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Destination Path Generation
+        |--------------------------------------------------------------------------
+        */
+
         $destination = $photoDirectory . DIRECTORY_SEPARATOR . $fileName;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Move Uploaded File
+        |--------------------------------------------------------------------------
+        */
 
         if (!move_uploaded_file($uploadedFile["tmp_name"], $destination)) {
 
@@ -108,21 +203,68 @@ class ImageStorageDAO {
             ];
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Successful Upload Response
+        |--------------------------------------------------------------------------
+        */
+
         return [
             "success" => true,
+<<<<<<< HEAD
             "path" => self::WEB_STORAGE_ROOT . "/profile_photos/" . $fileName
+=======
+            "path" => "/FYPSupervisorSelectionAndAllocationSystem/storage/profile_photos/" . $fileName
+>>>>>>> Admin
         ];
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Delete Stored Image
+    |--------------------------------------------------------------------------
+    | Deletes managed profile photos safely.
+    */
+
     public function deleteStoredImage($imagePath) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Managed Path Validation
+        |--------------------------------------------------------------------------
+        */
 
         if (!$this->isManagedProfilePhotoPath($imagePath)) {
 
             return;
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Resolve Absolute File Path
+        |--------------------------------------------------------------------------
+        */
+
+        $relativeImagePath =
+            $this->normaliseManagedProfilePhotoPath($imagePath);
+
+        if ($relativeImagePath === null) {
+
+            return;
+        }
+
         $absolutePath =
+<<<<<<< HEAD
             realpath($this->managedImageAbsolutePath($imagePath));
+=======
+            realpath(__DIR__ . "/../../../" . $relativeImagePath);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Delete Existing File
+        |--------------------------------------------------------------------------
+        */
+>>>>>>> Admin
 
         if ($absolutePath !== false && is_file($absolutePath)) {
 
@@ -130,8 +272,16 @@ class ImageStorageDAO {
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Managed Profile Photo Path Validation
+    |--------------------------------------------------------------------------
+    | Ensures only application-managed files can be deleted.
+    */
+
     private function isManagedProfilePhotoPath($imagePath) {
 
+<<<<<<< HEAD
         return preg_match(
             "/^(?:\.\.\/storage|\/FYPSupervisorSelectionAndAllocationSystem\/storage)\/profile_photos\/[A-Za-z0-9_-]+\.(jpg|png)$/i",
             (string) $imagePath
@@ -153,25 +303,73 @@ class ImageStorageDAO {
         return __DIR__ . "/../../../storage/" . $relativePath;
     }
 
+=======
+        return $this->normaliseManagedProfilePhotoPath($imagePath) !== null;
+    }
+
+    private function normaliseManagedProfilePhotoPath($imagePath) {
+
+        $imagePath = (string) $imagePath;
+
+        $patterns = [
+            "/^\.\.\/(storage\/profile_photos\/[A-Za-z0-9_-]+\.(jpg|png))$/i",
+            "/^\/FYPSupervisorSelectionAndAllocationSystem\/(storage\/profile_photos\/[A-Za-z0-9_-]+\.(jpg|png))$/i"
+        ];
+
+        foreach ($patterns as $pattern) {
+
+            if (preg_match($pattern, $imagePath, $matches) === 1) {
+
+                return $matches[1];
+            }
+        }
+
+        return null;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Upload Error Message Resolver
+    |--------------------------------------------------------------------------
+    | Converts PHP upload error codes into readable messages.
+    */
+
+>>>>>>> Admin
     private function uploadErrorMessage($uploadErrorCode) {
+
+    /*
+        |--------------------------------------------------------------------------
+        | File Size Related Upload Errors
+        |--------------------------------------------------------------------------
+        */
 
         if (
             $uploadErrorCode === UPLOAD_ERR_INI_SIZE ||
             $uploadErrorCode === UPLOAD_ERR_FORM_SIZE
         ) {
 
-            return "Invalid Image Format - The uploaded file is not a supported image format. Please upload a JPG or PNG file under 2MB.";
+            return "Invalid Image Format - The uploaded file is not supported image format. Please upload a JPG or PNG file under 2MB.";
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Partial Upload Error
+        |--------------------------------------------------------------------------
+        */
 
         if ($uploadErrorCode === UPLOAD_ERR_PARTIAL) {
 
             return "Profile photo upload was incomplete. Please try again";
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Default Upload Error
+        |--------------------------------------------------------------------------
+        */
+
         return "Profile photo upload failed";
     }
 }
 
 ?>
-
-

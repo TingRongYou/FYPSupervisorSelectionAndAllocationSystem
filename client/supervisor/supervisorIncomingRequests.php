@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once "../../server/application/auth/SessionManager.php";
 require_once "../../server/data/dao/RequestDAO.php";
@@ -15,6 +15,11 @@ $programme = trim($_GET["programme"] ?? "");
 $page = max(1, (int) ($_GET["page"] ?? 1));
 $perPage = 10;
 $offset = ($page - 1) * $perPage;
+
+if (!in_array($status, ["Pending", "Accepted", "Rejected", ""], true)) {
+
+    $status = "Pending";
+}
 
 $applications = $requestDAO->getApplicationsBySupervisor($supervisorID, $status, $search, $programme, $perPage, $offset);
 $totalApplications = $requestDAO->countApplicationsBySupervisor($supervisorID, $status, $search, $programme);
@@ -67,21 +72,21 @@ function formatMonthYear($date) {
         .search-row { display: grid; grid-template-columns: minmax(260px, 1fr) 180px 150px; gap: 12px; align-items: end; }
         .filter-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-top: 18px; }
         .filter-row select { width: 190px; }
-        .count-label { color: #7c8da0; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; }
+        .count-label { color: #7c8da0; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; }
         .request-table { overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 16px 18px; text-align: left; border-bottom: 1px solid #e5edf5; vertical-align: middle; }
-        th { color: #7c8da0; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+        th { color: #7c8da0; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
         .student-cell { display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 34px; height: 34px; border-radius: 50%; background: #eaf3ff; color: #0d5be8; display: grid; place-items: center; font-size: 11px; font-weight: 900; }
+        .avatar { width: 34px; height: 34px; border-radius: 50%; background: #eaf3ff; color: #0d5be8; display: grid; place-items: center; font-size: 14px; font-weight: 900; }
         .student-name { color: #172033; font-weight: 900; }
-        .muted { color: #7c8da0; font-size: 12px; margin-top: 3px; }
-        .status { display: inline-flex; min-width: 82px; justify-content: center; padding: 7px 13px; border-radius: 999px; font-size: 11px; font-weight: 900; }
+        .muted { color: #7c8da0; font-size: 14px; margin-top: 3px; }
+        .status { display: inline-flex; min-width: 82px; justify-content: center; padding: 7px 13px; border-radius: 999px; font-size: 13px; font-weight: 900; }
         .status.pending { background: #fff0bf; color: #9a6500; }
         .status.accepted { background: #dcfce7; color: #166534; }
         .status.rejected { background: #fee2e2; color: #991b1b; }
         .link-action { color: #0d5be8; font-weight: 900; text-decoration: none; }
-        .footer-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; color: #6b7f91; font-size: 12px; }
+        .footer-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; color: #6b7f91; font-size: 14px; }
         .pager { display: flex; align-items: center; gap: 7px; }
         .pager a, .pager span { min-width: 30px; height: 30px; border-radius: 7px; display: grid; place-items: center; text-decoration: none; color: #526a7f; border: 1px solid #dbe6f0; background: #fff; font-weight: 800; }
         .pager .active { background: #003f8f; color: #fff; border-color: #003f8f; }
@@ -108,7 +113,7 @@ function formatMonthYear($date) {
                     </div>
                     <div>
                         <label for="status">Status</label>
-                        <select id="status" name="status">
+                        <select id="status" name="status" onchange="this.form.submit()">
                             <?php foreach (["Pending", "Accepted", "Rejected", ""] as $option): ?>
                                 <option value="<?php echo e($option); ?>" <?php echo $status === $option ? "selected" : ""; ?>>
                                     <?php echo $option === "" ? "All Statuses" : e($option); ?>
@@ -116,7 +121,7 @@ function formatMonthYear($date) {
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <button class="button" type="submit">Sort by Date</button>
+                    <button class="button" type="submit">Apply Filters</button>
                 </div>
                 <div class="filter-row">
                     <select name="programme" onchange="this.form.submit()">
@@ -133,7 +138,9 @@ function formatMonthYear($date) {
 
             <section class="request-table card">
                 <?php if (empty($applications)): ?>
-                    <div class="empty-state">No matching student requests were found.</div>
+                    <div class="empty-state">
+                        <?php echo $status === "Pending" && $search === "" && $programme === "" ? "No Pending Requests - You currently have no pending requests." : "No matching student requests were found."; ?>
+                    </div>
                 <?php else: ?>
                     <table>
                         <thead>
@@ -182,5 +189,3 @@ function formatMonthYear($date) {
     </div>
 </body>
 </html>
-
-

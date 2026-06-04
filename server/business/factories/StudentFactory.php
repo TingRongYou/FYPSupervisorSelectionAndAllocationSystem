@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/RoleFactory.php";
 require_once __DIR__ . "/../entities/Student.php";
@@ -22,5 +22,3 @@ class StudentFactory implements RoleFactory {
 }
 
 ?>
-
-

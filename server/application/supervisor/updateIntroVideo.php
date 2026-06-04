@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../auth/SessionManager.php";
 require_once __DIR__ . "/../../business/services/SupervisorProfileService.php";
@@ -101,7 +101,36 @@ $existingIntroVideoLink =
 $profileService =
     new SupervisorProfileService();
 
-if (isset($_POST["removeIntroVideo"]) && $_POST["removeIntroVideo"] === "1") {
+if (isset($_POST["saveDraft"]) && $_POST["saveDraft"] === "1") {
+
+    $draftVideoLink =
+        $existingIntroVideoLink;
+
+    if ($contentSource === "external" && $introVideoLink !== "") {
+
+        $draftVideoLink =
+            $introVideoLink;
+    }
+
+    $uploadedFile =
+        $contentSource === "upload"
+        ? ($_FILES["introVideoFile"] ?? null)
+        : null;
+
+    $result =
+        $profileService
+        ->saveIntroVideoDraft(
+
+            $_SESSION["userID"],
+
+            $draftVideoLink,
+
+            $introVideoDescription,
+
+            $uploadedFile
+        );
+
+} elseif (isset($_POST["removeIntroVideo"]) && $_POST["removeIntroVideo"] === "1") {
 
     $result =
         $profileService
@@ -118,7 +147,7 @@ if (isset($_POST["removeIntroVideo"]) && $_POST["removeIntroVideo"] === "1") {
         isset($uploadedFile["error"]) &&
         (int) $uploadedFile["error"] === UPLOAD_ERR_NO_FILE &&
         preg_match(
-            "/^\.\.\/storage\/intro_videos\/[A-Za-z0-9_-]+\.(mp4|webm)$/i",
+            "/\/storage\/intro_videos\/[A-Za-z0-9_-]+\.(mp4|webm)$/i",
             $existingIntroVideoLink
         ) === 1
     ) {
@@ -182,7 +211,3 @@ header(
 exit();
 
 ?>
-
-
-
-

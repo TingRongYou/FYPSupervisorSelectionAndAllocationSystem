@@ -1,6 +1,8 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../../data/dao/SupervisorDAO.php";
+require_once __DIR__ . "/DiscoveryEngine.php";
+require_once __DIR__ . "/../../data/dao/TagDAO.php";
 
 class SupervisorDiscoveryService {
 
@@ -12,6 +14,8 @@ class SupervisorDiscoveryService {
 
     private $supervisorDAO;
 
+    private $tagDAO;
+
     /*
     |--------------------------------------------------------------------------
     | Constructor
@@ -22,6 +26,9 @@ class SupervisorDiscoveryService {
 
         $this->supervisorDAO =
             new SupervisorDAO();
+
+        $this->tagDAO =
+            new TagDAO();
     }
 
     /*
@@ -37,6 +44,12 @@ class SupervisorDiscoveryService {
             ->getSupervisorProgrammes();
     }
 
+    public function getResearchTags() {
+
+        return $this->tagDAO
+            ->getAllTags();
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Main Discovery Algorithm
@@ -47,275 +60,91 @@ class SupervisorDiscoveryService {
         $filters
     ) {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Normalize Filters
-        |--------------------------------------------------------------------------
-        */
+        $filters =
+            $this->normalizeFilters($filters);
 
-        $searchName =
-            trim(
-                $filters["searchName"] ?? ""
-            );
+        $processor =
+            new ManualSearchProcessor();
 
-        $programme =
-            trim(
-                $filters["programme"] ?? ""
-            );
+        return $processor
+            ->executeSearch($filters);
+    }
+
+    public function getRecommendedMatches(
+        $studentID
+    ) {
+
+        $processor =
+            new RecommendationProcessor();
+
+        return $processor
+            ->executeSearch([
+                "studentID" => $studentID,
+                "quotaStatus" => "Available"
+            ]);
+    }
+
+    public function hasSavedInterestTags(
+        $studentID
+    ) {
+
+        return count(
+            $this->tagDAO
+            ->getStudentTagIDs($studentID)
+        ) > 0;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Normalize Filters
+    |--------------------------------------------------------------------------
+    */
+
+    private function normalizeFilters(
+        $filters
+    ) {
 
         $availability =
-            trim(
-                $filters["availability"] ?? ""
-            );
+            trim($filters["availability"] ?? "");
 
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Availability
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            !$this->isValidAvailability(
-                $availability
-            )
-        ) {
+        if (!in_array($availability, ["", "Available", "Full"], true)) {
 
             $availability = "";
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Retrieve Supervisors
-        |--------------------------------------------------------------------------
-        */
+        $quotaStatus =
+            trim($filters["quotaStatus"] ?? "");
 
-        $supervisors =
-            $this->supervisorDAO
-            ->getSupervisorsForDiscovery(
+        if ($quotaStatus === "" && $availability !== "") {
 
-                $searchName,
-
-                $programme,
-
-                $availability
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Prepare Results
-        |--------------------------------------------------------------------------
-        */
-
-        $discoveryResults = [];
-
-        foreach (
-            $supervisors
-            as $supervisor
-        ) {
-
-            /*
-            |--------------------------------------------------------------------------
-            | Normalize Capacity Data
-            |--------------------------------------------------------------------------
-            */
-
-            $activeStudents =
-                (int)
-                (
-                    $supervisor["activeStudents"]
-                    ?? 0
-                );
-
-            $maxSuperviseesAllowed =
-                (int)
-                (
-                    $supervisor["maxSuperviseesAllowed"]
-                    ?? 0
-                );
-
-            /*
-            |--------------------------------------------------------------------------
-            | Prevent Negative Slot Values
-            |--------------------------------------------------------------------------
-            */
-
-            $availableSlots =
-                max(
-                    0,
-                    $maxSuperviseesAllowed
-                    - $activeStudents
-                );
-
-            /*
-            |--------------------------------------------------------------------------
-            | Generate Quota Text
-            |--------------------------------------------------------------------------
-            */
-
-            $quotaText =
-                $activeStudents
-                . "/"
-                . $maxSuperviseesAllowed
-                . " slots taken";
-
-            /*
-            |--------------------------------------------------------------------------
-            | Determine Status
-            |--------------------------------------------------------------------------
-            */
-
-            $status =
-                $this->determineSupervisorStatus(
-                    $activeStudents,
-                    $maxSuperviseesAllowed
-                );
-
-            /*
-            |--------------------------------------------------------------------------
-            | Append Discovery Payload
-            |--------------------------------------------------------------------------
-            */
-
-            $discoveryResults[] = [
-
-                "userID" =>
-                    $supervisor["userID"],
-
-                "fullName" =>
-                    $supervisor["fullName"],
-
-                "profilePhotoPath" =>
-                    $supervisor["profilePhotoPath"]
-                    ?? "",
-
-                "programme" =>
-                    $supervisor["programme"],
-
-                "employmentCategory" =>
-                    $supervisor["employmentCategory"],
-
-                "activeTime" =>
-                    $supervisor["activeTime"]
-                    ?? "",
-
-                "introVideoLink" =>
-                    $supervisor["introVideoLink"]
-                    ?? "",
-
-                "activeStudents" =>
-                    $activeStudents,
-
-                "availableSlots" =>
-                    $availableSlots,
-
-                "maxSlots" =>
-                    $maxSuperviseesAllowed,
-
-                "quotaText" =>
-                    $quotaText,
-
-                "status" =>
-                    $status
-            ];
+            $quotaStatus = $availability;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Sort Results
-        |--------------------------------------------------------------------------
-        */
+        if (!in_array($quotaStatus, ["", "Available", "Full"], true)) {
 
-        usort(
+            $quotaStatus = "";
+        }
 
-            $discoveryResults,
+        $interestTagID =
+            trim($filters["interestTagID"] ?? "");
 
-            function (
-                $first,
-                $second
-            ) {
+        return [
+            "searchName" =>
+                trim($filters["searchName"] ?? ""),
 
-                /*
-                |--------------------------------------------------------------------------
-                | Available Supervisors First
-                |--------------------------------------------------------------------------
-                */
+            "programme" =>
+                trim($filters["programme"] ?? ""),
 
-                if (
-                    $first["status"]
-                    !==
-                    $second["status"]
-                ) {
+            "interestTagID" =>
+                ctype_digit($interestTagID) ? (int) $interestTagID : 0,
 
-                    return
-                        $first["status"]
-                        === "Available"
-                        ? -1
-                        : 1;
-                }
+            "availability" =>
+                $availability,
 
-                /*
-                |--------------------------------------------------------------------------
-                | Then Sort By Name
-                |--------------------------------------------------------------------------
-                */
-
-                return strcmp(
-                    $first["fullName"],
-                    $second["fullName"]
-                );
-            }
-        );
-
-        return
-            $discoveryResults;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Determine Availability Status
-    |--------------------------------------------------------------------------
-    */
-
-    private function determineSupervisorStatus(
-        $activeStudents,
-        $maxSuperviseesAllowed
-    ) {
-
-        return
-            $activeStudents
-            <
-            $maxSuperviseesAllowed
-
-            ? "Available"
-
-            : "Full";
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Validate Availability Filter
-    |--------------------------------------------------------------------------
-    */
-
-    private function isValidAvailability(
-        $availability
-    ) {
-
-        return in_array(
-
-            $availability,
-
-            [
-                "",
-                "Available",
-                "Full"
-            ],
-
-            true
-        );
+            "quotaStatus" =>
+                $quotaStatus
+        ];
     }
 }
 
 ?>
-
-

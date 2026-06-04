@@ -1,4 +1,18 @@
-﻿<?php
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| Utility Functions
+|--------------------------------------------------------------------------
+| Contains reusable helper functions used across the SSAS system.
+*/
+
+/*
+|--------------------------------------------------------------------------
+| HTML Escape Function
+|--------------------------------------------------------------------------
+| Prevents XSS attacks by safely escaping output before displaying.
+*/
 
 if (!function_exists("ssasEscape")) {
 
@@ -8,6 +22,12 @@ if (!function_exists("ssasEscape")) {
     }
 }
 
+/*
+|--------------------------------------------------------------------------
+| User Initial Generator
+|--------------------------------------------------------------------------
+| Generates user initials for avatar display.
+*/
 if (!function_exists("ssasInitials")) {
 
     function ssasInitials($name) {
@@ -19,6 +39,13 @@ if (!function_exists("ssasInitials")) {
         return $first . $second;
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Role Label Mapping
+|--------------------------------------------------------------------------
+| Converts internal system roles into readable labels.
+*/
 
 if (!function_exists("ssasRoleLabel")) {
 
@@ -40,20 +67,28 @@ if (!function_exists("ssasRoleLabel")) {
     }
 }
 
+/*
+|--------------------------------------------------------------------------
+| Shared Account Styles
+|--------------------------------------------------------------------------
+| Stores reusable CSS styles for the topbar and account menu.
+*/
+
 if (!function_exists("ssasAccountStyles")) {
 
     function ssasAccountStyles() {
 
         return <<<CSS
-            .topbar { height: 52px !important; background: #1195c1 !important; color: #fff !important; display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 0 16px !important; box-shadow: 0 3px 12px rgba(11,79,138,.16) !important; }
+            html, body { margin: 0 !important; padding: 0 !important; }
+            .topbar { height: 52px !important; margin: 0 !important; background: #1195c1 !important; color: #fff !important; display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 0 16px !important; box-shadow: 0 3px 12px rgba(11,79,138,.16) !important; }
             .topbar-brand { display: flex !important; align-items: center !important; gap: 10px !important; font-size: 18px !important; font-weight: 900 !important; letter-spacing: .2px !important; }
-            .brand-logo { width: 30px; height: 30px; object-fit: contain; border-radius: 4px; background: #fff; }
+            .brand-logo { width: 38px !important; height: 38px !important; object-fit: contain !important; border-radius: 0 !important; background: transparent !important; display: block !important; margin: -3px 0 !important; }
             .topbar-right { display: flex !important; align-items: stretch !important; align-self: stretch !important; margin-right: -16px !important; }
             .topbar-clock { display: flex; align-items: center; gap: 6px; padding: 0 14px; color: rgba(255,255,255,.86); font-size: 12px; white-space: nowrap; }
             .topbar-clock:before { content: ""; width: 12px; height: 12px; border: 2px solid rgba(255,255,255,.72); border-radius: 50%; display: inline-block; }
             .account-menu { position: relative; display: flex; align-items: stretch; min-height: 52px; }
             .account-toggle { border: 0; color: #fff; background: #49a7d1; display: flex; align-items: center; gap: 10px; padding: 0 14px; cursor: pointer; font-family: Arial, Helvetica, sans-serif; min-width: 190px; }
-            .account-avatar { width: 34px; height: 34px; border-radius: 50%; background: #fff; color: #0b4f8a; display: grid; place-items: center; font-weight: 900; border: 2px solid rgba(255,255,255,.75); flex: 0 0 auto; font-size: 12px; }
+            .account-avatar { width: 34px; height: 34px; border-radius: 50%; background: #fff; color: #0b4f8a; display: grid; place-items: center; font-weight: 900; border: 2px solid rgba(255,255,255,.75); flex: 0 0 auto; font-size: 12px; overflow: hidden; }
             .account-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
             .account-copy { text-align: left; line-height: 1.15; min-width: 0; }
             .account-copy span { display: block; font-size: 11px; font-weight: 700; }
@@ -84,6 +119,13 @@ if (!function_exists("ssasAccountStyles")) {
 CSS;
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Account Dropdown Menu
+|--------------------------------------------------------------------------
+| Displays logged-in user profile menu.
+*/
 
 if (!function_exists("ssasAccountMenu")) {
 
@@ -117,6 +159,12 @@ if (!function_exists("ssasAccountMenu")) {
         ";
     }
 }
+/*
+|--------------------------------------------------------------------------
+| Shared Topbar
+|--------------------------------------------------------------------------
+| Generates reusable SSAS top navigation bar.
+*/
 
 if (!function_exists("ssasTopbar")) {
 
@@ -145,6 +193,13 @@ if (!function_exists("ssasTopbar")) {
     }
 }
 
+/*
+|--------------------------------------------------------------------------
+| Status Message Generator
+|--------------------------------------------------------------------------
+| Displays success or error messages from URL parameters.
+*/
+
 if (!function_exists("ssasStatusMessage")) {
 
     function ssasStatusMessage() {
@@ -159,6 +214,13 @@ if (!function_exists("ssasStatusMessage")) {
         return "<div class=\"message {$class}\">" . ssasEscape($_GET["message"]) . "</div>";
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Portal Layout Styles
+|--------------------------------------------------------------------------
+| Stores reusable sidebar and portal layout CSS.
+*/
 
 if (!function_exists("ssasPortalShellStyles")) {
 
@@ -191,6 +253,12 @@ if (!function_exists("ssasPortalShellStyles")) {
 CSS;
     }
 }
+/*
+|--------------------------------------------------------------------------
+| Dashboard URL Mapping
+|--------------------------------------------------------------------------
+| Returns dashboard page URL based on user role.
+*/
 
 if (!function_exists("ssasDashboardUrlForRole")) {
 
@@ -208,9 +276,16 @@ if (!function_exists("ssasDashboardUrlForRole")) {
             return "/FYPSupervisorSelectionAndAllocationSystem/client/student/studentDashboard.php";
         }
 
-        return "/FYPSupervisorSelectionAndAllocationSystem/client/legacy/dashboard.php";
+        return "/FYPSupervisorSelectionAndAllocationSystem/client/auth/login.html";
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Portal Sidebar Generator
+|--------------------------------------------------------------------------
+| Dynamically generates sidebar navigation based on user role.
+*/
 
 if (!function_exists("ssasPortalSidebar")) {
 
@@ -220,6 +295,12 @@ if (!function_exists("ssasPortalSidebar")) {
         $roleTitle = "SSAS User";
         $roleSubtitle = "User Portal";
         $links = [];
+
+        /*
+        |--------------------------------------------------------------------------
+        | Supervisor Navigation
+        |--------------------------------------------------------------------------
+        */
 
         if ($role === "Supervisor") {
 
@@ -237,6 +318,12 @@ if (!function_exists("ssasPortalSidebar")) {
                 ["reports", "Reports", "#", "v", false]
             ];
 
+        /*
+        |--------------------------------------------------------------------------
+        | Administrator Navigation
+        |--------------------------------------------------------------------------
+        */
+
         } elseif ($role === "Administrator") {
 
             $roleTitle = "SSAS Admin";
@@ -250,6 +337,12 @@ if (!function_exists("ssasPortalSidebar")) {
                 ["reports", "Reports", "#", "v", false]
             ];
 
+        /*
+        |--------------------------------------------------------------------------
+        | Student Navigation
+        |--------------------------------------------------------------------------
+        */
+
         } elseif ($role === "Student") {
 
             $roleTitle = "SSAS Student";
@@ -262,9 +355,15 @@ if (!function_exists("ssasPortalSidebar")) {
             ];
         }
 
+        // Store generated navigation HTML
         $navigation = "";
         $subnavOpen = false;
 
+        /*
+        |--------------------------------------------------------------------------
+        | Generate Navigation Menu
+        |--------------------------------------------------------------------------
+        */
         foreach ($links as $link) {
 
             $key = $link[0];
@@ -314,6 +413,12 @@ if (!function_exists("ssasPortalSidebar")) {
             $navigation .= "</div>";
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Return Sidebar HTML
+        |--------------------------------------------------------------------------
+        */
+
         return "
             <aside class=\"portal-sidebar\">
                 <div class=\"portal-role-card\">
@@ -332,8 +437,3 @@ if (!function_exists("ssasPortalSidebar")) {
 }
 
 ?>
-
-
-
-
-

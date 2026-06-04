@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../database/database.php";
 
@@ -25,6 +25,8 @@ class SupervisorDAO {
 
         $this->conn =
             $database->connect();
+
+        $this->ensureUserActivityStatusTable();
     }
 
     /*
@@ -192,6 +194,10 @@ class SupervisorDAO {
 
                 U.profilePhotoPath,
 
+                UAS.lastSeenAt,
+
+                UAS.isOnline,
+
                 SP.programme,
 
                 SP.employmentCategory,
@@ -220,6 +226,9 @@ class SupervisorDAO {
 
             INNER JOIN QUOTA_CONFIGURATION QC
                 ON SP.quotaID = QC.quotaID
+
+            LEFT JOIN USER_ACTIVITY_STATUS UAS
+                ON U.userID = UAS.userID
 
             LEFT JOIN ALLOCATION_RECORD AR
                 ON SP.supervisorID = AR.supervisorID
@@ -273,6 +282,10 @@ class SupervisorDAO {
                 U.universityEmail,
 
                 U.profilePhotoPath,
+
+                UAS.lastSeenAt,
+
+                UAS.isOnline,
 
                 SP.programme,
 
@@ -875,8 +888,26 @@ class SupervisorDAO {
         return
             $statement->execute();
     }
+
+    private function ensureUserActivityStatusTable() {
+
+        $query = "
+            CREATE TABLE IF NOT EXISTS USER_ACTIVITY_STATUS (
+                userID VARCHAR(20) PRIMARY KEY,
+                systemRole VARCHAR(50) NOT NULL,
+                lastSeenAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                isOnline BOOLEAN NOT NULL DEFAULT FALSE,
+
+                FOREIGN KEY (userID)
+                    REFERENCES USER(userID)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE
+            )
+        ";
+
+        $this->conn
+            ->exec($query);
+    }
 }
 
 ?>
-
-
