@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../database/database.php";
 
@@ -27,9 +27,14 @@ class RequestDAO {
 
         $query = "
             SELECT COUNT(*)
-            FROM APPLICATION_REQUEST
-            WHERE supervisorID = :supervisorID
-            AND decisionStatus = 'Pending'
+            FROM APPLICATION_REQUEST ARQ
+            LEFT JOIN ALLOCATION_RECORD ALR
+                ON ARQ.studentID = ALR.studentID
+                AND ARQ.supervisorID = ALR.supervisorID
+                AND ALR.allocationMethod = 'System Auto-Match'
+            WHERE ARQ.supervisorID = :supervisorID
+            AND ARQ.decisionStatus = 'Pending'
+            AND ALR.allocationID IS NULL
         ";
 
         $statement =
@@ -120,32 +125,73 @@ class RequestDAO {
 
     /*
     |--------------------------------------------------------------------------
-    | Recent Student Applications For Supervisor
+    | Recent Student Allocations For Supervisor Dashboard
     |--------------------------------------------------------------------------
-    | Retrieves only applications submitted to the authenticated supervisor.
+    | Retrieves finalized supervisees for the authenticated supervisor. Manual
+    | acceptances keep their request details, while auto-allocated students are
+    | still shown from the allocation record.
     */
 
-    public function getRecentApplicationsBySupervisor(
+    public function getRecentAllocationsBySupervisor(
         $supervisorID,
-        $limit
+        $limit,
+        $allocationStatus = "",
+        $proposalStatus = ""
     ) {
+
+        $having = [];
+        $params = [
+            ":supervisorID" => $supervisorID
+        ];
+
+        if ($allocationStatus !== "") {
+
+            $having[] = "decisionStatus = :allocationStatus";
+            $params[":allocationStatus"] = $allocationStatus;
+        }
+
+        if ($proposalStatus !== "") {
+
+            if ($proposalStatus === "Not Submitted") {
+
+                $having[] = "proposalStatus IS NULL";
+            } else {
+
+                $having[] = "proposalStatus = :proposalStatus";
+                $params[":proposalStatus"] = $proposalStatus;
+            }
+        }
 
         $query = "
             SELECT
+                ALR.allocationID,
                 ARQ.requestID,
-                ARQ.studentID,
-                ARQ.projectTitle,
-                ARQ.decisionStatus,
-                ARQ.applicationDate,
+                ALR.studentID,
+                ALR.allocationDate,
+                ALR.allocationMethod,
+                COALESCE(ARQ.projectTitle, 'Assigned Supervision') AS projectTitle,
+                ARQ.decisionStatus AS proposalStatus,
+                CASE
+                    WHEN ALR.allocationMethod = 'System Auto-Match'
+                        THEN 'Auto-Allocated'
+                    ELSE COALESCE(ARQ.decisionStatus, 'Allocated')
+                END AS decisionStatus,
                 U.fullName,
+                U.profilePhotoPath,
                 SP.programme
-            FROM APPLICATION_REQUEST ARQ
+            FROM ALLOCATION_RECORD ALR
             INNER JOIN STUDENT_PROFILE SP
-                ON ARQ.studentID = SP.studentID
+                ON ALR.studentID = SP.studentID
             INNER JOIN USER U
                 ON SP.studentID = U.userID
-            WHERE ARQ.supervisorID = :supervisorID
-            ORDER BY ARQ.applicationDate DESC
+            LEFT JOIN APPLICATION_REQUEST ARQ
+                ON ARQ.studentID = ALR.studentID
+                AND ARQ.supervisorID = ALR.supervisorID
+                AND ARQ.decisionStatus IN ('Accepted', 'Pending', 'Rejected', 'Proposal Requested')
+            WHERE ALR.supervisorID = :supervisorID
+            " . (!empty($having) ? "HAVING " . implode(" AND ", $having) : "") . "
+            ORDER BY ALR.allocationDate DESC,
+                ALR.allocationID DESC
             LIMIT :limit
         ";
 
@@ -154,10 +200,10 @@ class RequestDAO {
                 $query
             );
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        foreach ($params as $key => $value) {
+
+            $statement->bindValue($key, $value);
+        }
 
         $statement->bindParam(
             ":limit",
@@ -183,7 +229,8 @@ class RequestDAO {
     ) {
 
         $conditions = [
-            "ARQ.supervisorID = :supervisorID"
+            "ARQ.supervisorID = :supervisorID",
+            "ALR.allocationID IS NULL"
         ];
 
         $params = [
@@ -194,6 +241,9 @@ class RequestDAO {
 
             $conditions[] = "ARQ.decisionStatus = :status";
             $params[":status"] = $status;
+        } else {
+
+            $conditions[] = "ARQ.decisionStatus <> 'Proposal Requested'";
         }
 
         if ($search !== "") {
@@ -223,6 +273,10 @@ class RequestDAO {
                 ON ARQ.studentID = SP.studentID
             INNER JOIN USER U
                 ON SP.studentID = U.userID
+            LEFT JOIN ALLOCATION_RECORD ALR
+                ON ARQ.studentID = ALR.studentID
+                AND ARQ.supervisorID = ALR.supervisorID
+                AND ALR.allocationMethod = 'System Auto-Match'
             WHERE " . implode(" AND ", $conditions) . "
             ORDER BY ARQ.applicationDate DESC
             LIMIT :limit OFFSET :offset
@@ -250,7 +304,8 @@ class RequestDAO {
     ) {
 
         $conditions = [
-            "ARQ.supervisorID = :supervisorID"
+            "ARQ.supervisorID = :supervisorID",
+            "ALR.allocationID IS NULL"
         ];
 
         $params = [
@@ -261,6 +316,9 @@ class RequestDAO {
 
             $conditions[] = "ARQ.decisionStatus = :status";
             $params[":status"] = $status;
+        } else {
+
+            $conditions[] = "ARQ.decisionStatus <> 'Proposal Requested'";
         }
 
         if ($search !== "") {
@@ -282,6 +340,10 @@ class RequestDAO {
                 ON ARQ.studentID = SP.studentID
             INNER JOIN USER U
                 ON SP.studentID = U.userID
+            LEFT JOIN ALLOCATION_RECORD ALR
+                ON ARQ.studentID = ALR.studentID
+                AND ARQ.supervisorID = ALR.supervisorID
+                AND ALR.allocationMethod = 'System Auto-Match'
             WHERE " . implode(" AND ", $conditions) . "
         ";
 
@@ -333,6 +395,8 @@ class RequestDAO {
                 ARQ.ttlExpirationTimestamp,
                 ARQ.decisionStatus,
                 ARQ.supervisorComment,
+                ALR.allocationID,
+                ALR.allocationMethod,
                 U.fullName,
                 SP.programme
             FROM APPLICATION_REQUEST ARQ
@@ -340,6 +404,9 @@ class RequestDAO {
                 ON ARQ.studentID = SP.studentID
             INNER JOIN USER U
                 ON SP.studentID = U.userID
+            LEFT JOIN ALLOCATION_RECORD ALR
+                ON ARQ.studentID = ALR.studentID
+                AND ARQ.supervisorID = ALR.supervisorID
             WHERE ARQ.requestID = :requestID
             AND ARQ.supervisorID = :supervisorID
             LIMIT 1
@@ -384,6 +451,17 @@ class RequestDAO {
         $supervisorComment
     ) {
 
+        $supervisorComment =
+            trim((string) $supervisorComment);
+
+        if ($supervisorComment === "") {
+
+            return [
+                "success" => false,
+                "message" => "Comment Required - Please provide a reason for rejection to help the student improve their next application."
+            ];
+        }
+
         try {
 
             $this->conn->beginTransaction();
@@ -393,8 +471,12 @@ class RequestDAO {
                     ARQ.requestID,
                     ARQ.studentID,
                     ARQ.supervisorID,
-                    ARQ.decisionStatus
+                    ARQ.decisionStatus,
+                    ALR.allocationID AS existingSupervisorAllocationID
                 FROM APPLICATION_REQUEST ARQ
+                LEFT JOIN ALLOCATION_RECORD ALR
+                    ON ARQ.studentID = ALR.studentID
+                    AND ARQ.supervisorID = ALR.supervisorID
                 WHERE ARQ.requestID = :requestID
                 AND ARQ.supervisorID = :supervisorID
                 FOR UPDATE
@@ -417,20 +499,23 @@ class RequestDAO {
                 ];
             }
 
+            $hasExistingSupervisorAllocation =
+                !empty($request["existingSupervisorAllocationID"]);
+
             if ($request["decisionStatus"] !== "Pending") {
 
                 $this->conn->rollBack();
 
                 return [
                     "success" => false,
-                    "message" => "Decision already processed for this request."
+                    "message" => "Decision already processed for this proposal. A new decision is only available after the student submits a new proposal."
                 ];
             }
 
             if ($decisionStatus === "Accepted") {
 
                 $allocationQuery = "
-                    SELECT COUNT(*)
+                    SELECT supervisorID
                     FROM ALLOCATION_RECORD
                     WHERE studentID = :studentID
                 ";
@@ -438,8 +523,13 @@ class RequestDAO {
                 $allocationStatement = $this->conn->prepare($allocationQuery);
                 $allocationStatement->bindParam(":studentID", $request["studentID"]);
                 $allocationStatement->execute();
+                $allocatedSupervisorIDs =
+                    $allocationStatement->fetchAll(PDO::FETCH_COLUMN);
 
-                if ((int) $allocationStatement->fetchColumn() > 0) {
+                if (
+                    !empty($allocatedSupervisorIDs) &&
+                    !in_array($supervisorID, $allocatedSupervisorIDs, true)
+                ) {
 
                     $this->conn->rollBack();
 
@@ -449,39 +539,42 @@ class RequestDAO {
                     ];
                 }
 
-                $capacityQuery = "
-                    SELECT
-                        COALESCE(SP.assignedQuotaLimit, QC.maxSuperviseesAllowed) AS quotaLimit,
-                        COUNT(DISTINCT AR.allocationID) AS currentSupervisees
-                    FROM SUPERVISOR_PROFILE SP
-                    INNER JOIN QUOTA_CONFIGURATION QC
-                        ON SP.quotaID = QC.quotaID
-                    LEFT JOIN ALLOCATION_RECORD AR
-                        ON SP.supervisorID = AR.supervisorID
-                    WHERE SP.supervisorID = :supervisorID
-                    GROUP BY
-                        SP.supervisorID,
-                        SP.assignedQuotaLimit,
-                        QC.maxSuperviseesAllowed
-                ";
+                if (!$hasExistingSupervisorAllocation) {
 
-                $capacityStatement = $this->conn->prepare($capacityQuery);
-                $capacityStatement->bindParam(":supervisorID", $supervisorID);
-                $capacityStatement->execute();
+                    $capacityQuery = "
+                        SELECT
+                            COALESCE(SP.assignedQuotaLimit, QC.maxSuperviseesAllowed) AS quotaLimit,
+                            COUNT(DISTINCT AR.allocationID) AS currentSupervisees
+                        FROM SUPERVISOR_PROFILE SP
+                        INNER JOIN QUOTA_CONFIGURATION QC
+                            ON SP.quotaID = QC.quotaID
+                        LEFT JOIN ALLOCATION_RECORD AR
+                            ON SP.supervisorID = AR.supervisorID
+                        WHERE SP.supervisorID = :supervisorID
+                        GROUP BY
+                            SP.supervisorID,
+                            SP.assignedQuotaLimit,
+                            QC.maxSuperviseesAllowed
+                    ";
 
-                $capacity = $capacityStatement->fetch(PDO::FETCH_ASSOC);
+                    $capacityStatement = $this->conn->prepare($capacityQuery);
+                    $capacityStatement->bindParam(":supervisorID", $supervisorID);
+                    $capacityStatement->execute();
 
-                if (
-                    !$capacity ||
-                    (int) $capacity["currentSupervisees"] >= (int) $capacity["quotaLimit"]
-                ) {
+                    $capacity = $capacityStatement->fetch(PDO::FETCH_ASSOC);
 
-                    $this->conn->rollBack();
+                    if (
+                        !$capacity ||
+                        (int) $capacity["currentSupervisees"] >= (int) $capacity["quotaLimit"]
+                    ) {
 
-                    return [
-                        "success" => false,
-                        "message" => "Decision blocked: supervisor quota is already full."
-                    ];
+                        $this->conn->rollBack();
+
+                        return [
+                            "success" => false,
+                            "message" => "Quota Exceeded - Error: You have reached your maximum quota limit. Cannot accept more students."
+                        ];
+                    }
                 }
             }
 
@@ -491,6 +584,7 @@ class RequestDAO {
                     supervisorComment = :supervisorComment
                 WHERE requestID = :requestID
                 AND supervisorID = :supervisorID
+                AND decisionStatus = 'Pending'
             ";
 
             $updateStatement = $this->conn->prepare($updateQuery);
@@ -500,36 +594,73 @@ class RequestDAO {
             $updateStatement->bindParam(":supervisorID", $supervisorID);
             $updateStatement->execute();
 
+            if ($updateStatement->rowCount() === 0) {
+
+                $this->conn->rollBack();
+
+                return [
+                    "success" => false,
+                    "message" => "Decision already processed for this proposal. A new decision is only available after the student submits a new proposal."
+                ];
+            }
+
             if ($decisionStatus === "Accepted") {
 
-                $insertQuery = "
-                    INSERT INTO ALLOCATION_RECORD
-                    (
-                        studentID,
-                        supervisorID,
-                        allocationDate,
-                        allocationMethod
-                    )
-                    VALUES
-                    (
-                        :studentID,
-                        :supervisorID,
-                        NOW(),
-                        'Supervisor Decision'
-                    )
+                if (!$hasExistingSupervisorAllocation) {
+
+                    $insertQuery = "
+                        INSERT INTO ALLOCATION_RECORD
+                        (
+                            studentID,
+                            supervisorID,
+                            allocationDate,
+                            allocationMethod
+                        )
+                        VALUES
+                        (
+                            :studentID,
+                            :supervisorID,
+                            NOW(),
+                            'Approved Request'
+                        )
+                    ";
+
+                    $insertStatement = $this->conn->prepare($insertQuery);
+                    $insertStatement->bindParam(":studentID", $request["studentID"]);
+                    $insertStatement->bindParam(":supervisorID", $supervisorID);
+                    $insertStatement->execute();
+                }
+
+                $withdrawQuery = "
+                    UPDATE APPLICATION_REQUEST
+                    SET decisionStatus = 'Withdrawn',
+                        supervisorComment = 'Automatically withdrawn because another proposal was accepted.'
+                    WHERE studentID = :studentID
+                    AND requestID <> :requestID
+                    AND decisionStatus = 'Pending'
                 ";
 
-                $insertStatement = $this->conn->prepare($insertQuery);
-                $insertStatement->bindParam(":studentID", $request["studentID"]);
-                $insertStatement->bindParam(":supervisorID", $supervisorID);
-                $insertStatement->execute();
+                $withdrawStatement = $this->conn->prepare($withdrawQuery);
+                $withdrawStatement->bindParam(":studentID", $request["studentID"]);
+                $withdrawStatement->bindParam(":requestID", $requestID, PDO::PARAM_INT);
+                $withdrawStatement->execute();
             }
 
             $this->conn->commit();
 
             return [
                 "success" => true,
-                "message" => "Decision Updated - Student request has been " . strtolower($decisionStatus) . "."
+                "message" => $decisionStatus === "Accepted"
+                    ? (
+                        $hasExistingSupervisorAllocation
+                            ? "Proposal accepted successfully. The existing supervision allocation remains active."
+                            : "Action Successful - The student has been successfully added to your supervision list."
+                    )
+                    : (
+                        $hasExistingSupervisorAllocation
+                            ? "Proposal rejected successfully. The existing supervision allocation remains active."
+                            : "Student's application for supervision has been rejected successfully."
+                    )
             ];
 
         } catch (Exception $exception) {
@@ -554,7 +685,7 @@ class RequestDAO {
             SELECT COUNT(*)
             FROM APPLICATION_REQUEST
             WHERE studentID = :studentID
-            AND decisionStatus = 'Pending'
+            AND decisionStatus IN ('Pending', 'Proposal Requested')
         ";
 
         $statement =
@@ -573,6 +704,80 @@ class RequestDAO {
             (int) $statement->fetchColumn();
     }
 
+    public function expireTimedOutRequestsByStudent(
+        $studentID
+    ) {
+
+        $query = "
+            UPDATE APPLICATION_REQUEST
+            SET decisionStatus = 'Rejected-Timeout',
+                supervisorComment = 'Automatically rejected because the supervisor did not respond within 72 hours.'
+            WHERE studentID = :studentID
+            AND decisionStatus = 'Pending'
+            AND ttlExpirationTimestamp <= NOW()
+        ";
+
+        $statement = $this->conn->prepare($query);
+        $statement->bindParam(":studentID", $studentID);
+
+        return $statement->execute();
+    }
+
+    public function expireTimedOutPendingRequests() {
+
+        $query = "
+            UPDATE APPLICATION_REQUEST
+            SET decisionStatus = 'Rejected-Timeout',
+                supervisorComment = 'Automatically rejected because the supervisor did not respond within 72 hours.'
+            WHERE decisionStatus = 'Pending'
+            AND ttlExpirationTimestamp <= NOW()
+        ";
+
+        $statement =
+            $this->conn->prepare($query);
+
+        return
+            $statement->execute();
+    }
+
+    public function getApplicationsByStudent(
+        $studentID
+    ) {
+
+        $query = "
+            SELECT
+                ARQ.requestID,
+                ARQ.supervisorID,
+                ARQ.projectTitle,
+                ARQ.proposalPDFPath,
+                ARQ.decisionStatus,
+                ARQ.applicationDate,
+                ARQ.ttlExpirationTimestamp,
+                ARQ.supervisorComment,
+                ALR.allocationID,
+                U.fullName AS supervisorName,
+                SP.employmentCategory,
+                SP.programme
+            FROM APPLICATION_REQUEST ARQ
+            INNER JOIN SUPERVISOR_PROFILE SP
+                ON ARQ.supervisorID = SP.supervisorID
+            INNER JOIN USER U
+                ON SP.supervisorID = U.userID
+            LEFT JOIN ALLOCATION_RECORD ALR
+                ON ARQ.studentID = ALR.studentID
+                AND ARQ.supervisorID = ALR.supervisorID
+            WHERE ARQ.studentID = :studentID
+            ORDER BY ARQ.applicationDate DESC,
+                ARQ.requestID DESC
+        ";
+
+        $statement = $this->conn->prepare($query);
+        $statement->bindParam(":studentID", $studentID);
+        $statement->execute();
+
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getSuperviseesBySupervisor(
         $supervisorID,
         $limit,
@@ -585,6 +790,7 @@ class RequestDAO {
                 AR.studentID,
                 AR.allocationDate,
                 U.fullName,
+                U.profilePhotoPath,
                 SP.programme,
                 ARQ.requestID,
                 COALESCE(ARQ.projectTitle, 'Assigned Supervision') AS projectTitle,
@@ -597,7 +803,7 @@ class RequestDAO {
             LEFT JOIN APPLICATION_REQUEST ARQ
                 ON ARQ.studentID = AR.studentID
                 AND ARQ.supervisorID = AR.supervisorID
-                AND ARQ.decisionStatus = 'Accepted'
+                AND ARQ.decisionStatus IN ('Accepted', 'Pending', 'Rejected', 'Proposal Requested')
             WHERE AR.supervisorID = :supervisorID
             ORDER BY AR.allocationDate DESC,
                 AR.allocationID DESC
@@ -611,6 +817,167 @@ class RequestDAO {
         $statement->execute();
 
         return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function requestProposalForAllocation(
+        $allocationID,
+        $supervisorID
+    ) {
+
+        $query = "
+            SELECT
+                AR.allocationID,
+                AR.studentID,
+                AR.supervisorID
+            FROM ALLOCATION_RECORD AR
+            WHERE AR.allocationID = :allocationID
+            AND AR.supervisorID = :supervisorID
+            LIMIT 1
+        ";
+
+        $statement = $this->conn->prepare($query);
+        $statement->bindValue(":allocationID", $allocationID, PDO::PARAM_INT);
+        $statement->bindValue(":supervisorID", $supervisorID);
+        $statement->execute();
+
+        $allocation = $statement->fetch(PDO::FETCH_ASSOC);
+
+        if (!$allocation) {
+
+            return [
+                "success" => false,
+                "message" => "Allocation record was not found."
+            ];
+        }
+
+        $existingQuery = "
+            SELECT requestID, decisionStatus
+            FROM APPLICATION_REQUEST
+            WHERE studentID = :studentID
+            AND supervisorID = :supervisorID
+            AND decisionStatus IN ('Proposal Requested', 'Pending', 'Accepted')
+            ORDER BY requestID DESC
+            LIMIT 1
+        ";
+
+        $existingStatement = $this->conn->prepare($existingQuery);
+        $existingStatement->bindValue(":studentID", $allocation["studentID"]);
+        $existingStatement->bindValue(":supervisorID", $supervisorID);
+        $existingStatement->execute();
+
+        $existing = $existingStatement->fetch(PDO::FETCH_ASSOC);
+
+        if ($existing) {
+
+            return [
+                "success" => true,
+                "message" => $existing["decisionStatus"] === "Proposal Requested"
+                    ? "Proposal request has already been sent to this student."
+                    : "A proposal record already exists for this student."
+            ];
+        }
+
+        $insertQuery = "
+            INSERT INTO APPLICATION_REQUEST
+            (
+                studentID,
+                supervisorID,
+                projectTitle,
+                proposalPDFPath,
+                applicationDate,
+                ttlExpirationTimestamp,
+                decisionStatus,
+                supervisorComment
+            )
+            VALUES
+            (
+                :studentID,
+                :supervisorID,
+                'Proposal Requested',
+                '',
+                NOW(),
+                DATE_ADD(NOW(), INTERVAL 7 DAY),
+                'Proposal Requested',
+                'Supervisor requested your project proposal after auto-allocation.'
+            )
+        ";
+
+        $insertStatement = $this->conn->prepare($insertQuery);
+        $insertStatement->bindValue(":studentID", $allocation["studentID"]);
+        $insertStatement->bindValue(":supervisorID", $supervisorID);
+        $insertStatement->execute();
+
+        return [
+            "success" => true,
+            "message" => "Proposal request sent. The student will see it on their dashboard and application status page."
+        ];
+    }
+
+    public function getProposalRequestForStudent(
+        $requestID,
+        $studentID
+    ) {
+
+        $query = "
+            SELECT
+                ARQ.requestID,
+                ARQ.studentID,
+                ARQ.supervisorID,
+                ARQ.projectTitle,
+                ARQ.decisionStatus,
+                ARQ.supervisorComment,
+                U.fullName AS supervisorName
+            FROM APPLICATION_REQUEST ARQ
+            INNER JOIN USER U
+                ON ARQ.supervisorID = U.userID
+            INNER JOIN ALLOCATION_RECORD ALR
+                ON ALR.studentID = ARQ.studentID
+                AND ALR.supervisorID = ARQ.supervisorID
+            WHERE ARQ.requestID = :requestID
+            AND ARQ.studentID = :studentID
+            AND ARQ.decisionStatus IN ('Proposal Requested', 'Rejected')
+            LIMIT 1
+        ";
+
+        $statement = $this->conn->prepare($query);
+        $statement->bindValue(":requestID", $requestID, PDO::PARAM_INT);
+        $statement->bindValue(":studentID", $studentID);
+        $statement->execute();
+
+        return $statement->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function completeRequestedProposal(
+        $requestID,
+        $studentID,
+        $supervisorID,
+        $projectTitle,
+        $proposalPDFPath
+    ) {
+
+        $query = "
+            UPDATE APPLICATION_REQUEST
+            SET projectTitle = :projectTitle,
+                proposalPDFPath = :proposalPDFPath,
+                applicationDate = NOW(),
+                ttlExpirationTimestamp = DATE_ADD(NOW(), INTERVAL 72 HOUR),
+                decisionStatus = 'Pending',
+                supervisorComment = NULL
+            WHERE requestID = :requestID
+            AND studentID = :studentID
+            AND supervisorID = :supervisorID
+            AND decisionStatus IN ('Proposal Requested', 'Rejected')
+        ";
+
+        $statement = $this->conn->prepare($query);
+        $statement->bindValue(":projectTitle", $projectTitle);
+        $statement->bindValue(":proposalPDFPath", $proposalPDFPath);
+        $statement->bindValue(":requestID", $requestID, PDO::PARAM_INT);
+        $statement->bindValue(":studentID", $studentID);
+        $statement->bindValue(":supervisorID", $supervisorID);
+        $statement->execute();
+
+        return $statement->rowCount() === 1;
     }
 
     public function countSuperviseesBySupervisor(
@@ -717,7 +1084,7 @@ class RequestDAO {
             SELECT COUNT(*)
             FROM APPLICATION_REQUEST
             WHERE studentID = :studentID
-            AND decisionStatus = 'Pending'
+            AND decisionStatus IN ('Pending', 'Proposal Requested')
         ";
 
         $statement =
@@ -734,6 +1101,59 @@ class RequestDAO {
 
         return
             ((int) $statement->fetchColumn()) > 0;
+    }
+
+    public function studentHasAllocation(
+        $studentID
+    ) {
+
+        $query = "
+            SELECT COUNT(*)
+            FROM ALLOCATION_RECORD
+            WHERE studentID = :studentID
+        ";
+
+        $statement =
+            $this->conn->prepare(
+                $query
+            );
+
+        $statement->bindParam(
+            ":studentID",
+            $studentID
+        );
+
+        $statement->execute();
+
+        return
+            ((int) $statement->fetchColumn()) > 0;
+    }
+
+    public function isStudentEligibleForFYP(
+        $studentID
+    ) {
+
+        $query = "
+            SELECT eligibilityStatus
+            FROM STUDENT_PROFILE
+            WHERE studentID = :studentID
+            LIMIT 1
+        ";
+
+        $statement =
+            $this->conn->prepare(
+                $query
+            );
+
+        $statement->bindParam(
+            ":studentID",
+            $studentID
+        );
+
+        $statement->execute();
+
+        return
+            (bool) $statement->fetchColumn();
     }
 
     public function createApplicationRequest(
@@ -761,7 +1181,7 @@ class RequestDAO {
                 :projectTitle,
                 :proposalPDFPath,
                 NOW(),
-                DATE_ADD(NOW(), INTERVAL 7 DAY),
+                DATE_ADD(NOW(), INTERVAL 72 HOUR),
                 'Pending'
             )
         ";
@@ -830,5 +1250,3 @@ class RequestDAO {
 }
 
 ?>
-
-

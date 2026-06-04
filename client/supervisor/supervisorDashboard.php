@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once "../../server/application/auth/SessionManager.php";
 require_once "../../server/business/services/SupervisorDashboardService.php";
@@ -19,10 +19,34 @@ SessionManager::requireRole(
 $dashboardService =
     new SupervisorDashboardService();
 
+$allocationStatusFilter =
+    trim($_GET["allocationStatus"] ?? "");
+
+$proposalStatusFilter =
+    trim($_GET["proposalStatus"] ?? "");
+
+$allowedAllocationFilters =
+    ["", "Auto-Allocated", "Accepted", "Allocated"];
+
+$allowedProposalFilters =
+    ["", "Pending", "Accepted", "Rejected", "Proposal Requested", "Not Submitted"];
+
+if (!in_array($allocationStatusFilter, $allowedAllocationFilters, true)) {
+
+    $allocationStatusFilter = "";
+}
+
+if (!in_array($proposalStatusFilter, $allowedProposalFilters, true)) {
+
+    $proposalStatusFilter = "";
+}
+
 $dashboard =
     $dashboardService
     ->getDashboardData(
-        $_SESSION["userID"]
+        $_SESSION["userID"],
+        $allocationStatusFilter,
+        $proposalStatusFilter
     );
 
 ?>
@@ -70,7 +94,7 @@ $dashboard =
             display: flex;
             align-items: center;
             gap: 12px;
-            font-weight: 700;
+            font-weight: 800;
         }
 
         .crest {
@@ -145,14 +169,15 @@ $dashboard =
         .role-title {
             margin: 0;
             color: #0b3760;
-            font-weight: 700;
-            font-size: 15px;
+            font-weight: 800;
+            font-size: 14px;
         }
 
         .role-subtitle {
             margin: 2px 0 0;
             color: #6b7f91;
             font-size: 12px;
+            font-weight: 400;
         }
 
         .nav-link {
@@ -306,13 +331,29 @@ $dashboard =
             font-size: 20px;
         }
 
-        .filter-chip {
+        .allocation-filter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .allocation-filter select,
+        .allocation-filter button {
+            min-height: 32px;
+            border-radius: 6px;
+            border: 1px solid #d9e7f3;
             background: #eef2f6;
             color: #526a7f;
-            border-radius: 6px;
-            padding: 8px 12px;
+            padding: 0 10px;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 800;
+        }
+
+        .allocation-filter button {
+            background: #0d5be8;
+            border-color: #0d5be8;
+            color: #ffffff;
+            cursor: pointer;
         }
 
         .table-wrap {
@@ -356,6 +397,15 @@ $dashboard =
             place-items: center;
             font-weight: 800;
             font-size: 12px;
+            overflow: hidden;
+            flex: 0 0 auto;
+        }
+
+        .student-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
         .student-name {
@@ -404,6 +454,11 @@ $dashboard =
             color: #14733e;
         }
 
+        .status.allocated {
+            background: #e0f2fe;
+            color: #075985;
+        }
+
         .status.rejected {
             background: #fdeaea;
             color: #a52d2d;
@@ -413,14 +468,18 @@ $dashboard =
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 100px;
+            width: 126px;
             min-height: 42px;
+            box-sizing: border-box;
+            padding: 0 10px;
             border-radius: 8px;
             background: #0d5be8;
             color: #ffffff;
             text-decoration: none;
             font-size: 13px;
             font-weight: 800;
+            text-align: center;
+            white-space: nowrap;
         }
 
         .empty-state {
@@ -475,8 +534,8 @@ $dashboard =
                 display: block;
             }
 
-            .filter-chip {
-                display: inline-flex;
+            .allocation-filter {
+                flex-wrap: wrap;
                 margin-top: 12px;
             }
         }
@@ -532,17 +591,19 @@ $dashboard =
             justify-content: flex-start;
             color: #526a7f;
             text-decoration: none;
-            padding: 11px 12px;
+            padding: 12px 14px;
             border-radius: 8px;
-            margin-bottom: 6px;
-            font-size: 13px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
             background: #f1f5f9;
             border: 0;
             width: 100%;
-            min-height: 38px;
+            min-height: 40px;
             cursor: pointer;
             transition: background .2s, color .2s, transform .2s;
             white-space: nowrap;
+            line-height: 1.2;
         }
 
         .nav-link:hover,
@@ -551,6 +612,7 @@ $dashboard =
             background: #eaf3ff;
             color: #0b66d8;
             transform: translateX(2px);
+            font-weight: 600;
         }
 
         .nav-text {
@@ -589,8 +651,9 @@ $dashboard =
             display: block;
             color: #6b7f91;
             text-decoration: none;
-            font-size: 12px;
-            padding: 6px 10px;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 7px 10px;
             line-height: 1.25;
             border-radius: 6px;
             white-space: nowrap;
@@ -610,7 +673,7 @@ $dashboard =
         .subnav a.active {
             background: #f1f7ff;
             color: #0d5be8;
-            font-weight: 800;
+            font-weight: 600;
         }
 
     </style>
@@ -676,13 +739,29 @@ $dashboard =
 
             <section class="applications">
                 <div class="section-header">
-                    <h2>Recent Student Applications</h2>
-                    <span class="filter-chip">Filter</span>
+                    <h2>Recent Student Allocations</h2>
+                    <form class="allocation-filter" method="GET">
+                        <select name="allocationStatus" aria-label="Allocation status">
+                            <?php foreach ($allowedAllocationFilters as $option): ?>
+                                <option value="<?php echo e($option); ?>" <?php echo $allocationStatusFilter === $option ? "selected" : ""; ?>>
+                                    <?php echo $option === "" ? "All Allocations" : e($option); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <select name="proposalStatus" aria-label="Proposal status">
+                            <?php foreach ($allowedProposalFilters as $option): ?>
+                                <option value="<?php echo e($option); ?>" <?php echo $proposalStatusFilter === $option ? "selected" : ""; ?>>
+                                    <?php echo $option === "" ? "All Proposals" : e($option); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <button type="submit">Filter</button>
+                    </form>
                 </div>
 
                 <?php if (empty($dashboard["recentApplications"])): ?>
                     <div class="empty-state">
-                        No student applications have been submitted to you yet.
+                        No students have been allocated to you yet.
                     </div>
                 <?php else: ?>
                     <div class="table-wrap">
@@ -693,6 +772,7 @@ $dashboard =
                                     <th>Programme</th>
                                     <th>Research Focus</th>
                                     <th>Status</th>
+                                    <th>Proposal Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -702,7 +782,11 @@ $dashboard =
                                         <td>
                                             <div class="student-cell">
                                                 <div class="student-avatar">
-                                                    <?php echo e(supervisorInitials($application["fullName"])); ?>
+                                                    <?php if (!empty($application["profilePhotoPath"])): ?>
+                                                        <img src="<?php echo e($application["profilePhotoPath"]); ?>" alt="">
+                                                    <?php else: ?>
+                                                        <?php echo e(supervisorInitials($application["fullName"])); ?>
+                                                    <?php endif; ?>
                                                 </div>
                                                 <div>
                                                     <div class="student-name">
@@ -726,9 +810,20 @@ $dashboard =
                                             </span>
                                         </td>
                                         <td>
-                                            <a class="action-button" href="supervisorRequestDecision.php?requestID=<?php echo e($application["requestID"]); ?>">
-                                                <?php echo e($application["actionText"]); ?>
-                                            </a>
+                                            <span class="status <?php echo e($application["proposalStatusClass"]); ?>">
+                                                <?php echo e($application["proposalStatusText"]); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <?php if (!empty($application["requestID"])): ?>
+                                                <a class="action-button" href="supervisorRequestDecision.php?requestID=<?php echo e($application["requestID"]); ?>">
+                                                    <?php echo e($application["actionText"]); ?>
+                                                </a>
+                                            <?php else: ?>
+                                                <a class="action-button" href="supervisorMySupervisees.php">
+                                                    <?php echo e($application["actionText"]); ?>
+                                                </a>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -738,7 +833,7 @@ $dashboard =
 
                     <div class="table-footer">
                         <span>
-                            Showing <?php echo e(count($dashboard["recentApplications"])); ?> recent applications
+                            Showing <?php echo e(count($dashboard["recentApplications"])); ?> recent allocations
                         </span>
                         <span>&lt; &gt;</span>
                     </div>
@@ -750,5 +845,3 @@ $dashboard =
 
 </body>
 </html>
-
-

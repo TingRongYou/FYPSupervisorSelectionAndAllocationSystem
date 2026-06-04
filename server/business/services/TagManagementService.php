@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../../data/dao/TagDAO.php";
 
@@ -123,7 +123,7 @@ class TagManagementService {
         ) {
 
             return $this->failure(
-                "Please select at least one expertise tag"
+                "Input Required - Please select at least one area of interest to help students identify your expertise."
             );
         }
 
@@ -230,7 +230,7 @@ class TagManagementService {
         }
 
         return $this->success(
-            "Expertise tags updated successfully"
+            "Expertise Updated - Your expertise tags have been successfully saved and will now appear on your Digital Business Card."
         );
     }
 
@@ -288,4 +288,3 @@ class TagManagementService {
 }
 
 ?>
-

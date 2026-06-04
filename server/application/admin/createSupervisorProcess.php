@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../auth/SessionManager.php";
 require_once __DIR__ . "/../../business/services/UserManagementService.php";
@@ -36,6 +36,19 @@ if (!SessionManager::isLoggedIn()) {
 */
 
 SessionManager::requireRole("Administrator");
+
+/*
+|--------------------------------------------------------------------------
+| CSRF Validation
+|--------------------------------------------------------------------------
+| Blocks forged supervisor account creation requests.
+*/
+
+if (!SessionManager::validateCsrfToken($_POST["csrf_token"] ?? "")) {
+
+    header("Location: ../../../client/admin/supervisorsManagement.php?status=error&message=Invalid CSRF token");
+    exit();
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -125,9 +138,3 @@ header(
 exit();
 
 ?>
-
-
-
-
-
-

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/SupervisorProfileService.php";
@@ -15,8 +15,13 @@ $profileService   = new SupervisorProfileService();
 $profile          = $profileService->getDigitalBusinessCard($_SESSION["userID"]);
 $videoLink        = $profile["introVideoLink"]        ?? "";
 $videoDescription = $profile["introVideoDescription"] ?? "";
+$videoStatus      = strtolower($profile["introVideoStatus"] ?? "");
 $hasVideo         = !empty($videoLink);
-$isUploadedVideo  = preg_match("/^\.\.\/storage\/intro_videos\/.+\.(mp4|webm)$/i", $videoLink) === 1;
+$isPublished      = $videoStatus === "published" && $hasVideo;
+$isUploadedVideo  = preg_match("/\/storage\/intro_videos\/.+\.(mp4|webm)$/i", $videoLink) === 1;
+$hasExternalVideo = $hasVideo && !$isUploadedVideo;
+$videoScore       = ($hasVideo ? 1 : 0) + (trim($videoDescription) !== "" ? 1 : 0);
+$displayStatus    = $isPublished ? "Published" : "Draft";
 
 function videoEmbedUrl($url) {
     if (preg_match("/youtu\.be\/([^?&]+)/", $url, $matches))
@@ -39,13 +44,14 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
     <style>
         <?php echo supervisorBaseStyles(); ?>
 
-        /* â”€â”€ Page shell â€” full width of .main â”€â”€ */
+        /* Page shell — full width of .main — */
         .intro-shell { width: 100%; }
+        .intro-hero { border-radius: 8px; padding: 30px 34px; }
+        .intro-hero .hero-stat { min-width: 310px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: center; }
+        .intro-hero .stat-value { font-size: 28px; }
+        .intro-hero .status-value { color: #fff; font-size: 20px; font-weight: 900; margin-top: 8px; }
 
-        .page-title    { margin: 0 0 5px; color: #1d2b3a; font-size: 24px; font-weight: 700; }
-        .page-subtitle { margin: 0 0 22px; color: #6b7f91; font-size: 13px; }
-
-        /* â”€â”€ Two-column layout â”€â”€ */
+        /* Two-column layout */
         .video-layout {
             display: grid;
             grid-template-columns: minmax(0, 1fr) 300px;
@@ -53,7 +59,7 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
             align-items: start;
         }
 
-        /* â”€â”€ Video preview â€” taller to fill the space â”€â”€ */
+        /*  Video preview — taller to fill the space — */
         .video-preview {
             height: 340px;
             border-radius: 10px;
@@ -88,7 +94,7 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
             text-transform: uppercase;
         }
 
-        /* â”€â”€ Description card â”€â”€ */
+        /*  Description card */
         .description-card {
             margin-top: 16px;
             padding: 18px;
@@ -112,7 +118,7 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
             color: #9aa8b7; font-size: 11px;
         }
 
-        /* â”€â”€ Right sidebar cards â”€â”€ */
+        /* Right sidebar cards  */
         .sidebar-card {
             background: #fff;
             border: 1px solid #dce8f3;
@@ -128,7 +134,7 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
             color: #8a9caf; margin: 0 0 14px; display: block;
         }
 
-        /* â”€â”€ Source toggle â”€â”€ */
+        /*  Source toggle  */
         .toggle {
             display: grid; grid-template-columns: 1fr 1fr;
             background: #eef3f8; border-radius: 8px;
@@ -145,7 +151,7 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
             box-shadow: 0 2px 8px rgba(11,79,138,.1);
         }
 
-        /* â”€â”€ Upload drop zone â”€â”€ */
+        /* Upload drop zone */
         .drop-zone {
             border: 2px dashed #c4d6ea; border-radius: 10px;
             padding: 24px 14px 20px; text-align: center;
@@ -172,7 +178,7 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
         .drop-hint  { display: block; font-size: 11px; color: #8fa3b5; margin-bottom: 0; }
         .drop-filename { display: block; margin-top: 8px; font-size: 11px; color: #0d5be8; font-weight: 600; min-height: 14px; word-break: break-all; }
 
-        /* â”€â”€ URL field â”€â”€ */
+        /* URL field */
         .url-section { margin-top: 14px; padding-top: 14px; border-top: 1px solid #edf2f7; }
         .url-label {
             font-size: 11px; font-weight: 800;
@@ -186,8 +192,32 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
             transform: translateY(-50%);
             color: #8a9caf; font-size: 13px; pointer-events: none;
         }
+        .saved-link-pill {
+            display: <?php echo $hasExternalVideo ? "flex" : "none"; ?>;
+            align-items: center;
+            gap: 8px;
+            min-height: 38px;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            background: #f0fdf4;
+            color: #15803d;
+            padding: 0 12px;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+        .saved-link-pill:before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            flex: 0 0 auto;
+        }
+        .url-wrap.saved { display: none; }
 
-        /* â”€â”€ Status card â”€â”€ */
+        /* Status card */
         .status-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
         .status-dot.published { background: #22c55e; }
@@ -197,7 +227,7 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
         .status-label.draft     { color: #b45309; }
         .status-card-text { color: #526a7f; font-size: 12px; line-height: 1.6; margin: 0 0 16px; }
 
-        /* â”€â”€ Action buttons â”€â”€ */
+        /* Action buttons */
         .actions { display: grid; gap: 10px; }
         .btn-publish {
             width: 100%; height: 40px; border-radius: 8px;
@@ -220,7 +250,7 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
         }
         .btn-draft:hover { background: #e8eef5; }
 
-        /* â”€â”€ Best practices â”€â”€ */
+        /* Best practices */
         .practice-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
         .practice-list li { display: flex; align-items: center; gap: 9px; color: #526a7f; font-size: 12px; line-height: 1.4; }
         .practice-dot {
@@ -228,10 +258,11 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
             background: #dcfce7; flex-shrink: 0;
             display: grid; place-items: center;
         }
-        .practice-dot::after { content: "âœ“"; font-size: 9px; font-weight: 900; color: #16a34a; }
+        .practice-dot::after { content: "OK"; font-size: 8px; font-weight: 900; color: #16a34a; }
 
-        /* â”€â”€ Responsive â”€â”€ */
+        /* Responsive */
         @media (max-width: 960px) {
+            .intro-hero .hero-stat { min-width: 0; margin-top: 18px; }
             .video-layout { grid-template-columns: 1fr; }
             .video-preview { height: 280px; }
         }
@@ -245,19 +276,33 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
             <div class="intro-shell">
                 <?php echo statusMessage(); ?>
 
-                <h1 class="page-title">Introductory Video</h1>
-                <p class="page-subtitle">Enhance your profile visibility by adding a short introductory video.</p>
+                <section class="hero intro-hero">
+                    <div>
+                        <h1>Introductory Video</h1>
+                        <p>Enhance your profile visibility by adding a short introductory video.</p>
+                    </div>
+                    <div class="hero-stat">
+                        <div>
+                            <div class="stat-label">Video Setup</div>
+                            <div class="stat-value"><?php echo e($videoScore); ?>/2</div>
+                        </div>
+                        <div>
+                            <div class="stat-label">Status</div>
+                            <div class="status-value"><?php echo e($displayStatus); ?></div>
+                        </div>
+                    </div>
+                </section>
 
                 <form class="video-layout"
-                      action="../../server/application/supervisor/updateIntroVideo.php"
-                      method="POST"
-                      id="videoForm"
-                      enctype="multipart/form-data">
+                    action="../../server/application/supervisor/updateIntroVideo.php"
+                    method="POST"
+                    id="videoForm"
+                    enctype="multipart/form-data">
 
                     <input type="hidden" name="csrf_token"             value="<?php echo e($_SESSION["csrf_token"]); ?>">
                     <input type="hidden" name="existingIntroVideoLink" value="<?php echo e($videoLink); ?>">
 
-                    <!-- â”€â”€ Left: preview + description â”€â”€ -->
+                    <!--  Left: preview + description -->
                     <section>
                         <div class="video-preview">
                             <?php if ($hasVideo && $isUploadedVideo): ?>
@@ -285,7 +330,7 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
                         </section>
                     </section>
 
-                    <!-- â”€â”€ Right sidebar â”€â”€ -->
+                    <!--  Right sidebar  -->
                     <aside>
 
                         <!-- Content source -->
@@ -294,12 +339,12 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
                             <div class="toggle">
                                 <label id="uploadTab" class="<?php echo $isUploadedVideo ? "active" : ""; ?>">
                                     <input type="radio" name="contentSource" value="upload"
-                                           <?php echo $isUploadedVideo ? "checked" : ""; ?>>
+                                        <?php echo $isUploadedVideo ? "checked" : ""; ?>>
                                     Upload File
                                 </label>
                                 <label id="externalTab" class="<?php echo !$isUploadedVideo ? "active" : ""; ?>">
                                     <input type="radio" name="contentSource" value="external"
-                                           <?php echo !$isUploadedVideo ? "checked" : ""; ?>>
+                                        <?php echo !$isUploadedVideo ? "checked" : ""; ?>>
                                     External Link
                                 </label>
                             </div>
@@ -307,7 +352,7 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
                             <div class="drop-zone" id="uploadPanel">
                                 <div class="upload-icon" aria-hidden="true">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="#0d5be8"
-                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="16 16 12 12 8 16"/>
                                         <line x1="12" y1="12" x2="12" y2="21"/>
                                         <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
@@ -318,19 +363,20 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
                                 <span class="drop-filename" id="fileLabel">No file chosen</span>
                                 <input type="hidden" name="MAX_FILE_SIZE" value="52428800">
                                 <input type="file" id="introVideoFile" name="introVideoFile"
-                                       accept="video/mp4,video/webm">
+                                    accept="video/mp4,video/webm">
                             </div>
 
                             <div class="url-section" id="externalPanel">
                                 <span class="url-label">Or Paste A URL</span>
-                                <div class="url-wrap">
-                                    <span class="url-icon">ðŸ”—</span>
+                                <div class="saved-link-pill" id="savedLinkPill">External link saved</div>
+                                <div class="url-wrap <?php echo $hasExternalVideo ? "saved" : ""; ?>" id="urlWrap">
+                                    <span class="url-icon">URL</span>
                                     <input type="url"
-                                           id="introVideoLink"
-                                           name="introVideoLink"
-                                           value="<?php echo $isUploadedVideo ? "" : e($videoLink); ?>"
-                                           placeholder="YouTube or Vimeo link"
-                                           pattern="https?:\/\/(www\.)?(youtube\.com|youtu\.be|vimeo\.com)\/.+">
+                                        id="introVideoLink"
+                                        name="introVideoLink"
+                                        value="<?php echo $isUploadedVideo ? "" : e($videoLink); ?>"
+                                        placeholder="YouTube or Vimeo link"
+                                        pattern="https?:\/\/(www\.)?(youtube\.com|youtu\.be|vimeo\.com)\/.+">
                                 </div>
                             </div>
                         </div>
@@ -338,13 +384,13 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
                         <!-- Status + actions -->
                         <div class="sidebar-card">
                             <div class="status-header">
-                                <span class="status-dot <?php echo $hasVideo ? "published" : "draft"; ?>"></span>
-                                <span class="status-label <?php echo $hasVideo ? "published" : "draft"; ?>">
-                                    Status: <?php echo $hasVideo ? "Published" : "Draft"; ?>
+                                <span class="status-dot <?php echo $isPublished ? "published" : "draft"; ?>"></span>
+                                <span class="status-label <?php echo $isPublished ? "published" : "draft"; ?>">
+                                    Status: <?php echo $isPublished ? "Published" : "Draft"; ?>
                                 </span>
                             </div>
                             <p class="status-card-text">
-                                Your video is published when a valid uploaded video file or YouTube/Vimeo link is saved.
+                                Save incomplete video details as a draft, then publish when the video source is ready.
                             </p>
                             <div class="actions">
                                 <button class="btn-publish" type="submit">Publish Video</button>
@@ -354,7 +400,10 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
                                         Remove Video
                                     </button>
                                 <?php endif; ?>
-                                <a class="btn-draft" href="manageIntroVideo.php">Save as Draft</a>
+                                <button class="btn-draft" type="submit"
+                                        name="saveDraft" value="1" formnovalidate>
+                                    Save as Draft
+                                </button>
                             </div>
                         </div>
 
@@ -362,7 +411,7 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
                         <div class="sidebar-card">
                             <span class="card-label">Best Practices</span>
                             <ul class="practice-list">
-                                <li><span class="practice-dot"></span> Recommended length: 90â€“120 seconds</li>
+                                <li><span class="practice-dot"></span> Recommended length: 90-120 seconds</li>
                                 <li><span class="practice-dot"></span> Use a clear academic introduction</li>
                                 <li><span class="practice-dot"></span> Include supervision expectations</li>
                             </ul>
@@ -385,7 +434,10 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
         const fileLabel      = document.getElementById("fileLabel");
         const videoPreview   = document.querySelector(".video-preview");
         const introVideoLink = document.getElementById("introVideoLink");
+        const urlWrap        = document.getElementById("urlWrap");
+        const savedLinkPill  = document.getElementById("savedLinkPill");
         const existingUploadedVideo = <?php echo $isUploadedVideo ? "true" : "false"; ?>;
+        const existingExternalVideo = <?php echo $hasExternalVideo ? "true" : "false"; ?>;
         const maxVideoBytes  = 50 * 1024 * 1024;
         let localPreviewUrl  = "";
 
@@ -397,6 +449,13 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
             externalPanel.style.display = source === "external" ? "block" : "none";
             fileInput.disabled      = source !== "upload";
             introVideoLink.disabled = source !== "external";
+            if (source === "external" && existingExternalVideo) {
+                savedLinkPill.style.display = "flex";
+                urlWrap.style.display = "none";
+            } else {
+                savedLinkPill.style.display = "none";
+                urlWrap.style.display = "block";
+            }
         }
 
         document.querySelectorAll('input[name="contentSource"]').forEach(function(input) {
@@ -460,6 +519,9 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
         syncSourceTabs();
 
         document.getElementById("videoForm").addEventListener("submit", function(event) {
+            if (event.submitter && event.submitter.name === "saveDraft") {
+                return;
+            }
             if (event.submitter && event.submitter.name === "removeIntroVideo") {
                 if (!confirm("Remove the current introductory video?")) event.preventDefault();
                 return;
@@ -479,4 +541,3 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
     </script>
 </body>
 </html>
-

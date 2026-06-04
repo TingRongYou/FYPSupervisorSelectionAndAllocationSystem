@@ -1,7 +1,9 @@
-﻿<?php
+<?php
 
 require_once "../../server/application/auth/SessionManager.php";
 require_once "../../server/business/services/AllocationEngine.php";
+require_once "../../server/business/services/AllocationWindowService.php";
+require_once "../../server/business/services/AdminReportFacade.php";
 require_once __DIR__ . "/../shared/accountLayout.php";
 
 SessionManager::startSession();
@@ -16,12 +18,75 @@ SessionManager::requireRole(
     "Administrator"
 );
 
+if (empty($_SESSION["csrf_token"])) {
+
+    $_SESSION["csrf_token"] =
+        bin2hex(random_bytes(32));
+}
+
 $allocationEngine =
     new AllocationEngine();
 
 $summary =
     $allocationEngine
     ->getAllocationDashboard();
+
+$autoAllocationLogs =
+    $allocationEngine
+    ->getRecentAutoAllocationLogs(5);
+
+$allocationWindowService =
+    new AllocationWindowService();
+
+$allocationWindow =
+    $allocationWindowService
+    ->getWindow();
+
+$initialAllocationDate =
+    !empty($allocationWindow["initialAllocationDate"])
+        ? date("d M Y, h:i A", strtotime($allocationWindow["initialAllocationDate"]))
+        : "Not configured";
+
+$finalAllocationDate =
+    !empty($allocationWindow["finalAllocationDate"])
+        ? date("d M Y, h:i A", strtotime($allocationWindow["finalAllocationDate"]))
+        : "Not configured";
+
+$adminReportFacade =
+    new AdminReportFacade();
+
+$unassignedOverview =
+    $adminReportFacade
+    ->getCohortOverview([
+        "status" => "unassigned"
+    ]);
+
+$unassignedStudents =
+    array_slice(
+        $unassignedOverview["students"] ?? [],
+        0,
+        8
+    );
+
+$hasUnassignedStudents =
+    ((int) ($summary["unassignedStudents"] ?? 0)) > 0;
+
+$allocationStatusText =
+    $allocationWindow["statusText"] ?? "";
+
+if (
+    ($allocationWindow["status"] ?? "") === "closed" &&
+    !$hasUnassignedStudents
+) {
+
+    $allocationStatusText =
+        "Final allocation date has passed. All eligible students have been allocated; no students are pending auto-allocation.";
+}
+
+$unassignedDescription =
+    $hasUnassignedStudents
+        ? "Eligible students without an allocation record. After the final allocation date, these students are pending auto-allocation."
+        : "All eligible students currently have allocation records. No students are waiting for auto-allocation.";
 
 function e($value) {
 
@@ -48,6 +113,13 @@ function statusMessage() {
         "<div class=\"message {$class}\">"
         . e($_GET["message"])
         . "</div>";
+}
+
+function engineReadinessLabel($allocationWindow) {
+
+    return $allocationWindow["canRunAutoAllocation"]
+        ? "Ready for administrator trigger."
+        : "Locked until final allocation date is reached.";
 }
 
 ?>
@@ -111,7 +183,7 @@ function statusMessage() {
 
         .topbar-user {
             text-align: right;
-            font-size: 13px;
+            font-size: 15px;
             line-height: 1.4;
         }
 
@@ -163,7 +235,7 @@ function statusMessage() {
         .role-subtitle {
             margin: 2px 0 0;
             color: #6b7f91;
-            font-size: 12px;
+            font-size: 14px;
         }
 
         .nav-link {
@@ -184,6 +256,23 @@ function statusMessage() {
             background: #eaf3ff;
             color: #0b66d8;
             transform: translateX(2px);
+        }
+
+        .sidebar .role-card { min-height: 62px; }
+        .sidebar .role-icon { width: 38px; height: 38px; font-size: 15px; font-weight: 800; }
+        .sidebar .role-title { font-size: 14px; font-weight: 800; }
+        .sidebar .role-subtitle { font-size: 12px; font-weight: 400; text-transform: none; letter-spacing: 0; }
+        .sidebar .nav-link,
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            min-height: 40px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.2;
+            white-space: nowrap;
         }
 
         .main {
@@ -256,7 +345,7 @@ function statusMessage() {
 
         .timer-label {
             color: #b9d2ff;
-            font-size: 12px;
+            font-size: 14px;
             text-transform: uppercase;
         }
 
@@ -279,6 +368,50 @@ function statusMessage() {
         .button:hover {
             transform: translateY(-1px);
             box-shadow: 0 8px 18px rgba(0, 0, 0, .14);
+        }
+
+        .button:disabled {
+            background: #c9d4e2;
+            color: #66788c;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .button:disabled:hover {
+            box-shadow: none;
+            transform: none;
+        }
+
+        .button.secondary {
+            background: #0d5be8;
+            color: #ffffff;
+        }
+
+        .window-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .window-box {
+            background: rgba(255, 255, 255, .13);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+
+        .window-label {
+            color: #b9d2ff;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .window-value {
+            margin-top: 4px;
+            color: #ffffff;
+            font-weight: 800;
         }
 
         .panel {
@@ -314,7 +447,7 @@ function statusMessage() {
             margin: 0;
             color: #6b7f91;
             text-align: center;
-            font-size: 13px;
+            font-size: 15px;
         }
 
         .check-grid {
@@ -351,7 +484,7 @@ function statusMessage() {
             border-radius: 10px;
             padding: 18px;
             font-family: Consolas, monospace;
-            font-size: 13px;
+            font-size: 15px;
             line-height: 1.8;
             box-shadow: 0 12px 24px rgba(16, 26, 46, .2);
         }
@@ -366,6 +499,76 @@ function statusMessage() {
 
         .terminal .warn {
             color: #ffd866;
+        }
+
+        .table-card {
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .table-head {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .table-head h2 {
+            margin: 0 0 6px;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        .student-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 720px;
+        }
+
+        .log-table {
+            min-width: 980px;
+        }
+
+        .student-table th,
+        .student-table td {
+            padding: 13px 14px;
+            border-top: 1px solid #eef3f8;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .student-table th {
+            color: #7c8da0;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            background: #fbfdff;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            width: max-content;
+            align-items: center;
+            min-height: 24px;
+            border-radius: 999px;
+            padding: 0 10px;
+            background: #eaf3ff;
+            color: #0d5be8;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .empty-state {
+            border: 1px dashed #aac7df;
+            border-radius: 8px;
+            padding: 18px;
+            color: #526a7f;
+            background: #f8fbff;
         }
 
         @media (max-width: 1050px) {
@@ -425,8 +628,8 @@ function statusMessage() {
             <a class="nav-link" href="studentEligibility.php">Students Eligibility</a>
             <a class="nav-link" href="quotaManagement.php">Quota Management</a>
             <a class="nav-link active" href="autoAllocation.php">Allocations</a>
-            <a class="nav-link" href="#">Reports</a>
-            <a class="nav-link" href="../../server/application/auth/logout.php">Logout</a>
+            <a class="nav-link" href="adminSupervisorReviews.php">Supervisor Reviews Audit</a>
+            <a class="nav-link" href="adminCohortOverview.php">Reports</a>
         </aside>
 
         <main class="main">
@@ -437,8 +640,21 @@ function statusMessage() {
                 <article class="hero-card">
                     <h1>Final Allocation Engine</h1>
                     <p>
-                        System will automatically finalize all pending supervisor allocations.
+                        <?php echo $hasUnassignedStudents
+                            ? "After the final allocation date, administrators can run the engine to assign eligible unassigned students."
+                            : "All eligible students are currently allocated. The engine is ready only if new unassigned students appear after the final allocation date."; ?>
                     </p>
+
+                    <div class="window-grid">
+                        <div class="window-box">
+                            <div class="window-label">Initial Allocation Date</div>
+                            <div class="window-value"><?php echo e($initialAllocationDate); ?></div>
+                        </div>
+                        <div class="window-box">
+                            <div class="window-label">Final Allocation Date</div>
+                            <div class="window-value"><?php echo e($finalAllocationDate); ?></div>
+                        </div>
+                    </div>
 
                     <div class="timer-grid">
                         <div class="timer-box">
@@ -458,10 +674,17 @@ function statusMessage() {
                     <br>
 
                     <form action="../../server/application/admin/runAutoAllocation.php" method="POST">
-                        <button class="button" type="submit">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
+                        <button class="button" type="submit" <?php echo $allocationWindow["canRunAutoAllocation"] ? "" : "disabled"; ?>>
                             Run Auto Allocation
                         </button>
                     </form>
+                    <p style="color:#dbe9ff; margin-top:12px;">
+                        <?php echo e($allocationStatusText); ?>
+                    </p>
+                    <p style="color:#dbe9ff; margin-top:6px;">
+                        <?php echo e(engineReadinessLabel($allocationWindow)); ?>
+                    </p>
                 </article>
 
                 <article class="panel">
@@ -498,8 +721,57 @@ function statusMessage() {
                 </article>
             </section>
 
+            <section class="panel table-card">
+                <div class="table-head">
+                    <div>
+                        <h2>Unassigned Students</h2>
+                        <p style="margin:0;color:#526a7f;font-size:14px;line-height:1.5;">
+                            <?php echo e($unassignedDescription); ?>
+                        </p>
+                    </div>
+                    <a class="button" href="adminCohortOverview.php?status=unassigned">
+                        View All
+                    </a>
+                </div>
+
+                <?php if (empty($unassignedStudents)): ?>
+                    <div class="empty-state">There are currently no unassigned eligible students.</div>
+                <?php else: ?>
+                    <div class="table-scroll">
+                        <table class="student-table">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Student ID</th>
+                                    <th>Programme</th>
+                                    <th>Batch</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($unassignedStudents as $student): ?>
+                                    <tr>
+                                        <td><?php echo e($student["fullName"]); ?></td>
+                                        <td><?php echo e($student["studentID"]); ?></td>
+                                        <td><?php echo e($student["programme"]); ?></td>
+                                        <td><?php echo e($student["intakeBatch"]); ?></td>
+                                        <td>
+                                            <span class="status-pill">
+                                                <?php echo $allocationWindow["status"] === "closed" ? "Pending Auto-Allocation" : "Unassigned"; ?>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </section>
+
             <section class="terminal">
                 <div><strong>[system]</strong> Initializing allocation engine...</div>
+                <div><strong>[deadline]</strong> Final allocation date: <span class="warn"><?php echo e($finalAllocationDate); ?></span></div>
+                <div><strong>[trigger]</strong> <?php echo e(engineReadinessLabel($allocationWindow)); ?></div>
                 <div><strong>[check]</strong> Eligible students: <span class="ok"><?php echo e($summary["eligibleStudents"]); ?></span></div>
                 <div><strong>[check]</strong> Current allocated students: <span class="ok"><?php echo e($summary["allocatedStudents"]); ?></span></div>
                 <div><strong>[queue]</strong> Unassigned eligible students: <span class="warn"><?php echo e($summary["unassignedStudents"]); ?></span></div>
@@ -507,10 +779,58 @@ function statusMessage() {
                 <div><strong>[strategy]</strong> System Auto-Match strategy ready.</div>
             </section>
 
+            <section class="panel table-card" style="margin-top:24px;">
+                <div class="table-head">
+                    <div>
+                        <h2>Auto-Allocation Log</h2>
+                        <p style="margin:0;color:#526a7f;font-size:14px;line-height:1.5;">
+                            Records every administrator-triggered allocation run and its final result message.
+                        </p>
+                    </div>
+                </div>
+
+                <?php if (empty($autoAllocationLogs)): ?>
+                    <div class="empty-state">No auto-allocation run has been recorded yet.</div>
+                <?php else: ?>
+                    <div class="table-scroll">
+                        <table class="student-table log-table">
+                            <thead>
+                                <tr>
+                                    <th>Run ID</th>
+                                    <th>Triggered At</th>
+                                    <th>Admin</th>
+                                    <th>Eligible</th>
+                                    <th>Matched</th>
+                                    <th>Unassigned</th>
+                                    <th>Status</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($autoAllocationLogs as $log): ?>
+                                    <tr>
+                                        <td>#<?php echo e($log["logID"]); ?></td>
+                                        <td><?php echo e(date("d M Y, h:i A", strtotime($log["triggeredAt"]))); ?></td>
+                                        <td><?php echo e($log["triggeredByAdminName"] ?? $log["triggeredByAdminID"] ?? "System"); ?></td>
+                                        <td><?php echo e($log["eligibleCount"]); ?></td>
+                                        <td><?php echo e($log["matchedCount"]); ?></td>
+                                        <td><?php echo e($log["unassignedCount"]); ?></td>
+                                        <td>
+                                            <span class="status-pill">
+                                                <?php echo e(str_replace("_", " ", $log["logStatus"])); ?>
+                                            </span>
+                                        </td>
+                                        <td><?php echo e($log["resultMessage"]); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </section>
+
         </main>
     </div>
 
 </body>
 </html>
-
-

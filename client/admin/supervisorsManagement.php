@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once "../../server/application/auth/SessionManager.php";
 require_once "../../server/business/services/SupervisorManagementService.php";
@@ -6,6 +6,8 @@ require_once __DIR__ . "/../shared/accountLayout.php";
 
 SessionManager::startSession();
 SessionManager::requireRole("Administrator");
+
+$csrfToken = SessionManager::getCsrfToken();
 
 $supervisorManagementService = new SupervisorManagementService();
 
@@ -96,10 +98,10 @@ function statusMessage() {
 
         body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f4f8fc; color: #1d2b3a; }
 
-        /* â”€â”€ Shell â”€â”€ */
+        /* Shell */
         .content-shell { display: flex; min-height: calc(100vh - 52px); }
 
-        /* â”€â”€ Sidebar â”€â”€ */
+        /* Sidebar */
         .sidebar { width: 220px; flex: 0 0 220px; background: #fff; border-right: 1px solid #dce8f3; padding: 16px 10px; }
         .role-card { display: flex; gap: 10px; align-items: center; padding: 6px 9px 14px; margin-bottom: 8px; }
         .role-icon { width: 34px; height: 34px; border-radius: 8px; background: #0d5be8; color: #fff; display: grid; place-items: center; font-size: 13px; font-weight: 900; flex-shrink: 0; }
@@ -119,15 +121,22 @@ function statusMessage() {
         .nav-link { gap: 10px; padding: 12px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; font-weight: 400; transition: background .2s, color .2s, transform .2s; white-space: nowrap; }
         .nav-link:hover, .nav-link.active { color: #0b66d8; transform: translateX(2px); }
         .nav-icon, .nav-chevron { display: none; }
+        .sidebar .role-card { min-height: 62px; }
+        .sidebar .role-icon { width: 38px; height: 38px; font-size: 15px; font-weight: 800; }
+        .sidebar .role-title { font-size: 14px; font-weight: 800; }
+        .sidebar .role-subtitle { font-size: 12px; font-weight: 400; text-transform: none; letter-spacing: 0; }
+        .sidebar .nav-link,
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active { min-height: 40px; padding: 12px 14px; margin-bottom: 8px; border-radius: 8px; font-size: 14px; font-weight: 600; line-height: 1.2; white-space: nowrap; }
 
-        /* â”€â”€ Main â”€â”€ */
+        /* Main */
         .main { flex: 1; padding: 26px 28px 60px; min-width: 0; overflow-x: hidden; }
 
         .message { border-radius: 8px; padding: 12px 14px; margin-bottom: 18px; font-weight: 700; font-size: 13px; }
         .message.success { background: #e5f6ed; color: #177345; border: 1px solid #a9dfbf; }
         .message.error   { background: #fdeaea; color: #a52d2d; border: 1px solid #f0b8b8; }
 
-        /* â”€â”€ Hero â”€â”€ */
+        /* Hero */
         .hero-grid { display: grid; grid-template-columns: 1fr 220px; gap: 20px; margin-bottom: 20px; }
 
         .hero-card {
@@ -139,37 +148,37 @@ function statusMessage() {
         .hero-card p  { margin: 0 0 22px; color: #c8deff; font-size: 13px; line-height: 1.5; }
         .hero-metrics { display: flex; gap: 12px; }
         .metric { min-width: 100px; background: rgba(255,255,255,.15); border-radius: 10px; padding: 14px 18px; }
-        .metric-label { color: #a8c8ff; font-size: 9px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 800; }
+        .metric-label { color: #a8c8ff; font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 800; }
         .metric-value { margin-top: 6px; font-size: 26px; font-weight: 900; }
         .hero-actions { display: flex; gap: 10px; flex-shrink: 0; align-self: center; }
         .hero-btn { border-radius: 8px; height: 36px; padding: 0 20px; font-weight: 800; font-size: 12px; cursor: pointer; border: none; }
         .hero-btn.primary   { background: #fff; color: #0d5be8; }
         .hero-btn.secondary { background: rgba(255,255,255,.18); color: #fff; border: 1px solid rgba(255,255,255,.3); }
 
-        /* â”€â”€ Status ring card â”€â”€ */
+        /* Status ring card */
         .status-card { background: #fff; border: 1px solid #d9e7f3; border-radius: 14px; padding: 24px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .status-card h2 { margin: 0 0 16px; color: #10263d; font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 900; }
+        .status-card h2 { margin: 0 0 16px; color: #10263d; font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 900; }
         .ring-wrap { position: relative; width: 110px; height: 110px; margin-bottom: 14px; }
         .ring-svg  { width: 110px; height: 110px; transform: rotate(-90deg); }
         .ring-bg   { fill: none; stroke: #e8f0fb; stroke-width: 10; }
         .ring-fill { fill: none; stroke: #0d5be8; stroke-width: 10; stroke-linecap: round; }
         .ring-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .ring-label strong { color: #0d5be8; font-size: 22px; font-weight: 900; line-height: 1; }
-        .ring-label span   { color: #6b7f91; font-size: 9px; text-transform: uppercase; letter-spacing: .8px; margin-top: 2px; }
-        .status-caption { margin: 0; color: #8a9caf; font-size: 11px; line-height: 1.5; }
+        .ring-label span   { color: #6b7f91; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; margin-top: 2px; }
+        .status-caption { margin: 0; color: #8a9caf; font-size: 13px; line-height: 1.5; }
 
-        /* â”€â”€ Quick filter â”€â”€ */
+        /* Quick filter */
         .quick-filter { display: flex; gap: 10px; align-items: center; padding: 12px 0; margin-bottom: 16px; overflow-x: auto; flex-wrap: wrap; }
-        .quick-label  { color: #8a9caf; font-size: 10px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
-        .filter-pill  { display: inline-flex; align-items: center; height: 26px; border-radius: 999px; padding: 0 14px; color: #526a7f; background: #fff; border: 1px solid #d4e2f0; text-decoration: none; font-size: 11px; font-weight: 700; white-space: nowrap; }
+        .quick-label  { color: #8a9caf; font-size: 12px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+        .filter-pill  { display: inline-flex; align-items: center; min-height: 30px; border-radius: 999px; padding: 0 16px; color: #526a7f; background: #fff; border: 1px solid #d4e2f0; text-decoration: none; font-size: 13px; font-weight: 800; white-space: nowrap; }
         .filter-pill:hover  { border-color: #0d5be8; color: #0d5be8; }
         .filter-pill.active { background: #0d5be8; color: #fff; border-color: #0d5be8; }
 
-        /* â”€â”€ Panel â”€â”€ */
+        /* Panel */
         .panel { background: #fff; border: 1px solid #d9e7f3; border-radius: 14px; overflow: hidden; }
 
         .directory-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 22px 14px; gap: 12px; flex-wrap: wrap; }
-        .directory-header h2 { margin: 0; font-size: 16px; color: #10263d; font-weight: 800; }
+        .directory-header h2 { margin: 0; font-size: 19px; color: #10263d; font-weight: 800; }
 
         .search-form { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .search-wrap { position: relative; }
@@ -179,11 +188,11 @@ function statusMessage() {
         input, select {
             height: 34px; border: 1px solid #dbe6f0; border-radius: 7px;
             background: #f6f8fb; color: #1d2b3a; padding: 0 10px;
-            font-size: 12px; outline: none;
+            font-size: 14px; outline: none;
         }
         input:focus, select:focus { border-color: #0d5be8; background: #fff; }
 
-        .btn { border: 0; height: 34px; border-radius: 7px; padding: 0 14px; font-weight: 800; font-size: 11px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+        .btn { border: 0; min-height: 36px; border-radius: 7px; padding: 0 16px; font-weight: 800; font-size: 13px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
         .btn-primary   { background: #0d5be8; color: #fff; }
         .btn-secondary { background: #eef2f7; color: #3d5166; }
         .btn-ghost { background: #eaf3ff; color: #0d5be8; border: 1px solid #cfe0f5; }
@@ -191,20 +200,20 @@ function statusMessage() {
         .create-panel { display: none; border-top: 1px solid #edf2f7; background: #fbfdff; padding: 20px 22px 22px; }
         .create-panel.show { display: block; }
         .create-title { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 16px; }
-        .create-title h3 { margin: 0; color: #10263d; font-size: 15px; font-weight: 900; }
-        .create-title p { margin: 4px 0 0; color: #6b7f91; font-size: 11px; line-height: 1.45; }
+        .create-title h3 { margin: 0; color: #10263d; font-size: 17px; font-weight: 900; }
+        .create-title p { margin: 4px 0 0; color: #6b7f91; font-size: 13px; line-height: 1.45; }
         .create-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: end; }
         .create-field { min-width: 0; }
-        .create-field label { display: block; margin-bottom: 6px; color: #526a7f; font-size: 10px; font-weight: 900; letter-spacing: .6px; text-transform: uppercase; }
+        .create-field label { display: block; margin-bottom: 6px; color: #526a7f; font-size: 12px; font-weight: 900; letter-spacing: .6px; text-transform: uppercase; }
         .create-field input, .create-field select { width: 100%; }
         .create-field.wide { grid-column: span 2; }
         .create-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 
-        /* â”€â”€ Directory table using CSS Grid for perfect alignment â”€â”€ */
+        /* Directory table using CSS Grid for perfect alignment â”€â”€ */
         .dir-table { width: 100%; }
 
         /*
-            Column widths â€” must match exactly between .thead-row and .data-row
+            Column widths must match exactly between .thead-row and .data-row
             1: Name       220px
             2: Staff ID   100px
             3: Programme  120px
@@ -227,7 +236,7 @@ function statusMessage() {
             gap: 12px;
         }
         .thead-row > div {
-            color: #8a9caf; font-size: 9px; font-weight: 900;
+            color: #8a9caf; font-size: 12px; font-weight: 900;
             letter-spacing: 1px; text-transform: uppercase;
         }
         .thead-row > div:last-child { text-align: right; }
@@ -246,21 +255,22 @@ function statusMessage() {
         .person-cell { display: flex; gap: 10px; align-items: center; min-width: 0; }
         .avatar { width: 34px; height: 34px; border-radius: 50%; background: #26384c; color: #fff; display: grid; place-items: center; font-size: 12px; font-weight: 900; flex-shrink: 0; overflow: hidden; }
         .avatar img  { width: 100%; height: 100%; object-fit: cover; }
-        .person-name { margin: 0; font-size: 12px; font-weight: 700; color: #10263d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .person-meta { margin: 2px 0 0; font-size: 10px; color: #8a9caf; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .person-name { margin: 0; font-size: 15px; font-weight: 900; color: #10263d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .person-meta { margin: 3px 0 0; font-size: 13px; color: #8a9caf; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .cell-text { color: #526a7f; font-size: 12px; }
+        .cell-text { color: #526a7f; font-size: 15px; }
 
         /* Selects inside rows */
-        .classification-select { width: 100%; font-size: 12px; }
+        .classification-select { width: 100%; font-size: 14px; }
 
         /* Quota / load bar */
-        .load-row   { display: flex; justify-content: space-between; color: #526a7f; font-size: 10px; font-weight: 700; margin-bottom: 4px; }
+        .quota-status-cell { width: min(100%, 360px); }
+        .load-row   { display: flex; justify-content: space-between; color: #526a7f; font-size: 14px; font-weight: 900; margin-bottom: 5px; }
         .load-row.full { color: #b42318; }
-        .bar-track  { height: 6px; background: #edf2f7; border-radius: 999px; overflow: hidden; }
+        .bar-track  { height: 7px; background: #edf2f7; border-radius: 999px; overflow: hidden; }
         .bar-fill   { height: 100%; background: #0d5be8; border-radius: inherit; }
         .bar-fill.full { background: #d93c3c; }
-        .avail-badge { display: inline-block; margin-top: 5px; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 999px; }
+        .avail-badge { display: inline-block; margin-top: 6px; font-size: 12px; font-weight: 900; padding: 4px 10px; border-radius: 999px; }
         .avail-badge.available { background: #e6f4ec; color: #177345; }
         .avail-badge.full      { background: #fdeaea; color: #b42318; }
         .avail-badge.active    { background: #e6f4ec; color: #177345; }
@@ -276,22 +286,22 @@ function statusMessage() {
         .modal-backdrop.show { display: flex; }
         .account-modal { width: 560px; max-width: 100%; background: #fff; border: 1px solid #d9e7f3; border-radius: 14px; box-shadow: 0 24px 60px rgba(20, 45, 78, .26); overflow: hidden; }
         .modal-head { padding: 20px 22px; background: #f8fafd; border-bottom: 1px solid #edf2f7; display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
-        .modal-head h3 { margin: 0; color: #10263d; font-size: 16px; font-weight: 900; }
-        .modal-head p { margin: 5px 0 0; color: #6b7f91; font-size: 12px; line-height: 1.45; }
+        .modal-head h3 { margin: 0; color: #10263d; font-size: 18px; font-weight: 900; }
+        .modal-head p { margin: 5px 0 0; color: #6b7f91; font-size: 14px; line-height: 1.45; }
         .modal-close { border: 0; background: #eef2f7; color: #526a7f; border-radius: 7px; width: 34px; height: 34px; cursor: pointer; font-weight: 900; }
         .modal-body { padding: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         .modal-field { min-width: 0; }
         .modal-field.wide { grid-column: span 2; }
-        .modal-field label { display: block; margin-bottom: 6px; color: #526a7f; font-size: 10px; font-weight: 900; letter-spacing: .6px; text-transform: uppercase; }
+        .modal-field label { display: block; margin-bottom: 6px; color: #526a7f; font-size: 12px; font-weight: 900; letter-spacing: .6px; text-transform: uppercase; }
         .modal-field input, .modal-field select { width: 100%; height: 36px; }
         .modal-field input[readonly] { background: #eaf1fb; color: #526a7f; }
-        .modal-note { grid-column: span 2; border-left: 3px solid #0d5be8; background: #eef6ff; color: #526a7f; padding: 11px 12px; font-size: 12px; line-height: 1.45; }
+        .modal-note { grid-column: span 2; border-left: 3px solid #0d5be8; background: #eef6ff; color: #526a7f; padding: 11px 12px; font-size: 14px; line-height: 1.45; }
         .modal-actions { padding: 16px 22px 22px; display: flex; justify-content: flex-end; gap: 8px; }
 
-        .showing { padding: 12px 22px; color: #8a9caf; font-size: 11px; border-top: 1px solid #edf2f7; }
+        .showing { padding: 12px 22px; color: #8a9caf; font-size: 13px; border-top: 1px solid #edf2f7; }
         .directory-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
         .pager { display: flex; gap: 5px; align-items: center; }
-        .page-pill { width: 28px; height: 28px; border: 1px solid #dce8f3; border-radius: 6px; display: grid; place-items: center; color: #6b7f91; background: #fff; font-size: 12px; font-weight: 800; cursor: pointer; text-decoration: none; }
+        .page-pill { width: 30px; height: 30px; border: 1px solid #dce8f3; border-radius: 6px; display: grid; place-items: center; color: #6b7f91; background: #fff; font-size: 14px; font-weight: 800; cursor: pointer; text-decoration: none; }
         .page-pill.active { background: #0d5be8; color: #fff; border-color: #0d5be8; }
         .empty   { padding: 36px; color: #8a9caf; text-align: center; font-size: 13px; }
 
@@ -338,8 +348,8 @@ function statusMessage() {
             <a class="nav-link" href="studentEligibility.php">Students Eligibility</a>
             <a class="nav-link" href="quotaManagement.php">Quota Management</a>
             <a class="nav-link" href="autoAllocation.php">Allocations</a>
-            <a class="nav-link" href="#">Reports</a>
-            <a class="nav-link" href="../../server/application/auth/logout.php">Logout</a>
+            <a class="nav-link" href="adminSupervisorReviews.php">Supervisor Reviews Audit</a>
+            <a class="nav-link" href="adminCohortOverview.php">Reports</a>
         </aside>
 
         <main class="main">
@@ -395,10 +405,10 @@ function statusMessage() {
             <nav class="quick-filter" aria-label="Programme filters">
                 <span class="quick-label">Quick Filter</span>
                 <a class="filter-pill <?php echo activeFilter($selectedProgramme, ""); ?>"
-                   href="supervisorsManagement.php">All Programme</a>
+                    href="supervisorsManagement.php">All Programme</a>
                 <?php foreach ($programmeOptions as $prog): ?>
                     <a class="filter-pill <?php echo activeFilter($selectedProgramme, $prog["programme"]); ?>"
-                       href="supervisorsManagement.php?programme=<?php echo urlencode($prog["programme"]); ?>">
+                    href="supervisorsManagement.php?programme=<?php echo urlencode($prog["programme"]); ?>">
                         <?php echo e($prog["programme"]); ?>
                     </a>
                 <?php endforeach; ?>
@@ -415,8 +425,8 @@ function statusMessage() {
                                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                             </svg>
                             <input type="text" name="searchName"
-                                   value="<?php echo e($searchName); ?>"
-                                   placeholder="Search staff...">
+                                value="<?php echo e($searchName); ?>"
+                                placeholder="Search staff...">
                         </div>
                         <select name="programme">
                             <option value="">All Programmes</option>
@@ -433,6 +443,7 @@ function statusMessage() {
                 </div>
 
                 <form class="create-panel <?php echo $showCreatePanel ? "show" : ""; ?>" id="createSupervisorPanel" action="../../server/application/admin/createSupervisorProcess.php" method="POST">
+                    <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                     <input type="hidden" name="returnTo" value="supervisorsManagement">
                     <input type="hidden" name="quotaID" id="createQuotaID" required>
 
@@ -524,9 +535,10 @@ function statusMessage() {
 
                             <!-- Each row IS the <form> â€” display:grid applied via .data-row -->
                             <form class="data-row"
-                                  action="../../server/application/admin/updateSupervisorClassification.php"
-                                  method="POST">
+                                action="../../server/application/admin/updateSupervisorClassification.php"
+                                method="POST">
 
+                                <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                 <input type="hidden" name="supervisorID" value="<?php echo e($supervisor["userID"]); ?>">
                                 <input type="hidden" name="quotaID"      value="<?php echo e($selectedQuotaID); ?>">
 
@@ -564,14 +576,14 @@ function statusMessage() {
                                 </div>
 
                                 <!-- 5. Quota Status -->
-                                <div>
+                                <div class="quota-status-cell">
                                     <div class="load-row <?php echo $isFull ? "full" : ""; ?>">
                                         <span><?php echo e($supervisor["quotaText"]); ?></span>
                                         <span><?php echo e($supervisor["loadPercentage"]); ?>%</span>
                                     </div>
                                     <div class="bar-track">
                                         <div class="bar-fill <?php echo $isFull ? "full" : ""; ?>"
-                                             style="width: <?php echo e(min($supervisor["loadPercentage"], 100)); ?>%;"></div>
+                                            style="width: <?php echo e(min($supervisor["loadPercentage"], 100)); ?>%;"></div>
                                     </div>
                                     <span class="avail-badge <?php echo e($badgeClass); ?>">
                                         <?php echo e($supervisor["availabilityStatus"]); ?>
@@ -580,7 +592,7 @@ function statusMessage() {
 
                                 <!-- 6. Actions -->
                                 <div class="action-cell">
-                                    <button class="save-btn" type="submit" title="Save">âœ“</button>
+                                    <button class="save-btn" type="submit" title="Save">✔</button>
                                     <button
                                         class="more-btn"
                                         type="button"
@@ -590,7 +602,7 @@ function statusMessage() {
                                         data-full-name="<?php echo e($supervisor["fullName"]); ?>"
                                         data-email="<?php echo e($supervisor["universityEmail"]); ?>"
                                         data-active-status="<?php echo $supervisor["activeStatus"] ? "1" : "0"; ?>"
-                                    >â‹¯</button>
+                                    >⁝</button>
                                 </div>
 
                             </form>
@@ -604,7 +616,7 @@ function statusMessage() {
                                 <a class="page-pill" href="<?php echo e(pageUrl(max(1, $currentPage - 1), $searchName, $selectedProgramme)); ?>">&lt;</a>
                                 <?php for ($page = 1; $page <= $totalPages; $page++): ?>
                                     <a class="page-pill <?php echo $page === $currentPage ? "active" : ""; ?>"
-                                       href="<?php echo e(pageUrl($page, $searchName, $selectedProgramme)); ?>">
+                                    href="<?php echo e(pageUrl($page, $searchName, $selectedProgramme)); ?>">
                                         <?php echo e($page); ?>
                                     </a>
                                 <?php endfor; ?>
@@ -620,6 +632,7 @@ function statusMessage() {
 
     <div class="modal-backdrop" id="accountModal" aria-hidden="true">
         <form class="account-modal" action="../../server/application/admin/updateSupervisorAccount.php" method="POST">
+            <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
             <div class="modal-head">
                 <div>
                     <h3>Edit Account Particulars</h3>
@@ -791,5 +804,3 @@ function statusMessage() {
     </script>
 </body>
 </html>
-
-

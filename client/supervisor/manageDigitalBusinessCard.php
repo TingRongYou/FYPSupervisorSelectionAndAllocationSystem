@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/SupervisorProfileService.php";
@@ -90,19 +90,19 @@ if ($profile) {
         .basic-layout { display: grid; grid-template-columns: 130px 1fr; gap: 24px; }
         .photo-box { width: 116px; height: 116px; border-radius: 8px; border: 2px dashed #aab9ca; background: #e9eef5; display: grid; place-items: center; color: #41556b; font-size: 38px; position: relative; }
         .photo-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
-        .photo-box span { position: absolute; right: -8px; bottom: -8px; width: 26px; height: 26px; border-radius: 6px; background: #0d5be8; color: #fff; display: grid; place-items: center; font-size: 13px; }
+        .photo-box span { position: absolute; right: -8px; bottom: -8px; width: 26px; height: 26px; border-radius: 6px; background: #0d5be8; color: #fff; display: grid; place-items: center; font-size: 14px; }
         .photo-upload { margin-top: 12px; }
         .photo-upload input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
         .photo-upload-control { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px; min-height: 42px; border: 1px solid #d8e4ef; background: #f6f8fb; border-radius: 8px; padding: 5px; }
-        .photo-upload-button { display: inline-flex; align-items: center; justify-content: center; min-height: 30px; padding: 0 10px; border-radius: 6px; background: #e9edf2; color: #1d2b3a; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; transition: background .2s, color .2s; text-transform: none; letter-spacing: 0; margin: 0; }
-        .photo-upload-name { min-width: 0; color: #526a7f; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .photo-upload-button { display: inline-flex; align-items: center; justify-content: center; min-height: 32px; padding: 0 10px; border-radius: 6px; background: #e9edf2; color: #1d2b3a; font-size: 14px; font-weight: 800; cursor: pointer; white-space: nowrap; transition: background .2s, color .2s; text-transform: none; letter-spacing: 0; margin: 0; }
+        .photo-upload-name { min-width: 0; color: #526a7f; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .photo-upload-control.ready { border-color: #0d5be8; background: #eef5ff; }
         .photo-upload-control.ready .photo-upload-button { background: #0d5be8; color: #fff; }
-        .photo-hint { margin: 7px 0 0; color: #71859a; font-size: 12px; line-height: 1.4; }
+        .photo-hint { margin: 7px 0 0; color: #71859a; font-size: 14px; line-height: 1.4; }
         .field-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
         .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-        .tag-pill { border-radius: 999px; padding: 7px 10px; background: #e9f1ff; color: #0d5be8; font-size: 12px; font-weight: 800; }
+        .tag-pill { border-radius: 999px; padding: 7px 10px; background: #e9f1ff; color: #0d5be8; font-size: 14px; font-weight: 800; }
         .actions { display: flex; gap: 12px; margin-top: 24px; }
         .preview-card { overflow: hidden; }
         .preview-band { height: 110px; background: #0d5be8; }
@@ -112,9 +112,9 @@ if ($profile) {
         .preview-name { margin: 18px 0 4px; color: #1d2b3a; font-size: 23px; }
         .preview-role { color: #0d5be8; font-weight: 800; margin-bottom: 5px; }
         .preview-text { color: #526a7f; line-height: 1.6; font-size: 14px; }
-        .share-profile-link { width: 100%; min-height: 38px; margin-top: 12px; border: 1px solid #dbe6f0; border-radius: 8px; background: #fff; color: #1d2b3a; box-shadow: none; font-size: 13px; }
+        .share-profile-link { width: 100%; min-height: 40px; margin-top: 12px; border: 1px solid #dbe6f0; border-radius: 8px; background: #fff; color: #1d2b3a; box-shadow: none; font-size: 14px; }
         .share-profile-link:before { content: "<"; margin-right: 7px; color: #526a7f; font-weight: 900; transform: rotate(35deg); display: inline-block; }
-        .insight { margin-top: 18px; padding: 18px; background: #eef6ff; border: 1px solid #d9e7f3; border-radius: 10px; color: #526a7f; font-size: 13px; line-height: 1.6; }
+        .insight { margin-top: 18px; padding: 18px; background: #eef6ff; border: 1px solid #d9e7f3; border-radius: 10px; color: #526a7f; font-size: 14px; line-height: 1.6; }
         .empty { padding: 24px; }
         @media (max-width: 1100px) { .profile-grid, .basic-layout, .two-col { grid-template-columns: 1fr; } }
     </style>
@@ -319,5 +319,3 @@ if ($profile) {
     </script>
 </body>
 </html>
-
-

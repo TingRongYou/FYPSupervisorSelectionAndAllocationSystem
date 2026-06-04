@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../database/database.php";
 
@@ -25,6 +25,8 @@ class SupervisorProfileDAO {
 
         $this->conn =
             $database->connect();
+
+        $this->ensureUserActivityStatusTable();
     }
 
     /*
@@ -49,6 +51,10 @@ class SupervisorProfileDAO {
 
                 U.profilePhotoPath,
 
+                UAS.lastSeenAt,
+
+                UAS.isOnline,
+
                 SP.programme,
 
                 SP.employmentCategory,
@@ -60,6 +66,8 @@ class SupervisorProfileDAO {
                 SP.introVideoLink,
 
                 SP.introVideoDescription,
+
+                SP.introVideoStatus,
 
                 QC.quotaID,
 
@@ -86,6 +94,9 @@ class SupervisorProfileDAO {
             INNER JOIN QUOTA_CONFIGURATION QC
                 ON SP.quotaID = QC.quotaID
 
+            LEFT JOIN USER_ACTIVITY_STATUS UAS
+                ON U.userID = UAS.userID
+
             LEFT JOIN ALLOCATION_RECORD AR
                 ON SP.supervisorID = AR.supervisorID
 
@@ -105,6 +116,10 @@ class SupervisorProfileDAO {
 
                 U.profilePhotoPath,
 
+                UAS.lastSeenAt,
+
+                UAS.isOnline,
+
                 SP.programme,
 
                 SP.employmentCategory,
@@ -116,6 +131,8 @@ class SupervisorProfileDAO {
                 SP.introVideoLink,
 
                 SP.introVideoDescription,
+
+                SP.introVideoStatus,
 
                 QC.quotaID,
 
@@ -226,7 +243,8 @@ class SupervisorProfileDAO {
     public function updateIntroVideo(
         $supervisorID,
         $introVideoLink,
-        $introVideoDescription
+        $introVideoDescription,
+        $introVideoStatus = "published"
     ) {
 
         $query = "
@@ -236,7 +254,9 @@ class SupervisorProfileDAO {
             SET
                 introVideoLink = :introVideoLink,
 
-                introVideoDescription = :introVideoDescription
+                introVideoDescription = :introVideoDescription,
+
+                introVideoStatus = :introVideoStatus
 
             WHERE supervisorID = :supervisorID
         ";
@@ -254,6 +274,11 @@ class SupervisorProfileDAO {
         $statement->bindParam(
             ":introVideoDescription",
             $introVideoDescription
+        );
+
+        $statement->bindParam(
+            ":introVideoStatus",
+            $introVideoStatus
         );
 
         $statement->bindParam(
@@ -370,8 +395,26 @@ class SupervisorProfileDAO {
                 PDO::FETCH_ASSOC
             );
     }
+
+    private function ensureUserActivityStatusTable() {
+
+        $query = "
+            CREATE TABLE IF NOT EXISTS USER_ACTIVITY_STATUS (
+                userID VARCHAR(20) PRIMARY KEY,
+                systemRole VARCHAR(50) NOT NULL,
+                lastSeenAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                isOnline BOOLEAN NOT NULL DEFAULT FALSE,
+
+                FOREIGN KEY (userID)
+                    REFERENCES USER(userID)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE
+            )
+        ";
+
+        $this->conn
+            ->exec($query);
+    }
 }
 
 ?>
-
-

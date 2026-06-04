@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once "SessionManager.php";
 
@@ -13,6 +13,3 @@ SessionManager::startSession();
 SessionManager::logout();
 
 ?>
-
-
-

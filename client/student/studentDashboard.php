@@ -1,7 +1,8 @@
-﻿<?php
+<?php
 
 require_once "../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/SupervisorDiscoveryService.php";
+require_once __DIR__ . "/../../server/business/services/TemporalPhaseEngine.php";
 require_once __DIR__ . "/../../server/data/dao/RequestDAO.php";
 require_once __DIR__ . "/studentLayout.php";
 
@@ -14,17 +15,32 @@ $studentName = $_SESSION["fullName"] ?? "Student";
 
 $discoveryService = new SupervisorDiscoveryService();
 $requestDAO       = new RequestDAO();
+$requestDAO->expireTimedOutRequestsByStudent($studentID);
 
-$supervisors     = array_slice($discoveryService->discoverSupervisors([]), 0, 3);
+$supervisors     = $discoveryService->getRecommendedMatches($studentID);
+$hasSavedInterestTags = $discoveryService->hasSavedInterestTags($studentID);
 $discoveryList   = array_slice($discoveryService->discoverSupervisors([]), 0, 3);
 $requests        = $requestDAO->getRecentApplicationsByStudent($studentID, 2);
+$proposalRequests = array_values(
+    array_filter(
+        $requestDAO->getApplicationsByStudent($studentID),
+        function($request) {
+            return $request["decisionStatus"] === "Proposal Requested";
+        }
+    )
+);
 $pendingRequests = $requestDAO->countPendingRequestsByStudent($studentID);
 $allocation      = $requestDAO->getAllocationByStudent($studentID);
-$activePhase     = $requestDAO->getActiveSystemPhase();
+$timeline        = TemporalPhaseEngine::getInstance()->getPhasePayload();
 
 $allocationStatus = $allocation ? "Allocated" : ($pendingRequests > 0 ? "Pending" : "Not Started");
-$phaseEnd         = $activePhase["endTimestamp"] ?? "";
-$phaseLabel       = $activePhase["phaseName"]    ?? "Submission Phase";
+$phaseEnd         = !empty($timeline["activePhase"])
+    ? ($timeline["endTimestamp"] ?? "")
+    : ($timeline["startTimestamp"] ?? "");
+$phaseLabel       = !empty($timeline["activePhase"])
+    ? ($timeline["activePhaseName"] ?? "No Active Phase")
+    : (!empty($timeline["nextPhase"]["phaseName"]) ? "Next: " . $timeline["nextPhase"]["phaseName"] : "No Active Phase");
+$serverEpoch      = $timeline["serverEpoch"] ?? time();
 
 function e($value) {
     return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
@@ -38,7 +54,9 @@ function initials($name) {
 function requestClass($status) {
     $n = strtolower(trim((string) $status));
     if ($n === "approved" || $n === "accepted") return "approved";
-    if ($n === "rejected") return "rejected";
+    if ($n === "rejected" || $n === "rejected-timeout") return "rejected";
+    if ($n === "withdrawn") return "withdrawn";
+    if ($n === "proposal requested") return "pending";
     return "pending";
 }
 ?>
@@ -58,34 +76,47 @@ function requestClass($status) {
         .main { flex: 1; padding: 28px 32px 50px; min-width: 0; overflow-x: hidden; }
         .dashboard-shell { max-width: 100%; }
 
-        /* â”€â”€ Page header â”€â”€ */
+        /* Page header */
         .page-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; }
         h1 { margin: 0; color: #172033; font-size: 28px; font-weight: 700; }
         .search-button {
             height: 38px; padding: 0 16px;
             border: 1px solid #dbe6f0; border-radius: 7px;
             background: #fff; color: #0b3760;
-            text-decoration: none; font-size: 13px; font-weight: 800;
+            text-decoration: none; font-size: 15px; font-weight: 800;
             display: inline-flex; align-items: center; gap: 7px;
         }
         .search-button svg { width: 14px; height: 14px; }
+        .proposal-notice { background: #fff7ed; border: 1px solid #fed7aa; border-left: 4px solid #f97316; border-radius: 10px; padding: 14px 16px; margin-bottom: 18px; color: #7c2d12; display: flex; justify-content: space-between; align-items: center; gap: 14px; }
+        .proposal-notice strong { display: block; color: #7c2d12; margin-bottom: 3px; }
+        .proposal-notice a { min-height: 34px; border-radius: 7px; background: #003f8f; color: #fff; display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; text-decoration: none; font-size: 13px; font-weight: 900; white-space: nowrap; }
 
-        /* â”€â”€ Recommended toolbar â”€â”€ */
+        .dashboard-top {
+            display: grid;
+            grid-template-columns: minmax(360px, 540px) minmax(0, 1fr);
+            gap: 20px;
+            align-items: stretch;
+            margin-bottom: 22px;
+        }
+        .recommendation-column, .status-column { min-width: 0; }
+
+        /* Recommended toolbar */
         .section-toolbar { margin-bottom: 16px; }
         .selector {
             display: inline-flex; align-items: center; gap: 12px;
             height: 40px; padding: 0 18px; border-radius: 7px;
             background: #003f8f; color: #fff;
-            font-size: 13px; font-weight: 800; text-decoration: none;
+            font-size: 15px; font-weight: 800; text-decoration: none;
         }
         .muted-title { color: #5d7085; font-size: 14px; margin: 0 0 18px; font-weight: 600; }
 
-        /* â”€â”€ Supervisor cards â”€â”€ */
-        .supervisor-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-bottom: 24px; }
+        /* Supervisor cards */
+        .supervisor-grid { display: grid; grid-template-columns: 1fr; gap: 18px; margin-bottom: 0; }
 
         .supervisor-card {
             background: #fff; border: 1px solid #d9e7f3;
             border-radius: 12px; padding: 20px;
+            min-height: 226px;
             display: flex; flex-direction: column;
             box-shadow: 0 4px 14px rgba(11,79,138,.06);
         }
@@ -113,24 +144,26 @@ function requestClass($status) {
         .top-right { text-align: right; }
         .status-pill {
             display: inline-block; padding: 4px 9px;
-            border-radius: 999px; font-size: 9px; font-weight: 900;
+            border-radius: 999px; font-size: 12px; font-weight: 900;
             text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;
         }
+        .status-pill.online    { background: #dcfce7; color: #118549; }
+        .status-pill.offline   { background: #e2e8f0; color: #64748b; }
         .status-pill.available { background: #dcfce7; color: #118549; }
         .status-pill.full      { background: #fee2e2; color: #c02d2d; }
-        .quota { color: #9aacc0; font-size: 10px; text-transform: uppercase; letter-spacing: .7px; }
+        .quota { color: #9aacc0; font-size: 14px; text-transform: uppercase; letter-spacing: .7px; }
         .quota strong { display: block; color: #172033; font-size: 20px; font-weight: 900; letter-spacing: 0; line-height: 1.1; }
 
         .supervisor-name { margin: 0 0 5px; color: #172033; font-size: 16px; font-weight: 700; }
-        .specialty { color: #5d7085; font-size: 12px; line-height: 1.45; min-height: 32px; }
+        .specialty { color: #5d7085; font-size: 14px; line-height: 1.45; min-height: 32px; }
 
         .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 16px; }
-        .tag { padding: 4px 8px; border-radius: 4px; background: #eef3f8; color: #526a7f; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
+        .tag { padding: 5px 9px; border-radius: 4px; background: #eef3f8; color: #526a7f; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
 
         .btn-apply {
             width: 100%; height: 38px; border-radius: 7px;
             background: #003f8f; color: #fff;
-            border: none; font-size: 12px; font-weight: 800;
+            border: none; font-size: 14px; font-weight: 800;
             text-decoration: none; display: flex;
             align-items: center; justify-content: center;
             margin-top: auto; cursor: pointer;
@@ -141,12 +174,13 @@ function requestClass($status) {
             pointer-events: none; border: 1px solid #dce8f3;
         }
 
-        /* â”€â”€ Stats row â”€â”€ */
-        .stats-row { display: grid; grid-template-columns: 1fr 1fr minmax(220px, .9fr); gap: 18px; margin-bottom: 24px; }
+        /* Stats row */
+        .stats-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; height: 100%; margin-bottom: 0; }
 
         .stat-card {
             background: #fff; border: 1px solid #d9e7f3;
             border-radius: 12px; padding: 20px;
+            min-height: 104px;
             box-shadow: 0 4px 14px rgba(11,79,138,.06);
         }
         .stat-top { display: flex; justify-content: space-between; align-items: flex-start; }
@@ -155,14 +189,16 @@ function requestClass($status) {
             background: #eef3f8; display: grid; place-items: center;
         }
         .stat-icon svg { width: 18px; height: 18px; }
-        .stat-label { color: #9aacc0; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-align: right; }
+        .stat-label { color: #9aacc0; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-align: right; }
         .stat-value { margin-top: 14px; color: #172033; font-size: 32px; font-weight: 900; line-height: 1; }
-        .stat-caption { color: #5d7085; font-size: 12px; margin-top: 5px; }
+        .stat-caption { color: #5d7085; font-size: 14px; margin-top: 5px; }
 
         /* Timer card */
         .timer-card {
             background: #111a2b; color: #fff;
             border-radius: 12px; padding: 20px;
+            grid-column: 1 / -1;
+            min-height: 104px;
             position: relative; overflow: hidden;
         }
         .timer-card::before {
@@ -172,17 +208,17 @@ function requestClass($status) {
             border-radius: 50%;
             background: rgba(255,255,255,.04);
         }
-        .timer-phase { font-size: 12px; font-weight: 800; color: #b8c6dc; margin: 0 0 8px; text-transform: uppercase; letter-spacing: .6px; }
+        .timer-phase { font-size: 14px; font-weight: 800; color: #b8c6dc; margin: 0 0 8px; text-transform: uppercase; letter-spacing: .6px; }
         .timer-value { font-size: 36px; font-weight: 900; letter-spacing: 2px; line-height: 1; margin-bottom: 10px; }
-        .timer-date { color: #4a9be8; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .8px; }
+        .timer-date { color: #4a9be8; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: .8px; }
 
-        /* â”€â”€ Dashboard lower â”€â”€ */
+        /* Dashboard lower */
         .dashboard-lower { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(240px, .6fr); gap: 22px; }
 
         .panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
         .panel-heading h2 { margin: 0; color: #172033; font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
         .panel-heading h2 svg { width: 18px; height: 18px; color: #0b3760; }
-        .panel-heading a { color: #003f8f; font-size: 12px; font-weight: 800; text-decoration: none; }
+        .panel-heading a { color: #003f8f; font-size: 14px; font-weight: 800; text-decoration: none; }
 
         /* Request panel */
         .request-panel {
@@ -203,29 +239,30 @@ function requestClass($status) {
             width: 42px; height: 42px; border-radius: 10px;
             background: #e9f1fa; display: grid;
             place-items: center; color: #0b3760;
-            font-weight: 900; font-size: 13px; overflow: hidden;
+            font-weight: 900; font-size: 14px; overflow: hidden;
         }
         .request-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-        .request-name { margin: 0 0 3px; color: #172033; font-weight: 800; font-size: 13px; }
-        .request-expertise { color: #6b7f91; font-size: 11px; margin-bottom: 8px; }
+        .request-name { margin: 0 0 3px; color: #172033; font-weight: 800; font-size: 15px; }
+        .request-expertise { color: #6b7f91; font-size: 14px; margin-bottom: 8px; }
 
         .request-meta-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
-        .request-meta-item { display: flex; align-items: center; gap: 4px; color: #8a9caf; font-size: 10px; font-weight: 700; }
+        .request-meta-item { display: flex; align-items: center; gap: 4px; color: #8a9caf; font-size: 13px; font-weight: 700; }
         .request-meta-item svg { width: 11px; height: 11px; }
 
         .request-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
         .request-status {
             padding: 4px 10px; border-radius: 999px;
-            font-size: 9px; font-weight: 900; text-transform: uppercase;
+            font-size: 12px; font-weight: 900; text-transform: uppercase;
             white-space: nowrap;
         }
         .request-status.pending  { background: #eaf3ff; color: #0d5be8; }
         .request-status.rejected { background: #fee2e2; color: #c02d2d; }
         .request-status.approved { background: #dcfce7; color: #118549; }
-        .details-link { color: #003f8f; font-size: 11px; font-weight: 800; text-decoration: none; }
+        .request-status.withdrawn { background: #e2e8f0; color: #64748b; }
+        .details-link { color: #003f8f; font-size: 14px; font-weight: 800; text-decoration: none; }
 
-        .empty-state { padding: 28px 18px; color: #6b7f91; font-size: 13px; }
+        .empty-state { padding: 28px 18px; color: #6b7f91; font-size: 14px; }
 
         /* Discovery panel */
         .discovery-panel {
@@ -234,7 +271,7 @@ function requestClass($status) {
             box-shadow: 0 4px 14px rgba(11,79,138,.06);
         }
         .disc-section-label {
-            color: #9aacc0; font-size: 10px; font-weight: 900;
+            color: #9aacc0; font-size: 14px; font-weight: 900;
             text-transform: uppercase; letter-spacing: 1px;
             margin-bottom: 12px; display: block;
         }
@@ -252,33 +289,55 @@ function requestClass($status) {
             width: 34px; height: 34px; border-radius: 7px;
             background: #eef3f8; color: #0b3760;
             display: grid; place-items: center;
-            font-size: 11px; font-weight: 900;
+            font-size: 14px; font-weight: 900;
         }
-        .mini-name { color: #172033; font-size: 12px; font-weight: 800; display: block; margin-bottom: 2px; }
-        .mini-status { font-size: 10px; font-weight: 800; display: flex; align-items: center; gap: 4px; }
+        .mini-name { color: #172033; font-size: 14px; font-weight: 800; display: block; margin-bottom: 2px; }
+        .mini-status { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 4px; }
         .mini-status::before { content: "â—"; font-size: 8px; }
+        .mini-status.online    { color: #118549; }
+        .mini-status.offline   { color: #64748b; }
         .mini-status.available { color: #118549; }
         .mini-status.full      { color: #c02d2d; }
         .mini-chevron { color: #c4d0dc; font-size: 16px; font-weight: 300; }
+        .mini-status { gap: 6px; }
+        .mini-status::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            flex: 0 0 6px;
+        }
+        .mini-chevron {
+            color: #8aa0b5;
+            font-size: 0;
+            font-weight: 900;
+            letter-spacing: .4px;
+        }
+        .mini-chevron::after {
+            content: "View";
+            font-size: 13px;
+        }
 
         .explore-btn {
             display: flex; align-items: center; justify-content: center;
             width: 100%; height: 38px; margin-top: 14px;
             border-radius: 7px; border: 1px solid #dce8f3;
             background: #f6f8fb; color: #0b3760;
-            font-size: 12px; font-weight: 800; text-decoration: none;
+            font-size: 14px; font-weight: 800; text-decoration: none;
             text-transform: uppercase; letter-spacing: .5px;
         }
         .explore-btn:hover { background: #eef3f8; }
 
         /* Responsive */
         @media (max-width: 1100px) {
-            .supervisor-grid { grid-template-columns: repeat(2, 1fr); }
-            .stats-row { grid-template-columns: 1fr 1fr; }
-            .timer-card { grid-column: 1 / -1; }
+            .dashboard-top { grid-template-columns: 1fr; }
+            .stats-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .timer-card { grid-column: auto; }
         }
         @media (max-width: 820px) {
             .supervisor-grid, .stats-row, .dashboard-lower { grid-template-columns: 1fr; }
+            .timer-card { grid-column: auto; }
             .main { padding: 16px 14px 50px; }
         }
     </style>
@@ -301,110 +360,132 @@ function requestClass($status) {
                     </a>
                 </section>
 
-                <!-- Recommended toolbar -->
-                <div class="section-toolbar">
-                    <a class="selector" href="studentDiscovery.php">
-                        Recommended Supervisors
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                            <polyline points="6 9 12 15 18 9"/>
-                        </svg>
-                    </a>
-                </div>
+                <?php if (!empty($proposalRequests)): ?>
+                    <?php $firstProposalRequest = $proposalRequests[0]; ?>
+                    <section class="proposal-notice">
+                        <div>
+                            <strong>Proposal Requested</strong>
+                            <?php echo e($firstProposalRequest["supervisorName"]); ?> has requested your project proposal after allocation.
+                        </div>
+                        <a href="submitProposalForm.php?supervisorID=<?php echo urlencode($firstProposalRequest["supervisorID"]); ?>&requestID=<?php echo e($firstProposalRequest["requestID"]); ?>">
+                            Submit Proposal
+                        </a>
+                    </section>
+                <?php endif; ?>
 
-                <p class="muted-title">Top Match For You:</p>
+                <section class="dashboard-top">
+                    <div class="recommendation-column">
+                        <div class="section-toolbar">
+                            <a class="selector" href="studentDiscovery.php">
+                                Recommended Supervisors
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </a>
+                        </div>
 
-                <!-- Supervisor cards -->
-                <section class="supervisor-grid">
-                    <?php if (empty($supervisors)): ?>
-                        <article class="supervisor-card">
-                            <p class="empty-state">No supervisor recommendations are available yet.</p>
-                        </article>
-                    <?php else: ?>
-                        <?php foreach ($supervisors as $supervisor): ?>
-                            <?php
-                                $isFull      = $supervisor["status"] === "Full";
-                                $statusClass = $isFull ? "full" : "available";
-                                $quotaParts  = explode("/", $supervisor["quotaText"]);
-                                $quotaUsed   = trim($quotaParts[0] ?? "0");
-                                $quotaMax    = preg_replace("/[^0-9]/", "", $quotaParts[1] ?? (string) $supervisor["maxSlots"]);
-                            ?>
-                            <article class="supervisor-card">
-                                <div class="supervisor-top">
-                                    <div class="avatar <?php echo $isFull ? "offline" : ""; ?>">
-                                        <?php if (!empty($supervisor["profilePhotoPath"])): ?>
-                                            <img src="<?php echo e($supervisor["profilePhotoPath"]); ?>" alt="">
-                                        <?php else: ?>
-                                            <?php echo e(initials($supervisor["fullName"])); ?>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="top-right">
-                                        <span class="status-pill <?php echo e($statusClass); ?>"><?php echo e($supervisor["status"]); ?></span>
-                                        <div class="quota">
-                                            Quota
-                                            <strong><?php echo e($quotaUsed); ?> / <?php echo e($quotaMax); ?></strong>
+                        <p class="muted-title">Top Match For You:</p>
+
+                        <section class="supervisor-grid">
+                            <?php if (empty($supervisors)): ?>
+                                <article class="supervisor-card">
+                                    <p class="empty-state">
+                                        <?php echo $hasSavedInterestTags
+                                            ? "No recommended supervisors currently match your saved interests with Available slot status. Browse Discovery to review all supervisors."
+                                            : "Update your Research Interests in your Profile to unlock personalised supervisor recommendations."; ?>
+                                    </p>
+                                </article>
+                            <?php else: ?>
+                                <?php foreach ($supervisors as $supervisor): ?>
+                                    <?php
+                                        $isOffline   = $supervisor["status"] === "Offline";
+                                        $statusClass = $supervisor["statusClass"] ?? ($isOffline ? "offline" : "online");
+                                        $canApply    = (bool) ($supervisor["canApply"] ?? false);
+                                        $availabilityLabel = $supervisor["quotaStatus"] ?? "Full";
+                                        $quotaParts  = explode("/", $supervisor["quotaText"]);
+                                        $quotaUsed   = trim($quotaParts[0] ?? "0");
+                                        $quotaMax    = preg_replace("/[^0-9]/", "", $quotaParts[1] ?? (string) $supervisor["maxSlots"]);
+                                    ?>
+                                    <article class="supervisor-card">
+                                        <div class="supervisor-top">
+                                            <div class="avatar <?php echo $isOffline ? "offline" : ""; ?>">
+                                                <?php if (!empty($supervisor["profilePhotoPath"])): ?>
+                                                    <img src="<?php echo e($supervisor["profilePhotoPath"]); ?>" alt="">
+                                                <?php else: ?>
+                                                    <?php echo e(initials($supervisor["fullName"])); ?>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="top-right">
+                                                <span class="status-pill <?php echo e($statusClass); ?>"><?php echo e($supervisor["status"]); ?></span>
+                                                <div class="quota">
+                                                    <?php echo e($availabilityLabel); ?>
+                                                    <strong><?php echo e($quotaUsed); ?> / <?php echo e($quotaMax); ?></strong>
+                                                </div>
+                                            </div>
                                         </div>
+
+                                        <h2 class="supervisor-name"><?php echo e($supervisor["fullName"]); ?></h2>
+                                        <div class="specialty">
+                                            Specialization: <?php echo e($supervisor["programme"]); ?>, <?php echo e($supervisor["employmentCategory"]); ?>
+                                        </div>
+
+                                        <div class="tag-list">
+                                            <span class="tag"><?php echo e($supervisor["programme"]); ?></span>
+                                            <span class="tag"><?php echo e($supervisor["employmentCategory"]); ?></span>
+                                        </div>
+
+                                        <?php if (!$canApply): ?>
+                                            <span class="btn-apply disabled"><?php echo e($supervisor["buttonLabel"] ?? "Application Closed"); ?></span>
+                                        <?php else: ?>
+                                            <a class="btn-apply"
+                                                href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($supervisor["userID"]); ?>">
+                                                Apply for Supervision
+                                            </a>
+                                        <?php endif; ?>
+                                    </article>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </section>
+                    </div>
+
+                    <div class="status-column">
+                        <section class="stats-row">
+                            <article class="stat-card">
+                                <div class="stat-top">
+                                    <div class="stat-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="#0b3760" stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                        </svg>
                                     </div>
+                                    <span class="stat-label">Status</span>
                                 </div>
-
-                                <h2 class="supervisor-name"><?php echo e($supervisor["fullName"]); ?></h2>
-                                <div class="specialty">
-                                    Specialization: <?php echo e($supervisor["programme"]); ?>, <?php echo e($supervisor["employmentCategory"]); ?>
-                                </div>
-
-                                <div class="tag-list">
-                                    <span class="tag"><?php echo e($supervisor["programme"]); ?></span>
-                                    <span class="tag"><?php echo e($supervisor["employmentCategory"]); ?></span>
-                                </div>
-
-                                <?php if ($isFull): ?>
-                                    <span class="btn-apply disabled">Application Closed</span>
-                                <?php else: ?>
-                                    <a class="btn-apply"
-                                       href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($supervisor["userID"]); ?>">
-                                        Apply for Supervision â†’
-                                    </a>
-                                <?php endif; ?>
+                                <div class="stat-value"><?php echo e($allocationStatus); ?></div>
+                                <div class="stat-caption">Allocation Status</div>
                             </article>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </section>
 
-                <!-- Stats row -->
-                <section class="stats-row">
-                    <article class="stat-card">
-                        <div class="stat-top">
-                            <div class="stat-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#0b3760" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
-                                    <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                                </svg>
-                            </div>
-                            <span class="stat-label">Status</span>
-                        </div>
-                        <div class="stat-value"><?php echo e($allocationStatus); ?></div>
-                        <div class="stat-caption">Allocation Status</div>
-                    </article>
+                            <article class="stat-card">
+                                <div class="stat-top">
+                                    <div class="stat-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="#0b3760" stroke-width="2">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                        </svg>
+                                    </div>
+                                    <span class="stat-label">Real-Time</span>
+                                </div>
+                                <div class="stat-value"><?php echo e($pendingRequests); ?></div>
+                                <div class="stat-caption">Active Requests</div>
+                            </article>
 
-                    <article class="stat-card">
-                        <div class="stat-top">
-                            <div class="stat-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#0b3760" stroke-width="2">
-                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                                </svg>
-                            </div>
-                            <span class="stat-label">Real-Time</span>
-                        </div>
-                        <div class="stat-value"><?php echo e($pendingRequests); ?></div>
-                        <div class="stat-caption">Active Requests</div>
-                    </article>
-
-                    <article class="timer-card">
-                        <p class="timer-phase"><?php echo e($phaseLabel); ?></p>
-                        <div class="timer-value" id="phaseTimer">--:--:--</div>
-                        <div class="timer-date">
-                            <?php echo $phaseEnd !== "" ? e(strtoupper(date("d M Y", strtotime($phaseEnd)))) : "No active phase"; ?>
-                        </div>
-                    </article>
+                            <article class="timer-card">
+                                <p class="timer-phase"><?php echo e($phaseLabel); ?></p>
+                                <div class="timer-value" id="phaseTimer">--:--:--</div>
+                                <div class="timer-date">
+                                    <?php echo $phaseEnd !== "" ? e(strtoupper(date("d M Y", strtotime($phaseEnd)))) : "No active phase"; ?>
+                                </div>
+                            </article>
+                        </section>
+                    </div>
                 </section>
 
                 <!-- Lower section -->
@@ -419,12 +500,12 @@ function requestClass($status) {
                                 </svg>
                                 Active Requests
                             </h2>
-                            <a href="#">View All</a>
+                            <a href="studentApplicationStatus.php">View All</a>
                         </div>
 
                         <div class="request-panel">
                             <?php if (empty($requests)): ?>
-                                <p class="empty-state">No active requests yet. Start by applying to an available supervisor.</p>
+                                <p class="empty-state">No active requests yet. Start by applying to a supervisor with open slots.</p>
                             <?php else: ?>
                                 <?php foreach ($requests as $request): ?>
                                     <?php $statusCls = requestClass($request["decisionStatus"]); ?>
@@ -460,7 +541,11 @@ function requestClass($status) {
                                             <span class="request-status <?php echo e($statusCls); ?>">
                                                 <?php echo e($request["decisionStatus"]); ?>
                                             </span>
-                                            <a class="details-link" href="#">Details â†’</a>
+                                            <?php if ($request["decisionStatus"] === "Proposal Requested"): ?>
+                                                <a class="details-link" href="submitProposalForm.php?supervisorID=<?php echo urlencode($request["supervisorID"]); ?>&requestID=<?php echo e($request["requestID"]); ?>">Submit Proposal -></a>
+                                            <?php else: ?>
+                                                <a class="details-link" href="studentApplicationStatus.php">Details -></a>
+                                            <?php endif; ?>
                                         </div>
                                     </article>
                                 <?php endforeach; ?>
@@ -483,13 +568,13 @@ function requestClass($status) {
                             <span class="disc-section-label">All Supervisors</span>
 
                             <?php foreach ($discoveryList as $supervisor): ?>
-                                <?php $isFullDisc = $supervisor["status"] === "Full"; ?>
+                                <?php $miniStatusClass = $supervisor["statusClass"] ?? "offline"; ?>
                                 <a class="mini-item"
-                                   href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($supervisor["userID"]); ?>">
+                                    href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($supervisor["userID"]); ?>">
                                     <span class="mini-avatar"><?php echo e(initials($supervisor["fullName"])); ?></span>
                                     <span>
                                         <span class="mini-name"><?php echo e($supervisor["fullName"]); ?></span>
-                                        <span class="mini-status <?php echo $isFullDisc ? "full" : "available"; ?>">
+                                        <span class="mini-status <?php echo e($miniStatusClass); ?>">
                                             <?php echo e($supervisor["status"]); ?>
                                         </span>
                                     </span>
@@ -508,11 +593,12 @@ function requestClass($status) {
 
     <script>
         const phaseEnd = "<?php echo e($phaseEnd); ?>";
+        const serverOffset = (Number("<?php echo e($serverEpoch); ?>") * 1000) - Date.now();
         const timer    = document.getElementById("phaseTimer");
 
         function updateTimer() {
             if (!phaseEnd) { timer.textContent = "--:--:--"; return; }
-            const remaining = new Date(phaseEnd.replace(" ", "T")).getTime() - Date.now();
+            const remaining = new Date(phaseEnd.replace(" ", "T")).getTime() - (Date.now() + serverOffset);
             if (remaining <= 0) { timer.textContent = "00:00:00"; return; }
             const h = Math.floor(remaining / 3600000);
             const m = Math.floor((remaining % 3600000) / 60000);
@@ -528,5 +614,3 @@ function requestClass($status) {
     </script>
 </body>
 </html>
-
-

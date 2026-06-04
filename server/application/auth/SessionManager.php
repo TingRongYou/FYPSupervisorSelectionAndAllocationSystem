@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +24,9 @@ class SessionManager {
     private const SESSION_TIMEOUT =
         900; // 15 minutes
 
+    private const ONLINE_THRESHOLD =
+        900; // 15 minutes
+
     /*
     |--------------------------------------------------------------------------
     | Start Secure Session
@@ -32,12 +35,7 @@ class SessionManager {
 
     public static function startSession() {
 
-        if (
-            session_status()
-            ===
-            PHP_SESSION_NONE
-        ) {
-
+        if (session_status()===PHP_SESSION_NONE) {
             session_start();
         }
 
@@ -48,6 +46,8 @@ class SessionManager {
         */
 
         self::validateSessionTimeout();
+
+        self::touchUserActivity();
     }
 
     /*
@@ -102,9 +102,7 @@ class SessionManager {
     |--------------------------------------------------------------------------
     */
 
-    public static function setProfilePhotoPath(
-        $profilePhotoPath
-    ) {
+    public static function setProfilePhotoPath($profilePhotoPath) {
 
         $_SESSION["profilePhotoPath"] =
             $profilePhotoPath ?? "";
@@ -131,9 +129,7 @@ class SessionManager {
 
     public static function requireLogin() {
 
-        if (
-            !self::isLoggedIn()
-        ) {
+        if (!self::isLoggedIn()) {
 
             self::redirectToLogin(
                 "error",
@@ -150,10 +146,7 @@ class SessionManager {
     |--------------------------------------------------------------------------
     */
 
-    public static function requireRole(
-        $role
-    ) {
-
+    public static function requireRole( $role) {
         /*
         |--------------------------------------------------------------------------
         | Authentication Validation
@@ -168,16 +161,7 @@ class SessionManager {
         |--------------------------------------------------------------------------
         */
 
-        if (
-
-            !isset($_SESSION["systemRole"])
-
-            ||
-
-            $_SESSION["systemRole"]
-            !==
-            $role
-        ) {
+        if (!isset($_SESSION["systemRole"])||$_SESSION["systemRole"]!==$role) {
 
             self::redirectToLogin(
                 "error",
@@ -190,58 +174,66 @@ class SessionManager {
 
     /*
     |--------------------------------------------------------------------------
+    | CSRF Token
+    |--------------------------------------------------------------------------
+    | Provides a per-session token for administrator POST actions.
+    */
+
+    public static function getCsrfToken() {
+
+        if (empty($_SESSION["csrf_token"])) {
+
+            $_SESSION["csrf_token"] =
+                bin2hex(
+                    random_bytes(32)
+                );
+        }
+
+        return $_SESSION["csrf_token"];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CSRF Validation
+    |--------------------------------------------------------------------------
+    | Validates posted tokens before state-changing requests continue.
+    */
+
+    public static function validateCsrfToken(
+        $token
+    ) {
+
+        return
+            isset($_SESSION["csrf_token"])
+            &&
+            is_string($token)
+            &&
+            hash_equals(
+                $_SESSION["csrf_token"],
+                $token
+            );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Build Login Redirect
     |--------------------------------------------------------------------------
     */
 
-    private static function redirectToLogin(
-        $status,
-        $message
-    ) {
+    private static function redirectToLogin($status,$message) {
 
         $scriptName =
             $_SERVER["SCRIPT_NAME"] ?? "";
 
-        if (
-            strpos(
-                $scriptName,
-                "/client/"
-            )
-            !==
-            false
-        ) {
-
+        if (strpos($scriptName,"/client/")!==false) {
             $basePath =
-                substr(
-                    $scriptName,
-                    0,
-                    strpos(
-                        $scriptName,
-                        "/client/"
-                    )
-                );
-        } elseif (
-            strpos(
-                $scriptName,
-                "/server/"
-            )
-            !==
-            false
-        ) {
+                substr($scriptName,0,strpos($scriptName,"/client/"));
 
+        } elseif (strpos($scriptName,"/server/")!== false) {
             $basePath =
-                substr(
-                    $scriptName,
-                    0,
-                    strpos(
-                        $scriptName,
-                        "/server/"
-                    )
-                );
+                substr($scriptName,0,strpos($scriptName,"/server/"));
         } else {
-
-            $basePath =
-                "";
+            $basePath ="";
         }
 
         header(
@@ -256,6 +248,10 @@ class SessionManager {
             "&message="
             .
             urlencode($message)
+            .
+            "&v="
+            .
+            time()
         );
     }
 
@@ -291,15 +287,9 @@ class SessionManager {
         ) {
 
             $inactiveDuration =
-                time()
-                -
-                $_SESSION["lastActivity"];
+                time() - $_SESSION["lastActivity"];
 
-            if (
-                $inactiveDuration
-                >
-                self::SESSION_TIMEOUT
-            ) {
+            if ($inactiveDuration > self::SESSION_TIMEOUT ) {
 
                 self::destroySession();
 
@@ -348,6 +338,8 @@ class SessionManager {
 
     public static function destroySession() {
 
+        self::markUserOffline();
+
         /*
         |--------------------------------------------------------------------------
         | Clear Session Variables
@@ -395,10 +387,143 @@ class SessionManager {
 
         session_destroy();
     }
+
+    private static function touchUserActivity() {
+
+        if (
+            empty($_SESSION["userID"]) ||
+            empty($_SESSION["systemRole"])
+        ) {
+
+            return;
+        }
+
+        require_once __DIR__ . "/../../data/database/database.php";
+
+        try {
+
+            $database =
+                new Database();
+
+            $conn =
+                $database->connect();
+
+            self::ensureUserActivityTable($conn);
+
+            $query = "
+                INSERT INTO USER_ACTIVITY_STATUS
+                (
+                    userID,
+                    systemRole,
+                    lastSeenAt,
+                    isOnline
+                )
+                VALUES
+                (
+                    :userID,
+                    :systemRole,
+                    NOW(),
+                    TRUE
+                )
+                ON DUPLICATE KEY UPDATE
+                    systemRole = VALUES(systemRole),
+                    lastSeenAt = NOW(),
+                    isOnline = TRUE
+            ";
+
+            $statement =
+                $conn->prepare($query);
+
+            $statement->execute([
+                ":userID" =>
+                    $_SESSION["userID"],
+
+                ":systemRole" =>
+                    $_SESSION["systemRole"]
+            ]);
+
+        } catch (Exception $exception) {
+
+            return;
+        }
+    }
+
+    private static function markUserOffline() {
+
+        if (empty($_SESSION["userID"])) {
+
+            return;
+        }
+
+        require_once __DIR__ . "/../../data/database/database.php";
+
+        try {
+
+            $database =
+                new Database();
+
+            $conn =
+                $database->connect();
+
+            self::ensureUserActivityTable($conn);
+
+            $query = "
+                INSERT INTO USER_ACTIVITY_STATUS
+                (
+                    userID,
+                    systemRole,
+                    lastSeenAt,
+                    isOnline
+                )
+                VALUES
+                (
+                    :userID,
+                    :systemRole,
+                    NOW(),
+                    FALSE
+                )
+                ON DUPLICATE KEY UPDATE
+                    lastSeenAt = NOW(),
+                    isOnline = FALSE
+            ";
+
+            $statement =
+                $conn->prepare($query);
+
+            $statement->execute([
+                ":userID" =>
+                    $_SESSION["userID"],
+
+                ":systemRole" =>
+                    $_SESSION["systemRole"] ?? "User"
+            ]);
+
+        } catch (Exception $exception) {
+
+            return;
+        }
+    }
+
+    private static function ensureUserActivityTable(
+        $conn
+    ) {
+
+        $query = "
+            CREATE TABLE IF NOT EXISTS USER_ACTIVITY_STATUS (
+                userID VARCHAR(20) PRIMARY KEY,
+                systemRole VARCHAR(50) NOT NULL,
+                lastSeenAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                isOnline BOOLEAN NOT NULL DEFAULT FALSE,
+
+                FOREIGN KEY (userID)
+                    REFERENCES USER(userID)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE
+            )
+        ";
+
+        $conn->exec($query);
+    }
 }
 
 ?>
-
-
-
-
