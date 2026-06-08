@@ -1,0 +1,142 @@
+name: SSAS CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate PHP Application (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: pdo, pdo_mysql, fileinfo, mbstring
+          coverage: none
+
+      - name: Show PHP version
+        run: php -v
+
+      - name: Check for merge conflict markers
+        shell: bash
+        run: |
+          if grep -RInE '^(<<<<<<< .+|=======$|>>>>>>> .+)' \
+            --exclude-dir=.git \
+            --exclude-dir=storage \
+            --exclude='*.png' \
+            --exclude='*.jpg' \
+            --exclude='*.jpeg' \
+            --exclude='*.gif' \
+            --exclude='*.pdf' \
+            .; then
+            echo "Merge conflict markers were found."
+            exit 1
+          fi
+
+      - name: Lint PHP files
+        shell: bash
+        run: |
+          find . \
+            -path './.git' -prune -o \
+            -path './storage' -prune -o \
+            -name '*.php' -print0 |
+          while IFS= read -r -d '' file; do
+            php -l "$file"
+          done
+
+      - name: Verify required project directories
+        shell: bash
+        run: |
+          test -d client
+          test -d server
+          test -d database
+
+  package:
+    name: Build Deployment Package
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create deployment archive
+        run: |
+          mkdir -p build
+          zip -r build/ssas-release.zip . \
+            -x '.git/*' \
+            -x '.github/*' \
+            -x 'build/*' \
+            -x 'storage/uploads/*' \
+            -x '*.log'
+
+      - name: Upload deployment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssas-release
+          path: build/ssas-release.zip
+          retention-days: 14
+
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+    needs: package
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      SSH_TARGET_DIR: ${{ secrets.SSH_TARGET_DIR }}
+
+    steps:
+      - name: Check deployment secrets
+        id: deploy_secrets
+        run: |
+          if [ -n "$SSH_HOST" ] && [ -n "$SSH_USERNAME" ] && [ -n "$SSH_KEY" ] && [ -n "$SSH_TARGET_DIR" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "Deployment skipped. Configure SSH_HOST, SSH_USERNAME, SSH_KEY, and SSH_TARGET_DIR repository secrets to enable CD."
+          fi
+
+      - name: Checkout repository
+        if: steps.deploy_secrets.outputs.configured == 'true'
+        uses: actions/checkout@v4
+
+      - name: Deploy project files over SSH
+        if: steps.deploy_secrets.outputs.configured == 'true'
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.SSH_HOST }}
+          REMOTE_USER: ${{ secrets.SSH_USERNAME }}
+          TARGET: ${{ secrets.SSH_TARGET_DIR }}
+          SOURCE: "./"
+          ARGS: "-rlgoDzvc --delete"
+          EXCLUDE: ".git/, .github/, build/, storage/uploads/, *.log"
