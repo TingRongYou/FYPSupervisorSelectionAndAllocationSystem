@@ -47,8 +47,9 @@ function supervisorBaseStyles() {
         body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f4f8fc; color: #1d2b3a; }
         .content-shell { display: flex; min-height: calc(100vh - 52px); }
         .sidebar { width: 280px; flex: 0 0 280px; background: #fff; border-right: 1px solid #dde8f2; padding: 26px 18px; }
-        .role-card { display: flex; gap: 12px; align-items: center; padding: 12px; border-radius: 8px; background: #eef6fc; margin-bottom: 20px; }
-        .role-icon { width: 38px; height: 38px; border-radius: 8px; background: #0b66d8; color: #fff; display: grid; place-items: center; font-size: 15px; font-weight: 800; }
+        .role-card { display: flex; gap: 12px; align-items: center; width: 100%; min-height: 62px; padding: 12px; border-radius: 8px; background: #eef6fc; margin-bottom: 20px; }
+        .role-card > div:last-child { min-width: 0; }
+        .role-icon { width: 38px; height: 38px; flex: 0 0 38px; border-radius: 8px; background: #0b66d8; color: #fff; display: grid; place-items: center; font-size: 15px; font-weight: 800; line-height: 1; }
         .role-title { margin: 0; color: #0b3760; font-weight: 800; font-size: 14px; }
         .role-subtitle { margin: 2px 0 0; color: #6b7f91; font-size: 12px; font-weight: 400; }
         .nav-link, .nav-parent { display: flex; align-items: center; gap: 10px; color: #526a7f; text-decoration: none; padding: 12px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; font-weight: 600; background: #f1f5f9; border: 0; width: 100%; min-height: 40px; cursor: pointer; transition: background .2s, color .2s, transform .2s; white-space: nowrap; line-height: 1.2; }
@@ -57,7 +58,8 @@ function supervisorBaseStyles() {
         .nav-icon { display: none; }
         .nav-chevron { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; color: #7d96b4; font-size: 13px; font-weight: 700; }
         .nav-link:hover .nav-chevron, .nav-link.active .nav-chevron, .nav-parent.active .nav-chevron { color: #0b66d8; }
-        .subnav { margin: -3px 0 8px 13px; padding: 2px 0 2px 22px; border-left: 1px solid #cbd8e6; }
+        .subnav { position: relative; margin: -3px 0 8px 13px; padding: 2px 0 2px 22px; border-left: 1px solid #cbd8e6; }
+        .subnav:after { content: ""; position: absolute; left: -1px; right: 0; bottom: 0; height: 1px; background: #cbd8e6; }
         .subnav a { position: relative; display: block; color: #6b7f91; text-decoration: none; font-size: 14px; font-weight: 600; padding: 7px 10px; line-height: 1.3; border-radius: 6px; white-space: nowrap; }
         .subnav a:before { content: ""; position: absolute; left: -22px; top: 50%; width: 16px; height: 1px; background: #cbd8e6; }
         .subnav a:hover,

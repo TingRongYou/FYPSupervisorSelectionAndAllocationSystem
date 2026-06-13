@@ -1,2 +1,0 @@
-ALTER TABLE USER
-    ADD COLUMN profilePhotoPath VARCHAR(255) NULL AFTER activeStatus;

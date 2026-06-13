@@ -398,7 +398,27 @@ class RequestDAO {
                 ALR.allocationID,
                 ALR.allocationMethod,
                 U.fullName,
-                SP.programme
+                U.universityEmail,
+                SP.programme,
+                SP.cgpa,
+                SP.contactNumber,
+                SP.personalBio,
+                SP.linkedInURL,
+                SP.githubURL,
+                (
+                    SELECT GROUP_CONCAT(
+                        DISTINCT RT.tagName
+                        ORDER BY RT.tagName
+                        SEPARATOR '||'
+                    )
+                    FROM STUDENT_TAG_SELECTION STS
+                    INNER JOIN SUPERVISOR_TAG_SELECTION SVTS
+                        ON STS.tagID = SVTS.tagID
+                        AND SVTS.supervisorID = ARQ.supervisorID
+                    INNER JOIN RESEARCH_TAG RT
+                        ON STS.tagID = RT.tagID
+                    WHERE STS.studentID = ARQ.studentID
+                ) AS matchedTagNames
             FROM APPLICATION_REQUEST ARQ
             INNER JOIN STUDENT_PROFILE SP
                 ON ARQ.studentID = SP.studentID
@@ -778,6 +798,39 @@ class RequestDAO {
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getApplicationRequestForStudent(
+        $requestID,
+        $studentID
+    ) {
+
+        $query = "
+            SELECT
+                ARQ.requestID,
+                ARQ.studentID,
+                ARQ.supervisorID,
+                ARQ.projectTitle,
+                ARQ.proposalPDFPath,
+                ARQ.applicationDate,
+                ARQ.ttlExpirationTimestamp,
+                ARQ.decisionStatus,
+                ARQ.supervisorComment,
+                U.fullName AS supervisorName
+            FROM APPLICATION_REQUEST ARQ
+            INNER JOIN USER U
+                ON ARQ.supervisorID = U.userID
+            WHERE ARQ.requestID = :requestID
+            AND ARQ.studentID = :studentID
+            LIMIT 1
+        ";
+
+        $statement = $this->conn->prepare($query);
+        $statement->bindValue(":requestID", $requestID, PDO::PARAM_INT);
+        $statement->bindValue(":studentID", $studentID);
+        $statement->execute();
+
+        return $statement->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function getSuperviseesBySupervisor(
         $supervisorID,
         $limit,
@@ -1001,6 +1054,7 @@ class RequestDAO {
                 ARQ.applicationDate,
                 ARQ.ttlExpirationTimestamp,
                 U.fullName AS supervisorName,
+                U.profilePhotoPath AS supervisorPhotoPath,
                 SP.employmentCategory,
                 SP.programme
             FROM APPLICATION_REQUEST ARQ

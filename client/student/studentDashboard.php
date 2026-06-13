@@ -230,16 +230,18 @@ function requestClass($status) {
             padding: 16px 18px;
             border-bottom: 1px solid #edf2f7;
             display: grid;
-            grid-template-columns: 46px 1fr auto;
+            grid-template-columns: 58px 1fr auto;
             gap: 14px; align-items: start;
         }
         .request-item:last-child { border-bottom: none; }
 
         .request-avatar {
-            width: 42px; height: 42px; border-radius: 10px;
+            width: 54px; height: 54px; border-radius: 50%;
             background: #e9f1fa; display: grid;
             place-items: center; color: #0b3760;
-            font-weight: 900; font-size: 14px; overflow: hidden;
+            font-weight: 900; font-size: 15px; overflow: hidden;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #cfe0f1, 0 4px 10px rgba(11,79,138,.12);
         }
         .request-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -277,20 +279,24 @@ function requestClass($status) {
         }
 
         .mini-item {
-            display: grid; grid-template-columns: 36px 1fr auto;
-            gap: 10px; align-items: center;
-            padding: 10px 0; border-bottom: 1px solid #edf2f7;
+            display: grid; grid-template-columns: 48px 1fr auto;
+            gap: 12px; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid #edf2f7;
             text-decoration: none; color: inherit;
         }
         .mini-item:last-of-type { border-bottom: none; }
         .mini-item:hover { background: #fafcff; margin: 0 -4px; padding: 10px 4px; border-radius: 6px; }
 
         .mini-avatar {
-            width: 34px; height: 34px; border-radius: 7px;
+            width: 44px; height: 44px; border-radius: 50%;
             background: #eef3f8; color: #0b3760;
             display: grid; place-items: center;
             font-size: 14px; font-weight: 900;
+            overflow: hidden;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #cfe0f1, 0 3px 8px rgba(11,79,138,.12);
         }
+        .mini-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .mini-name { color: #172033; font-size: 14px; font-weight: 800; display: block; margin-bottom: 2px; }
         .mini-status { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 4px; }
         .mini-status::before { content: "â—"; font-size: 8px; }
@@ -511,7 +517,11 @@ function requestClass($status) {
                                     <?php $statusCls = requestClass($request["decisionStatus"]); ?>
                                     <article class="request-item">
                                         <div class="request-avatar">
-                                            <?php echo e(initials($request["supervisorName"])); ?>
+                                            <?php if (!empty($request["supervisorPhotoPath"])): ?>
+                                                <img src="<?php echo e($request["supervisorPhotoPath"]); ?>" alt="<?php echo e($request["supervisorName"]); ?>">
+                                            <?php else: ?>
+                                                <?php echo e(initials($request["supervisorName"])); ?>
+                                            <?php endif; ?>
                                         </div>
                                         <div>
                                             <p class="request-name"><?php echo e($request["supervisorName"]); ?></p>
@@ -571,7 +581,13 @@ function requestClass($status) {
                                 <?php $miniStatusClass = $supervisor["statusClass"] ?? "offline"; ?>
                                 <a class="mini-item"
                                     href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($supervisor["userID"]); ?>">
-                                    <span class="mini-avatar"><?php echo e(initials($supervisor["fullName"])); ?></span>
+                                    <span class="mini-avatar">
+                                        <?php if (!empty($supervisor["profilePhotoPath"])): ?>
+                                            <img src="<?php echo e($supervisor["profilePhotoPath"]); ?>" alt="<?php echo e($supervisor["fullName"]); ?>">
+                                        <?php else: ?>
+                                            <?php echo e(initials($supervisor["fullName"])); ?>
+                                        <?php endif; ?>
+                                    </span>
                                     <span>
                                         <span class="mini-name"><?php echo e($supervisor["fullName"]); ?></span>
                                         <span class="mini-status <?php echo e($miniStatusClass); ?>">
