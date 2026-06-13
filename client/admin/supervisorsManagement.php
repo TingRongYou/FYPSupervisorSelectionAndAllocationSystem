@@ -128,24 +128,35 @@ $supervisorManagementService = new SupervisorManagementService();
         .sidebar .nav-link,
         .sidebar .nav-link:hover,
         .sidebar .nav-link.active { min-height: 40px; padding: 12px 14px; margin-bottom: 8px; border-radius: 8px; font-size: 14px; font-weight: 600; line-height: 1.2; white-space: nowrap; }
+        .nav-link.has-submenu { width: 100%; border: 0; background: #f1f5f9; font-family: inherit; cursor: pointer; justify-content: space-between; text-align: left; }
+        .sidebar .nav-link { background: #f1f5f9; color: #526a7f; font-weight: 600; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: #eaf3ff; color: #0b66d8; }
+        .submenu-caret { color: #7d96b4; font-size: 14px; font-weight: 900; line-height: 1; transition: color .2s, transform .2s; }
+        .nav-link.has-submenu[aria-expanded="true"] .submenu-caret { color: #0b66d8; transform: rotate(180deg); }
+        .report-tree { display: none; position: relative; margin: -4px 0 8px 16px; padding-left: 14px; border-left: 1px solid #c9d8e8; }
+        .report-tree.open { display: block; }
+        .report-tree:after { content: ""; position: absolute; left: -1px; right: 0; bottom: 0; height: 1px; background: #c9d8e8; }
+        .report-child { position: relative; display: block; padding: 9px 10px; color: #526a7f; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px; }
+        .report-child:before { content: ""; position: absolute; left: -14px; top: 50%; width: 14px; height: 1px; background: #c9d8e8; }
+        .report-child:hover { color: #0d5be8; background: #f0f6ff; }
 
         /* Main */
         .main { flex: 1; padding: 26px 28px 60px; min-width: 0; overflow-x: hidden; }
 
         /* Hero */
-        .hero-grid { display: grid; grid-template-columns: 1fr 220px; gap: 20px; margin-bottom: 20px; }
+        .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; margin-bottom: 20px; }
 
         .hero-card {
             background: linear-gradient(135deg, #1565e8 0%, #0d48c0 100%);
             color: #fff; border-radius: 14px; padding: 28px 30px;
             display: flex; justify-content: space-between; align-items: flex-end; gap: 20px;
         }
-        .hero-card h1 { margin: 0 0 6px; font-size: 26px; font-weight: 700; }
-        .hero-card p  { margin: 0 0 22px; color: #c8deff; font-size: 13px; line-height: 1.5; }
+        .hero-card h1 { margin: 0 0 8px; font-size: 32px; font-weight: 800; }
+        .hero-card p  { margin: 0 0 24px; color: #c8deff; font-size: 15px; line-height: 1.5; }
         .hero-metrics { display: flex; gap: 12px; }
         .metric { min-width: 100px; background: rgba(255,255,255,.15); border-radius: 10px; padding: 14px 18px; }
-        .metric-label { color: #a8c8ff; font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 800; }
-        .metric-value { margin-top: 6px; font-size: 26px; font-weight: 900; }
+        .metric-label { color: #a8c8ff; font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 800; }
+        .metric-value { margin-top: 6px; font-size: 30px; font-weight: 900; }
         .hero-actions { display: flex; gap: 10px; flex-shrink: 0; align-self: center; }
         .hero-btn { border-radius: 8px; height: 36px; padding: 0 20px; font-weight: 800; font-size: 12px; cursor: pointer; border: none; }
         .hero-btn.primary   { background: #fff; color: #0d5be8; }
@@ -154,13 +165,13 @@ $supervisorManagementService = new SupervisorManagementService();
         /* Status ring card */
         .status-card { background: #fff; border: 1px solid #d9e7f3; border-radius: 14px; padding: 24px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .status-card h2 { margin: 0 0 16px; color: #10263d; font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 900; }
-        .ring-wrap { position: relative; width: 110px; height: 110px; margin-bottom: 14px; }
-        .ring-svg  { width: 110px; height: 110px; transform: rotate(-90deg); }
-        .ring-bg   { fill: none; stroke: #e8f0fb; stroke-width: 10; }
-        .ring-fill { fill: none; stroke: #0d5be8; stroke-width: 10; stroke-linecap: round; }
+        .ring-wrap { position: relative; width: 190px; height: 190px; margin: 0 0 16px; }
+        .ring-svg  { width: 190px; height: 190px; transform: rotate(-90deg); filter: drop-shadow(0 8px 14px rgba(13,91,232,.12)); }
+        .ring-bg   { fill: none; stroke: #e8f0fb; stroke-width: 8; }
+        .ring-fill { fill: none; stroke: #0d5be8; stroke-width: 8; stroke-linecap: round; }
         .ring-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .ring-label strong { color: #0d5be8; font-size: 22px; font-weight: 900; line-height: 1; }
-        .ring-label span   { color: #6b7f91; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; margin-top: 2px; }
+        .ring-label strong { color: #0d5be8; font-size: 34px; font-weight: 900; line-height: 1; }
+        .ring-label span   { width: 120px; color: #6b7f91; font-size: 11px; line-height: 1.25; text-align: center; text-transform: uppercase; letter-spacing: .55px; margin-top: 7px; font-weight: 900; }
         .status-caption { margin: 0; color: #8a9caf; font-size: 13px; line-height: 1.5; }
 
         /* Quick filter */
@@ -339,7 +350,22 @@ $supervisorManagementService = new SupervisorManagementService();
                 <a class="nav-link" href="quotaManagement.php">Quota Management</a>
                 <a class="nav-link" href="autoAllocation.php">Allocations</a>
                 <a class="nav-link" href="adminSupervisorReviews.php">Supervisor Reviews Audit</a>
-                <a class="nav-link" href="adminCohortOverview.php">Reports</a>
+                <button class="nav-link has-submenu" type="button" aria-expanded="false" aria-controls="admin-report-tree" onclick="toggleAdminReports(this)">
+                    <span>Reports</span>
+                    <span class="submenu-caret" aria-hidden="true">v</span>
+                </button>
+                <div class="report-tree" id="admin-report-tree">
+                    <a class="report-child" href="adminCohortOverview.php">Cohort Overview</a>
+                    <a class="report-child" href="adminAllocationSummary.php">Allocation Summary</a>
+                </div>
+                <script>
+                    function toggleAdminReports(button) {
+                        const reportTree = document.getElementById("admin-report-tree");
+                        const isOpen = button.getAttribute("aria-expanded") === "true";
+                        button.setAttribute("aria-expanded", isOpen ? "false" : "true");
+                        reportTree.classList.toggle("open", !isOpen);
+                    }
+                </script>
             </aside>
             <main class="main">
                 <?php echo statusMessage(); ?>
@@ -360,6 +386,10 @@ $supervisorManagementService = new SupervisorManagementService();
                                     <div class="metric-value"><?php echo e($averageLoad); ?>%</div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="hero-actions">
+                            <button class="hero-btn primary" type="button" data-open-create>New Supervisor</button>
+                            <button class="hero-btn secondary" type="button">Save</button>
                         </div>
 
                     </article>

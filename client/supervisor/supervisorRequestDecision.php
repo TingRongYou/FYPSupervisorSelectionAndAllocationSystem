@@ -23,6 +23,11 @@ $request = $requestID > 0
 $isExistingSupervisionProposal =
     $request && !empty($request["allocationID"]);
 
+$matchedTags =
+    $request && !empty($request["matchedTagNames"])
+        ? explode("||", $request["matchedTagNames"])
+        : [];
+
 function formatDateText($date) {
 
     if (!$date) {
@@ -69,15 +74,27 @@ function statusClass($status) {
         .proposal-icon svg { width: 25px; height: 25px; display: block; }
         h1 { margin: 0 0 8px; color: #172033; font-size: 30px; line-height: 1.15; max-width: 760px; }
         .student-line { margin: 0 0 26px; color: #526a7f; font-weight: 800; }
-        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin: 0 0 24px; }
-        .summary-grid h3 { margin: 0 0 10px; color: #7c8da0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
-        .summary-grid p { margin: 0; color: #526a7f; line-height: 1.6; }
+        .student-profile { margin: 0 0 24px; padding: 22px; border: 1px solid #d9e7f3; border-radius: 12px; background: #f8fbff; }
+        .profile-heading { margin: 0 0 18px; color: #7c8da0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+        .profile-bio-block { margin-bottom: 20px; padding: 16px 18px; border: 1px solid #e1ebf5; border-radius: 10px; background: #fff; }
+        .profile-bio { margin: 0; color: #526a7f; line-height: 1.65; text-align: left; white-space: pre-line; }
+        .profile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border: 1px solid #e1ebf5; border-radius: 10px; overflow: hidden; background: #fff; }
+        .profile-field { min-width: 0; min-height: 78px; padding: 15px 18px; border-bottom: 1px solid #e8eff6; }
+        .profile-field:nth-child(odd) { border-right: 1px solid #e8eff6; }
+        .profile-field.tags-field { grid-column: 1 / -1; border-right: 0; border-bottom: 0; }
+        .profile-label { display: block; margin-bottom: 5px; color: #8a9caf; font-size: 11px; font-weight: 900; letter-spacing: .8px; text-transform: uppercase; }
+        .profile-value { display: block; color: #172033; font-size: 14px; font-weight: 800; line-height: 1.45; overflow-wrap: anywhere; }
+        .profile-value a { color: #0d5be8; text-decoration: none; }
+        .profile-value a:hover { text-decoration: underline; }
+        .matched-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .matched-tag { display: inline-flex; align-items: center; min-height: 28px; padding: 0 11px; border-radius: 999px; background: #e7f0ff; color: #0d5be8; font-size: 12px; font-weight: 900; }
+        .empty-value { color: #8a9caf; font-weight: 600; }
         .pdf-viewer { border: 1px solid #d9e7f3; border-radius: 10px; overflow: hidden; background: #f8fbff; }
         .pdf-toolbar { min-height: 54px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; border-bottom: 1px solid #d9e7f3; background: #fff; }
         .pdf-title { display: flex; align-items: center; gap: 10px; color: #172033; font-weight: 900; }
         .pdf-title span { width: 28px; height: 28px; border-radius: 8px; background: #eaf3ff; color: #0d5be8; display: grid; place-items: center; font-size: 13px; font-weight: 900; }
         .pdf-action { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 0 12px; border-radius: 7px; background: #0d5be8; color: #fff; font-size: 13px; font-weight: 900; text-decoration: none; white-space: nowrap; }
-        .pdf-frame { display: block; width: 100%; height: 560px; border: 0; background: #eef6ff; }
+        .pdf-frame { display: block; width: 100%; height: 760px; min-height: 70vh; border: 0; background: #eef6ff; }
         .side-stack { display: grid; gap: 18px; }
         .meta-card, .decision-card, .note-card { padding: 22px; }
         .meta-row { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 14px; color: #526a7f; font-size: 14px; }
@@ -100,8 +117,13 @@ function statusClass($status) {
         .note-card { background: #f8fbff; color: #526a7f; line-height: 1.5; }
         textarea { min-height: 126px; }
         .empty-state { padding: 32px; color: #6b7f91; }
-        @media (max-width: 980px) { .review-shell { grid-template-columns: 1fr; } .summary-grid { grid-template-columns: 1fr; } .pdf-frame { height: 420px; } }
-        @media (max-width: 620px) { .proposal-card { padding: 20px; } .proposal-header, .pdf-toolbar { display: block; } .proposal-icon { margin-bottom: 14px; } .pdf-action { margin-top: 10px; width: 100%; } }
+        @media (max-width: 980px) { .review-shell { grid-template-columns: 1fr; } .pdf-frame { height: 620px; min-height: 0; } }
+        @media (max-width: 700px) {
+            .profile-grid { grid-template-columns: 1fr; }
+            .profile-field, .profile-field:nth-child(odd) { border-right: 0; border-bottom: 1px solid #e8eff6; }
+            .profile-field.tags-field { grid-column: auto; border-bottom: 0; }
+        }
+        @media (max-width: 620px) { .proposal-card { padding: 20px; } .proposal-header, .pdf-toolbar { display: block; } .proposal-icon { margin-bottom: 14px; } .pdf-action { margin-top: 10px; width: 100%; } .pdf-frame { height: 520px; } }
     </style>
 </head>
 <body>
@@ -121,22 +143,64 @@ function statusClass($status) {
                         <h1><?php echo e($request["projectTitle"]); ?></h1>
                         <p class="student-line"><?php echo e($request["fullName"]); ?> of <?php echo e($request["programme"]); ?></p>
 
-                        <div class="summary-grid">
-                            <div>
-                                <h3>Executive Summary</h3>
-                                <p>This proposal has been submitted for your review. Open the uploaded PDF to evaluate the project scope, feasibility, and student preparedness.</p>
+                        <section class="student-profile">
+                            <h2 class="profile-heading">Student Profile</h2>
+                            <div class="profile-bio-block">
+                                <span class="profile-label">Personal Bio</span>
+                                <p class="profile-bio"><?php echo e(trim((string) $request["personalBio"]) !== "" ? trim((string) $request["personalBio"]) : "No personal bio has been provided."); ?></p>
                             </div>
-                            <div>
-                                <h3>Key Objectives</h3>
-                                <p>
-                                    <?php if ($isExistingSupervisionProposal): ?>
-                                        This student is already allocated to you. Your decision records whether the submitted proposal is acceptable; it does not remove the supervision allocation.
+
+                            <div class="profile-grid">
+                                <div class="profile-field">
+                                    <span class="profile-label">CGPA</span>
+                                    <span class="profile-value"><?php echo e(number_format((float) $request["cgpa"], 4)); ?></span>
+                                </div>
+                                <div class="profile-field">
+                                    <span class="profile-label">Email</span>
+                                    <span class="profile-value">
+                                        <a href="mailto:<?php echo e($request["universityEmail"]); ?>"><?php echo e($request["universityEmail"]); ?></a>
+                                    </span>
+                                </div>
+                                <div class="profile-field">
+                                    <span class="profile-label">Phone Number</span>
+                                    <span class="profile-value <?php echo trim((string) $request["contactNumber"]) === "" ? "empty-value" : ""; ?>">
+                                        <?php echo e(trim((string) $request["contactNumber"]) !== "" ? $request["contactNumber"] : "Not provided"); ?>
+                                    </span>
+                                </div>
+                                <div class="profile-field">
+                                    <span class="profile-label">LinkedIn</span>
+                                    <span class="profile-value">
+                                        <?php if (trim((string) $request["linkedInURL"]) !== ""): ?>
+                                            <a href="<?php echo e($request["linkedInURL"]); ?>" target="_blank" rel="noopener noreferrer">View LinkedIn Profile</a>
+                                        <?php else: ?>
+                                            <span class="empty-value">Not provided</span>
+                                        <?php endif; ?>
+                                    </span>
+                                </div>
+                                <div class="profile-field">
+                                    <span class="profile-label">GitHub</span>
+                                    <span class="profile-value">
+                                        <?php if (trim((string) $request["githubURL"]) !== ""): ?>
+                                            <a href="<?php echo e($request["githubURL"]); ?>" target="_blank" rel="noopener noreferrer">View GitHub Profile</a>
+                                        <?php else: ?>
+                                            <span class="empty-value">Not provided</span>
+                                        <?php endif; ?>
+                                    </span>
+                                </div>
+                                <div class="profile-field tags-field">
+                                    <span class="profile-label">Matched Interest Tags</span>
+                                    <?php if (!empty($matchedTags)): ?>
+                                        <div class="matched-tags">
+                                            <?php foreach ($matchedTags as $tagName): ?>
+                                                <span class="matched-tag"><?php echo e($tagName); ?></span>
+                                            <?php endforeach; ?>
+                                        </div>
                                     <?php else: ?>
-                                        Review the project title, attached document, submission date, and any required comments before making your decision.
+                                        <span class="profile-value empty-value">No shared tags</span>
                                     <?php endif; ?>
-                                </p>
+                                </div>
                             </div>
-                        </div>
+                        </section>
 
                         <?php $proposalViewerUrl = "../../server/application/supervisor/viewProposal.php?requestID=" . urlencode($request["requestID"]); ?>
                         <div class="pdf-viewer">

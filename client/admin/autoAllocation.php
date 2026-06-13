@@ -274,6 +274,17 @@ function engineReadinessLabel($allocationWindow) {
             line-height: 1.2;
             white-space: nowrap;
         }
+        .nav-link.has-submenu { width: 100%; border: 0; background: #f1f5f9; font-family: inherit; cursor: pointer; justify-content: space-between; text-align: left; }
+        .sidebar .nav-link { background: #f1f5f9; color: #526a7f; font-weight: 600; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: #eaf3ff; color: #0b66d8; }
+        .submenu-caret { color: #7d96b4; font-size: 14px; font-weight: 900; line-height: 1; transition: color .2s, transform .2s; }
+        .nav-link.has-submenu[aria-expanded="true"] .submenu-caret { color: #0b66d8; transform: rotate(180deg); }
+        .report-tree { display: none; position: relative; margin: -4px 0 8px 16px; padding-left: 14px; border-left: 1px solid #c9d8e8; }
+        .report-tree.open { display: block; }
+        .report-tree:after { content: ""; position: absolute; left: -1px; right: 0; bottom: 0; height: 1px; background: #c9d8e8; }
+        .report-child { position: relative; display: block; padding: 9px 10px; color: #526a7f; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px; }
+        .report-child:before { content: ""; position: absolute; left: -14px; top: 50%; width: 14px; height: 1px; background: #c9d8e8; }
+        .report-child:hover { color: #0d5be8; background: #f0f6ff; }
 
         .main {
             flex: 1;
@@ -629,7 +640,22 @@ function engineReadinessLabel($allocationWindow) {
             <a class="nav-link" href="quotaManagement.php">Quota Management</a>
             <a class="nav-link active" href="autoAllocation.php">Allocations</a>
             <a class="nav-link" href="adminSupervisorReviews.php">Supervisor Reviews Audit</a>
-            <a class="nav-link" href="adminCohortOverview.php">Reports</a>
+            <button class="nav-link has-submenu" type="button" aria-expanded="false" aria-controls="admin-report-tree" onclick="toggleAdminReports(this)">
+                <span>Reports</span>
+                <span class="submenu-caret" aria-hidden="true">v</span>
+            </button>
+            <div class="report-tree" id="admin-report-tree">
+                <a class="report-child" href="adminCohortOverview.php">Cohort Overview</a>
+                <a class="report-child" href="adminAllocationSummary.php">Allocation Summary</a>
+            </div>
+            <script>
+                function toggleAdminReports(button) {
+                    const reportTree = document.getElementById("admin-report-tree");
+                    const isOpen = button.getAttribute("aria-expanded") === "true";
+                    button.setAttribute("aria-expanded", isOpen ? "false" : "true");
+                    reportTree.classList.toggle("open", !isOpen);
+                }
+            </script>
         </aside>
 
         <main class="main">

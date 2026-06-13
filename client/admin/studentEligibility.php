@@ -117,6 +117,17 @@ function filterUrl($status) {
         .sidebar .nav-link,
         .sidebar .nav-link:hover,
         .sidebar .nav-link.active { min-height: 40px; padding: 12px 14px; margin-bottom: 8px; border-radius: 8px; font-size: 14px; font-weight: 600; line-height: 1.2; white-space: nowrap; }
+        .nav-link.has-submenu { width: 100%; border: 0; background: #f1f5f9; font-family: inherit; cursor: pointer; justify-content: space-between; text-align: left; }
+        .sidebar .nav-link { background: #f1f5f9; color: #526a7f; font-weight: 600; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: #eaf3ff; color: #0b66d8; }
+        .submenu-caret { color: #7d96b4; font-size: 14px; font-weight: 900; line-height: 1; transition: color .2s, transform .2s; }
+        .nav-link.has-submenu[aria-expanded="true"] .submenu-caret { color: #0b66d8; transform: rotate(180deg); }
+        .report-tree { display: none; position: relative; margin: -4px 0 8px 16px; padding-left: 14px; border-left: 1px solid #c9d8e8; }
+        .report-tree.open { display: block; }
+        .report-tree:after { content: ""; position: absolute; left: -1px; right: 0; bottom: 0; height: 1px; background: #c9d8e8; }
+        .report-child { position: relative; display: block; padding: 9px 10px; color: #526a7f; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px; }
+        .report-child:before { content: ""; position: absolute; left: -14px; top: 50%; width: 14px; height: 1px; background: #c9d8e8; }
+        .report-child:hover { color: #0d5be8; background: #f0f6ff; }
 
         .main { flex: 1; padding: 26px 28px 70px; min-width: 0; overflow-x: hidden; }
 
@@ -126,7 +137,7 @@ function filterUrl($status) {
 
         .page-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 300px;
+            grid-template-columns: minmax(0, 1fr) 280px;
             gap: 22px;
             align-items: stretch;
         }
@@ -265,13 +276,14 @@ function filterUrl($status) {
         .status-card h2 { margin: 0; color: #10263d; font-size: 19px; font-weight: 900; text-transform: uppercase; letter-spacing: .9px; line-height: 1.25; }
         .status-subtitle { margin: 8px 0 0; color: #8a9caf; font-size: 14px; line-height: 1.45; max-width: 220px; }
 
-        .ring-wrap  { position: relative; width: 158px; height: 158px; margin: 28px auto 24px; flex: 0 0 158px; }
-        .ring-svg   { width: 158px; height: 158px; transform: rotate(-90deg); filter: drop-shadow(0 8px 14px rgba(13,91,232,.12)); }
+        /* SVG ring */
+        .ring-wrap  { position: relative; width: 190px; height: 190px; margin: 24px auto; }
+        .ring-svg   { width: 190px; height: 190px; transform: rotate(-90deg); filter: drop-shadow(0 8px 14px rgba(13,91,232,.12)); }
         .ring-bg    { fill: none; stroke: #edf3fb; stroke-width: 8; }
         .ring-fill  { fill: none; stroke: #0d5be8; stroke-width: 8; stroke-linecap: round; }
-        .ring-label { position: absolute; inset: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .ring-label strong { color: #0d5be8; font-size: 28px; font-weight: 900; line-height: 1; }
-        .ring-label span   { color: #8a9caf; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; margin-top: 7px; font-weight: 900; line-height: 1.25; max-width: 92px; }
+        .ring-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .ring-label strong { color: #0d5be8; font-size: 34px; font-weight: 900; line-height: 1; }
+        .ring-label span   { width: 120px; color: #8a9caf; font-size: 11px; line-height: 1.25; text-align: center; text-transform: uppercase; letter-spacing: .55px; margin-top: 7px; font-weight: 900; white-space: normal; }
 
         .summary-bars { display: grid; gap: 12px; }
         .bar-row  { display: grid; gap: 8px; padding: 12px; border: 1px solid #edf2f7; border-radius: 10px; background: #fbfdff; }
@@ -339,7 +351,22 @@ function filterUrl($status) {
             <a class="nav-link" href="quotaManagement.php">Quota Management</a>
             <a class="nav-link" href="autoAllocation.php">Allocations</a>
             <a class="nav-link" href="adminSupervisorReviews.php">Supervisor Reviews Audit</a>
-            <a class="nav-link" href="adminCohortOverview.php">Reports</a>
+            <button class="nav-link has-submenu" type="button" aria-expanded="false" aria-controls="admin-report-tree" onclick="toggleAdminReports(this)">
+                <span>Reports</span>
+                <span class="submenu-caret" aria-hidden="true">v</span>
+            </button>
+            <div class="report-tree" id="admin-report-tree">
+                <a class="report-child" href="adminCohortOverview.php">Cohort Overview</a>
+                <a class="report-child" href="adminAllocationSummary.php">Allocation Summary</a>
+            </div>
+            <script>
+                function toggleAdminReports(button) {
+                    const reportTree = document.getElementById("admin-report-tree");
+                    const isOpen = button.getAttribute("aria-expanded") === "true";
+                    button.setAttribute("aria-expanded", isOpen ? "false" : "true");
+                    reportTree.classList.toggle("open", !isOpen);
+                }
+            </script>
         </aside>
 
         <main class="main">
@@ -446,17 +473,17 @@ function filterUrl($status) {
                             <h2>Batch Processing Results</h2>
                             <div class="filter-group" role="group" aria-label="Filter by eligibility status">
                                 <a href="<?php echo e(filterUrl('all')); ?>"
-                                   class="filter-pill <?php echo $filterStatus === 'all' ? 'active' : ''; ?>">
+                                    class="filter-pill <?php echo $filterStatus === 'all' ? 'active' : ''; ?>">
                                     All
                                     <span class="pill-count"><?php echo e(count($students)); ?></span>
                                 </a>
                                 <a href="<?php echo e(filterUrl('eligible')); ?>"
-                                   class="filter-pill eligible-pill <?php echo $filterStatus === 'eligible' ? 'active' : ''; ?>">
+                                    class="filter-pill eligible-pill <?php echo $filterStatus === 'eligible' ? 'active' : ''; ?>">
                                     Eligible
                                     <span class="pill-count"><?php echo e($eligibleStudents); ?></span>
                                 </a>
                                 <a href="<?php echo e(filterUrl('ineligible')); ?>"
-                                   class="filter-pill ineligible-pill <?php echo $filterStatus === 'ineligible' ? 'active' : ''; ?>">
+                                    class="filter-pill ineligible-pill <?php echo $filterStatus === 'ineligible' ? 'active' : ''; ?>">
                                     Ineligible
                                     <span class="pill-count"><?php echo e($ineligibleStudents); ?></span>
                                 </a>

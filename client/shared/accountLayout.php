@@ -233,13 +233,14 @@ if (!function_exists("ssasPortalShellStyles")) {
             .portal-role-icon { width: 38px; height: 38px; border-radius: 8px; background: #0b66d8; color: #fff; display: grid; place-items: center; font-size: 15px; font-weight: 700; }
             .portal-role-title { margin: 0; color: #0b3760; font-weight: 700; font-size: 15px; }
             .portal-role-subtitle { margin: 2px 0 0; color: #6b7f91; font-size: 12px; }
-            .portal-nav-link, .portal-nav-parent { display: flex; align-items: center; gap: 10px; color: #526a7f; text-decoration: none; padding: 11px 12px; border-radius: 8px; margin-bottom: 6px; font-size: 13px; background: #f1f5f9; border: 0; width: 100%; min-height: 38px; cursor: pointer; transition: background .2s, color .2s, transform .2s; white-space: nowrap; }
+            .portal-nav-link, .portal-nav-parent { display: flex; align-items: center; gap: 10px; color: #526a7f; text-decoration: none; padding: 12px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; font-weight: 600; background: #f1f5f9; border: 0; width: 100%; min-height: 40px; cursor: pointer; transition: background .2s, color .2s, transform .2s; white-space: nowrap; line-height: 1.2; }
             .portal-nav-link:hover, .portal-nav-link.active, .portal-nav-parent.active { background: #eaf3ff; color: #0b66d8; transform: translateX(2px); }
             .portal-nav-text { flex: 1; }
             .portal-nav-icon { display: none; }
             .portal-nav-chevron { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; color: #7d96b4; font-size: 13px; font-weight: 700; }
             .portal-nav-link:hover .portal-nav-chevron, .portal-nav-link.active .portal-nav-chevron, .portal-nav-parent.active .portal-nav-chevron { color: #0b66d8; }
-            .portal-subnav { margin: -3px 0 8px 13px; padding: 2px 0 2px 22px; border-left: 1px solid #cbd8e6; }
+            .portal-subnav { position: relative; margin: -3px 0 8px 13px; padding: 2px 0 2px 22px; border-left: 1px solid #cbd8e6; }
+            .portal-subnav:after { content: ""; position: absolute; left: -1px; right: 0; bottom: 0; height: 1px; background: #cbd8e6; }
             .portal-subnav a { position: relative; display: block; color: #6b7f91; text-decoration: none; font-size: 12px; padding: 6px 10px; line-height: 1.25; border-radius: 6px; white-space: nowrap; }
             .portal-subnav a:before { content: ""; position: absolute; left: -22px; top: 50%; width: 16px; height: 1px; background: #cbd8e6; }
             .portal-subnav a:hover,

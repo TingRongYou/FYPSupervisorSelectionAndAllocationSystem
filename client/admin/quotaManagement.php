@@ -128,6 +128,17 @@ function statusClass($status) {
         .sidebar .nav-link,
         .sidebar .nav-link:hover,
         .sidebar .nav-link.active { min-height: 40px; padding: 12px 14px; margin-bottom: 8px; border-radius: 8px; font-size: 14px; font-weight: 600; line-height: 1.2; white-space: nowrap; }
+        .nav-link.has-submenu { width: 100%; border: 0; background: #f1f5f9; font-family: inherit; cursor: pointer; justify-content: space-between; text-align: left; }
+        .sidebar .nav-link { background: #f1f5f9; color: #526a7f; font-weight: 600; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: #eaf3ff; color: #0b66d8; }
+        .submenu-caret { color: #7d96b4; font-size: 14px; font-weight: 900; line-height: 1; transition: color .2s, transform .2s; }
+        .nav-link.has-submenu[aria-expanded="true"] .submenu-caret { color: #0b66d8; transform: rotate(180deg); }
+        .report-tree { display: none; position: relative; margin: -4px 0 8px 16px; padding-left: 14px; border-left: 1px solid #c9d8e8; }
+        .report-tree.open { display: block; }
+        .report-tree:after { content: ""; position: absolute; left: -1px; right: 0; bottom: 0; height: 1px; background: #c9d8e8; }
+        .report-child { position: relative; display: block; padding: 9px 10px; color: #526a7f; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px; }
+        .report-child:before { content: ""; position: absolute; left: -14px; top: 50%; width: 14px; height: 1px; background: #c9d8e8; }
+        .report-child:hover { color: #0d5be8; background: #f0f6ff; }
         /* Main content area */
         .main { flex: 1; padding: 26px 28px 92px; max-width: 100%; }
         .message { border-radius: 8px; padding: 12px 14px; margin-bottom: 18px; font-weight: 800; }
@@ -135,7 +146,7 @@ function statusClass($status) {
         .message.error { background: #fdeaea; color: #a52d2d; border: 1px solid #f0b8b8; }
         /* Hero quota summary */
         .hero { background: #2268f2; border-radius: 14px; color: #fff; min-height: 172px; padding: 28px 30px; display: grid; grid-template-columns: 1fr 250px; gap: 26px; align-items: center; box-shadow: 0 14px 28px rgba(13,91,232,.22); margin-bottom: 22px; }
-        .hero h1 { margin: 0 0 12px; font-size: 28px; font-weight: 500; }
+        .hero h1 { margin: 0 0 12px; font-size: 28px; font-weight: 800; }
         .hero p { margin: 0; color: #dbe9ff; line-height: 1.55; max-width: 530px; }
         .hero-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .metric { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.13); border-radius: 10px; padding: 15px; }
@@ -223,7 +234,22 @@ function statusClass($status) {
             <a class="nav-link active" href="quotaManagement.php">Quota Management</a>
             <a class="nav-link" href="autoAllocation.php">Allocations</a>
             <a class="nav-link" href="adminSupervisorReviews.php">Supervisor Reviews Audit</a>
-            <a class="nav-link" href="adminCohortOverview.php">Reports</a>
+            <button class="nav-link has-submenu" type="button" aria-expanded="false" aria-controls="admin-report-tree" onclick="toggleAdminReports(this)">
+                <span>Reports</span>
+                <span class="submenu-caret" aria-hidden="true">v</span>
+            </button>
+            <div class="report-tree" id="admin-report-tree">
+                <a class="report-child" href="adminCohortOverview.php">Cohort Overview</a>
+                <a class="report-child" href="adminAllocationSummary.php">Allocation Summary</a>
+            </div>
+            <script>
+                function toggleAdminReports(button) {
+                    const reportTree = document.getElementById("admin-report-tree");
+                    const isOpen = button.getAttribute("aria-expanded") === "true";
+                    button.setAttribute("aria-expanded", isOpen ? "false" : "true");
+                    reportTree.classList.toggle("open", !isOpen);
+                }
+            </script>
         </aside>
 
         <main class="main">

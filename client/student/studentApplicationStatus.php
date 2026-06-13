@@ -153,7 +153,9 @@ function statusMessage() {
         .badge.requested { background: #eaf3ff; color: #0d5be8; }
         .countdown { color: #003f8f; font-size: 15px; font-weight: 900; }
         .comment { color: #526a7f; font-size: 14px; line-height: 1.45; }
+        .action-stack { display: flex; flex-wrap: wrap; gap: 7px; }
         .row-action { min-height: 34px; border-radius: 7px; background: #003f8f; color: #fff; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 13px; font-weight: 900; white-space: nowrap; }
+        .row-action.secondary { background: #eaf3ff; color: #0d5be8; }
         .empty-state { background: #fff; border: 1px dashed #aac7df; border-radius: 12px; padding: 34px; color: #526a7f; font-size: 15px; line-height: 1.55; }
         .empty-state strong { display: block; color: #172033; font-size: 18px; margin-bottom: 8px; }
         .empty-state .browse-btn { margin-top: 16px; }
@@ -268,13 +270,23 @@ function statusMessage() {
                                     <?php endif; ?>
                                 </div>
                                 <div>
+                                    <div class="action-stack">
+                                    <?php if (trim((string) $application["proposalPDFPath"]) !== ""): ?>
+                                        <a class="row-action secondary" href="studentProposalDetails.php?requestID=<?php echo e($application["requestID"]); ?>">View Details</a>
+                                    <?php endif; ?>
                                     <?php if ($isProposalRequested || $canResubmitRejectedProposal): ?>
                                         <a class="row-action" href="submitProposalForm.php?supervisorID=<?php echo urlencode($application["supervisorID"]); ?>&requestID=<?php echo e($application["requestID"]); ?>">
                                             <?php echo $canResubmitRejectedProposal ? "Resubmit Proposal" : "Submit Proposal"; ?>
                                         </a>
-                                    <?php else: ?>
+                                    <?php endif; ?>
+                                    <?php if (
+                                        trim((string) $application["proposalPDFPath"]) === "" &&
+                                        !$isProposalRequested &&
+                                        !$canResubmitRejectedProposal
+                                    ): ?>
                                         <span class="muted">-</span>
                                     <?php endif; ?>
+                                    </div>
                                 </div>
                             </article>
                         <?php endforeach; ?>
