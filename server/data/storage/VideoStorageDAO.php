@@ -17,7 +17,7 @@ class VideoStorageDAO {
     */
     private const MAX_VIDEO_SIZE = 52428800; // 50MB in bytes
 
-    private const WEB_STORAGE_ROOT = "/FYPSupervisorSelectionAndAllocationSystem/storage";
+    private const WEB_STORAGE_ROOT = "../../storage";
 
     private const ALLOWED_MIME_TYPES = [
         "video/mp4",
@@ -295,9 +295,8 @@ class VideoStorageDAO {
     | Ensures only application-managed videos can be deleted.
     */
     private function isManagedVideoPath($videoPath) {
-
         return preg_match(
-            "/^(?:\.\.\/storage|\/FYPSupervisorSelectionAndAllocationSystem\/storage)\/intro_videos\/[A-Za-z0-9_-]+\.(mp4|webm)$/i",
+            "/^(?:\.\.\/)*(storage\/intro_videos\/[A-Za-z0-9_-]+\.(mp4|webm))$/i",
             (string) $videoPath
         ) === 1;
     }

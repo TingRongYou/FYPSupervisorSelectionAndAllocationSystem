@@ -17,7 +17,7 @@ class ImageStorageDAO {
 
     private const MAX_IMAGE_SIZE = 2097152; // 2MB in bytes
 
-    private const WEB_STORAGE_ROOT = "/FYPSupervisorSelectionAndAllocationSystem/storage";
+    private const WEB_STORAGE_ROOT = "../../storage";
 
     private const ALLOWED_MIME_TYPES = [
         "image/jpeg",
@@ -281,8 +281,7 @@ class ImageStorageDAO {
         $imagePath = (string) $imagePath;
 
         $patterns = [
-            "/^\.\.\/(storage\/profile_photos\/[A-Za-z0-9_-]+\.(jpg|png))$/i",
-            "/^\/FYPSupervisorSelectionAndAllocationSystem\/(storage\/profile_photos\/[A-Za-z0-9_-]+\.(jpg|png))$/i"
+            "/^(?:\.\.\/)*(storage\/profile_photos\/[A-Za-z0-9_-]+\.(jpg|png))$/i"
         ];
 
         foreach ($patterns as $pattern) {

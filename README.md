@@ -204,7 +204,7 @@ When using AI tools such as Codex:
 # 📂 Recommended Project Structure
 
 ```plaintext
-FYPSupervisorSelectionAndAllocationSystem/
+ssas/
 │
 ├── client/                         # Frontend Presentation Layer
 │   ├── css/

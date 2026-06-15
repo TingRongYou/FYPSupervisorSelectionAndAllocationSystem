@@ -93,7 +93,7 @@ CREATE TABLE `application_request` (
 --
 
 INSERT INTO `application_request` (`requestID`, `studentID`, `supervisorID`, `projectTitle`, `proposalPDFPath`, `applicationDate`, `ttlExpirationTimestamp`, `decisionStatus`, `supervisorComment`) VALUES
-(1, '24WMR08054', '1129', 'Talent', '/FYPSupervisorSelectionAndAllocationSystem/storage/proposals/24WMR08054_20260526191326.pdf', '2026-05-27 01:13:26', '2026-06-03 01:13:26', 'Accepted', ''),
+(1, '24WMR08054', '1129', 'Talent', '../../storage/proposals/24WMR08054_20260526191326.pdf', '2026-05-27 01:13:26', '2026-06-03 01:13:26', 'Accepted', ''),
 (2, '24WMR08049', '1129', 'Doue', '../storage/proposals/24WMR08049_20260604040305.pdf', '2026-06-04 04:03:05', '2026-06-07 04:03:05', 'Accepted', 'good job');
 
 -- --------------------------------------------------------
@@ -299,7 +299,7 @@ CREATE TABLE `student_profile` (
 --
 
 INSERT INTO `student_profile` (`studentID`, `programme`, `intakeBatch`, `currentSem`, `academicStatus`, `cgpa`, `contactNumber`, `personalBio`, `avatarFilePath`, `linkedInURL`, `githubURL`, `portfolioURL`, `eligibilityStatus`) VALUES
-('24WMR08049', 'RSW', '2024', 'Y2S2', 'EP', 3.2000, '010-7181 7181', 'I am kvaratskelia', '/FYPSupervisorSelectionAndAllocationSystem/storage/profile_photos/24WMR08049_20260603163803.jpg', '', '', '', 1),
+('24WMR08049', 'RSW', '2024', 'Y2S2', 'EP', 3.2000, '010-7181 7181', 'I am kvaratskelia', '../../storage/profile_photos/24WMR08049_20260603163803.jpg', '', '', '', 1),
 ('24WMR08053', 'RIT', '2024', 'Y2S2', 'EP', 3.7500, NULL, NULL, NULL, NULL, NULL, NULL, 1),
 ('24WMR08054', 'RSW', '2024', 'Y2S2', 'EP', 2.0100, NULL, NULL, NULL, NULL, NULL, NULL, 1);
 
@@ -435,8 +435,8 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`userID`, `fullName`, `universityEmail`, `systemRole`, `activeStatus`, `profilePhotoPath`, `resetToken`, `resetExpires`, `password`) VALUES
-('1129', 'Lee Zi Qing', 'leezq1129@tarc.edu.my', 'Supervisor', 1, '/FYPSupervisorSelectionAndAllocationSystem/storage/profile_photos/1129_20260525163616.jpg', NULL, NULL, '$2y$10$gr/a/8N2eIuQ33eZ1N4zZOjRaqJgcMkl9ztIqcr4BmJ/vTJfUSMVi'),
-('24WMR08049', 'YONG CHONG XIN', 'yongcx-wp23@student.tarc.edu.my', 'Student', 1, '/FYPSupervisorSelectionAndAllocationSystem/storage/profile_photos/24WMR08049_20260603163803.jpg', NULL, NULL, '$2y$10$C0azaY6F0.ThQejlu226n.wQyeV2q3DfvnIyO1ziOwm4SUmO3/lJm'),
+('1129', 'Lee Zi Qing', 'leezq1129@tarc.edu.my', 'Supervisor', 1, '../../storage/profile_photos/1129_20260525163616.jpg', NULL, NULL, '$2y$10$gr/a/8N2eIuQ33eZ1N4zZOjRaqJgcMkl9ztIqcr4BmJ/vTJfUSMVi'),
+('24WMR08049', 'YONG CHONG XIN', 'yongcx-wp23@student.tarc.edu.my', 'Student', 1, '../../storage/profile_photos/24WMR08049_20260603163803.jpg', NULL, NULL, '$2y$10$C0azaY6F0.ThQejlu226n.wQyeV2q3DfvnIyO1ziOwm4SUmO3/lJm'),
 ('24WMR08053', 'NUR AINA BINTI AZMAN', 'nuraina-wp23@student.tarc.edu.my', 'Student', 1, NULL, NULL, NULL, '$2y$10$ScH.VgbNZfispW6.hEAJZenE9NWfYtYISk9ERQiN.PmwmdPYQ0eIG'),
 ('24WMR08054', 'KUMAR VELAN', 'kumarv-wp23@student.tarc.edu.my', 'Student', 1, NULL, NULL, NULL, '$2y$10$yf81W5Fl5EfwULOUGkEqVuoTSLbdkJlvZ2AQf1d.aNXYUv8FZT7Ya'),
 ('5836', 'Barcola', 'barcola@tarc.edu.my', 'Supervisor', 1, NULL, NULL, NULL, '$2y$10$zYvQ/ki4ZDx.WfbyLbavlOm5HVREj3gOrRIkvQ28cApdq9MSWu9vu'),

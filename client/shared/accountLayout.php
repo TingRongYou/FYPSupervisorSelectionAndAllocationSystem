@@ -151,9 +151,9 @@ if (!function_exists("ssasAccountMenu")) {
                     <span class=\"account-caret\" aria-hidden=\"true\"></span>
                 </button>
                 <nav class=\"account-dropdown\" aria-label=\"Account menu\">
-                    <a href=\"/FYPSupervisorSelectionAndAllocationSystem/client/shared/profile.php\"><span class=\"menu-icon profile-menu-icon\"></span> Profile</a>
-                    <a href=\"/FYPSupervisorSelectionAndAllocationSystem/client/shared/setPassword.php\"><span class=\"menu-icon password-menu-icon\"></span> Set Password</a>
-                    <a class=\"logout-link\" href=\"/FYPSupervisorSelectionAndAllocationSystem/server/application/auth/logout.php\"><span class=\"menu-icon logout-menu-icon\"></span> Logout</a>
+                    <a href=\"../../client/shared/profile.php\"><span class=\"menu-icon profile-menu-icon\"></span> Profile</a>
+                    <a href=\"../../client/shared/setPassword.php\"><span class=\"menu-icon password-menu-icon\"></span> Set Password</a>
+                    <a class=\"logout-link\" href=\"../../server/application/auth/logout.php\"><span class=\"menu-icon logout-menu-icon\"></span> Logout</a>
                 </nav>
             </div>
         ";
@@ -181,7 +181,7 @@ if (!function_exists("ssasTopbar")) {
         return "
             <header class=\"topbar\">
                 <div class=\"topbar-brand\">
-                    <img class=\"brand-logo\" src=\"/FYPSupervisorSelectionAndAllocationSystem/client/assets/logo.png\" alt=\"TAR UMT logo\">
+                    <img class=\"brand-logo\" src=\"../../client/assets/logo.png\" alt=\"TAR UMT logo\">
                     <span>" . ssasEscape($title) . "</span>
                 </div>
                 <div class=\"topbar-right\">
@@ -266,18 +266,18 @@ if (!function_exists("ssasDashboardUrlForRole")) {
     function ssasDashboardUrlForRole($role) {
 
         if ($role === "Administrator") {
-            return "/FYPSupervisorSelectionAndAllocationSystem/client/admin/adminDashboard.php";
+            return "../../client/admin/adminDashboard.php";
         }
 
         if ($role === "Supervisor") {
-            return "/FYPSupervisorSelectionAndAllocationSystem/client/supervisor/supervisorDashboard.php";
+            return "../../client/supervisor/supervisorDashboard.php";
         }
 
         if ($role === "Student") {
-            return "/FYPSupervisorSelectionAndAllocationSystem/client/student/studentDashboard.php";
+            return "../../client/student/studentDashboard.php";
         }
 
-        return "/FYPSupervisorSelectionAndAllocationSystem/client/auth/login.html";
+        return "../../client/auth/login.html";
     }
 }
 
@@ -308,12 +308,12 @@ if (!function_exists("ssasPortalSidebar")) {
             $roleTitle = "SSAS Supervisor";
             $roleSubtitle = "Supervisor Portal";
             $links = [
-                ["dashboard", "Dashboard", "/FYPSupervisorSelectionAndAllocationSystem/client/supervisor/supervisorDashboard.php", "", false],
+                ["dashboard", "Dashboard", "../../client/supervisor/supervisorDashboard.php", "", false],
                 ["profile-management", "Profile Management", "#", "v", true],
-                ["business-card", "Digital Business Card", "/FYPSupervisorSelectionAndAllocationSystem/client/supervisor/manageDigitalBusinessCard.php", "", false, true],
-                ["expertise-tags", "Expertise & Tags", "/FYPSupervisorSelectionAndAllocationSystem/client/supervisor/manageExpertiseTags.php", "", false, true],
-                ["intro-video", "Introduction Video", "/FYPSupervisorSelectionAndAllocationSystem/client/supervisor/manageIntroVideo.php", "", false, true],
-                ["past-projects", "Past Projects", "/FYPSupervisorSelectionAndAllocationSystem/client/supervisor/managePastProjects.php", "", false, true],
+                ["business-card", "Digital Business Card", "../../client/supervisor/manageDigitalBusinessCard.php", "", false, true],
+                ["expertise-tags", "Expertise & Tags", "../../client/supervisor/manageExpertiseTags.php", "", false, true],
+                ["intro-video", "Introduction Video", "../../client/supervisor/manageIntroVideo.php", "", false, true],
+                ["past-projects", "Past Projects", "../../client/supervisor/managePastProjects.php", "", false, true],
                 ["requests", "Requests & Decisions", "#", "v", false],
                 ["supervision", "Supervision", "#", "", false],
                 ["reports", "Reports", "#", "v", false]
@@ -330,8 +330,8 @@ if (!function_exists("ssasPortalSidebar")) {
             $roleTitle = "SSAS Admin";
             $roleSubtitle = "Management Portal";
             $links = [
-                ["dashboard", "Dashboard", "/FYPSupervisorSelectionAndAllocationSystem/client/admin/adminDashboard.php", "", false],
-                ["supervisors", "Supervisors Management", "/FYPSupervisorSelectionAndAllocationSystem/client/admin/createSupervisorForm.php", "", false],
+                ["dashboard", "Dashboard", "../../client/admin/adminDashboard.php", "", false],
+                ["supervisors", "Supervisors Management", "../../client/admin/createSupervisorForm.php", "", false],
                 ["eligibility", "Students Eligibility", "#", "", false],
                 ["quota", "Quota Management", "#", "", false],
                 ["allocations", "Allocations", "#", "", false],
@@ -349,9 +349,9 @@ if (!function_exists("ssasPortalSidebar")) {
             $roleTitle = "SSAS Student";
             $roleSubtitle = "Student Portal";
             $links = [
-                ["dashboard", "Dashboard", "/FYPSupervisorSelectionAndAllocationSystem/client/student/studentDashboard.php", "", false],
-                ["discovery", "Supervisor Discovery", "/FYPSupervisorSelectionAndAllocationSystem/client/student/studentDiscovery.php", "", false],
-                ["profile", "Student Profile", "/FYPSupervisorSelectionAndAllocationSystem/client/shared/profile.php", "", false],
+                ["dashboard", "Dashboard", "../../client/student/studentDashboard.php", "", false],
+                ["discovery", "Supervisor Discovery", "../../client/student/studentDiscovery.php", "", false],
+                ["profile", "Student Profile", "../../client/shared/profile.php", "", false],
                 ["application-status", "Application Status", "#", "", false]
             ];
         }
