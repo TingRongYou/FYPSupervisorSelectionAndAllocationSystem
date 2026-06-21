@@ -1,6 +1,5 @@
 <?php
 
-
 require_once __DIR__ . "/../../data/dao/UserDAO.php";
 require_once "SessionManager.php";
 
@@ -36,19 +35,7 @@ class AuthManager {
         |--------------------------------------------------------------------------
         | Verify entered password against stored password.
         */
-        if (
-            $user
-            &&
-            (
-                // verify hashed password
-                password_verify($password, $user["password"])
-
-
-                // support plain-text password comparison
-                ||
-                hash_equals($user["password"], $password)
-            )
-        ) {
+        if ($user&&(password_verify($password, $user["password"]))) { // Verify hashed password
 
             SessionManager::startSession();
 
