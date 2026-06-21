@@ -178,11 +178,23 @@ if (!function_exists("ssasTopbar")) {
             ))
             ->format("D M d H:i:s");
 
+        // Dynamically route the logo link based on the active session role
+        $dashboardLink = "#";
+        if ($role === "Student") {
+            $dashboardLink = "../../client/student/studentDashboard.php";
+        } elseif ($role === "Supervisor") {
+            $dashboardLink = "../../client/supervisor/supervisorDashboard.php";
+        } elseif ($role === "Administrator") {
+            $dashboardLink = "../../client/admin/adminDashboard.php";
+        }
+
         return "
             <header class=\"topbar\">
                 <div class=\"topbar-brand\">
-                    <img class=\"brand-logo\" src=\"../../client/assets/logo.png\" alt=\"TAR UMT logo\">
-                    <span>" . ssasEscape($title) . "</span>
+                    <a href=\"" . $dashboardLink . "\" style=\"display: flex; align-items: center; text-decoration: none; color: inherit;\">
+                        <img class=\"brand-logo\" src=\"../../client/assets/logo.png\" alt=\"TAR UMT logo\">
+                        <span>" . ssasEscape($title) . "</span>
+                    </a>
                 </div>
                 <div class=\"topbar-right\">
                     <div class=\"topbar-clock\">" . ssasEscape($dateTime) . " MYT</div>
