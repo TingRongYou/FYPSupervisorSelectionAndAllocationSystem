@@ -73,15 +73,13 @@ function cohortLabel($value, $fallback) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cohort Overview | SSAS</title>
-    <style>
-        <?php echo ssasAccountStyles(); ?>
-        <?php echo adminReportStyles(); ?>
-    </style>
+    <link rel="stylesheet" href="../assets/css/shared.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <script src="../assets/js/admin.js" defer></script>
 </head>
 <body>
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
 
-    <!-- Page shell: shared topbar, report sidebar, and main report content. -->
     <div class="content-shell">
         <?php echo adminReportSidebar("cohort"); ?>
 
@@ -95,7 +93,6 @@ function cohortLabel($value, $fallback) {
                     <?php echo adminReportExportMenu("cohort", $filters); ?>
                 </header>
 
-                <!-- UC300 basic flow: administrator applies cohort filters. -->
                 <section class="filter-card">
                     <form class="filter-form" method="GET" action="adminCohortOverview.php">
                         <div class="filter-field">
@@ -143,7 +140,6 @@ function cohortLabel($value, $fallback) {
                     </form>
                 </section>
 
-                <!-- Macro cohort status: total, allocated, unassigned, progress. -->
                 <section class="hero-grid">
                     <div class="cohort-card">
                         <h2>Active Cohort</h2>
@@ -158,7 +154,7 @@ function cohortLabel($value, $fallback) {
                                 <div class="metric-label">Allocated</div>
                             </div>
                             <div>
-                                <div class="metric-value" style="color:#ffb4b4;"><?php echo e($report["unassignedStudents"]); ?></div>
+                                <div class="metric-value text-danger-light"><?php echo e($report["unassignedStudents"]); ?></div>
                                 <div class="metric-label">Unassigned</div>
                             </div>
                         </div>
@@ -172,7 +168,6 @@ function cohortLabel($value, $fallback) {
                     </div>
                 </section>
 
-                <!-- Filtered student roster for review and export. -->
                 <section class="table-card">
                     <div class="table-headline">
                         <div>
@@ -235,7 +230,5 @@ function cohortLabel($value, $fallback) {
             </div>
         </main>
     </div>
-
-    <?php echo adminReportExportScript(); ?>
 </body>
 </html>

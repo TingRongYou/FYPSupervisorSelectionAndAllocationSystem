@@ -42,17 +42,9 @@ function auditDate($value) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Supervisor Reviews Audit | SSAS</title>
-    <style>
-        <?php echo ssasAccountStyles(); ?>
-        <?php echo adminReportStyles(); ?>
-        .audit-card { background: #fff; border: 1px solid #e1ebf5; border-radius: 12px; box-shadow: 0 12px 28px rgba(11,79,138,.06); overflow: hidden; }
-        .audit-note { margin-bottom: 18px; padding: 14px 16px; border: 1px solid #d9e7f3; border-radius: 10px; background: #f8fbff; color: #526a7f; line-height: 1.5; }
-        .stars { color: #0d5be8; font-weight: 900; letter-spacing: 2px; white-space: nowrap; }
-        .feedback { max-width: 460px; color: #526a7f; line-height: 1.5; }
-        .identity-pill { display: inline-flex; align-items: center; min-height: 24px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 900; text-transform: uppercase; }
-        .identity-pill.anonymous { background: #fff1db; color: #a84600; }
-        .identity-pill.visible { background: #dcfce7; color: #177345; }
-    </style>
+    <link rel="stylesheet" href="../assets/css/shared.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <script src="../assets/js/admin.js" defer></script>
 </head>
 <body>
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
@@ -68,7 +60,7 @@ function auditDate($value) {
                 </header>
 
                 <div class="audit-note">
-                    Security design: anonymous mode masks student identity on supervisor/public interfaces, while this administrator-only page preserves trueStudentID for authorised audit and misuse investigation.
+                    Security design: anonymous mode masks student identity on supervisor/public interfaces, while this administrator-only page preserves true student ID for authorised audit and misuse investigation.
                 </div>
 
                 <section class="audit-card">

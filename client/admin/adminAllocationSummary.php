@@ -71,10 +71,9 @@ function capacityClass($status) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Allocation Summary | SSAS</title>
-    <style>
-        <?php echo ssasAccountStyles(); ?>
-        <?php echo adminReportStyles(); ?>
-    </style>
+    <link rel="stylesheet" href="../assets/css/shared.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <script src="../assets/js/admin.js" defer></script>
 </head>
 <body>
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
@@ -184,6 +183,5 @@ function capacityClass($status) {
         </main>
     </div>
 
-    <?php echo adminReportExportScript(); ?>
 </body>
 </html>

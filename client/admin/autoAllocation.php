@@ -128,503 +128,16 @@ function engineReadinessLabel($allocationWindow) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        Auto-Allocation Engine | SSAS
-    </title>
-
-    <style>
-        <?php echo ssasAccountStyles(); ?>
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f4f8fc;
-            color: #1d2b3a;
-        }
-
-        .topbar {
-            height: 64px;
-            background: #0b95c5;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 28px;
-            box-shadow: 0 4px 14px rgba(11, 79, 138, .16);
-        }
-
-        .topbar-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 700;
-        }
-
-        .crest {
-            width: 30px;
-            height: 30px;
-            border-radius: 6px;
-            display: grid;
-            place-items: center;
-            background: #ffffff;
-            color: #0b4f8a;
-            font-weight: 800;
-        }
-
-        .topbar-user {
-            text-align: right;
-            font-size: 15px;
-            line-height: 1.4;
-        }
-
-        .topbar-user strong {
-            display: block;
-            font-size: 14px;
-        }
-
-        .content-shell {
-            display: flex;
-            min-height: calc(100vh - 64px);
-        }
-
-        .sidebar {
-            width: 280px;
-            background: #ffffff;
-            border-right: 1px solid #dde8f2;
-            padding: 26px 18px;
-        }
-
-        .role-card {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            padding: 12px;
-            border-radius: 8px;
-            background: #eef6fc;
-            margin-bottom: 20px;
-        }
-
-        .role-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 8px;
-            background: #0b66d8;
-            color: #ffffff;
-            display: grid;
-            place-items: center;
-            font-weight: 700;
-        }
-
-        .role-title {
-            margin: 0;
-            color: #0b3760;
-            font-weight: 700;
-            font-size: 15px;
-        }
-
-        .role-subtitle {
-            margin: 2px 0 0;
-            color: #6b7f91;
-            font-size: 14px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            color: #526a7f;
-            text-decoration: none;
-            padding: 12px 14px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            font-size: 14px;
-            transition: background .2s, color .2s, transform .2s;
-            white-space: nowrap;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            background: #eaf3ff;
-            color: #0b66d8;
-            transform: translateX(2px);
-        }
-
-        .sidebar .role-card { min-height: 62px; }
-        .sidebar .role-icon { width: 38px; height: 38px; font-size: 15px; font-weight: 800; }
-        .sidebar .role-title { font-size: 14px; font-weight: 800; }
-        .sidebar .role-subtitle { font-size: 12px; font-weight: 400; text-transform: none; letter-spacing: 0; }
-        .sidebar .nav-link,
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            min-height: 40px;
-            padding: 12px 14px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            line-height: 1.2;
-            white-space: nowrap;
-        }
-        .nav-link.has-submenu { width: 100%; border: 0; background: #f1f5f9; font-family: inherit; cursor: pointer; justify-content: space-between; text-align: left; }
-        .sidebar .nav-link { background: #f1f5f9; color: #526a7f; font-weight: 600; }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: #eaf3ff; color: #0b66d8; }
-        .submenu-caret { color: #7d96b4; font-size: 14px; font-weight: 900; line-height: 1; transition: color .2s, transform .2s; }
-        .nav-link.has-submenu[aria-expanded="true"] .submenu-caret { color: #0b66d8; transform: rotate(180deg); }
-        .report-tree { display: none; position: relative; margin: -4px 0 8px 16px; padding-left: 14px; border-left: 1px solid #c9d8e8; }
-        .report-tree.open { display: block; }
-        .report-tree:after { content: ""; position: absolute; left: -1px; right: 0; bottom: 0; height: 1px; background: #c9d8e8; }
-        .report-child { position: relative; display: block; padding: 9px 10px; color: #526a7f; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px; }
-        .report-child:before { content: ""; position: absolute; left: -14px; top: 50%; width: 14px; height: 1px; background: #c9d8e8; }
-        .report-child:hover { color: #0d5be8; background: #f0f6ff; }
-
-        .main {
-            flex: 1;
-            padding: 28px 34px 40px;
-        }
-
-        .message {
-            border-radius: 8px;
-            padding: 12px 14px;
-            margin-bottom: 18px;
-            font-weight: 700;
-        }
-
-        .message.success {
-            background: #e5f6ed;
-            color: #177345;
-            border: 1px solid #a9dfbf;
-        }
-
-        .message.error {
-            background: #fdeaea;
-            color: #a52d2d;
-            border: 1px solid #f0b8b8;
-        }
-
-        .hero-grid {
-            display: grid;
-            grid-template-columns: 1.6fr .8fr;
-            gap: 22px;
-            margin-bottom: 24px;
-        }
-
-        .hero-card {
-            background: #0d5be8;
-            color: #ffffff;
-            border-radius: 10px;
-            padding: 28px;
-            box-shadow: 0 12px 24px rgba(13, 91, 232, .22);
-        }
-
-        .hero-card h1 {
-            margin: 0 0 8px;
-            font-size: 30px;
-        }
-
-        .hero-card p {
-            margin: 0;
-            color: #dbe9ff;
-        }
-
-        .timer-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 14px;
-            margin-top: 28px;
-        }
-
-        .timer-box {
-            background: rgba(255, 255, 255, .13);
-            border-radius: 8px;
-            padding: 14px;
-            text-align: center;
-        }
-
-        .timer-value {
-            font-size: 30px;
-            font-weight: 800;
-        }
-
-        .timer-label {
-            color: #b9d2ff;
-            font-size: 14px;
-            text-transform: uppercase;
-        }
-
-        .button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 42px;
-            border: 0;
-            border-radius: 6px;
-            padding: 0 18px;
-            background: #ffffff;
-            color: #0d5be8;
-            text-decoration: none;
-            font-weight: 800;
-            cursor: pointer;
-            transition: transform .2s, box-shadow .2s;
-        }
-
-        .button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 18px rgba(0, 0, 0, .14);
-        }
-
-        .button:disabled {
-            background: #c9d4e2;
-            color: #66788c;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
-
-        .button:disabled:hover {
-            box-shadow: none;
-            transform: none;
-        }
-
-        .button.secondary {
-            background: #0d5be8;
-            color: #ffffff;
-        }
-
-        .window-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px;
-            margin-top: 18px;
-        }
-
-        .window-box {
-            background: rgba(255, 255, 255, .13);
-            border-radius: 8px;
-            padding: 12px 14px;
-        }
-
-        .window-label {
-            color: #b9d2ff;
-            font-size: 12px;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-
-        .window-value {
-            margin-top: 4px;
-            color: #ffffff;
-            font-weight: 800;
-        }
-
-        .panel {
-            background: #ffffff;
-            border: 1px solid #d9e7f3;
-            border-radius: 10px;
-            padding: 24px;
-            box-shadow: 0 8px 22px rgba(11, 79, 138, .08);
-        }
-
-        .panel h2 {
-            margin: 0 0 8px;
-            color: #0b3760;
-            font-size: 20px;
-        }
-
-        .status-ring {
-            width: 138px;
-            height: 138px;
-            border-radius: 50%;
-            border: 10px solid #0d5be8;
-            display: grid;
-            place-items: center;
-            margin: 16px auto;
-        }
-
-        .status-ring strong {
-            color: #0d5be8;
-            font-size: 30px;
-        }
-
-        .status-caption {
-            margin: 0;
-            color: #6b7f91;
-            text-align: center;
-            font-size: 15px;
-        }
-
-        .check-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 18px;
-            margin-bottom: 24px;
-        }
-
-        .check-card {
-            background: #ffffff;
-            border: 1px solid #d9e7f3;
-            border-radius: 10px;
-            padding: 22px;
-            box-shadow: 0 8px 22px rgba(11, 79, 138, .08);
-        }
-
-        .check-card h3 {
-            margin: 0 0 10px;
-            color: #0b3760;
-            font-size: 18px;
-        }
-
-        .check-card p {
-            margin: 0;
-            color: #526a7f;
-            line-height: 1.5;
-            font-size: 14px;
-        }
-
-        .terminal {
-            background: #101a2e;
-            color: #d7e6ff;
-            border-radius: 10px;
-            padding: 18px;
-            font-family: Consolas, monospace;
-            font-size: 15px;
-            line-height: 1.8;
-            box-shadow: 0 12px 24px rgba(16, 26, 46, .2);
-        }
-
-        .terminal strong {
-            color: #66d9ef;
-        }
-
-        .terminal .ok {
-            color: #7ee787;
-        }
-
-        .terminal .warn {
-            color: #ffd866;
-        }
-
-        .table-card {
-            margin-bottom: 24px;
-            overflow: hidden;
-        }
-
-        .table-head {
-            display: flex;
-            align-items: start;
-            justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-
-        .table-head h2 {
-            margin: 0 0 6px;
-        }
-
-        .table-scroll {
-            overflow-x: auto;
-        }
-
-        .student-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 720px;
-        }
-
-        .log-table {
-            min-width: 980px;
-        }
-
-        .student-table th,
-        .student-table td {
-            padding: 13px 14px;
-            border-top: 1px solid #eef3f8;
-            text-align: left;
-            font-size: 14px;
-        }
-
-        .student-table th {
-            color: #7c8da0;
-            font-size: 12px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: .8px;
-            background: #fbfdff;
-        }
-
-        .status-pill {
-            display: inline-flex;
-            width: max-content;
-            align-items: center;
-            min-height: 24px;
-            border-radius: 999px;
-            padding: 0 10px;
-            background: #eaf3ff;
-            color: #0d5be8;
-            font-size: 12px;
-            font-weight: 900;
-            text-transform: uppercase;
-        }
-
-        .empty-state {
-            border: 1px dashed #aac7df;
-            border-radius: 8px;
-            padding: 18px;
-            color: #526a7f;
-            background: #f8fbff;
-        }
-
-        @media (max-width: 1050px) {
-            .hero-grid,
-            .check-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 820px) {
-            .topbar {
-                height: auto;
-                align-items: flex-start;
-                gap: 12px;
-                padding: 18px;
-            }
-
-            .content-shell {
-                display: block;
-            }
-
-            .sidebar {
-                width: 100%;
-                border-right: 0;
-                border-bottom: 1px solid #dde8f2;
-            }
-
-            .main {
-                padding: 22px;
-            }
-
-            .timer-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-Allocation Engine | SSAS</title>
+    <link rel="stylesheet" href="../assets/css/shared.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <script src="../assets/js/admin.js" defer></script>
 </head>
-
 <body>
-
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
 
     <div class="content-shell">
-
         <aside class="sidebar">
             <div class="role-card">
                 <div class="role-icon">A</div>
@@ -648,18 +161,9 @@ function engineReadinessLabel($allocationWindow) {
                 <a class="report-child" href="adminCohortOverview.php">Cohort Overview</a>
                 <a class="report-child" href="adminAllocationSummary.php">Allocation Summary</a>
             </div>
-            <script>
-                function toggleAdminReports(button) {
-                    const reportTree = document.getElementById("admin-report-tree");
-                    const isOpen = button.getAttribute("aria-expanded") === "true";
-                    button.setAttribute("aria-expanded", isOpen ? "false" : "true");
-                    reportTree.classList.toggle("open", !isOpen);
-                }
-            </script>
         </aside>
 
         <main class="main">
-
             <?php echo statusMessage(); ?>
 
             <section class="hero-grid">
@@ -727,23 +231,17 @@ function engineReadinessLabel($allocationWindow) {
             <section class="check-grid">
                 <article class="check-card">
                     <h3>System Conflicts</h3>
-                    <p>
-                        Pending request and allocation constraints are checked before commit.
-                    </p>
+                    <p>Pending request and allocation constraints are checked before commit.</p>
                 </article>
 
                 <article class="check-card">
                     <h3>Algorithm Load</h3>
-                    <p>
-                        Strategy engine prioritizes programme compatibility and available capacity.
-                    </p>
+                    <p>Strategy engine prioritizes programme compatibility and available capacity.</p>
                 </article>
 
                 <article class="check-card">
                     <h3>Ruleset</h3>
-                    <p>
-                        Eligible students only, one allocation per student, no supervisor over-quota.
-                    </p>
+                    <p>Eligible students only, one allocation per student, no supervisor over-quota.</p>
                 </article>
             </section>
 
@@ -755,9 +253,7 @@ function engineReadinessLabel($allocationWindow) {
                             <?php echo e($unassignedDescription); ?>
                         </p>
                     </div>
-                    <a class="button" href="adminCohortOverview.php?status=unassigned">
-                        View All
-                    </a>
+                    <a class="button secondary" href="adminCohortOverview.php?status=unassigned">View All</a>
                 </div>
 
                 <?php if (empty($unassignedStudents)): ?>
@@ -854,9 +350,7 @@ function engineReadinessLabel($allocationWindow) {
                     </div>
                 <?php endif; ?>
             </section>
-
         </main>
     </div>
-
 </body>
 </html>
