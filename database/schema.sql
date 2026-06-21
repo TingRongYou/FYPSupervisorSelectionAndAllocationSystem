@@ -436,11 +436,11 @@ CREATE TABLE `user` (
 
 INSERT INTO `user` (`userID`, `fullName`, `universityEmail`, `systemRole`, `activeStatus`, `profilePhotoPath`, `resetToken`, `resetExpires`, `password`) VALUES
 ('1129', 'Lee Zi Qing', 'leezq1129@tarc.edu.my', 'Supervisor', 1, '../../storage/profile_photos/1129_20260525163616.jpg', NULL, NULL, '$2y$10$gr/a/8N2eIuQ33eZ1N4zZOjRaqJgcMkl9ztIqcr4BmJ/vTJfUSMVi'),
-('24WMR08049', 'YONG CHONG XIN', 'yongcx-wp23@student.tarc.edu.my', 'Student', 1, '../../storage/profile_photos/24WMR08049_20260603163803.jpg', NULL, NULL, '$2y$10$C0azaY6F0.ThQejlu226n.wQyeV2q3DfvnIyO1ziOwm4SUmO3/lJm'),
+('24WMR08049', 'YONG CHONG XIN', 'yongcx-wp23@student.tarc.edu.my', 'Student', 1, '../../storage/profile_photos/24WMR08049_20260603163803.jpg', NULL, NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
 ('24WMR08053', 'NUR AINA BINTI AZMAN', 'nuraina-wp23@student.tarc.edu.my', 'Student', 1, NULL, NULL, NULL, '$2y$10$ScH.VgbNZfispW6.hEAJZenE9NWfYtYISk9ERQiN.PmwmdPYQ0eIG'),
 ('24WMR08054', 'KUMAR VELAN', 'kumarv-wp23@student.tarc.edu.my', 'Student', 1, NULL, NULL, NULL, '$2y$10$yf81W5Fl5EfwULOUGkEqVuoTSLbdkJlvZ2AQf1d.aNXYUv8FZT7Ya'),
 ('5836', 'Barcola', 'barcola@tarc.edu.my', 'Supervisor', 1, NULL, NULL, NULL, '$2y$10$zYvQ/ki4ZDx.WfbyLbavlOm5HVREj3gOrRIkvQ28cApdq9MSWu9vu'),
-('A001', 'Yong Chong Xin', 'admin@tarc.edu.my', 'Administrator', 1, NULL, NULL, NULL, '123456'),
+('A001', 'Yong Chong Xin', 'admin@tarc.edu.my', 'Administrator', 1, NULL, NULL, NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
 ('S001', 'Dr Supervisor', 'supervisor@tarc.edu.my', 'Supervisor', 1, NULL, NULL, NULL, '123456'),
 ('ST001', 'Student User', 'student@tarc.edu.my', 'Student', 1, NULL, NULL, NULL, '123456');
 
