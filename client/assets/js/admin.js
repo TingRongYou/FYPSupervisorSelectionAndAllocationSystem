@@ -1,20 +1,35 @@
-/* |--------------------------------------------------------------------------
-| Admin UI Scripts
+/*
 |--------------------------------------------------------------------------
+| SSAS ADMIN MODULE SCRIPTS
+|--------------------------------------------------------------------------
+| This file contains all client-side JavaScript for the Admin portal.
+| It is organized by page/feature to maintain separation of concerns.
 */
 
+
+/* ==========================================================================
+   1. SHARED ADMIN COMPONENTS
+   ========================================================================== */
+
+/**
+ * Toggles the visibility of the reports sub-menu in the sidebar.
+ */
 function toggleAdminReports(button) {
     const reportTree = document.getElementById("admin-report-tree");
     const isOpen = button.getAttribute("aria-expanded") === "true";
+    
     button.setAttribute("aria-expanded", isOpen ? "false" : "true");
     reportTree.classList.toggle("open", !isOpen);
 }
 
+/**
+ * Intercepts report export forms. If PDF is selected, it downloads
+ * seamlessly via a hidden iframe to prevent page reloads.
+ */
 function prepareAdminReportExport(form) {
     const formatSelect = form.querySelector('select[name="format"]');
     const format = formatSelect ? formatSelect.value : '';
 
-    // If PDF, load it quietly in a hidden iframe so the page doesn't refresh
     if (format === 'pdf') {
         const params = new URLSearchParams(new FormData(form));
         let printFrame = document.getElementById('adminReportPrintFrame');
@@ -40,13 +55,15 @@ function prepareAdminReportExport(form) {
     return true;
 }
 
-/* |--------------------------------------------------------------------------
-| Admin Dashboard Timeline Validation
-|--------------------------------------------------------------------------
-*/
+
+/* ==========================================================================
+   2. ADMIN DASHBOARD TIMELINE VALIDATION
+   ========================================================================== */
+
 document.addEventListener("DOMContentLoaded", function() {
     const timelineForm = document.getElementById("timelineForm");
-    if (!timelineForm) return; // Exit if not on the dashboard
+    
+    if (!timelineForm) return;
 
     const initialAllocationDate = document.getElementById("initialAllocationDate");
     const finalAllocationDate = document.getElementById("finalAllocationDate");
@@ -86,13 +103,15 @@ document.addEventListener("DOMContentLoaded", function() {
     syncTimelineMinimums();
 });
 
-/* |--------------------------------------------------------------------------
-| Quota Management Scripts
-|--------------------------------------------------------------------------
-*/
+
+/* ==========================================================================
+   3. QUOTA MANAGEMENT
+   ========================================================================== */
+
 document.addEventListener("DOMContentLoaded", function() {
     const quotaForm = document.getElementById("quotaForm");
-    if (!quotaForm) return; // Exit if not on the Quota Management page
+    
+    if (!quotaForm) return;
 
     const quotaInputs = Array.from(document.querySelectorAll(".quota-input"));
     const saveBar = document.getElementById("saveBar");
@@ -106,9 +125,11 @@ document.addEventListener("DOMContentLoaded", function() {
         const original = Number(input.dataset.original);
         const tierMax = Number(input.dataset.tierMax);
         const currentLoad = Number(input.dataset.currentLoad);
+        
         const row = input.closest(".quota-row");
         const badge = row.querySelector("[data-status-badge]");
         const changedFlag = row.querySelector(".changed-flag");
+        
         const changed = value !== original;
         const invalid = rawValue === "" || !Number.isInteger(value) || value < currentLoad || value > tierMax;
 
@@ -139,6 +160,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         modifiedCount.textContent = changedTotal;
         saveBar.classList.toggle("show", changedTotal > 0);
+        
         saveButton.disabled = invalidTotal > 0;
         saveButton.style.opacity = invalidTotal > 0 ? ".55" : "1";
         saveButton.style.cursor = invalidTotal > 0 ? "not-allowed" : "pointer";
@@ -172,13 +194,15 @@ document.addEventListener("DOMContentLoaded", function() {
     refreshSaveBar();
 });
 
-/* |--------------------------------------------------------------------------
-| Student Eligibility Scripts
-|--------------------------------------------------------------------------
-*/
+
+/* ==========================================================================
+   4. STUDENT ELIGIBILITY
+   ========================================================================== */
+
 document.addEventListener("DOMContentLoaded", function() {
     const studentCSV = document.getElementById("studentCSV");
-    if (!studentCSV) return; // Exit if not on Eligibility page
+    
+    if (!studentCSV) return;
 
     const uploadButton = document.getElementById("uploadButton");
     const editRulesButton = document.getElementById("editRulesButton");
@@ -215,13 +239,15 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-/* |--------------------------------------------------------------------------
-| Supervisor Management Scripts
-|--------------------------------------------------------------------------
-*/
+
+/* ==========================================================================
+   5. SUPERVISOR MANAGEMENT
+   ========================================================================== */
+
 document.addEventListener("DOMContentLoaded", function() {
     const createPanel = document.getElementById("createSupervisorPanel");
-    if (!createPanel) return; // Exit if not on the Supervisor Management page
+    
+    if (!createPanel) return;
 
     const createClassSelect = document.getElementById("createEmploymentCategory");
     const createQuotaID = document.getElementById("createQuotaID");
@@ -231,10 +257,10 @@ document.addEventListener("DOMContentLoaded", function() {
     const editUniversityEmail = document.getElementById("editUniversityEmail");
     const editActiveStatus = document.getElementById("editActiveStatus");
 
-    // Must be injected by the page since it requires PHP database data
+    // Dynamic Database Rules Injected via PHP
     const quotaRules = window.ssasQuotaRules || {};
 
-    // ── Open / close create panel ──
+    // Form Toggles
     document.querySelectorAll("[data-open-create]").forEach((btn) => {
         btn.addEventListener("click", () => {
             createPanel.classList.add("show");
@@ -248,24 +274,24 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // ── Populate hidden quotaID when classification changes ──
+    // Classification Quota Sync
     createClassSelect.addEventListener("change", () => {
         const rule = quotaRules[createClassSelect.value];
         createQuotaID.value = rule ? rule.quotaID : "";
     });
 
-    // Seed value on page load
     (function seedQuotaID() {
         const rule = quotaRules[createClassSelect.value];
         createQuotaID.value = rule ? rule.quotaID : "";
     })();
 
-    // ── Account modal ──
+    // Account Editing Modal
     function openAccountModal(button) {
         editSupervisorID.value = button.dataset.supervisorId || "";
         editFullName.value = button.dataset.fullName || "";
         editUniversityEmail.value = button.dataset.email || "";
         editActiveStatus.value = button.dataset.activeStatus || "1";
+        
         accountModal.classList.add("show");
         accountModal.setAttribute("aria-hidden", "false");
         editFullName.focus();
@@ -284,14 +310,12 @@ document.addEventListener("DOMContentLoaded", function() {
         button.addEventListener("click", closeAccountModal);
     });
 
-    // Close modal on backdrop click
     accountModal.addEventListener("click", (event) => {
         if (event.target === accountModal) {
             closeAccountModal();
         }
     });
 
-    // Close modal on Escape key
     document.addEventListener("keydown", (event) => {
         if (event.key === "Escape" && accountModal.classList.contains("show")) {
             closeAccountModal();
