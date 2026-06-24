@@ -66,287 +66,16 @@ function requestClass($status) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard | SSAS</title>
-    <style>
-        <?php echo ssasAccountStyles(); ?>
-        <?php echo studentSidebarStyles(); ?>
-
-        *, *::before, *::after { box-sizing: border-box; }
-        body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f4f8fc; color: #172033; }
-
-        .main { flex: 1; padding: 28px 32px 50px; min-width: 0; overflow-x: hidden; }
-        .dashboard-shell { max-width: 100%; }
-
-        /* Page header */
-        .page-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; }
-        h1 { margin: 0; color: #172033; font-size: 28px; font-weight: 700; }
-        .search-button {
-            height: 38px; padding: 0 16px;
-            border: 1px solid #dbe6f0; border-radius: 7px;
-            background: #fff; color: #0b3760;
-            text-decoration: none; font-size: 15px; font-weight: 800;
-            display: inline-flex; align-items: center; gap: 7px;
-        }
-        .search-button svg { width: 14px; height: 14px; }
-        .proposal-notice { background: #fff7ed; border: 1px solid #fed7aa; border-left: 4px solid #f97316; border-radius: 10px; padding: 14px 16px; margin-bottom: 18px; color: #7c2d12; display: flex; justify-content: space-between; align-items: center; gap: 14px; }
-        .proposal-notice strong { display: block; color: #7c2d12; margin-bottom: 3px; }
-        .proposal-notice a { min-height: 34px; border-radius: 7px; background: #003f8f; color: #fff; display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; text-decoration: none; font-size: 13px; font-weight: 900; white-space: nowrap; }
-
-        .dashboard-top {
-            display: grid;
-            grid-template-columns: minmax(360px, 540px) minmax(0, 1fr);
-            gap: 20px;
-            align-items: stretch;
-            margin-bottom: 22px;
-        }
-        .recommendation-column, .status-column { min-width: 0; }
-
-        /* Recommended toolbar */
-        .section-toolbar { margin-bottom: 16px; }
-        .selector {
-            display: inline-flex; align-items: center; gap: 12px;
-            height: 40px; padding: 0 18px; border-radius: 7px;
-            background: #003f8f; color: #fff;
-            font-size: 15px; font-weight: 800; text-decoration: none;
-        }
-        .muted-title { color: #5d7085; font-size: 14px; margin: 0 0 18px; font-weight: 600; }
-
-        /* Supervisor cards */
-        .supervisor-grid { display: grid; grid-template-columns: 1fr; gap: 18px; margin-bottom: 0; }
-
-        .supervisor-card {
-            background: #fff; border: 1px solid #d9e7f3;
-            border-radius: 12px; padding: 20px;
-            min-height: 226px;
-            display: flex; flex-direction: column;
-            box-shadow: 0 4px 14px rgba(11,79,138,.06);
-        }
-        .supervisor-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
-
-        /* Avatar */
-        .avatar {
-            width: 56px; height: 56px; border-radius: 10px;
-            background: #e9f1fa; color: #0b3760;
-            display: grid; place-items: center;
-            font-size: 16px; font-weight: 900;
-            position: relative; overflow: hidden; flex-shrink: 0;
-        }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .avatar::after {
-            content: ""; position: absolute;
-            right: 3px; bottom: 3px;
-            width: 10px; height: 10px;
-            border-radius: 50%; border: 2px solid #fff;
-            background: #22c55e;
-        }
-        .avatar.offline::after { background: #94a3b8; }
-
-        /* Status + quota */
-        .top-right { text-align: right; }
-        .status-pill {
-            display: inline-block; padding: 4px 9px;
-            border-radius: 999px; font-size: 12px; font-weight: 900;
-            text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;
-        }
-        .status-pill.online    { background: #dcfce7; color: #118549; }
-        .status-pill.offline   { background: #e2e8f0; color: #64748b; }
-        .status-pill.available { background: #dcfce7; color: #118549; }
-        .status-pill.full      { background: #fee2e2; color: #c02d2d; }
-        .quota { color: #9aacc0; font-size: 14px; text-transform: uppercase; letter-spacing: .7px; }
-        .quota strong { display: block; color: #172033; font-size: 20px; font-weight: 900; letter-spacing: 0; line-height: 1.1; }
-
-        .supervisor-name { margin: 0 0 5px; color: #172033; font-size: 16px; font-weight: 700; }
-        .specialty { color: #5d7085; font-size: 14px; line-height: 1.45; min-height: 32px; }
-
-        .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 16px; }
-        .tag { padding: 5px 9px; border-radius: 4px; background: #eef3f8; color: #526a7f; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
-
-        .btn-apply {
-            width: 100%; height: 38px; border-radius: 7px;
-            background: #003f8f; color: #fff;
-            border: none; font-size: 14px; font-weight: 800;
-            text-decoration: none; display: flex;
-            align-items: center; justify-content: center;
-            margin-top: auto; cursor: pointer;
-        }
-        .btn-apply:hover { background: #002d6b; }
-        .btn-apply.disabled {
-            background: #eef3f8; color: #a4b3c4;
-            pointer-events: none; border: 1px solid #dce8f3;
-        }
-
-        /* Stats row */
-        .stats-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; height: 100%; margin-bottom: 0; }
-
-        .stat-card {
-            background: #fff; border: 1px solid #d9e7f3;
-            border-radius: 12px; padding: 20px;
-            min-height: 104px;
-            box-shadow: 0 4px 14px rgba(11,79,138,.06);
-        }
-        .stat-top { display: flex; justify-content: space-between; align-items: flex-start; }
-        .stat-icon {
-            width: 36px; height: 36px; border-radius: 8px;
-            background: #eef3f8; display: grid; place-items: center;
-        }
-        .stat-icon svg { width: 18px; height: 18px; }
-        .stat-label { color: #9aacc0; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-align: right; }
-        .stat-value { margin-top: 14px; color: #172033; font-size: 32px; font-weight: 900; line-height: 1; }
-        .stat-caption { color: #5d7085; font-size: 14px; margin-top: 5px; }
-
-        /* Timer card */
-        .timer-card {
-            background: #111a2b; color: #fff;
-            border-radius: 12px; padding: 20px;
-            grid-column: 1 / -1;
-            min-height: 104px;
-            position: relative; overflow: hidden;
-        }
-        .timer-card::before {
-            content: ""; position: absolute;
-            right: -20px; top: -20px;
-            width: 120px; height: 120px;
-            border-radius: 50%;
-            background: rgba(255,255,255,.04);
-        }
-        .timer-phase { font-size: 14px; font-weight: 800; color: #b8c6dc; margin: 0 0 8px; text-transform: uppercase; letter-spacing: .6px; }
-        .timer-value { font-size: 36px; font-weight: 900; letter-spacing: 2px; line-height: 1; margin-bottom: 10px; }
-        .timer-date { color: #4a9be8; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: .8px; }
-
-        /* Dashboard lower */
-        .dashboard-lower { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(240px, .6fr); gap: 22px; }
-
-        .panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
-        .panel-heading h2 { margin: 0; color: #172033; font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .panel-heading h2 svg { width: 18px; height: 18px; color: #0b3760; }
-        .panel-heading a { color: #003f8f; font-size: 14px; font-weight: 800; text-decoration: none; }
-
-        /* Request panel */
-        .request-panel {
-            background: #fff; border: 1px solid #d9e7f3;
-            border-radius: 12px; overflow: hidden;
-            box-shadow: 0 4px 14px rgba(11,79,138,.06);
-        }
-        .request-item {
-            padding: 16px 18px;
-            border-bottom: 1px solid #edf2f7;
-            display: grid;
-            grid-template-columns: 58px 1fr auto;
-            gap: 14px; align-items: start;
-        }
-        .request-item:last-child { border-bottom: none; }
-
-        .request-avatar {
-            width: 54px; height: 54px; border-radius: 50%;
-            background: #e9f1fa; display: grid;
-            place-items: center; color: #0b3760;
-            font-weight: 900; font-size: 15px; overflow: hidden;
-            border: 2px solid #fff;
-            box-shadow: 0 0 0 2px #cfe0f1, 0 4px 10px rgba(11,79,138,.12);
-        }
-        .request-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-        .request-name { margin: 0 0 3px; color: #172033; font-weight: 800; font-size: 15px; }
-        .request-expertise { color: #6b7f91; font-size: 14px; margin-bottom: 8px; }
-
-        .request-meta-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
-        .request-meta-item { display: flex; align-items: center; gap: 4px; color: #8a9caf; font-size: 13px; font-weight: 700; }
-        .request-meta-item svg { width: 11px; height: 11px; }
-
-        .request-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-        .request-status {
-            padding: 4px 10px; border-radius: 999px;
-            font-size: 12px; font-weight: 900; text-transform: uppercase;
-            white-space: nowrap;
-        }
-        .request-status.pending  { background: #eaf3ff; color: #0d5be8; }
-        .request-status.rejected { background: #fee2e2; color: #c02d2d; }
-        .request-status.approved { background: #dcfce7; color: #118549; }
-        .request-status.withdrawn { background: #e2e8f0; color: #64748b; }
-        .details-link { color: #003f8f; font-size: 14px; font-weight: 800; text-decoration: none; }
-
-        .empty-state { padding: 28px 18px; color: #6b7f91; font-size: 14px; }
-
-        /* Discovery panel */
-        .discovery-panel {
-            background: #fff; border: 1px solid #d9e7f3;
-            border-radius: 12px; padding: 18px;
-            box-shadow: 0 4px 14px rgba(11,79,138,.06);
-        }
-        .disc-section-label {
-            color: #9aacc0; font-size: 14px; font-weight: 900;
-            text-transform: uppercase; letter-spacing: 1px;
-            margin-bottom: 12px; display: block;
-        }
-
-        .mini-item {
-            display: grid; grid-template-columns: 48px 1fr auto;
-            gap: 12px; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid #edf2f7;
-            text-decoration: none; color: inherit;
-        }
-        .mini-item:last-of-type { border-bottom: none; }
-        .mini-item:hover { background: #fafcff; margin: 0 -4px; padding: 10px 4px; border-radius: 6px; }
-
-        .mini-avatar {
-            width: 44px; height: 44px; border-radius: 50%;
-            background: #eef3f8; color: #0b3760;
-            display: grid; place-items: center;
-            font-size: 14px; font-weight: 900;
-            overflow: hidden;
-            border: 2px solid #fff;
-            box-shadow: 0 0 0 2px #cfe0f1, 0 3px 8px rgba(11,79,138,.12);
-        }
-        .mini-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .mini-name { color: #172033; font-size: 14px; font-weight: 800; display: block; margin-bottom: 2px; }
-        .mini-status { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 4px; }
-        .mini-status::before { content: "â—"; font-size: 8px; }
-        .mini-status.online    { color: #118549; }
-        .mini-status.offline   { color: #64748b; }
-        .mini-status.available { color: #118549; }
-        .mini-status.full      { color: #c02d2d; }
-        .mini-chevron { color: #c4d0dc; font-size: 16px; font-weight: 300; }
-        .mini-status { gap: 6px; }
-        .mini-status::before {
-            content: "";
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: currentColor;
-            flex: 0 0 6px;
-        }
-        .mini-chevron {
-            color: #8aa0b5;
-            font-size: 0;
-            font-weight: 900;
-            letter-spacing: .4px;
-        }
-        .mini-chevron::after {
-            content: "View";
-            font-size: 13px;
-        }
-
-        .explore-btn {
-            display: flex; align-items: center; justify-content: center;
-            width: 100%; height: 38px; margin-top: 14px;
-            border-radius: 7px; border: 1px solid #dce8f3;
-            background: #f6f8fb; color: #0b3760;
-            font-size: 14px; font-weight: 800; text-decoration: none;
-            text-transform: uppercase; letter-spacing: .5px;
-        }
-        .explore-btn:hover { background: #eef3f8; }
-
-        /* Responsive */
-        @media (max-width: 1100px) {
-            .dashboard-top { grid-template-columns: 1fr; }
-            .stats-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-            .timer-card { grid-column: auto; }
-        }
-        @media (max-width: 820px) {
-            .supervisor-grid, .stats-row, .dashboard-lower { grid-template-columns: 1fr; }
-            .timer-card { grid-column: auto; }
-            .main { padding: 16px 14px 50px; }
-        }
-    </style>
+    <link rel="stylesheet" href="../assets/css/shared.css">
+    <link rel="stylesheet" href="../assets/css/student.css">
+    
+    <script>
+        window.ssasDashboardConfig = {
+            phaseEnd: "<?php echo e($phaseEnd); ?>",
+            serverEpoch: "<?php echo e($serverEpoch); ?>"
+        };
+    </script>
+    <script src="../assets/js/student.js" defer></script>
 </head>
 <body>
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
@@ -355,7 +84,6 @@ function requestClass($status) {
         <main class="main">
             <div class="dashboard-shell">
 
-                <!-- Page header -->
                 <section class="page-header">
                     <h1>Student Dashboard</h1>
                     <a class="search-button" href="studentDiscovery.php">
@@ -443,8 +171,7 @@ function requestClass($status) {
                                         <?php if (!$canApply): ?>
                                             <span class="btn-apply disabled"><?php echo e($supervisor["buttonLabel"] ?? "Application Closed"); ?></span>
                                         <?php else: ?>
-                                            <a class="btn-apply"
-                                                href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($supervisor["userID"]); ?>">
+                                            <a class="btn-apply" href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($supervisor["userID"]); ?>">
                                                 Apply for Supervision
                                             </a>
                                         <?php endif; ?>
@@ -494,10 +221,8 @@ function requestClass($status) {
                     </div>
                 </section>
 
-                <!-- Lower section -->
                 <section class="dashboard-lower">
 
-                    <!-- Active requests -->
                     <div>
                         <div class="panel-heading">
                             <h2>
@@ -526,7 +251,7 @@ function requestClass($status) {
                                         <div>
                                             <p class="request-name"><?php echo e($request["supervisorName"]); ?></p>
                                             <p class="request-expertise">
-                                                Expertise: <?php echo e($request["projectTitle"] ?? "â€”"); ?>
+                                                Expertise: <?php echo e($request["projectTitle"] ?? "—"); ?>
                                             </p>
                                             <div class="request-meta-row">
                                                 <span class="request-meta-item">
@@ -563,7 +288,6 @@ function requestClass($status) {
                         </div>
                     </div>
 
-                    <!-- Discovery -->
                     <aside>
                         <div class="panel-heading">
                             <h2>
@@ -576,11 +300,9 @@ function requestClass($status) {
 
                         <div class="discovery-panel">
                             <span class="disc-section-label">All Supervisors</span>
-
                             <?php foreach ($discoveryList as $supervisor): ?>
                                 <?php $miniStatusClass = $supervisor["statusClass"] ?? "offline"; ?>
-                                <a class="mini-item"
-                                    href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($supervisor["userID"]); ?>">
+                                <a class="mini-item" href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($supervisor["userID"]); ?>">
                                     <span class="mini-avatar">
                                         <?php if (!empty($supervisor["profilePhotoPath"])): ?>
                                             <img src="<?php echo e($supervisor["profilePhotoPath"]); ?>" alt="<?php echo e($supervisor["fullName"]); ?>">
@@ -594,10 +316,9 @@ function requestClass($status) {
                                             <?php echo e($supervisor["status"]); ?>
                                         </span>
                                     </span>
-                                    <span class="mini-chevron">â€º</span>
+                                    <span class="mini-chevron">›</span>
                                 </a>
                             <?php endforeach; ?>
-
                             <a class="explore-btn" href="studentDiscovery.php">Explore All Faculty</a>
                         </div>
                     </aside>
@@ -606,27 +327,5 @@ function requestClass($status) {
             </div>
         </main>
     </div>
-
-    <script>
-        const phaseEnd = "<?php echo e($phaseEnd); ?>";
-        const serverOffset = (Number("<?php echo e($serverEpoch); ?>") * 1000) - Date.now();
-        const timer    = document.getElementById("phaseTimer");
-
-        function updateTimer() {
-            if (!phaseEnd) { timer.textContent = "--:--:--"; return; }
-            const remaining = new Date(phaseEnd.replace(" ", "T")).getTime() - (Date.now() + serverOffset);
-            if (remaining <= 0) { timer.textContent = "00:00:00"; return; }
-            const h = Math.floor(remaining / 3600000);
-            const m = Math.floor((remaining % 3600000) / 60000);
-            const s = Math.floor((remaining % 60000) / 1000);
-            timer.textContent =
-                String(h).padStart(2, "0") + ": " +
-                String(m).padStart(2, "0") + ": " +
-                String(s).padStart(2, "0");
-        }
-
-        updateTimer();
-        setInterval(updateTimer, 1000);
-    </script>
 </body>
 </html>

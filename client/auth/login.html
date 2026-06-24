@@ -4,238 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">  <!-- Additional headers to prevent caching in older browsers -->
-    <meta http-equiv="Expires" content="0"> <!-- Prevent caching of the login page -->
     <title>SSAS Student Intranet</title>
-    <style>
-        * { box-sizing: border-box; }
-
-        body {
-            /* Full viewport height with background image and gradient overlay */
-            min-height: 100vh;
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            color: #25364a;
-            background:
-                linear-gradient(rgba(207, 231, 246, .18), rgba(207, 231, 246, .05)),
-                url("../assets/background.jpg");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        .page {
-            /* Centered content with padding to prevent overlap with viewport edges */
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding-bottom: 20vh;
-            padding-top: 2vh;
-        }
-
-        .brand-image {
-            /* Logo with responsive sizing and margin */
-            width: 280px;
-            max-width: 72vw;
-            height: auto;
-            object-fit: contain;
-            margin-bottom: 20px;
-        }
-
-        .subtitle {
-            /* Subtitle with spacing, font styling, and subtle text shadow for better visibility on background */
-            margin: 0 0 20px;
-            font-size: 30px;
-            font-weight: 300;
-            color: #2b3745;
-            text-align: center;
-            text-shadow: 0 1px 5px rgba(255,255,255,.75);
-        }
-
-        /* Login card */
-        .login-card {
-            width: 380px;
-            max-width: 100%;
-            background: rgba(255, 255, 255, .94);
-            border: 1px solid rgba(64, 91, 114, .22);
-            border-radius: 4px;
-            box-shadow: 0 10px 36px rgba(29, 54, 74, .22);
-            overflow: hidden;
-        }
-
-        .card-body { padding: 32px 36px 24px; }
-
-        .form-title {
-            margin: 0 0 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #c8dbef;
-            color: #3c82d7;
-            font-size: 20px;
-            font-weight: 300;
-        }
-
-        /* Message box */
-        .message {
-            display: none;
-            margin-bottom: 14px;
-            padding: 9px 11px;
-            font-size: 13px;
-            border-radius: 3px;
-        }
-        .message.show    { display: block; }
-        .message.error   { background: #fdeaea; color: #9a2626; border: 1px solid #f5c6c6; }
-        .message.success { background: #e5f6ed; color: #177345; border: 1px solid #a9dfbf; }
-
-        /* Form fields */
-        .field {
-            position: relative;
-            margin-bottom: 13px;
-        }
-
-        .field-icon {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 16px; height: 16px;
-            color: #7a96b4;
-            pointer-events: none;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .field-icon svg { width: 15px; height: 15px; }
-
-        /* Toggle password visibility button */
-        .toggle-pw {
-            position: absolute;
-            right: 10px; top: 50%;
-            transform: translateY(-50%);
-            background: none; border: none;
-            padding: 0; cursor: pointer;
-            color: #7a96b4;
-            display: flex; align-items: center;
-            min-width: unset; height: unset;
-        }
-        .toggle-pw:hover { color: #448dca; background: none; }
-        .toggle-pw svg { width: 16px; height: 16px; }
-
-        input[type="email"],
-        input[type="password"],
-        input[type="text"] {
-            width: 100%;
-            height: 38px;
-            border: 1px solid #c6d2df;
-            background: #eaf1fb;
-            padding: 0 36px 0 34px;
-            font-size: 14px;
-            outline: none;
-            border-radius: 3px;
-            color: #25364a;
-        }
-        input[type="email"]:focus,
-        input[type="password"]:focus,
-        input[type="text"]:focus {
-            border-color: #448dca;
-            background: #f5f9ff;
-            box-shadow: 0 0 0 2px rgba(68,141,202,.15);
-        }
-
-        /* Login row */
-        .login-row {
-            display: flex;
-            justify-content: flex-end;
-            margin: 20px 0 6px;
-        }
-
-        .btn-login {
-            min-width: 110px;
-            height: 38px;
-            border: 0;
-            border-radius: 4px;
-            background: #448dca;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background .15s;
-        }
-        .btn-login:hover { background: #287abc; }
-
-        /* Forgot password footer */
-        .forgot {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 13px 16px;
-            background: #4a94cf;
-            color: #fff56d;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            transition: background .15s;
-        }
-        .forgot:hover { background: #3a7fb8; }
-        .forgot svg { width: 14px; height: 14px; flex-shrink: 0; }
-    </style>
+    <link rel="stylesheet" href="../assets/css/auth.css">
+    <script src="../assets/js/auth.js" defer></script>
 </head>
-
 <body>
     <main class="page">
-        <img class="brand-image" src="../assets/tarumt_logo.png" alt="TAR UMT Logo">
-
+        <img class="brand-image" src="../assets/img/tarumt_logo_with_name.png" alt="TAR UMT Logo">
         <h1 class="subtitle">SSAS Student Intranet</h1>
 
         <section class="login-card">
             <div class="card-body">
                 <h2 class="form-title">Please Enter Your Information</h2>
-
                 <p class="message" id="loginMessage"></p>
 
                 <form action="../../server/application/auth/loginProcess.php" method="POST">
-
-                    <!-- Email -->
                     <div class="field">
                         <span class="field-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                <circle cx="12" cy="7" r="4"/>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                             </svg>
                         </span>
-                        <input type="email" name="email"
-                            placeholder="University email"
-                            autocomplete="username" required>
+                        <input type="email" name="email" placeholder="University email" autocomplete="username" required>
                     </div>
 
-                    <!-- Password with show/hide toggle -->
                     <div class="field">
                         <span class="field-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                             </svg>
                         </span>
-                        <input type="password" name="password" id="passwordInput"
-                            placeholder="Password"
-                            autocomplete="current-password" required>
-                    <!-- Eye toggle button -->
-                        <button type="button" class="toggle-pw" id="togglePw"
-                                aria-label="Show password">
-                            <!-- Eye icon (password hidden) -->
-                            <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                <circle cx="12" cy="12" r="3"/>
+                        <input type="password" name="password" id="passwordInput" placeholder="Password" autocomplete="current-password" required>
+                        <button type="button" class="toggle-pw" id="togglePw" aria-label="Show password">
+                            <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                             </svg>
-                            <!-- Eye-off icon (password visible), hidden by default -->
-                            <svg id="eyeOffIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                style="display:none;">
-                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-                                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-                                <line x1="1" y1="1" x2="23" y2="23"/>
+                            <svg id="eyeOffIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
                             </svg>
                         </button>
                     </div>
@@ -247,45 +52,12 @@
             </div>
 
             <a class="forgot" href="forgotPassword.php">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12"/>
-                    <polyline points="12 19 5 12 12 5"/>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
                 </svg>
                 I forgot my password
             </a>
         </section>
     </main>
-
-    <script>
-        // Display message from URL parameters (e.g., after redirect from login failure or password reset)
-        const params  = new URLSearchParams(window.location.search);
-        const message = params.get("message");
-        const type    = params.get("type") || params.get("status") || "error";
-        const box     = document.getElementById("loginMessage");
-
-        if (message) {
-            box.textContent = decodeURIComponent(message);
-            box.classList.add("show", type);
-        }
-
-        if (window.history.replaceState && (params.has("message") || params.has("type") || params.has("status"))) {
-            window.history.replaceState({}, "", window.location.pathname);
-        }
-
-        const toggleBtn  = document.getElementById("togglePw");
-        const pwInput    = document.getElementById("passwordInput");
-        const eyeIcon    = document.getElementById("eyeIcon");
-        const eyeOffIcon = document.getElementById("eyeOffIcon");
-
-        toggleBtn.addEventListener("click", function () {
-            const isHidden = pwInput.type === "password";
-
-            pwInput.type       = isHidden ? "text" : "password";
-            eyeIcon.style.display    = isHidden ? "none"  : "block";
-            eyeOffIcon.style.display = isHidden ? "block" : "none";
-            toggleBtn.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
-        });
-    </script>
 </body>
 </html>

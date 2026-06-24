@@ -67,6 +67,92 @@ html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; b
 .portal-subnav a:hover, .portal-subnav a.active { background: #f1f7ff; color: #0d5be8; font-weight: 800; }
 .portal-main { flex: 1; padding: 26px 28px 42px; max-width: 100%; }
 
+/* ==========================================================================
+   GLOBAL PROFILE PAGE (client/shared/profile.php)
+   ========================================================================== */
+
+.page { padding: 0; }
+.breadcrumb { color: #6b7f91; font-size: 13px; margin-bottom: 24px; }
+.title { color: #2a74c9; font-size: 28px; font-weight: 300; margin: 0 0 18px; }
+
+/* Tabs */
+.tabs { display: flex; border-bottom: 1px solid #c8d8e6; margin-bottom: 0; }
+.tab { border: 1px solid #c8d8e6; border-bottom: 0; padding: 10px 14px; background: #fff; color: #6b7f91; text-decoration: none; font-size: 14px; }
+.tab.active { color: #2a74c9; box-shadow: inset 0 3px 0 #2a74c9; }
+
+/* Profile Panel */
+.panel { background: #fff; border: 1px solid #c8d8e6; border-top: 0; padding: 34px; min-height: 420px; }
+.profile-grid { display: grid; grid-template-columns: 320px 1fr; gap: 38px; align-items: start; }
+
+/* Identity */
+.identity { text-align: center; max-width: 280px; margin: 0 auto; }
+.photo { width: 178px; height: 178px; border: 4px solid #d9e7f3; border-radius: 18px; margin: 0 auto 14px; display: grid; place-items: center; background: #eaf3ff; color: #0d5be8; font-size: 42px; font-weight: 900; overflow: hidden; box-shadow: 0 10px 24px rgba(11,79,138,.12); }
+.photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Photo Upload */
+.photo-form { margin-top: 18px; display: grid; gap: 10px; }
+.photo-form input[type="file"] { position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px; }
+.photo-picker { display: grid; gap: 8px; border: 1px dashed #b8cfe8; background: #f7fbff; padding: 13px; cursor: pointer; color: #315e8c; transition: border-color .2s, background .2s; }
+.photo-picker:hover { border-color: #0d5be8; background: #eef6ff; }
+.photo-picker strong { display: inline-flex; justify-content: center; align-items: center; min-height: 34px; border-radius: 6px; background: #0d5be8; color: #fff; font-size: 13px; }
+.photo-picker span { color: #526a7f; font-size: 12px; word-break: break-word; }
+.photo-actions { display: flex; gap: 8px; justify-content: center; }
+.save-photo { border: 0; border-radius: 7px; background: #0d5be8; color: #fff; padding: 10px 16px; cursor: pointer; font-weight: 800; box-shadow: 0 6px 14px rgba(13,91,232,.16); }
+.photo-note { color: #6b7f91; font-size: 12px; line-height: 1.4; }
+
+/* Details */
+.name { color: #3c82d7; font-size: 22px; font-weight: 800; margin-bottom: 14px; word-break: break-word; }
+.id-band { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; min-width: 170px; border-radius: 999px; background: #448dca; color: #fff; padding: 0 16px; font-weight: 800; line-height: 1; }
+.info-section h2 { color: #3c82d7; font-weight: 300; border-bottom: 1px solid #d8e4ef; padding-bottom: 9px; margin: 0 0 8px; }
+.info-row { display: grid; grid-template-columns: 190px 1fr; gap: 16px; border-bottom: 1px dotted #c8d8e6; padding: 11px 0; font-size: 14px; }
+.label { color: #54708b; text-align: right; }
+.value { color: #1d2b3a; }
+
+/* ==========================================================================
+   PASSWORD SETTINGS & TABS (setPassword.php)
+   ========================================================================== */
+
+/* Tabs */
+.tabs { display: flex; border-bottom: 1px solid #c8d8e6; margin-bottom: 0; }
+.tab { border: 1px solid #c8d8e6; border-bottom: 0; padding: 10px 14px; background: #fff; color: #6b7f91; text-decoration: none; font-size: 14px; }
+.tab.active { color: #2a74c9; box-shadow: inset 0 3px 0 #2a74c9; }
+
+/* Main Panel */
+.panel { background: #fff; border: 1px solid #c8d8e6; border-top: 0; padding: 24px 22px 34px; min-height: 520px; box-shadow: 0 8px 22px rgba(11,79,138,.06); }
+.form-area { max-width: 620px; margin: 0 auto; }
+
+/* Password Form */
+.field { display: grid; grid-template-columns: 170px 1fr; gap: 12px; align-items: center; margin-bottom: 16px; }
+.field label { text-align: right; color: #1d2b3a; font-size: 14px; }
+.pw-wrap { position: relative; display: flex; align-items: center; }
+.pw-wrap input { width: 100%; height: 40px; border: 1px solid #c7d2dd; border-radius: 7px; padding: 0 38px 0 12px; font-size: 14px; outline: none; }
+.pw-wrap input:focus { border-color: #2a74c9; box-shadow: 0 0 0 2px rgba(42,116,201,.12); }
+
+.eye-btn { position: absolute; right: 10px; background: none; border: none; padding: 0; cursor: pointer; color: #8a9caf; display: flex; align-items: center; }
+.eye-btn:hover { color: #2a74c9; }
+.eye-btn svg { width: 17px; height: 17px; }
+
+/* Strength Meter */
+.strength-wrap { margin-left: 182px; margin-bottom: 18px; }
+.strength-bar { height: 6px; border-radius: 999px; background: #e4eaf0; overflow: hidden; margin-bottom: 6px; width: 260px; }
+.strength-bar-fill { height: 100%; border-radius: inherit; width: 0%; transition: width .3s, background .3s; }
+.strength-label { font-size: 12px; font-weight: 800; color: #8a9caf; }
+
+/* Requirements Checklist */
+.req-list { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.req-list li { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #8a9caf; transition: color .2s; }
+.req-list li::before { content: ""; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #c7d2dd; flex-shrink: 0; transition: border-color .2s, background .2s; }
+.req-list li.met { color: #177345; }
+.req-list li.met::before { border-color: #22c55e; background: #22c55e; }
+
+/* Actions */
+.actions { margin-top: 22px; background: #f4f7fa; padding: 20px; text-align: center; border-radius: 8px; }
+.button { border: 0; border-radius: 7px; min-width: 88px; height: 42px; margin: 0 6px; color: #fff; cursor: pointer; font-weight: 800; font-size: 14px; }
+.save { background: #0d5be8; }
+.save:hover { background: #0947c2; }
+.reset { background: #a9b8c3; }
+.reset:hover { background: #8a9caf; }
+
 /* |--------------------------------------------------------------------------
 | Mobile Responsive Styles
 |--------------------------------------------------------------------------
@@ -84,4 +170,17 @@ html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; b
     .account-toggle { min-width: 0; padding: 8px 12px; }
     .account-copy strong { max-width: 92px; }
     .account-dropdown { top: 44px; }
+}
+
+@media (max-width: 850px) { 
+    .profile-grid { grid-template-columns: 1fr; } 
+    .label { text-align: left; } 
+    .info-row { grid-template-columns: 1fr; gap: 4px; } 
+}
+
+@media (max-width: 720px) {
+    .field { grid-template-columns: 1fr; }
+    .field label { text-align: left; }
+    .strength-wrap { margin-left: 0; }
+    .strength-bar { width: 100%; }
 }
