@@ -139,7 +139,7 @@ if (!function_exists("ssasTopbar")) {
             <header class=\"topbar\">
                 <div class=\"topbar-brand\">
                     <a href=\"" . $dashboardLink . "\" style=\"display: flex; align-items: center; text-decoration: none; color: inherit;\">
-                        <img class=\"brand-logo\" src=\"../../client/assets/logo.png\" alt=\"TAR UMT logo\">
+                        <img class=\"brand-logo\" src=\"../../client/assets/img/tarumt_logo_only.png\" alt=\"TAR UMT logo\">
                         <span>" . ssasEscape($title) . "</span>
                     </a>
                 </div>
