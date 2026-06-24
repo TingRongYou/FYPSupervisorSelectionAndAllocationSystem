@@ -43,44 +43,9 @@ function formatResearchTitle($title) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Supervisees | SSAS</title>
-    <style>
-        <?php echo supervisorBaseStyles(); ?>
-        .page-shell { max-width: 1320px; margin: 0 auto; }
-        .page-head { margin: 4px 0 22px; }
-        .page-head h1 { margin: 0 0 6px; color: #172033; font-size: 28px; }
-        .page-head p { margin: 0; color: #6b7f91; }
-        .summary-strip { display: grid; grid-template-columns: 1fr 1fr auto; align-items: center; gap: 22px; padding: 18px 24px; margin-bottom: 22px; }
-        .summary-item { display: flex; align-items: center; gap: 12px; min-height: 44px; border-right: 1px solid #edf2f7; }
-        .summary-item:last-child { border-right: 0; }
-        .dot { width: 7px; height: 7px; border-radius: 50%; background: #0d5be8; }
-        .dot.green { background: #22c55e; }
-        .summary-label { color: #7c8da0; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-        .summary-value { color: #172033; font-size: 18px; font-weight: 900; margin-left: 18px; }
-        .updated { color: #7c8da0; font-size: 14px; white-space: nowrap; }
-        .table-card { overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 18px 22px; text-align: left; border-bottom: 1px solid #edf2f7; vertical-align: middle; }
-        th { background: #f8fafc; color: #7c8da0; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-        .student-cell { display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 34px; height: 34px; border-radius: 50%; background: #eaf3ff; color: #0d5be8; display: grid; place-items: center; font-size: 14px; font-weight: 900; flex: 0 0 auto; }
-        .avatar { overflow: hidden; }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .student-name { color: #172033; font-weight: 900; }
-        .muted { color: #7c8da0; font-size: 14px; margin-top: 3px; }
-        .programme { color: #526a7f; line-height: 1.35; max-width: 230px; }
-        .status { display: inline-flex; justify-content: center; min-width: 68px; padding: 6px 10px; border-radius: 6px; background: #dcfce7; color: #166534; font-size: 13px; font-weight: 900; text-transform: uppercase; }
-        .detail-link { color: #0d5be8; font-size: 14px; font-weight: 900; text-decoration: none; line-height: 1.2; display: inline-block; }
-        .detail-link.disabled { color: #9aacc0; pointer-events: none; }
-        .inline-form { margin: 0; }
-        .link-button { border: 0; background: transparent; padding: 0; color: #0d5be8; font: inherit; font-size: 14px; font-weight: 900; text-align: left; line-height: 1.2; cursor: pointer; }
-        .link-button.requested { color: #64748b; cursor: default; }
-        .footer-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; color: #6b7f91; font-size: 14px; }
-        .pager { display: flex; align-items: center; gap: 7px; }
-        .pager a, .pager span { min-width: 30px; height: 30px; border-radius: 7px; display: grid; place-items: center; text-decoration: none; color: #526a7f; border: 1px solid #dbe6f0; background: #fff; font-weight: 800; }
-        .pager .active { background: #003f8f; color: #fff; border-color: #003f8f; }
-        .empty-state { padding: 34px; color: #6b7f91; }
-        @media (max-width: 900px) { .summary-strip { grid-template-columns: 1fr; } .summary-item { border-right: 0; border-bottom: 1px solid #edf2f7; padding-bottom: 12px; } table { min-width: 820px; } .table-card { overflow-x: auto; } }
-    </style>
+    <link rel="stylesheet" href="../assets/css/shared.css">
+    <link rel="stylesheet" href="../assets/css/supervisor.css">
+    <script src="../assets/js/supervisor.js" defer></script>
 </head>
 <body>
     <?php echo supervisorTopbar(); ?>

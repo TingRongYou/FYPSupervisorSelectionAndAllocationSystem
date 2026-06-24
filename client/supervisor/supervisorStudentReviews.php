@@ -29,18 +29,10 @@ function stars($rating) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Reviews | SSAS</title>
-    <style>
-        <?php echo supervisorBaseStyles(); ?>
-        <?php echo reportStyles(); ?>
-        .review-grid { display: grid; gap: 16px; }
-        .review-card { padding: 20px; }
-        .review-top { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 12px; }
-        .review-author { margin: 0; color: #172033; font-size: 16px; font-weight: 900; }
-        .review-id { margin: 4px 0 0; color: #7c8da0; font-size: 13px; font-weight: 800; }
-        .stars { color: #0d5be8; font-size: 18px; font-weight: 900; letter-spacing: 2px; white-space: nowrap; }
-        .review-text { margin: 0; color: #526a7f; line-height: 1.6; }
-        .privacy-note { margin-top: 14px; color: #7c8da0; font-size: 13px; font-weight: 800; }
-    </style>
+    <!-- Standardized Asset Links -->
+    <link rel="stylesheet" href="../assets/css/shared.css">
+    <link rel="stylesheet" href="../assets/css/supervisor.css">
+    <script src="../assets/js/supervisor.js" defer></script>
 </head>
 <body>
     <?php echo supervisorTopbar(); ?>
