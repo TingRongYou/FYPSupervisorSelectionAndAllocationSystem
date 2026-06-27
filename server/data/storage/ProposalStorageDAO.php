@@ -17,7 +17,7 @@ class ProposalStorageDAO {
     */
     private const MAX_PROPOSAL_SIZE = 5242880; // 5MB in bytes
 
-    private const WEB_STORAGE_ROOT = "../../storage";
+    private const WEB_STORAGE_ROOT = "storage";
 
     private const INVALID_FILE_MESSAGE =
         "Upload failed. The document must be in PDF format and cannot exceed 5.0 MB in size.";

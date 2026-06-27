@@ -4,15 +4,15 @@ class PastProjectImageStorageDAO {
 
     private const IMAGE_DIRECTORY_NAME = "past_project_images";
 
-    private const MAX_IMAGE_SIZE = 2097152;
+    private const MAX_IMAGE_SIZE = 5242880;
 
-    private const ALLOWED_MIME_TYPES = [
-        "image/jpeg",
-        "image/png"
+    private const ALLOWED_IMAGE_TYPES = [
+        IMAGETYPE_JPEG,
+        IMAGETYPE_PNG
     ];
 
     private const INVALID_IMAGE_MESSAGE =
-        "Invalid Image Format - The cover image must be JPG or PNG and cannot exceed 2.0 MB.";
+        "Invalid Image Format - The cover image must be JPG or PNG and cannot exceed 5.0 MB.";
 
     public function storeProjectImage($uploadedFile, $supervisorID) {
 
@@ -46,13 +46,14 @@ class PastProjectImageStorageDAO {
             return $this->failure(self::INVALID_IMAGE_MESSAGE);
         }
 
-        $finfo =
-            new finfo(FILEINFO_MIME_TYPE);
+        $imageInfo =
+            getimagesize($uploadedFile["tmp_name"]);
 
-        $mimeType =
-            $finfo->file($uploadedFile["tmp_name"]);
-
-        if (!in_array($mimeType, self::ALLOWED_MIME_TYPES, true)) {
+        if (
+            $imageInfo === false ||
+            !isset($imageInfo[2]) ||
+            !in_array($imageInfo[2], self::ALLOWED_IMAGE_TYPES, true)
+        ) {
 
             return $this->failure(self::INVALID_IMAGE_MESSAGE);
         }
@@ -71,7 +72,7 @@ class PastProjectImageStorageDAO {
         }
 
         $extension =
-            $mimeType === "image/png" ? "png" : "jpg";
+            (int) $imageInfo[2] === IMAGETYPE_PNG ? "png" : "jpg";
 
         $safeSupervisorID =
             preg_replace("/[^A-Za-z0-9_-]/", "", $supervisorID);
@@ -89,7 +90,7 @@ class PastProjectImageStorageDAO {
 
         return [
             "success" => true,
-            "path" => "../storage/" . self::IMAGE_DIRECTORY_NAME . "/" . $fileName
+            "path" => "storage/" . self::IMAGE_DIRECTORY_NAME . "/" . $fileName
         ];
     }
 

@@ -410,13 +410,19 @@ class PastProjectService {
             trim($projectDescription);
 
         $projectPDFPath =
-            $project["projectPDFPath"] ?? null;
+            $this->normalizeStoredPath(
+                $project["projectPDFPath"] ?? null,
+                "past_projects"
+            );
 
         $oldProjectPDFPath =
             $projectPDFPath;
 
         $projectImagePath =
-            $project["projectImagePath"] ?? null;
+            $this->normalizeStoredPath(
+                $project["projectImagePath"] ?? null,
+                "past_project_images"
+            );
 
         $oldProjectImagePath =
             $projectImagePath;
@@ -864,6 +870,26 @@ class PastProjectService {
             )
             &&
             (int) $value > 0;
+    }
+
+    private function normalizeStoredPath(
+        $path,
+        $directoryName
+    ) {
+
+        $path =
+            trim((string) $path);
+
+        if ($path === "") {
+
+            return null;
+        }
+
+        return
+            "storage/" .
+            $directoryName .
+            "/" .
+            basename($path);
     }
 
     /*

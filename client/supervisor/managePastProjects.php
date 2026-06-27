@@ -64,20 +64,24 @@ function projectImageUrl($path) {
 
             <section class="card hero">
                 <div>
-                    <h1>Past Projects Showcase</h1>
-                    <p>A record of successfully completed student research projects.</p>
-                    <div style="display:flex; gap:44px; margin-top:26px;">
-                        <div>
-                            <div class="stat-label" style="color: #b9d2ff;">Total Projects</div>
-                            <div class="stat-value" style="font-size: 28px; font-weight: 800; color: #fff;"><?php echo e($projectCount); ?></div>
+                    <h1><?php echo $editingProject ? "Edit Past Project" : ($showProjectForm ? "Add Past Project" : "Past Projects Showcase"); ?></h1>
+                    <p><?php echo $editingProject ? "Update the project details, PDF document, and cover image shown in the showcase." : ($showProjectForm ? "Add a completed student research project to your showcase." : "A record of successfully completed student research projects."); ?></p>
+                    <?php if (!$showProjectForm): ?>
+                        <div style="display:flex; gap:44px; margin-top:26px;">
+                            <div>
+                                <div class="stat-label" style="color: #b9d2ff;">Total Projects</div>
+                                <div class="stat-value" style="font-size: 28px; font-weight: 800; color: #fff;"><?php echo e($projectCount); ?></div>
+                            </div>
+                            <div>
+                                <div class="stat-label" style="color: #b9d2ff;">Students Supervised</div>
+                                <div class="stat-value" style="font-size: 28px; font-weight: 800; color: #fff;"><?php echo e($studentsSupervised); ?></div>
+                            </div>
                         </div>
-                        <div>
-                            <div class="stat-label" style="color: #b9d2ff;">Students Supervised</div>
-                            <div class="stat-value" style="font-size: 28px; font-weight: 800; color: #fff;"><?php echo e($studentsSupervised); ?></div>
-                        </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
-                <a class="button" href="managePastProjects.php?addProject=1">+ Add New Project</a>
+                <?php if (!$showProjectForm): ?>
+                    <a class="button" href="managePastProjects.php?addProject=1">+ Add New Project</a>
+                <?php endif; ?>
             </section>
 
             <form class="card project-form" style="display: <?php echo $showProjectForm ? "block" : "none"; ?>;" action="../../server/application/supervisor/managePastProjectProcess.php" method="POST" enctype="multipart/form-data" id="projectForm">
@@ -111,11 +115,11 @@ function projectImageUrl($path) {
                         <div class="upload-grid">
                             <div>
                                 <label>Past Project PDF</label>
-                                <label class="upload-tile" for="projectPDF">
+                                <label class="upload-tile <?php echo !empty($editingProject["projectPDFPath"]) ? "has-current-file" : ""; ?>" for="projectPDF">
                                     <span class="upload-icon">PDF</span>
-                                    <span class="upload-title">Choose project document</span>
-                                    <span class="upload-meta">Optional PDF, maximum 5.0 MB. Students can open it from the public profile.</span>
-                                    <span class="selected-file" data-file-label="projectPDF">No PDF selected</span>
+                                    <span class="upload-title"><?php echo !empty($editingProject["projectPDFPath"]) ? "Current PDF uploaded" : "Choose project document"; ?></span>
+                                    <span class="upload-meta"><?php echo !empty($editingProject["projectPDFPath"]) ? "Students can already open this PDF. Choose a new file only if you want to replace it." : "Optional PDF, maximum 5.0 MB. Students can open it from the public profile."; ?></span>
+                                    <span class="selected-file" data-default-label="<?php echo !empty($editingProject["projectPDFPath"]) ? "No replacement selected" : "No PDF selected"; ?>" data-file-label="projectPDF"><?php echo !empty($editingProject["projectPDFPath"]) ? "No replacement selected" : "No PDF selected"; ?></span>
                                 </label>
                                 <input class="native-file" type="file" id="projectPDF" name="projectPDF" accept="application/pdf,.pdf">
                                 <?php if (!empty($editingProject["projectPDFPath"])): ?>
@@ -131,11 +135,11 @@ function projectImageUrl($path) {
                             
                             <div>
                                 <label>Project Cover Image</label>
-                                <label class="upload-tile" for="projectImage">
+                                <label class="upload-tile <?php echo !empty($editingProject["projectImagePath"]) ? "has-current-file" : ""; ?>" for="projectImage">
                                     <span class="upload-icon">IMG</span>
-                                    <span class="upload-title">Choose cover image</span>
-                                    <span class="upload-meta">Optional JPG or PNG, maximum 2.0 MB. This replaces the generated card banner.</span>
-                                    <span class="selected-file" data-file-label="projectImage">No image selected</span>
+                                    <span class="upload-title"><?php echo !empty($editingProject["projectImagePath"]) ? "Current cover image uploaded" : "Choose cover image"; ?></span>
+                                    <span class="upload-meta"><?php echo !empty($editingProject["projectImagePath"]) ? "The project card is already using this image. Choose a new file only if you want to replace it." : "Optional JPG or PNG, maximum 5.0 MB. This replaces the generated card banner."; ?></span>
+                                    <span class="selected-file" data-default-label="<?php echo !empty($editingProject["projectImagePath"]) ? "No replacement selected" : "No image selected"; ?>" data-file-label="projectImage"><?php echo !empty($editingProject["projectImagePath"]) ? "No replacement selected" : "No image selected"; ?></span>
                                 </label>
                                 <input class="native-file" type="file" id="projectImage" name="projectImage" accept="image/jpeg,image/png,.jpg,.jpeg,.png">
                                 <?php if (!empty($editingProject["projectImagePath"])): ?>
@@ -153,60 +157,60 @@ function projectImageUrl($path) {
                     
                     <div class="full" style="margin-top: 10px;">
                         <button class="button" type="submit"><?php echo $editingProject ? "Update Project" : "Add Project"; ?></button>
-                        <?php if ($editingProject): ?>
-                            <a class="button secondary" href="managePastProjects.php">Cancel</a>
-                        <?php endif; ?>
+                        <a class="button secondary" href="managePastProjects.php">Cancel</a>
                     </div>
                 </div>
             </form>
 
-            <?php if (empty($projects)): ?>
-                <section class="card empty">No past projects have been added yet.</section>
-            <?php else: ?>
-                <section class="project-grid">
-                    <?php foreach ($projects as $index => $project): ?>
-                        <article class="card project-card">
-                            <div class="project-visual alt<?php echo e($index % 3); ?> <?php echo !empty($project["projectImagePath"]) ? "has-image" : ""; ?>">
-                                <?php if (!empty($project["projectImagePath"])): ?>
-                                    <img src="<?php echo e(projectImageUrl($project["projectImagePath"])); ?>" alt="">
-                                <?php endif; ?>
-                                <span class="complete">Completed</span>
-                                <span class="project-visual-title"><?php echo e($project["projectTitle"]); ?></span>
-                            </div>
-                            
-                            <div class="project-body">
-                                <div class="year"><?php echo e($project["completionYear"]); ?> Academic Year</div>
-                                <h2 class="project-title"><?php echo e($project["projectTitle"]); ?></h2>
-                                <p class="project-desc"><?php echo e($project["projectDescription"] ?: "No project description has been added yet."); ?></p>
-                                
-                                <div class="pill-row">
-                                    <span class="pill">Research</span>
-                                    <span class="pill">FYP</span>
-                                    <span class="pill">Alumni: <?php echo e($project["alumniName"]); ?></span>
-                                </div>
-                                
-                                <div class="card-actions">
-                                    <?php if (!empty($project["projectPDFPath"])): ?>
-                                        <a class="pdf-link" href="<?php echo e(projectPdfUrl($project["projectPDFPath"])); ?>" target="_blank" rel="noopener">View PDF</a>
+            <?php if (!$showProjectForm): ?>
+                <?php if (empty($projects)): ?>
+                    <section class="card empty">No past projects have been added yet.</section>
+                <?php else: ?>
+                    <section class="project-grid">
+                        <?php foreach ($projects as $index => $project): ?>
+                            <article class="card project-card">
+                                <div class="project-visual alt<?php echo e($index % 3); ?> <?php echo !empty($project["projectImagePath"]) ? "has-image" : ""; ?>">
+                                    <?php if (!empty($project["projectImagePath"])): ?>
+                                        <img src="<?php echo e(projectImageUrl($project["projectImagePath"])); ?>" alt="">
                                     <?php endif; ?>
-                                    <a class="button secondary small-button" href="managePastProjects.php?editProjectID=<?php echo e($project["projectID"]); ?>">Edit</a>
-                                    <form action="../../server/application/supervisor/managePastProjectProcess.php" method="POST">
-                                        <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="projectID" value="<?php echo e($project["projectID"]); ?>">
-                                        <button class="button danger small-button" type="submit" onclick="return confirm('Delete this project?')">Delete</button>
-                                    </form>
+                                    <span class="complete">Completed</span>
+                                    <span class="project-visual-title"><?php echo e($project["projectTitle"]); ?></span>
                                 </div>
-                            </div>
-                        </article>
-                    <?php endforeach; ?>
-                </section>
-                
-                <div class="footer-page">
-                    <span>Showing <?php echo e($projectCount); ?> archived projects</span>
-                    <div class="pages"><span class="active">1</span><span>2</span><span>3</span></div>
-                    <span></span>
-                </div>
+                                
+                                <div class="project-body">
+                                    <div class="year"><?php echo e($project["completionYear"]); ?> Academic Year</div>
+                                    <h2 class="project-title"><?php echo e($project["projectTitle"]); ?></h2>
+                                    <p class="project-desc"><?php echo e($project["projectDescription"] ?: "No project description has been added yet."); ?></p>
+                                    
+                                    <div class="pill-row">
+                                        <span class="pill">Research</span>
+                                        <span class="pill">FYP</span>
+                                        <span class="pill">Alumni: <?php echo e($project["alumniName"]); ?></span>
+                                    </div>
+                                    
+                                    <div class="card-actions">
+                                        <?php if (!empty($project["projectPDFPath"])): ?>
+                                            <a class="pdf-link" href="<?php echo e(projectPdfUrl($project["projectPDFPath"])); ?>" target="_blank" rel="noopener">View PDF</a>
+                                        <?php endif; ?>
+                                        <a class="button secondary small-button" href="managePastProjects.php?editProjectID=<?php echo e($project["projectID"]); ?>">Edit</a>
+                                        <form action="../../server/application/supervisor/managePastProjectProcess.php" method="POST">
+                                            <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="projectID" value="<?php echo e($project["projectID"]); ?>">
+                                            <button class="button danger small-button" type="submit" onclick="return confirm('Delete this project?')">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </article>
+                        <?php endforeach; ?>
+                    </section>
+                    
+                    <div class="footer-page">
+                        <span>Showing <?php echo e($projectCount); ?> archived projects</span>
+                        <div class="pages"><span class="active">1</span><span>2</span><span>3</span></div>
+                        <span></span>
+                    </div>
+                <?php endif; ?>
             <?php endif; ?>
         </main>
     </div>

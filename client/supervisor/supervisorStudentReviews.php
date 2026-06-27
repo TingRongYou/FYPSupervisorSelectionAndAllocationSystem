@@ -40,7 +40,7 @@ function stars($rating) {
         <?php echo supervisorSidebar("student-reviews"); ?>
         <main class="main">
             <div class="report-shell">
-                <header class="report-head">
+                <header class="report-head report-hero">
                     <div>
                         <div class="eyebrow">Student Feedback</div>
                         <h1>Student Reviews</h1>
@@ -51,15 +51,28 @@ function stars($rating) {
                 <?php if (empty($reviews)): ?>
                     <section class="empty-message">No student reviews have been submitted for your supervision records yet.</section>
                 <?php else: ?>
+                    <section class="review-summary">
+                        <div>
+                            <span>Total Reviews</span>
+                            <strong><?php echo e(count($reviews)); ?></strong>
+                        </div>
+                        <div>
+                            <span>Privacy</span>
+                            <strong>Protected Feedback</strong>
+                        </div>
+                    </section>
                     <section class="review-grid">
                         <?php foreach ($reviews as $review): ?>
                             <article class="report-card review-card">
                                 <div class="review-top">
-                                    <div>
-                                        <p class="review-author"><?php echo e($review["authorName"]); ?></p>
-                                        <p class="review-id">
-                                            <?php echo $review["authorID"] !== "" ? "Student ID: " . e($review["authorID"]) : "Identity hidden by anonymous mode"; ?>
-                                        </p>
+                                    <div class="review-person">
+                                        <span class="student-chip"><?php echo e(reportInitials($review["authorName"])); ?></span>
+                                        <div>
+                                            <p class="review-author"><?php echo e($review["authorName"]); ?></p>
+                                            <p class="review-id">
+                                                <?php echo $review["authorID"] !== "" ? "Student ID: " . e($review["authorID"]) : "Identity hidden by anonymous mode"; ?>
+                                            </p>
+                                        </div>
                                     </div>
                                     <div class="stars" aria-label="<?php echo e((int) $review["starRating"]); ?> out of 5">
                                         <?php echo e(stars($review["starRating"])); ?>

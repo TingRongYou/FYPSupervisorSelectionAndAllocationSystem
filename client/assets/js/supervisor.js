@@ -55,6 +55,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Form confirmation and validation handling
     const cardForm = document.querySelector(".form-card");
     const discardLink = document.querySelector(".actions .button.secondary");
+    const shareProfileLink = document.querySelector(".share-profile-link");
 
     if (cardForm) {
         cardForm.addEventListener("submit", function(event) {
@@ -75,6 +76,35 @@ document.addEventListener("DOMContentLoaded", function() {
             if (!confirm("Cancel changes and return to the previously saved profile data?")) {
                 event.preventDefault();
             }
+        });
+    }
+
+    if (shareProfileLink) {
+        shareProfileLink.addEventListener("click", function(event) {
+            const shareUrl = shareProfileLink.dataset.shareUrl || shareProfileLink.href;
+
+            event.preventDefault();
+
+            function showCopiedState() {
+                const originalText = shareProfileLink.textContent;
+
+                shareProfileLink.textContent = "Profile Link Copied";
+                shareProfileLink.classList.add("copied");
+
+                window.setTimeout(function() {
+                    shareProfileLink.textContent = originalText;
+                    shareProfileLink.classList.remove("copied");
+                }, 1800);
+            }
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(shareUrl).then(showCopiedState).catch(function() {
+                    window.prompt("Copy this profile link:", shareUrl);
+                });
+                return;
+            }
+
+            window.prompt("Copy this profile link:", shareUrl);
         });
     }
 });
@@ -317,17 +347,64 @@ document.addEventListener("DOMContentLoaded", function() {
     // Safety check: Exit if we are not on the Past Projects page
     if (!projectForm) return;
 
-    // Handle displaying file names when files are selected
-    const nativeFiles = document.querySelectorAll(".native-file");
-    
-    nativeFiles.forEach(function(input) {
-        input.addEventListener("change", function() {
-            const label = document.querySelector('[data-file-label="' + input.id + '"]');
-            if (label) {
-                label.textContent = input.files.length ? input.files[0].name : "No file selected";
-            }
+    function updateFileLabel(input) {
+        const label = projectForm.querySelector('[data-file-label="' + input.id + '"]');
+        const uploadTile = projectForm.querySelector('label[for="' + input.id + '"]');
+        const hasFile = input.files && input.files.length > 0;
+
+        if (label) {
+            const defaultText = label.dataset.defaultLabel || "No file selected";
+            label.textContent = hasFile ? "Selected for replacement: " + input.files[0].name : defaultText;
+        }
+
+        if (uploadTile) {
+            uploadTile.classList.toggle("has-selected-file", hasFile);
+        }
+    }
+
+    function validateProjectFile(input) {
+        if (!input.files || input.files.length === 0) {
+            return true;
+        }
+
+        const file = input.files[0];
+        const isImageUpload = input.id === "projectImage";
+        const maxSize = 5 * 1024 * 1024;
+        const validTypes = isImageUpload
+            ? ["image/jpeg", "image/png"]
+            : ["application/pdf"];
+        const validExtensions = isImageUpload
+            ? [".jpg", ".jpeg", ".png"]
+            : [".pdf"];
+        const lowerName = file.name.toLowerCase();
+        const hasValidExtension = validExtensions.some(function(extension) {
+            return lowerName.endsWith(extension);
         });
+
+        if (file.size > maxSize || !validTypes.includes(file.type) || !hasValidExtension) {
+            input.value = "";
+            alert(
+                isImageUpload
+                    ? "Invalid Image Format - Please select a JPG or PNG image under 5MB."
+                    : "Invalid File - Please select a PDF document under 5MB."
+            );
+            updateFileLabel(input);
+            return false;
+        }
+
+        return true;
+    }
+
+    // Handle displaying file names when files are selected.
+    projectForm.addEventListener("change", function(event) {
+        if (event.target && event.target.classList.contains("native-file")) {
+            if (validateProjectFile(event.target)) {
+                updateFileLabel(event.target);
+            }
+        }
     });
+
+    projectForm.querySelectorAll(".native-file").forEach(updateFileLabel);
 
     // Validate completion year before submitting the form
     projectForm.addEventListener("submit", function(event) {

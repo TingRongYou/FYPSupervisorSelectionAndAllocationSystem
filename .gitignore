@@ -11,5 +11,7 @@ storage/*
 !storage/.gitkeep
 !storage/intro_videos/
 !storage/intro_videos/.gitkeep
+!storage/proposals/
+!storage/proposals/.gitkeep
 !storage/profile_photos/
 !storage/profile_photos/.gitkeep

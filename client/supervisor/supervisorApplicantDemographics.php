@@ -62,26 +62,28 @@ $donutBackground =
         <main class="main">
             <div class="report-shell">
 
-                <section class="report-head">
+                <section class="report-head report-hero">
                     <div>
                         <div class="eyebrow">Supervisor Intelligence</div>
                         <h1>Applicant Demographics</h1>
                         <p>Displays a pie chart breaking down the academic background of students currently under your supervision.</p>
                     </div>
-                    <?php echo reportExportMenu("demographics", ["year" => $year]); ?>
                 </section>
 
-                <form class="filter-row" method="GET" action="supervisorApplicantDemographics.php">
-                    <select name="year" aria-label="Filter by year">
-                        <option value="" <?php echo $year === "" ? "selected" : ""; ?>>All Years</option>
-                        <?php foreach ($report["years"] as $availableYear): ?>
-                            <option value="<?php echo e($availableYear); ?>" <?php echo (string) $year === (string) $availableYear ? "selected" : ""; ?>>
-                                <?php echo e($availableYear); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <button class="btn-apply" type="submit">Apply</button>
-                </form>
+                <div class="report-toolbar">
+                    <form class="filter-row report-filter" method="GET" action="supervisorApplicantDemographics.php">
+                        <select name="year" aria-label="Filter by year">
+                            <option value="" <?php echo $year === "" ? "selected" : ""; ?>>All Years</option>
+                            <?php foreach ($report["years"] as $availableYear): ?>
+                                <option value="<?php echo e($availableYear); ?>" <?php echo (string) $year === (string) $availableYear ? "selected" : ""; ?>>
+                                    <?php echo e($availableYear); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <button class="btn-apply" type="submit">Apply</button>
+                    </form>
+                    <?php echo reportExportMenu("demographics", ["year" => $year]); ?>
+                </div>
 
                 <section class="demographic-card">
                     <div class="card-top">

@@ -76,18 +76,21 @@ function historySemesterLabel(
         <?php echo supervisorSidebar("report-history"); ?>
         <main class="main">
             <div class="report-shell">
-                <section class="report-head">
+                <section class="report-head history-hero">
                     <div>
+                        <div class="eyebrow">Supervisor Records</div>
                         <h1>Supervision History</h1>
                         <p>Access supervision assignment records organized by allocation year and student semester.</p>
                     </div>
-                    <?php echo reportExportMenu("history", ["year" => $year, "semester" => $semester]); ?>
                 </section>
 
-                <section class="summary-grid">
-                    <div class="blue-stat">
-                        <div class="label">Total Career Supervisions</div>
-                        <div class="value"><?php echo e($history["careerTotal"]); ?></div>
+                <section class="summary-grid history-summary">
+                    <div class="history-stat-card">
+                        <div>
+                            <div class="label">Total Career Supervisions</div>
+                            <div class="value"><?php echo e($history["careerTotal"]); ?></div>
+                        </div>
+                        <span class="year-pill"><?php echo e(reportYearLabel($year)); ?></span>
                     </div>
                     <div class="report-card field-card">
                         <div class="label">Primary Field</div>
@@ -96,28 +99,34 @@ function historySemesterLabel(
                     </div>
                 </section>
 
-                <form class="filter-row" method="GET" action="supervisorHistoryLog.php">
-                    <select name="year" aria-label="Year">
-                        <option value="">All Years</option>
-                        <?php foreach ($history["years"] as $availableYear): ?>
-                            <option value="<?php echo e($availableYear); ?>" <?php echo (string) $year === (string) $availableYear ? "selected" : ""; ?>>
-                                <?php echo e($availableYear); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <select name="semester" aria-label="Semester">
-                        <option value="" <?php echo $semester === "" ? "selected" : ""; ?>>All Semesters</option>
-                        <option value="1" <?php echo $semester === "1" ? "selected" : ""; ?>>Semester 1</option>
-                        <option value="2" <?php echo $semester === "2" ? "selected" : ""; ?>>Semester 2</option>
-                        <option value="3" <?php echo $semester === "3" ? "selected" : ""; ?>>Semester 3</option>
-                    </select>
-                    <button class="button" type="submit">Apply</button>
-                </form>
+                <div class="history-toolbar">
+                    <form class="filter-row history-filter" method="GET" action="supervisorHistoryLog.php">
+                        <select name="year" aria-label="Year">
+                            <option value="">All Years</option>
+                            <?php foreach ($history["years"] as $availableYear): ?>
+                                <option value="<?php echo e($availableYear); ?>" <?php echo (string) $year === (string) $availableYear ? "selected" : ""; ?>>
+                                    <?php echo e($availableYear); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <select name="semester" aria-label="Semester">
+                            <option value="" <?php echo $semester === "" ? "selected" : ""; ?>>All Semesters</option>
+                            <option value="1" <?php echo $semester === "1" ? "selected" : ""; ?>>Semester 1</option>
+                            <option value="2" <?php echo $semester === "2" ? "selected" : ""; ?>>Semester 2</option>
+                            <option value="3" <?php echo $semester === "3" ? "selected" : ""; ?>>Semester 3</option>
+                        </select>
+                        <button class="btn-apply" type="submit">Apply</button>
+                    </form>
+                    <?php echo reportExportMenu("history", ["year" => $year, "semester" => $semester]); ?>
+                </div>
 
                 <section class="report-card log-card">
                     <div class="log-head">
-                        <h2 class="panel-title">Assignment Log</h2>
-                        <?php echo reportExportMenu("history", ["year" => $year, "semester" => $semester]); ?>
+                        <div>
+                            <h2 class="panel-title">Assignment Log</h2>
+                            <p class="panel-subtitle">Sorted by newest allocation first, then student name A-Z.</p>
+                        </div>
+                        <span class="year-pill"><?php echo e(reportSemesterLabel($semester)); ?></span>
                     </div>
                     <?php if ($history["message"] !== ""): ?>
                         <div style="padding: 0 24px 24px;">

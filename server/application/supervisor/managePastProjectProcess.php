@@ -308,8 +308,25 @@ $status =
 $message =
     urlencode($result["message"]);
 
+$returnQuery =
+    "";
+
+if (!$result["success"]) {
+
+    if ($action === "update" && !empty($projectID)) {
+
+        $returnQuery =
+            "&editProjectID=" . urlencode($projectID);
+
+    } elseif ($action === "add") {
+
+        $returnQuery =
+            "&addProject=1";
+    }
+}
+
 header(
-    "Location: ../../../client/supervisor/managePastProjects.php?status={$status}&message={$message}"
+    "Location: ../../../client/supervisor/managePastProjects.php?status={$status}&message={$message}{$returnQuery}"
 );
 
 exit();

@@ -4,14 +4,16 @@
 |--------------------------------------------------------------------------
 */
 
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+}
 
 body {
     min-height: 100vh;
     margin: 0;
     font-family: Arial, Helvetica, sans-serif;
     color: #25364a;
-    background: linear-gradient(rgba(207, 231, 246, .18), rgba(207, 231, 246, .05)), 
+    background: linear-gradient(rgba(207, 231, 246, .18), rgba(207, 231, 246, .05)),
                 url("../img/login_background.jpg");
     background-size: cover;
     background-position: center;
@@ -42,15 +44,24 @@ body {
     text-align: center;
 }
 
-.card {
-    width: 374px;
+.card,
+.login-card {
+    width: 380px;
     max-width: 100%;
-    background: rgba(255, 255, 255, .92);
-    border: 1px solid rgba(64, 91, 114, .28);
-    box-shadow: 0 8px 28px rgba(29, 54, 74, .26);
+    background: rgba(255, 255, 255, .94);
+    border: 1px solid rgba(64, 91, 114, .22);
+    border-radius: 4px;
+    box-shadow: 0 10px 36px rgba(29, 54, 74, .22);
+    overflow: hidden;
 }
 
-.card-body { padding: 34px 36px 26px; }
+.card {
+    width: 374px;
+}
+
+.card-body {
+    padding: 34px 36px 26px;
+}
 
 h2 {
     margin: 0 0 22px;
@@ -61,39 +72,126 @@ h2 {
     font-weight: 300;
 }
 
-input {
+/* ==========================================================================
+   FORM FIELDS
+   ========================================================================== */
+
+.field {
+    position: relative;
+    margin-bottom: 13px;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"] {
     width: 100%;
-    height: 34px;
+    height: 38px;
     border: 1px solid #c6d2df;
     background: #eaf1fb;
-    padding: 0 10px;
+    padding: 0 38px;
     font-size: 14px;
     outline: none;
+    border-radius: 3px;
+    color: #25364a;
     margin-bottom: 12px;
 }
 
-input:focus {
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus {
     border-color: #ff8a3d;
     box-shadow: 0 0 0 1px #ff8a3d inset;
 }
 
-.button-row {
+.field-icon {
+    position: absolute;
+    left: 12px;
+    top: 11px;
+    width: 16px;
+    height: 16px;
+    color: #7a96b4;
+    pointer-events: none;
+}
+
+.field-icon svg {
+    width: 15px;
+    height: 15px;
+}
+
+/* Password eye icon */
+.toggle-pw {
+    position: absolute;
+    right: 10px;
+    top: 19px;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    color: #7a96b4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.toggle-pw:hover {
+    color: #448dca;
+    background: transparent;
+}
+
+.toggle-pw svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+
+.button-row,
+.login-row {
     display: flex;
     justify-content: flex-end;
+}
+
+.button-row {
     margin-top: 12px;
+}
+
+.login-row {
+    margin: 20px 0 6px;
+}
+
+button,
+.btn-login {
+    min-width: 110px;
+    height: 38px;
+    border: 0;
+    border-radius: 4px;
+    background: #448dca;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s;
 }
 
 button {
     min-width: 130px;
-    height: 38px;
-    border: 0;
-    background: #448dca;
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
 }
 
-button:hover { background: #287abc; }
+button:hover,
+.btn-login:hover {
+    background: #287abc;
+}
+
+/* ==========================================================================
+   MESSAGES
+   ========================================================================== */
 
 .message {
     border-radius: 8px;
@@ -103,8 +201,19 @@ button:hover { background: #287abc; }
     font-weight: 800;
 }
 
-.message.success { background: #e5f6ed; color: #177345; }
-.message.error { background: #fdeaea; color: #9a2626; }
+.message.success {
+    background: #e5f6ed;
+    color: #177345;
+}
+
+.message.error {
+    background: #fdeaea;
+    color: #9a2626;
+}
+
+/* ==========================================================================
+   LINKS
+   ========================================================================== */
 
 .back {
     display: block;
@@ -118,7 +227,33 @@ button:hover { background: #287abc; }
     max-width: 100%;
 }
 
-/* --- Local Reset UI --- */
+.forgot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 16px;
+    background: #4a94cf;
+    color: #fff56d;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background .15s;
+}
+
+.forgot:hover {
+    background: #3a7fb8;
+}
+
+.forgot svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   LOCAL RESET UI
+   ========================================================================== */
+
 .local-reset {
     margin: 14px 0 4px;
     padding: 12px;
@@ -151,106 +286,52 @@ button:hover { background: #287abc; }
     background: #004aa8;
 }
 
-/* --- Login Page Specifics --- */
-.login-card {
-    width: 380px;
-    max-width: 100%;
-    background: rgba(255, 255, 255, .94);
-    border: 1px solid rgba(64, 91, 114, .22);
-    border-radius: 4px;
-    box-shadow: 0 10px 36px rgba(29, 54, 74, .22);
-    overflow: hidden;
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+
+@media (max-width: 480px) {
+    .page {
+        padding: 16px;
+    }
+
+    .brand-image {
+        width: 260px;
+        height: auto;
+    }
+
+    .subtitle {
+        font-size: 26px;
+        margin-bottom: 16px;
+    }
+
+    .card,
+    .login-card,
+    .back {
+        width: 100%;
+    }
+
+    .card-body {
+        padding: 26px 22px 22px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+        height: 40px;
+        font-size: 14px;
+    }
+
+    .toggle-pw {
+        top: 20px;
+    }
+
+    .forgot {
+        font-size: 13px;
+        padding: 12px 14px;
+    }
 }
-
-.field {
-    position: relative;
-    margin-bottom: 13px;
-}
-
-/* Force the icon to the left inside the box */
-.field-icon {
-    position: absolute;
-    left: 12px; /* Fixed position */
-    top: 10px;  /* Specific pixel height for better alignment */
-    width: 16px; 
-    height: 16px;
-    color: #7a96b4;
-    pointer-events: none;
-}
-
-.toggle-pw {
-    position: absolute;
-    right: -50px; /* Adjust this to move the eye icon left/right */
-    top: 35%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    padding: 5px; /* Add some clickable area */
-    cursor: pointer;
-    color: #7a96b4;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2; /* Ensures it stays on top */
-}
-
-/* Ensure the input allows space for the icon on the right */
-input[type="password"] {
-    padding-right: 38px; /* Must be larger than the eye icon width + right position */
-}
-
-input[type="email"],
-input[type="password"],
-input[type="text"] {
-    width: 100%;
-    height: 38px;
-    border: 1px solid #c6d2df;
-    background: #eaf1fb;
-    padding: 0 38px 0 38px; 
-    font-size: 14px;
-    outline: none;
-    border-radius: 3px;
-    color: #25364a;
-}
-
-.field-icon svg { width: 15px; height: 15px; }
-
-.toggle-pw:hover { color: #448dca; background: none; }
-.toggle-pw svg { width: 16px; height: 16px; }
-
-.login-row {
-    display: flex;
-    justify-content: flex-end;
-    margin: 20px 0 6px;
-}
-
-.btn-login {
-    min-width: 110px;
-    height: 38px;
-    border: 0;
-    border-radius: 4px;
-    background: #448dca;
-    color: #fff;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background .15s;
-}
-
-.btn-login:hover { background: #287abc; }
-
-.forgot {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 13px 16px;
-    background: #4a94cf;
-    color: #fff56d;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 600;
-    transition: background .15s;
-}
-
-.forgot:hover { background: #3a7fb8; }
-.forgot svg { width: 14px; height: 14px; flex-shrink: 0; }

@@ -59,13 +59,18 @@ $maxTrendValue =
         <?php echo supervisorSidebar("report-utilization"); ?>
         <main class="main">
             <div class="report-shell">
-                <section class="report-head">
+                <section class="report-head report-hero">
                     <div>
+                        <div class="eyebrow">Supervisor Capacity</div>
                         <h1>Slot Utilization</h1>
                         <p>Monitor current supervision capacity, quota occupancy, and workload trends.</p>
                     </div>
-                    <?php echo reportExportMenu("utilization"); ?>
                 </section>
+
+                <div class="report-toolbar utilization-toolbar">
+                    <div class="toolbar-note">Current workload snapshot</div>
+                    <?php echo reportExportMenu("utilization"); ?>
+                </div>
 
                 <section class="utilization-layout">
                     <div>

@@ -32,6 +32,17 @@ foreach ($allTags as $tag) {
 $completion = 0;
 $defaultBio = "";
 $activeTime = "";
+$clientBasePath = rtrim(dirname($_SERVER["SCRIPT_NAME"], 2), "/\\");
+$shareProfileUrl =
+    (
+        (!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] !== "off")
+        ? "https://"
+        : "http://"
+    )
+    . ($_SERVER["HTTP_HOST"] ?? "localhost")
+    . $clientBasePath
+    . "/student/studentSupervisorProfile.php?supervisorID="
+    . rawurlencode($_SESSION["userID"]);
 
 if ($profile) {
 
@@ -136,22 +147,16 @@ if ($profile) {
                             <div class="field-grid">
                                 <div>
                                     <label>Full Name</label>
-                                    <input type="text" value="<?php echo e($profile["fullName"]); ?>" readonly>
+                                    <input class="locked-field" type="text" value="<?php echo e($profile["fullName"]); ?>" readonly tabindex="-1">
                                 </div>
                                 <div class="two-col">
                                     <div>
                                         <label>Faculty Position</label>
-                                        <select name="employmentCategory" required>
-                                            <?php foreach (["Full-Time Lecturer", "Part-Time Lecturer", "Dean", "Deputy Dean", "Academic Director", "Programme Leader"] as $category): ?>
-                                                <option value="<?php echo e($category); ?>" <?php echo $profile["employmentCategory"] === $category ? "selected" : ""; ?>>
-                                                    <?php echo e($category); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
+                                        <input class="locked-field" type="text" name="employmentCategory" value="<?php echo e($profile["employmentCategory"]); ?>" readonly tabindex="-1">
                                     </div>
                                     <div>
                                         <label>Programme</label>
-                                        <input type="text" name="programme" value="<?php echo e($profile["programme"]); ?>" required>
+                                        <input class="locked-field" type="text" name="programme" value="<?php echo e($profile["programme"]); ?>" readonly tabindex="-1">
                                     </div>
                                 </div>
                                 <div>
@@ -165,7 +170,7 @@ if ($profile) {
                                 <div class="two-col">
                                     <div>
                                         <label>Email Address</label>
-                                        <input type="email" value="<?php echo e($profile["universityEmail"]); ?>" readonly>
+                                        <input class="locked-field" type="email" value="<?php echo e($profile["universityEmail"]); ?>" readonly tabindex="-1">
                                     </div>
                                     <div>
                                         <label>Introductory Video Link</label>
@@ -186,9 +191,9 @@ if ($profile) {
                                 </div>
                             </div>
                         </div>
-                        <div class="actions">
-                            <button class="button" type="submit">Save Card Changes</button>
-                            <a class="button secondary" href="manageDigitalBusinessCard.php">Discard Changes</a>
+                        <div class="actions card-actions-panel">
+                            <button class="button save-card-button" type="submit">Save Card Changes</button>
+                            <a class="button secondary discard-card-button" href="manageDigitalBusinessCard.php">Discard Changes</a>
                         </div>
                     </form>
 
@@ -210,7 +215,7 @@ if ($profile) {
                                 <p class="preview-text"><?php echo e($defaultBio); ?></p>
                                 <p class="preview-text">Current supervision load: <?php echo e($profile["quotaText"] ?? "0/0 supervisees"); ?>.</p>
                                 <p class="preview-text"><?php echo e($profile["universityEmail"]); ?></p>
-                                <a class="button secondary share-profile-link" href="#">Share Profile Link</a>
+                                <a class="button secondary share-profile-link" href="<?php echo e($shareProfileUrl); ?>" data-share-url="<?php echo e($shareProfileUrl); ?>" target="_blank" rel="noopener noreferrer">Share Profile Link</a>
                             </div>
                         </section>
                         <section class="insight">

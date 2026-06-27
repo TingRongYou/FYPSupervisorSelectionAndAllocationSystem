@@ -340,6 +340,7 @@ class SupervisorReportDAO {
                 )
             WHERE " . implode(" AND ", $conditions) . "
             ORDER BY AR.allocationDate DESC,
+                U.fullName ASC,
                 AR.allocationID DESC
         ";
 

@@ -91,7 +91,7 @@ class PastProjectDocumentStorageDAO {
 
         return [
             "success" => true,
-            "path" => "../storage/past_projects/" . $fileName
+            "path" => "storage/past_projects/" . $fileName
         ];
     }
 

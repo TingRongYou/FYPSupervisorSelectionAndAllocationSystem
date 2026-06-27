@@ -80,7 +80,6 @@ function statusClass($status) {
             <?php else: ?>
                 <div class="review-shell">
                     <section class="card proposal-card">
-                        <div class="proposal-icon"></div>
                         <h1 style="margin: 0 0 8px; color: #172033; font-size: 30px; line-height: 1.15; max-width: 760px;"><?php echo e($request["projectTitle"]); ?></h1>
                         <p class="student-line"><?php echo e($request["fullName"]); ?> of <?php echo e($request["programme"]); ?></p>
 
@@ -155,14 +154,17 @@ function statusClass($status) {
 
                     <aside class="side-stack">
                         <section class="card meta-card">
-                            <div class="meta-row"><span>Student ID</span><strong><?php echo e($request["studentID"]); ?></strong></div>
-                            <div class="meta-row"><span>Submitted</span><strong><?php echo e(formatDateText($request["applicationDate"])); ?></strong></div>
-                            <div class="meta-row"><span>Expires</span><strong><?php echo e(formatDateText($request["ttlExpirationTimestamp"])); ?></strong></div>
-                            <div class="meta-row">
-                                <span><?php echo $isExistingSupervisionProposal ? "Proposal Status" : "Status"; ?></span>
-                                <span class="status <?php echo e(statusClass($request["decisionStatus"])); ?>">
-                                    <?php echo e($request["decisionStatus"]); ?>
-                                </span>
+                            <h2>Proposal Summary</h2>
+                            <div class="meta-panel">
+                                <div class="meta-row"><span>Student ID</span><strong><?php echo e($request["studentID"]); ?></strong></div>
+                                <div class="meta-row"><span>Submitted</span><strong><?php echo e(formatDateText($request["applicationDate"])); ?></strong></div>
+                                <div class="meta-row"><span>Expires</span><strong><?php echo e(formatDateText($request["ttlExpirationTimestamp"])); ?></strong></div>
+                                <div class="meta-row">
+                                    <span><?php echo $isExistingSupervisionProposal ? "Proposal Status" : "Status"; ?></span>
+                                    <span class="status <?php echo e(statusClass($request["decisionStatus"])); ?>">
+                                        <?php echo e($request["decisionStatus"]); ?>
+                                    </span>
+                                </div>
                             </div>
                         </section>
 
@@ -184,14 +186,13 @@ function statusClass($status) {
                         <?php else: ?>
                             <section class="card decision-card">
                                 <h2>Decision Recorded</h2>
+                                <?php $commentText = trim((string) ($request["supervisorComment"] ?? "")); ?>
                                 <div class="readonly-decision">
                                     <strong>This request has already been <?php echo e(strtolower($request["decisionStatus"])); ?>.</strong>
                                     No further decision action is available for this proposal. If it was rejected, the student must submit a new proposal before you can provide another decision.
                                     <div class="readonly-comment-wrap">
                                         <div class="readonly-comment-label">Supervisor Comment</div>
-                                        <div class="readonly-comment <?php echo e($request["supervisorComment"] !== "" ? "" : "empty"); ?>">
-                                            <?php echo e($request["supervisorComment"] !== "" ? $request["supervisorComment"] : "No supervisor comment was provided."); ?>
-                                        </div>
+                                        <div class="readonly-comment <?php echo e($commentText !== "" ? "" : "empty"); ?>"><?php echo e($commentText !== "" ? $commentText : "No supervisor comment was provided."); ?></div>
                                     </div>
                                 </div>
                             </section>

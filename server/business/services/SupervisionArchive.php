@@ -50,7 +50,7 @@ class SupervisionArchive {
     |--------------------------------------------------------------------------
     | Chronological Sorting
     |--------------------------------------------------------------------------
-    | Orders history rows by allocation date in descending order.
+    | Orders history rows by newest allocation first, then student name A-Z.
     */
 
     public function sortByYear(
@@ -61,10 +61,29 @@ class SupervisionArchive {
             $historyRows,
             function ($first, $second) {
 
-                return
+                $dateCompare =
                     strtotime($second["allocationDate"] ?? "1970-01-01")
                     <=>
                     strtotime($first["allocationDate"] ?? "1970-01-01");
+
+                if ($dateCompare !== 0) {
+                    return $dateCompare;
+                }
+
+                $nameCompare =
+                    strcasecmp(
+                        (string) ($first["alumniName"] ?? ""),
+                        (string) ($second["alumniName"] ?? "")
+                    );
+
+                if ($nameCompare !== 0) {
+                    return $nameCompare;
+                }
+
+                return
+                    (int) ($second["allocationID"] ?? 0)
+                    <=>
+                    (int) ($first["allocationID"] ?? 0);
             }
         );
 
