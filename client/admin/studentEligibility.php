@@ -44,7 +44,29 @@ $currentPage        = min($currentPage, $totalPages);
 $visibleStudents    = array_slice($filteredStudents, ($currentPage - 1) * $rowsPerPage, $rowsPerPage);
 $firstVisibleEntry  = empty($visibleStudents) ? 0 : (($currentPage - 1) * $rowsPerPage) + 1;
 $lastVisibleEntry   = empty($visibleStudents) ? 0 : $firstVisibleEntry + count($visibleStudents) - 1;
-$uploadedFileName   = trim($_GET["uploadedFile"] ?? "");
+$uploadedFileName   =
+    trim($_GET["uploadedFile"] ?? ($_SESSION["eligibility_csv_file_name"] ?? ""));
+
+$hasUploadedEligibilityCSV =
+    !empty($_SESSION["eligibility_csv_uploaded"]);
+
+$semesterOptions = [
+    "Y1S1",
+    "Y1S2",
+    "Y1S3",
+    "Y2S1",
+    "Y2S2",
+    "Y2S3",
+    "Y3S1",
+    "Y3S2",
+    "Y3S3"
+];
+
+$academicStatusOptions = [
+    "EF" => "EF",
+    "EN" => "EN",
+    "EP" => "EP"
+];
 
 function e($value) {
     return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
@@ -61,6 +83,10 @@ function studentInitials($name) {
     $first  = strtoupper(substr($parts[0] ?? "S", 0, 1));
     $second = strtoupper(substr($parts[1] ?? "",  0, 1));
     return $first . $second;
+}
+
+function selected($a, $b) {
+    return (string) $a === (string) $b ? "selected" : "";
 }
 
 function pageUrl($page, $filterStatus = "all") {
@@ -83,7 +109,7 @@ function filterUrl($status) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Eligibility | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/admin.css"); ?>">
     <script src="../assets/js/admin.js" defer></script>
 </head>
 <body>
@@ -115,7 +141,7 @@ function filterUrl($status) {
             </div>
         </aside>
 
-        <main class="main">
+        <main class="main eligibility-main">
             <?php echo statusMessage(); ?>
 
             <div class="page-grid">
@@ -128,7 +154,9 @@ function filterUrl($status) {
                         <div class="hero-actions">
                             <form action="../../server/application/admin/runEligibilityBatch.php" method="POST">
                                 <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
-                                <button class="btn btn-light" type="submit">Run Eligibility Batch</button>
+                                <button class="btn btn-light" type="submit" <?php echo $hasUploadedEligibilityCSV ? "" : "disabled"; ?>>
+                                    Run Eligibility Batch
+                                </button>
                             </form>
                         </div>
                         <div class="hero-metrics">
@@ -136,14 +164,14 @@ function filterUrl($status) {
                                 <div class="metric-label">Total Checked</div>
                                 <div class="metric-value"><?php echo e(number_format($totalStudents)); ?></div>
                             </div>
-                            <div class="metric">
+                            <div class="metric eligible-metric">
                                 <div class="metric-label">Eligible Students</div>
                                 <div class="metric-value"><?php echo e(number_format($eligibleStudents)); ?></div>
                             </div>
                         </div>
                     </article>
 
-                    <section class="panel criteria-panel">
+                    <section class="panel criteria-panel eligibility-criteria-panel">
                         <div class="panel-title">
                             <h2><span class="title-mark"></span> Active Criteria</h2>
                             <button class="edit-link" id="editRulesButton" type="button">Edit Rules</button>
@@ -174,7 +202,19 @@ function filterUrl($status) {
                         </div>
 
                         <div class="upload-strip">
-                            <p>Upload a CSV containing studentID, universityEmail, malaysiaICNumber, fullName, programme, cgpa, currentSem, and academicStatus before running the eligibility batch.</p>
+                            <div class="upload-guidance">
+                                <strong>CSV required columns</strong>
+                                <div class="csv-field-list" aria-label="Required CSV columns">
+                                    <span>studentID</span>
+                                    <span>universityEmail</span>
+                                    <span>malaysiaICNumber</span>
+                                    <span>fullName</span>
+                                    <span>programme</span>
+                                    <span>cgpa</span>
+                                    <span>currentSem</span>
+                                    <span>academicStatus</span>
+                                </div>
+                            </div>
                             <form class="upload-control" action="../../server/application/admin/uploadStudentEligibilityCSV.php" method="POST" enctype="multipart/form-data">
                                 <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                 <span class="file-name" id="fileName"><?php echo e($uploadedFileName !== "" ? $uploadedFileName : "No file uploaded"); ?></span>
@@ -192,11 +232,23 @@ function filterUrl($status) {
                                 </div>
                                 <div>
                                     <label for="requiredNextSemester">Required Next Semester</label>
-                                    <input type="text" id="requiredNextSemester" name="requiredNextSemester" value="<?php echo e($rules["requiredNextSemester"]); ?>" pattern="Y[0-9]+S[1-3]" required>
+                                    <select id="requiredNextSemester" name="requiredNextSemester" required>
+                                        <?php foreach ($semesterOptions as $semesterOption): ?>
+                                            <option value="<?php echo e($semesterOption); ?>" <?php echo selected($rules["requiredNextSemester"], $semesterOption); ?>>
+                                                <?php echo e($semesterOption); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </div>
                                 <div>
                                     <label for="blockedAcademicStatus">Blocked Status</label>
-                                    <input type="text" id="blockedAcademicStatus" name="blockedAcademicStatus" maxlength="50" value="<?php echo e($rules["blockedAcademicStatus"]); ?>" required>
+                                    <select id="blockedAcademicStatus" name="blockedAcademicStatus" required>
+                                        <?php foreach ($academicStatusOptions as $statusValue => $statusLabel): ?>
+                                            <option value="<?php echo e($statusValue); ?>" <?php echo selected($rules["blockedAcademicStatus"], $statusValue); ?>>
+                                                <?php echo e($statusLabel); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </div>
                                 <div class="rules-actions">
                                     <button class="btn btn-primary" type="submit">Save Rules</button>
@@ -206,7 +258,7 @@ function filterUrl($status) {
                         </div>
                     </section>
 
-                    <section class="panel">
+                    <section class="panel eligibility-results-panel">
                         <div class="results-header">
                             <h2>Batch Processing Results</h2>
                             <div class="filter-group" role="group" aria-label="Filter by eligibility status">
@@ -284,10 +336,15 @@ function filterUrl($status) {
                         $r = 50;
                         $circumference = round(2 * M_PI * $r, 2);
                         $offset = round($circumference * (1 - $eligibleRate / 100), 2);
+                        $eligibleArc = round($circumference * ($eligibleRate / 100), 2);
+                        $ineligibleArc = max(0, round($circumference - $eligibleArc, 2));
                     ?>
                     <div class="ring-wrap">
                         <svg class="ring-svg" viewBox="0 0 120 120">
                             <circle class="ring-bg" cx="60" cy="60" r="<?php echo $r; ?>"/>
+                            <circle class="ring-fill red" cx="60" cy="60" r="<?php echo $r; ?>"
+                                stroke-dasharray="<?php echo $ineligibleArc; ?> <?php echo $circumference; ?>"
+                                stroke-dashoffset="<?php echo -$eligibleArc; ?>"/>
                             <circle class="ring-fill" cx="60" cy="60" r="<?php echo $r; ?>"
                                 stroke-dasharray="<?php echo $circumference; ?>"
                                 stroke-dashoffset="<?php echo $offset; ?>"/>
@@ -302,10 +359,10 @@ function filterUrl($status) {
                         <div class="bar-row">
                             <div class="bar-info">
                                 <span class="bar-label"><span class="dot blue"></span> Eligible Students</span>
-                                <span class="bar-count"><?php echo e(number_format($eligibleStudents)); ?></span>
+                                <span class="bar-count eligible-count"><?php echo e(number_format($eligibleStudents)); ?></span>
                             </div>
                             <div class="bar-track">
-                                <span class="bar-fill" style="width: <?php echo e($eligibleRate); ?>%;"></span>
+                                <span class="summary-fill eligible" style="width: <?php echo e($eligibleRate); ?>%;"></span>
                             </div>
                         </div>
                         <div class="bar-row">
@@ -314,7 +371,7 @@ function filterUrl($status) {
                                 <span class="bar-count"><?php echo e(number_format($ineligibleStudents)); ?></span>
                             </div>
                             <div class="bar-track">
-                                <span class="bar-fill red" style="width: <?php echo e(max(0, 100 - $eligibleRate)); ?>%;"></span>
+                                <span class="summary-fill ineligible" style="width: <?php echo e(max(0, 100 - $eligibleRate)); ?>%;"></span>
                             </div>
                         </div>
                     </div>

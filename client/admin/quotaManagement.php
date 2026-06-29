@@ -97,7 +97,7 @@ function statusClass($status) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quota Management | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/admin.css"); ?>">
     <script src="../assets/js/admin.js" defer></script>
 </head>
 <body>
@@ -129,7 +129,7 @@ function statusClass($status) {
             </div>
         </aside>
 
-        <main class="main">
+        <main class="main quota-management-main">
             <?php echo statusMessage(); ?>
 
             <section class="hero">
@@ -158,12 +158,15 @@ function statusClass($status) {
                     <div class="directory-header">
                         <div class="directory-title">
                             <h2>Supervisor Directory</h2>
+                            <p>Review current quota limits and adjust capacity by supervisor.</p>
                         </div>
-                        <form class="filter-form" method="GET" action="quotaManagement.php">
+                        <form class="filter-form quota-filter-form" method="GET" action="quotaManagement.php">
                             <div class="search-wrap">
-                                <input type="text" name="searchName" value="<?php echo e($searchName); ?>" placeholder="Filter by name or programme...">
+                                <label class="sr-only" for="quota-search">Search supervisor</label>
+                                <input id="quota-search" type="text" name="searchName" value="<?php echo e($searchName); ?>" placeholder="Filter by name or programme...">
                             </div>
-                            <select name="programme">
+                            <label class="sr-only" for="quota-programme">Programme</label>
+                            <select id="quota-programme" name="programme">
                                 <option value="">All Programmes</option>
                                 <?php foreach ($programmeOptions as $programme): ?>
                                     <option value="<?php echo e($programme["programme"]); ?>" <?php echo selected($selectedProgramme, $programme["programme"]); ?>>
@@ -180,6 +183,7 @@ function statusClass($status) {
                         <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
                         <div class="table-head">
                             <div>Supervisor Name</div>
+                            <div>Supervisor Details</div>
                             <div>Programme</div>
                             <div>Editable Quota</div>
                             <div>Validation Status</div>
@@ -207,11 +211,12 @@ function statusClass($status) {
                                         </div>
                                         <div>
                                             <p class="name"><?php echo e($supervisor["fullName"]); ?></p>
-                                            <p class="meta">
-                                                <?php echo e($supervisorID); ?> - <?php echo e($supervisor["employmentCategory"]); ?><br>
-                                                Type limit <?php echo e($tierMax); ?>, active <?php echo e($currentLoad); ?>
-                                            </p>
                                         </div>
+                                    </div>
+
+                                    <div class="quota-detail-cell">
+                                        <p><?php echo e($supervisorID); ?> - <?php echo e($supervisor["employmentCategory"]); ?></p>
+                                        <p>Type limit <?php echo e($tierMax); ?>, active <?php echo e($currentLoad); ?></p>
                                     </div>
 
                                     <div class="programme"><?php echo e($supervisor["programme"]); ?></div>
@@ -235,8 +240,8 @@ function statusClass($status) {
                     </form>
                 </section>
 
-                <aside class="status-card">
-                    <h2><span class="status-icon"></span>Status Summary</h2>
+                <aside class="status-card quota-summary-card">
+                    <h2>Status Summary</h2>
                     <div class="summary-list">
                         <div class="summary-item">
                             <div class="summary-label">Total Supervisors</div>

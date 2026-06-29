@@ -62,8 +62,15 @@ class AdminReportDAO {
 
         $statement->execute();
 
-        return
+        $options =
             $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        return
+            $this->mergeOptionRows(
+                $options,
+                "intakeBatch",
+                $this->defaultBatchOptions()
+            );
     }
 
     public function getSpecializationOptions() {
@@ -71,8 +78,8 @@ class AdminReportDAO {
         $query = "
             SELECT DISTINCT RT.tagName AS specialization
             FROM RESEARCH_TAG RT
-            INNER JOIN STUDENT_TAG_SELECTION STS
-                ON RT.tagID = STS.tagID
+            WHERE RT.tagName IS NOT NULL
+            AND RT.tagName != ''
             ORDER BY RT.tagName ASC
         ";
 
@@ -264,6 +271,142 @@ class AdminReportDAO {
 
         return
             $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Allocated Student Programme Distribution
+    |--------------------------------------------------------------------------
+    | Counts allocated students by the student's programme, not the supervisor's
+    | home programme. This keeps dashboard distribution aligned with roster data.
+    */
+
+    public function fetchAllocatedStudentProgrammeDistribution() {
+
+        $query = "
+            SELECT
+                COALESCE(NULLIF(TRIM(SP.programme), ''), 'Unspecified') AS programme,
+                COUNT(DISTINCT AR.studentID) AS allocated
+            FROM ALLOCATION_RECORD AR
+            INNER JOIN STUDENT_PROFILE SP
+                ON AR.studentID = SP.studentID
+            GROUP BY
+                COALESCE(NULLIF(TRIM(SP.programme), ''), 'Unspecified')
+            ORDER BY
+                allocated DESC,
+                programme ASC
+        ";
+
+        $statement =
+            $this->conn->prepare($query);
+
+        $statement->execute();
+
+        return
+            $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    private function mergeOptionRows($rows, $key, $defaults) {
+
+        $seen =
+            [];
+
+        $merged =
+            [];
+
+        foreach ($rows as $row) {
+
+            $value =
+                trim((string) ($row[$key] ?? ""));
+
+            if ($value === "" || isset($seen[strtolower($value)])) {
+
+                continue;
+            }
+
+            $seen[strtolower($value)] =
+                true;
+
+            $merged[] =
+                [$key => $value];
+        }
+
+        foreach ($defaults as $value) {
+
+            $value =
+                trim((string) $value);
+
+            if ($value === "" || isset($seen[strtolower($value)])) {
+
+                continue;
+            }
+
+            $seen[strtolower($value)] =
+                true;
+
+            $merged[] =
+                [$key => $value];
+        }
+
+        usort(
+            $merged,
+            function ($left, $right) use ($key) {
+
+                return
+                    strcasecmp(
+                        $left[$key],
+                        $right[$key]
+                    );
+            }
+        );
+
+        return
+            $merged;
+    }
+
+    private function defaultBatchOptions() {
+
+        return [
+            "2026/27",
+            "2025/26",
+            "2024/25",
+            "2023/24",
+            "Y1S1",
+            "Y1S2",
+            "Y1S3",
+            "Y2S1",
+            "Y2S2",
+            "Y2S3",
+            "Y3S1",
+            "Y3S2",
+            "Y3S3"
+        ];
+    }
+
+    private function defaultSpecializationOptions() {
+
+        return [
+            "Artificial Intelligence",
+            "Blockchain",
+            "Cloud Computing",
+            "Computer Vision",
+            "Cybersecurity",
+            "Data Analytics",
+            "Data Science",
+            "Database Systems",
+            "Deep Learning",
+            "Game Development",
+            "Human Computer Interaction",
+            "Information Systems",
+            "Internet of Things",
+            "Machine Learning",
+            "Mobile Application Development",
+            "Natural Language Processing",
+            "Network Security",
+            "Project Management",
+            "Software Engineering",
+            "Web Development"
+        ];
     }
 
     /*

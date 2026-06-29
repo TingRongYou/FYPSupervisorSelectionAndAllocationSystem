@@ -100,27 +100,8 @@ $allocatedTotal =
     (int) ($capacitySummary["allocatedTotal"] ?? 0);
 
 $programmeDistribution =
-    [];
-
-foreach ($capacitySummary["supervisors"] ?? [] as $supervisor) {
-
-    $programme =
-        trim((string) ($supervisor["programme"] ?? "Unspecified"));
-
-    if (!isset($programmeDistribution[$programme])) {
-
-        $programmeDistribution[$programme] = [
-            "allocated" => 0,
-            "capacity" => 0
-        ];
-    }
-
-    $programmeDistribution[$programme]["allocated"] +=
-        (int) ($supervisor["currentTotal"] ?? 0);
-
-    $programmeDistribution[$programme]["capacity"] +=
-        (int) ($supervisor["maxSuperviseesAllowed"] ?? 0);
-}
+    $adminReportFacade
+    ->getAllocatedStudentProgrammeDistribution();
 
 /*
 |--------------------------------------------------------------------------
@@ -174,7 +155,7 @@ function dateTimeInputValue($value) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administrator Dashboard | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/admin.css"); ?>">
     <script src="../assets/js/admin.js" defer></script>
 </head>
 <body>
@@ -206,7 +187,7 @@ function dateTimeInputValue($value) {
                 </div>
             </aside>
 
-            <main class="main">
+            <main class="main admin-dashboard-main">
                 <?php echo statusMessage(); ?>
 
                 <section class="alerts">
@@ -253,7 +234,7 @@ function dateTimeInputValue($value) {
                                 <div class="metric-value"><?php echo e(number_format($pendingStudents)); ?></div>
                             </div>
                         </div>
-                        <a class="button primary" href="autoAllocation.php">Manage Allocations</a>
+                        <a class="button primary dashboard-cta" href="autoAllocation.php">Manage Allocations</a>
                     </article>
 
                     <article class="panel efficiency">
@@ -277,23 +258,23 @@ function dateTimeInputValue($value) {
                     </article>
                 </section>
 
-                <section class="panel distribution">
-                    <h2>Programme Capacity Distribution</h2>
-                    <p class="panel-subtitle">Live workload distribution by supervisor programme.</p>
+                <section class="panel distribution programme-distribution">
+                    <h2>Programme Allocation Distribution</h2>
+                    <p class="panel-subtitle">Allocated students grouped by student programme.</p>
                     
                     <?php if (empty($programmeDistribution)): ?>
-                        <p class="panel-subtitle">No supervisor capacity records are available.</p>
+                        <p class="panel-subtitle">No allocated student programme records are available.</p>
                     <?php else: ?>
-                        <?php foreach ($programmeDistribution as $programme => $distribution): ?>
+                        <?php foreach ($programmeDistribution as $distribution): ?>
                             <?php
-                                $capacity = max(0, (int) $distribution["capacity"]);
-                                $allocated = max(0, (int) $distribution["allocated"]);
-                                $percentage = $capacity > 0 ? round(($allocated / $capacity) * 100, 1) : 0;
+                                $programme = trim((string) ($distribution["programme"] ?? "Unspecified"));
+                                $allocated = max(0, (int) ($distribution["allocated"] ?? 0));
+                                $percentage = $assignedStudents > 0 ? round(($allocated / $assignedStudents) * 100, 1) : 0;
                             ?>
                             <div class="bar-row">
                                 <div class="bar-header">
                                     <span><?php echo e($programme); ?></span>
-                                    <span><?php echo e($allocated); ?>/<?php echo e($capacity); ?> (<?php echo e($percentage); ?>%)</span>
+                                    <span><?php echo e($allocated); ?> student(s) (<?php echo e($percentage); ?>%)</span>
                                 </div>
                                 <div class="bar-track">
                                     <div class="bar-fill" style="width: <?php echo e(min(100, $percentage)); ?>%;"></div>
@@ -303,28 +284,48 @@ function dateTimeInputValue($value) {
                     <?php endif; ?>
                 </section>
 
-                <section class="panel" style="margin-top:24px;">
-                    <span class="status-pill"><?php echo e(str_replace("_", " ", $allocationWindow["status"])); ?></span>
-                    <h2>Allocation & Review Timeline</h2>
-                    <p class="panel-subtitle">Students can submit supervisor requests from the initial allocation date until the final allocation date. The review period must start after the final allocation date.</p>
+                <section class="panel timeline-panel">
+                    <div class="timeline-head">
+                        <div>
+                            <span class="status-pill timeline-status"><?php echo e(str_replace("_", " ", $allocationWindow["status"])); ?></span>
+                            <h2>Allocation & Review Timeline</h2>
+                            <p class="panel-subtitle">Students can submit supervisor requests from the initial allocation date until the final allocation date. The review period must start after the final allocation date.</p>
+                        </div>
+                    </div>
                     
-                    <form class="window-form" id="timelineForm" action="../../server/application/admin/updateAllocationWindow.php" method="POST">
+                    <form class="window-form timeline-form" id="timelineForm" action="../../server/application/admin/updateAllocationWindow.php" method="POST">
                         <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
-                        <div>
-                            <label for="initialAllocationDate">Initial Allocation Date</label>
-                            <input type="datetime-local" id="initialAllocationDate" name="initialAllocationDate" value="<?php echo e(dateTimeInputValue($allocationWindow["initialAllocationDate"] ?? "")); ?>" required>
+                        <div class="timeline-group">
+                            <div class="timeline-group-title">
+                                <span>Allocation Dates</span>
+                                <small>Student request window</small>
+                            </div>
+                            <div class="timeline-group-grid">
+                                <div class="timeline-field">
+                                    <label for="initialAllocationDate">Initial Allocation Date</label>
+                                    <input type="datetime-local" id="initialAllocationDate" name="initialAllocationDate" value="<?php echo e(dateTimeInputValue($allocationWindow["initialAllocationDate"] ?? "")); ?>" required>
+                                </div>
+                                <div class="timeline-field">
+                                    <label for="finalAllocationDate">Final Allocation Date</label>
+                                    <input type="datetime-local" id="finalAllocationDate" name="finalAllocationDate" value="<?php echo e(dateTimeInputValue($allocationWindow["finalAllocationDate"] ?? "")); ?>" required>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label for="finalAllocationDate">Final Allocation Date</label>
-                            <input type="datetime-local" id="finalAllocationDate" name="finalAllocationDate" value="<?php echo e(dateTimeInputValue($allocationWindow["finalAllocationDate"] ?? "")); ?>" required>
-                        </div>
-                        <div>
-                            <label for="reviewStartDate">Review Period Start</label>
-                            <input type="datetime-local" id="reviewStartDate" name="reviewStartDate" value="<?php echo e(dateTimeInputValue($reviewPeriod["startTimestamp"] ?? "")); ?>" required>
-                        </div>
-                        <div>
-                            <label for="reviewEndDate">Review Period End</label>
-                            <input type="datetime-local" id="reviewEndDate" name="reviewEndDate" value="<?php echo e(dateTimeInputValue($reviewPeriod["endTimestamp"] ?? "")); ?>" required>
+                        <div class="timeline-group">
+                            <div class="timeline-group-title">
+                                <span>Review Dates</span>
+                                <small>Supervisor decision period</small>
+                            </div>
+                            <div class="timeline-group-grid">
+                                <div class="timeline-field">
+                                    <label for="reviewStartDate">Review Period Start</label>
+                                    <input type="datetime-local" id="reviewStartDate" name="reviewStartDate" value="<?php echo e(dateTimeInputValue($reviewPeriod["startTimestamp"] ?? "")); ?>" required>
+                                </div>
+                                <div class="timeline-field">
+                                    <label for="reviewEndDate">Review Period End</label>
+                                    <input type="datetime-local" id="reviewEndDate" name="reviewEndDate" value="<?php echo e(dateTimeInputValue($reviewPeriod["endTimestamp"] ?? "")); ?>" required>
+                                </div>
+                            </div>
                         </div>
                         <button class="button primary" type="submit">Save Timeline Dates</button>
                     </form>

@@ -251,10 +251,11 @@ if (!function_exists("ssasPortalSidebar")) {
             $roleSubtitle = "Management Portal";
             $links = [
                 ["dashboard", "Dashboard", "../../client/admin/adminDashboard.php", "", false],
-                ["supervisors", "Supervisors Management", "../../client/admin/createSupervisorForm.php", "", false],
-                ["eligibility", "Students Eligibility", "#", "", false],
-                ["quota", "Quota Management", "#", "", false],
-                ["allocations", "Allocations", "#", "", false],
+                ["supervisors", "Supervisors Management", "../../client/admin/supervisorsManagement.php", "", false],
+                ["eligibility", "Students Eligibility", "../../client/admin/studentEligibility.php", "", false],
+                ["quota", "Quota Management", "../../client/admin/quotaManagement.php", "", false],
+                ["allocations", "Allocations", "../../client/admin/autoAllocation.php", "", false],
+                ["reviews", "Supervisor Reviews Audit", "../../client/admin/adminSupervisorReviews.php", "", false],
                 ["reports", "Reports", "#", "v", false]
             ];
 

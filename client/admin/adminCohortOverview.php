@@ -29,12 +29,11 @@ $reportFacade =
 |--------------------------------------------------------------------------
 | Report Filters
 |--------------------------------------------------------------------------
-| Programme, specialization, batch, and status.
+| Programme, batch, and status.
 */
 
 $filters = [
     "programme" => trim($_GET["programme"] ?? ""),
-    "specialization" => trim($_GET["specialization"] ?? ""),
     "batch" => trim($_GET["batch"] ?? ""),
     "status" => strtolower(trim($_GET["status"] ?? ""))
 ];
@@ -74,7 +73,7 @@ function cohortLabel($value, $fallback) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cohort Overview | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/admin.css"); ?>">
     <script src="../assets/js/admin.js" defer></script>
 </head>
 <body>
@@ -83,15 +82,19 @@ function cohortLabel($value, $fallback) {
     <div class="content-shell">
         <?php echo adminReportSidebar("cohort"); ?>
 
-        <main class="main">
+        <main class="main cohort-overview-main">
             <div class="report-shell">
-                <header class="report-head">
+                <section class="hero-card cohort-title-hero">
                     <div>
+                        <span class="hero-kicker">Admin Reports</span>
                         <h1>Cohort Overview</h1>
-                        <p>Manage students and faculty allocations by programme, specialization, batch, and allocation status.</p>
+                        <p>Manage students and faculty allocations by programme, batch, and allocation status.</p>
                     </div>
+                </section>
+
+                <div class="report-toolbar">
                     <?php echo adminReportExportMenu("cohort", $filters); ?>
-                </header>
+                </div>
 
                 <section class="filter-card">
                     <form class="filter-form" method="GET" action="adminCohortOverview.php">
@@ -102,17 +105,6 @@ function cohortLabel($value, $fallback) {
                                 <?php foreach ($report["programmeOptions"] as $option): ?>
                                     <option value="<?php echo e($option["programme"]); ?>" <?php echo selected($filters["programme"], $option["programme"]); ?>>
                                         <?php echo e($option["programme"]); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="filter-field">
-                            <label>Specialization</label>
-                            <select name="specialization">
-                                <option value="">All Specializations</option>
-                                <?php foreach ($report["specializationOptions"] as $option): ?>
-                                    <option value="<?php echo e($option["specialization"]); ?>" <?php echo selected($filters["specialization"], $option["specialization"]); ?>>
-                                        <?php echo e($option["specialization"]); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -141,7 +133,7 @@ function cohortLabel($value, $fallback) {
                 </section>
 
                 <section class="hero-grid">
-                    <div class="cohort-card">
+                    <div class="cohort-card active-cohort-card">
                         <h2>Active Cohort</h2>
                         <p><?php echo e(cohortLabel($filters["batch"], "All Batches")); ?> - <?php echo e(cohortLabel($filters["programme"], "All Programmes")); ?></p>
                         <div class="metric-row">

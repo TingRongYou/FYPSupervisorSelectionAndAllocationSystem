@@ -52,6 +52,50 @@ $finalAllocationDate =
         ? date("d M Y, h:i A", strtotime($allocationWindow["finalAllocationDate"]))
         : "Not configured";
 
+$countdownDays =
+    "00";
+
+$countdownHours =
+    "00";
+
+$countdownMinutes =
+    "00";
+
+if (!empty($allocationWindow["finalAllocationDate"])) {
+
+    $remainingSeconds =
+        strtotime($allocationWindow["finalAllocationDate"])
+        -
+        time();
+
+    if ($remainingSeconds > 0) {
+
+        $countdownDays =
+            str_pad(
+                (string) floor($remainingSeconds / 86400),
+                2,
+                "0",
+                STR_PAD_LEFT
+            );
+
+        $countdownHours =
+            str_pad(
+                (string) floor(($remainingSeconds % 86400) / 3600),
+                2,
+                "0",
+                STR_PAD_LEFT
+            );
+
+        $countdownMinutes =
+            str_pad(
+                (string) floor(($remainingSeconds % 3600) / 60),
+                2,
+                "0",
+                STR_PAD_LEFT
+            );
+    }
+}
+
 $adminReportFacade =
     new AdminReportFacade();
 
@@ -70,6 +114,21 @@ $unassignedStudents =
 
 $hasUnassignedStudents =
     ((int) ($summary["unassignedStudents"] ?? 0)) > 0;
+
+$assignedStudents =
+    (int) ($summary["allocatedStudents"] ?? 0);
+
+$unassignedStudentCount =
+    (int) ($summary["unassignedStudents"] ?? 0);
+
+$allocationBalanceTotal =
+    max(1, $assignedStudents + $unassignedStudentCount);
+
+$assignedRate =
+    round(($assignedStudents / $allocationBalanceTotal) * 100, 1);
+
+$unassignedRate =
+    round(($unassignedStudentCount / $allocationBalanceTotal) * 100, 1);
 
 $allocationStatusText =
     $allocationWindow["statusText"] ?? "";
@@ -131,7 +190,7 @@ function engineReadinessLabel($allocationWindow) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Auto-Allocation Engine | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/admin.css"); ?>">
     <script src="../assets/js/admin.js" defer></script>
 </head>
 <body>
@@ -163,18 +222,76 @@ function engineReadinessLabel($allocationWindow) {
             </div>
         </aside>
 
-        <main class="main">
+        <main class="main auto-allocation-main">
             <?php echo statusMessage(); ?>
 
-            <section class="hero-grid">
-                <article class="hero-card">
-                    <h1>Final Allocation Engine</h1>
+            <section class="hero-grid auto-top-grid">
+                <article class="hero-card auto-title-hero">
+                    <h1>Final Allocation Deadline</h1>
                     <p>
                         <?php echo $hasUnassignedStudents
                             ? "After the final allocation date, administrators can run the engine to assign eligible unassigned students."
                             : "All eligible students are currently allocated. The engine is ready only if new unassigned students appear after the final allocation date."; ?>
                     </p>
 
+                    <div class="hero-countdown" aria-label="Countdown to final allocation date">
+                        <div>
+                            <strong><?php echo e($countdownDays); ?></strong>
+                            <span>Days</span>
+                        </div>
+                        <div>
+                            <strong><?php echo e($countdownHours); ?></strong>
+                            <span>Hours</span>
+                        </div>
+                        <div>
+                            <strong><?php echo e($countdownMinutes); ?></strong>
+                            <span>Minutes</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="panel auto-status-panel">
+                    <h2>Status Summary</h2>
+                    <div class="status-ring allocation-balance-ring" style="--assigned-rate: <?php echo e($assignedRate); ?>%; --unassigned-rate: <?php echo e($unassignedRate); ?>%;">
+                        <strong><?php echo e($summary["allocationRate"]); ?>%</strong>
+                        <span>Efficiency</span>
+                    </div>
+                    <p class="status-caption">
+                        Matching efficiency current value.
+                    </p>
+                    <div class="status-count-list">
+                        <div class="status-count-row">
+                            <span><i class="dot green"></i> Assigned Students</span>
+                            <strong><?php echo e(number_format($summary["allocatedStudents"])); ?></strong>
+                            <div class="status-mini-track"><i class="assigned" style="width: <?php echo e($assignedRate); ?>%;"></i></div>
+                        </div>
+                        <div class="status-count-row">
+                            <span><i class="dot red"></i> Unassigned Students</span>
+                            <strong><?php echo e(number_format($summary["unassignedStudents"])); ?></strong>
+                            <div class="status-mini-track"><i class="unassigned" style="width: <?php echo e($unassignedRate); ?>%;"></i></div>
+                        </div>
+                    </div>
+                </article>
+            </section>
+
+            <section class="panel allocation-control-card">
+                <div class="allocation-control-head">
+                    <div>
+                        <div class="allocation-title-row">
+                            <span class="status-pill"><?php echo e(str_replace("_", " ", $allocationWindow["status"])); ?></span>
+                            <h2>Allocation Deadline Controls</h2>
+                        </div>
+                        <p><?php echo e($allocationStatusText); ?></p>
+                    </div>
+                    <form action="../../server/application/admin/runAutoAllocation.php" method="POST">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
+                        <button class="button primary" type="submit" <?php echo $allocationWindow["canRunAutoAllocation"] ? "" : "disabled"; ?>>
+                            Run Auto Allocation
+                        </button>
+                    </form>
+                </div>
+
+                <div class="allocation-control-body">
                     <div class="window-grid">
                         <div class="window-box">
                             <div class="window-label">Initial Allocation Date</div>
@@ -187,45 +304,24 @@ function engineReadinessLabel($allocationWindow) {
                     </div>
 
                     <div class="timer-grid">
-                        <div class="timer-box">
+                        <div class="timer-box timer-box-eligible">
                             <div class="timer-value"><?php echo e($summary["eligibleStudents"]); ?></div>
                             <div class="timer-label">Eligible</div>
                         </div>
-                        <div class="timer-box">
+                        <div class="timer-box timer-box-unassigned">
                             <div class="timer-value"><?php echo e($summary["unassignedStudents"]); ?></div>
                             <div class="timer-label">Unassigned</div>
                         </div>
-                        <div class="timer-box">
+                        <div class="timer-box timer-box-pending">
                             <div class="timer-value"><?php echo e($summary["pendingRequests"]); ?></div>
                             <div class="timer-label">Pending</div>
                         </div>
                     </div>
 
-                    <br>
-
-                    <form action="../../server/application/admin/runAutoAllocation.php" method="POST">
-                        <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
-                        <button class="button" type="submit" <?php echo $allocationWindow["canRunAutoAllocation"] ? "" : "disabled"; ?>>
-                            Run Auto Allocation
-                        </button>
-                    </form>
-                    <p style="color:#dbe9ff; margin-top:12px;">
-                        <?php echo e($allocationStatusText); ?>
-                    </p>
-                    <p style="color:#dbe9ff; margin-top:6px;">
+                    <div class="engine-readiness-note">
                         <?php echo e(engineReadinessLabel($allocationWindow)); ?>
-                    </p>
-                </article>
-
-                <article class="panel">
-                    <h2>Status Summary</h2>
-                    <div class="status-ring">
-                        <strong><?php echo e($summary["allocationRate"]); ?>%</strong>
                     </div>
-                    <p class="status-caption">
-                        Matching efficiency current value.
-                    </p>
-                </article>
+                </div>
             </section>
 
             <section class="check-grid">
@@ -243,6 +339,24 @@ function engineReadinessLabel($allocationWindow) {
                     <h3>Ruleset</h3>
                     <p>Eligible students only, one allocation per student, no supervisor over-quota.</p>
                 </article>
+            </section>
+
+            <section class="terminal algorithm-terminal">
+                <div class="terminal-head">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="terminal-body">
+                    <div><strong>[system]</strong> Initializing allocation engine...</div>
+                    <div><strong>[deadline]</strong> Final allocation date: <span class="warn"><?php echo e($finalAllocationDate); ?></span></div>
+                    <div><strong>[trigger]</strong> <?php echo e(engineReadinessLabel($allocationWindow)); ?></div>
+                    <div><strong>[check]</strong> Eligible students: <span class="ok"><?php echo e($summary["eligibleStudents"]); ?></span></div>
+                    <div><strong>[check]</strong> Current allocated students: <span class="ok"><?php echo e($summary["allocatedStudents"]); ?></span></div>
+                    <div><strong>[queue]</strong> Unassigned eligible students: <span class="warn"><?php echo e($summary["unassignedStudents"]); ?></span></div>
+                    <div><strong>[rule]</strong> Capacity lock enabled. Supervisors cannot exceed quota.</div>
+                    <div><strong>[strategy]</strong> System Auto-Match strategy ready.</div>
+                </div>
             </section>
 
             <section class="panel table-card">
@@ -288,17 +402,6 @@ function engineReadinessLabel($allocationWindow) {
                         </table>
                     </div>
                 <?php endif; ?>
-            </section>
-
-            <section class="terminal">
-                <div><strong>[system]</strong> Initializing allocation engine...</div>
-                <div><strong>[deadline]</strong> Final allocation date: <span class="warn"><?php echo e($finalAllocationDate); ?></span></div>
-                <div><strong>[trigger]</strong> <?php echo e(engineReadinessLabel($allocationWindow)); ?></div>
-                <div><strong>[check]</strong> Eligible students: <span class="ok"><?php echo e($summary["eligibleStudents"]); ?></span></div>
-                <div><strong>[check]</strong> Current allocated students: <span class="ok"><?php echo e($summary["allocatedStudents"]); ?></span></div>
-                <div><strong>[queue]</strong> Unassigned eligible students: <span class="warn"><?php echo e($summary["unassignedStudents"]); ?></span></div>
-                <div><strong>[rule]</strong> Capacity lock enabled. Supervisors cannot exceed quota.</div>
-                <div><strong>[strategy]</strong> System Auto-Match strategy ready.</div>
             </section>
 
             <section class="panel table-card" style="margin-top:24px;">

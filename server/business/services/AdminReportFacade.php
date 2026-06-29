@@ -265,6 +265,21 @@ class AdminReportFacade {
         ];
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard Programme Distribution
+    |--------------------------------------------------------------------------
+    | Uses allocated students as the source of truth so the dashboard reflects
+    | the actual student roster programme mix.
+    */
+
+    public function getAllocatedStudentProgrammeDistribution() {
+
+        return
+            $this->reportDAO
+            ->fetchAllocatedStudentProgrammeDistribution();
+    }
+
     private function normaliseCohortFilters(
         $filters
     ) {

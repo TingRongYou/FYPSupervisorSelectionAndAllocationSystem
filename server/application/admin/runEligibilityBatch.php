@@ -57,6 +57,23 @@ if (!SessionManager::validateCsrfToken($_POST["csrf_token"] ?? "")) {
 
 /*
 |--------------------------------------------------------------------------
+| CSV Upload Guard
+|--------------------------------------------------------------------------
+| The eligibility batch must only run after a CSV import has completed in
+| the current administrator session.
+*/
+
+if (empty($_SESSION["eligibility_csv_uploaded"])) {
+
+    header(
+        "Location: ../../../client/admin/studentEligibility.php?status=error&message=Please upload a CSV file before running the eligibility batch"
+    );
+
+    exit();
+}
+
+/*
+|--------------------------------------------------------------------------
 | Eligibility Batch Processing
 |--------------------------------------------------------------------------
 | Run eligibility rules and create accounts for eligible students.

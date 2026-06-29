@@ -58,7 +58,7 @@ $dashboard =
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Supervisor Dashboard | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
-    <link rel="stylesheet" href="../assets/css/supervisor.css">
+    <link rel="stylesheet" href="../assets/css/supervisor.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/supervisor.css"); ?>">
     <script src="../assets/js/supervisor.js" defer></script>
 </head>
 

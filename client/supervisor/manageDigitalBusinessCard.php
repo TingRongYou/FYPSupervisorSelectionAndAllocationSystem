@@ -32,17 +32,6 @@ foreach ($allTags as $tag) {
 $completion = 0;
 $defaultBio = "";
 $activeTime = "";
-$clientBasePath = rtrim(dirname($_SERVER["SCRIPT_NAME"], 2), "/\\");
-$shareProfileUrl =
-    (
-        (!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] !== "off")
-        ? "https://"
-        : "http://"
-    )
-    . ($_SERVER["HTTP_HOST"] ?? "localhost")
-    . $clientBasePath
-    . "/student/studentSupervisorProfile.php?supervisorID="
-    . rawurlencode($_SESSION["userID"]);
 
 if ($profile) {
 
@@ -94,7 +83,7 @@ if ($profile) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Business Card | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
-    <link rel="stylesheet" href="../assets/css/supervisor.css">
+    <link rel="stylesheet" href="../assets/css/supervisor.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/supervisor.css"); ?>">
     <script src="../assets/js/supervisor.js" defer></script>
 </head>
 <body>
@@ -215,7 +204,6 @@ if ($profile) {
                                 <p class="preview-text"><?php echo e($defaultBio); ?></p>
                                 <p class="preview-text">Current supervision load: <?php echo e($profile["quotaText"] ?? "0/0 supervisees"); ?>.</p>
                                 <p class="preview-text"><?php echo e($profile["universityEmail"]); ?></p>
-                                <a class="button secondary share-profile-link" href="<?php echo e($shareProfileUrl); ?>" data-share-url="<?php echo e($shareProfileUrl); ?>" target="_blank" rel="noopener noreferrer">Share Profile Link</a>
                             </div>
                         </section>
                         <section class="insight">

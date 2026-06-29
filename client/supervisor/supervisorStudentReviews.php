@@ -31,7 +31,7 @@ function stars($rating) {
     <title>Student Reviews | SSAS</title>
     <!-- Standardized Asset Links -->
     <link rel="stylesheet" href="../assets/css/shared.css">
-    <link rel="stylesheet" href="../assets/css/supervisor.css">
+    <link rel="stylesheet" href="../assets/css/supervisor.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/supervisor.css"); ?>">
     <script src="../assets/js/supervisor.js" defer></script>
 </head>
 <body>

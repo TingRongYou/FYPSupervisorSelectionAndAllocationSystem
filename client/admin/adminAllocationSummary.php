@@ -72,7 +72,7 @@ function capacityClass($status) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Allocation Summary | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/admin.css"); ?>">
     <script src="../assets/js/admin.js" defer></script>
 </head>
 <body>
@@ -82,15 +82,19 @@ function capacityClass($status) {
     <div class="content-shell">
         <?php echo adminReportSidebar("allocation"); ?>
 
-        <main class="main">
+        <main class="main allocation-summary-main">
             <div class="report-shell">
-                <header class="report-head">
+                <section class="hero-card allocation-title-hero">
                     <div>
-                        <h1>Allocations</h1>
+                        <span class="hero-kicker">Admin Reports</span>
+                        <h1>Allocation Summary</h1>
                         <p>Monitor supervisor quota utilization, pending workload, and capacity risks for administrative review.</p>
                     </div>
+                </section>
+
+                <div class="report-toolbar">
                     <?php echo adminReportExportMenu("allocation", ["programme" => $programme]); ?>
-                </header>
+                </div>
 
                 <!-- UC301 summary metrics: utilization, capacity risk, pending work. -->
                 <section class="capacity-grid">
@@ -113,13 +117,13 @@ function capacityClass($status) {
                 </section>
 
                 <!-- Supervisor capacity roster from allocation and quota records. -->
-                <section class="table-card" style="padding: 0 0 22px;">
+                <section class="table-card allocation-roster-card">
                     <div class="table-headline">
                         <div>
                             <h2>Supervisor Capacity Roster</h2>
                             <p>Real-time supervisor load from allocation and quota records.</p>
                         </div>
-                        <form class="filter-form" style="display:flex; gap:10px;" method="GET" action="adminAllocationSummary.php">
+                        <form class="filter-form allocation-filter-form" method="GET" action="adminAllocationSummary.php">
                             <div class="filter-field">
                                 <label>Programme</label>
                                 <select name="programme">
@@ -138,7 +142,7 @@ function capacityClass($status) {
                     <?php if ($report["message"] !== ""): ?>
                         <div class="empty-message"><?php echo e($report["message"]); ?></div>
                     <?php else: ?>
-                        <div class="roster-list" style="padding: 0 22px;">
+                        <div class="roster-list allocation-roster-list">
                             <?php foreach ($report["supervisors"] as $supervisor): ?>
                                 <?php
                                     $statusClass = capacityClass($supervisor["capacityStatus"]);
@@ -173,7 +177,9 @@ function capacityClass($status) {
                                         Last Active<br><?php echo e(adminLastActiveLabel($supervisor["lastAllocationDate"])); ?>
                                     </div>
 
-                                    <div style="color:#8a9caf; font-weight:900;">:</div>
+                                    <div class="roster-status-chip <?php echo e($statusClass); ?>">
+                                        <?php echo e($supervisor["capacityStatus"]); ?>
+                                    </div>
                                 </article>
                             <?php endforeach; ?>
                         </div>

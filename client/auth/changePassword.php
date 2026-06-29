@@ -21,6 +21,12 @@ $user = null;
 
 require_once "../../server/data/database/database.php";
 
+if (!function_exists("e")) {
+    function e($value) {
+        return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
+    }
+}
+
 $database = new Database();
 $pdo = $database->connect();
 

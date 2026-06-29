@@ -55,7 +55,6 @@ document.addEventListener("DOMContentLoaded", function() {
     // Form confirmation and validation handling
     const cardForm = document.querySelector(".form-card");
     const discardLink = document.querySelector(".actions .button.secondary");
-    const shareProfileLink = document.querySelector(".share-profile-link");
 
     if (cardForm) {
         cardForm.addEventListener("submit", function(event) {
@@ -79,34 +78,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    if (shareProfileLink) {
-        shareProfileLink.addEventListener("click", function(event) {
-            const shareUrl = shareProfileLink.dataset.shareUrl || shareProfileLink.href;
-
-            event.preventDefault();
-
-            function showCopiedState() {
-                const originalText = shareProfileLink.textContent;
-
-                shareProfileLink.textContent = "Profile Link Copied";
-                shareProfileLink.classList.add("copied");
-
-                window.setTimeout(function() {
-                    shareProfileLink.textContent = originalText;
-                    shareProfileLink.classList.remove("copied");
-                }, 1800);
-            }
-
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(shareUrl).then(showCopiedState).catch(function() {
-                    window.prompt("Copy this profile link:", shareUrl);
-                });
-                return;
-            }
-
-            window.prompt("Copy this profile link:", shareUrl);
-        });
-    }
 });
 
 /* ==========================================================================

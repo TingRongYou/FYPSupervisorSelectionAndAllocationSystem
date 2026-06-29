@@ -133,6 +133,22 @@ $status =
     ? "success"
     : "error";
 
+if ($result["success"]) {
+
+    $_SESSION["eligibility_csv_uploaded"] =
+        true;
+
+    $_SESSION["eligibility_csv_file_name"] =
+        $fileName;
+
+} else {
+
+    unset(
+        $_SESSION["eligibility_csv_uploaded"],
+        $_SESSION["eligibility_csv_file_name"]
+    );
+}
+
 $message =
     urlencode(
         $result["message"]

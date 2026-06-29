@@ -146,9 +146,19 @@ class SupervisorDAO {
 
         $query = "
             SELECT DISTINCT programme
-            FROM SUPERVISOR_PROFILE
-            WHERE programme IS NOT NULL
-            AND programme != ''
+            FROM (
+                SELECT programme
+                FROM SUPERVISOR_PROFILE
+                WHERE programme IS NOT NULL
+                AND programme != ''
+
+                UNION
+
+                SELECT programme
+                FROM STUDENT_PROFILE
+                WHERE programme IS NOT NULL
+                AND programme != ''
+            ) programmeSource
             ORDER BY programme ASC
         ";
 

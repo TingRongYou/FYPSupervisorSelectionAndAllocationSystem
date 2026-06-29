@@ -92,7 +92,7 @@ $supervisorManagementService = new SupervisorManagementService();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Supervisor Management | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/admin.css"); ?>">
     
     <script>
         window.ssasQuotaRules = <?php echo json_encode($quotaByClassification); ?>;
@@ -128,7 +128,7 @@ $supervisorManagementService = new SupervisorManagementService();
             </div>
         </aside>
         
-        <main class="main">
+        <main class="main supervisor-management-main">
             <?php echo statusMessage(); ?>
 
             <section class="hero-grid">
@@ -146,9 +146,6 @@ $supervisorManagementService = new SupervisorManagementService();
                                 <div class="metric-value"><?php echo e($averageLoad); ?>%</div>
                             </div>
                         </div>
-                    </div>
-                    <div class="hero-actions">
-                        <button class="hero-btn primary" type="button" data-open-create>New Supervisor</button>
                     </div>
                 </article>
 
@@ -186,11 +183,15 @@ $supervisorManagementService = new SupervisorManagementService();
                 <?php endforeach; ?>
             </nav>
 
-            <section class="panel">
+            <section class="panel supervisor-directory-panel">
                 <div class="directory-header">
-                    <h2>Supervisor Directory</h2>
-                    <form class="search-form" method="GET" action="supervisorsManagement.php">
+                    <div class="directory-title">
+                        <h2>Supervisor Directory</h2>
+                        <p>Search, filter, and update supervisor classification records.</p>
+                    </div>
+                    <div class="directory-tools">
                         <button class="btn btn-ghost" type="button" data-open-create>Add Supervisor</button>
+                        <form class="search-form" method="GET" action="supervisorsManagement.php">
                         <div class="search-wrap">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -207,7 +208,8 @@ $supervisorManagementService = new SupervisorManagementService();
                         </select>
                         <button class="btn btn-primary" type="submit">Apply</button>
                         <a class="btn btn-secondary" href="supervisorsManagement.php">Reset</a>
-                    </form>
+                        </form>
+                    </div>
                 </div>
 
                 <form class="create-panel <?php echo $showCreatePanel ? "show" : ""; ?>" id="createSupervisorPanel" action="../../server/application/admin/createSupervisorProcess.php" method="POST">
@@ -342,7 +344,7 @@ $supervisorManagementService = new SupervisorManagementService();
                                 </div>
 
                                 <div class="action-cell">
-                                    <button class="save-btn" type="submit" title="Save">OK</button>
+                                    <button class="save-btn" type="submit" title="Save changes" aria-label="Save changes">&#10003;</button>
                                     <button class="more-btn" type="button" title="Edit account particulars" data-edit-account
                                         data-supervisor-id="<?php echo e($supervisor["userID"]); ?>"
                                         data-full-name="<?php echo e($supervisor["fullName"]); ?>"

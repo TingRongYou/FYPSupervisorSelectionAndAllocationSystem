@@ -64,7 +64,7 @@ function formatMonthYear($date) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Incoming Requests | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
-    <link rel="stylesheet" href="../assets/css/supervisor.css">
+    <link rel="stylesheet" href="../assets/css/supervisor.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/supervisor.css"); ?>">
     <script src="../assets/js/supervisor.js" defer></script>
 </head>
 <body>
@@ -73,12 +73,19 @@ function formatMonthYear($date) {
         <?php echo supervisorSidebar("incoming-requests"); ?>
         <main class="main">
             <?php echo statusMessage(); ?>
-            <section class="page-head">
-                <h1>Incoming Requests</h1>
-                <p>Review and manage student requests.</p>
+            <section class="page-head incoming-hero">
+                <div>
+                    <div class="eyebrow">Requests & Decisions</div>
+                    <h1>Incoming Requests</h1>
+                    <p>Review student proposals, filter by status, and open each submission for a decision.</p>
+                </div>
+                <div class="hero-stat">
+                    <div class="stat-label">Displayed</div>
+                    <div class="stat-value"><?php echo e($totalApplications); ?></div>
+                </div>
             </section>
 
-            <form class="toolbar card" method="GET">
+            <form class="toolbar card incoming-toolbar" method="GET">
                 <div class="search-row">
                     <div>
                         <label for="search">Search</label>
@@ -94,25 +101,30 @@ function formatMonthYear($date) {
                             <?php endforeach; ?>
                         </select>
                     </div>
+                    <div>
+                        <label for="programme">Programme</label>
+                        <select id="programme" name="programme" onchange="this.form.submit()">
+                            <option value="">All Faculties</option>
+                            <?php foreach ($programmes as $programmeOption): ?>
+                                <option value="<?php echo e($programmeOption); ?>" <?php echo $programme === $programmeOption ? "selected" : ""; ?>>
+                                    <?php echo e($programmeOption); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                     <button class="button" type="submit">Apply Filters</button>
                 </div>
-                <div class="filter-row">
-                    <select name="programme" onchange="this.form.submit()">
-                        <option value="">Programme: All Faculties</option>
-                        <?php foreach ($programmes as $programmeOption): ?>
-                            <option value="<?php echo e($programmeOption); ?>" <?php echo $programme === $programmeOption ? "selected" : ""; ?>>
-                                <?php echo e($programmeOption); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                <div class="request-filter-summary">
                     <span class="count-label">Displaying <?php echo e($start); ?>-<?php echo e($end); ?> of <?php echo e($totalApplications); ?> entries</span>
                 </div>
             </form>
 
             <section class="request-table card">
                 <?php if (empty($applications)): ?>
-                    <div class="empty-state">
-                        <?php echo $status === "Pending" && $search === "" && $programme === "" ? "No Pending Requests - You currently have no pending requests." : "No matching student requests were found."; ?>
+                    <div class="empty-state incoming-empty-state">
+                        <span class="empty-icon">0</span>
+                        <h2><?php echo $status === "Pending" && $search === "" && $programme === "" ? "No Pending Requests" : "No Matching Requests"; ?></h2>
+                        <p><?php echo $status === "Pending" && $search === "" && $programme === "" ? "You currently have no pending student requests to review." : "Try changing the search, programme, or status filter."; ?></p>
                     </div>
                 <?php else: ?>
                     <table>

@@ -34,7 +34,7 @@ $strength = $tagCount >= 7 ? "High" : ($tagCount >= 4 ? "Medium" : "Low");
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expertise & Tags | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
-    <link rel="stylesheet" href="../assets/css/supervisor.css">
+    <link rel="stylesheet" href="../assets/css/supervisor.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/supervisor.css"); ?>">
     <script src="../assets/js/supervisor.js" defer></script>
 </head>
 <body>
@@ -149,9 +149,9 @@ $strength = $tagCount >= 7 ? "High" : ($tagCount >= 4 ? "Medium" : "Low");
                         </ul>
                     </section>
 
-                    <section class="actions">
-                        <button class="button" type="submit">Save All Changes</button>
-                        <a class="button secondary" href="manageExpertiseTags.php">Discard Changes</a>
+                    <section class="actions tag-actions-panel">
+                        <button class="button save-card-button" type="submit">Save All Changes</button>
+                        <a class="button secondary discard-card-button" href="manageExpertiseTags.php">Discard Changes</a>
                     </section>
                 </aside>
             </form>
