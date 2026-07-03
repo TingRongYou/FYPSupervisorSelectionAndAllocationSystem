@@ -56,8 +56,13 @@ function selected($left, $right) {
         <?php echo studentSidebar("discovery"); ?>
         <main class="main">
             <div class="discovery-shell">
-                <h1 class="page-title">Discovery</h1>
-                <p class="page-subtitle">Find and connect with world-class academic supervisors. Match your research interests with TAR UMT's leading experts and innovators.</p>
+                <section class="page-header student-hero">
+                    <div>
+                        <p class="eyebrow">Supervisor Matching</p>
+                        <h1>Discovery</h1>
+                        <p class="subtitle">Find and connect with world-class academic supervisors. Match your research interests with TAR UMT's leading experts and innovators.</p>
+                    </div>
+                </section>
 
                 <section class="recommendation-panel">
                     <div class="recommendation-head">
@@ -88,8 +93,8 @@ function selected($left, $right) {
 
                 <form method="GET" action="studentDiscovery.php">
                     <section class="search-panel">
-                        <label for="searchName">Search Bar</label>
-                        <input type="text" id="searchName" name="searchName" value="<?php echo e($searchName); ?>" placeholder="Name">
+                        <label for="searchName">Search</label>
+                        <input type="text" id="searchName" name="searchName" value="<?php echo e($searchName); ?>" placeholder="Search by supervisor name">
                     </section>
 
                     <section class="filter-panel">
@@ -143,7 +148,7 @@ function selected($left, $right) {
                                 $used = (int) ($supervisor["activeStudents"] ?? 0);
                                 $max = (int) ($supervisor["maxSlots"] ?? 0);
                             ?>
-                            <article class="card">
+                            <article class="card discovery-card">
                                 <div class="card-visual">
                                     <div class="badge-stack">
                                         <span class="status-badge <?php echo e($badgeClass); ?>"><?php echo e($supervisor["status"]); ?></span>

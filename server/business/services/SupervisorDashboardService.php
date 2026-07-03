@@ -55,7 +55,8 @@ class SupervisorDashboardService {
     public function getDashboardData(
         $supervisorID,
         $allocationStatus = "",
-        $proposalStatus = ""
+        $proposalStatus = "",
+        $recentApplicationPage = 1
     ) {
 
         /*
@@ -96,11 +97,42 @@ class SupervisorDashboardService {
         | Get Recent Allocations
         |--------------------------------------------------------------------------
         */
+        $recentApplicationTotal =
+            $this->requestDAO
+                ->countRecentAllocationsBySupervisor(
+                    $supervisorID,
+                    $allocationStatus,
+                    $proposalStatus
+                );
+
+        $recentApplicationTotalPages =
+            max(
+                1,
+                (int) ceil(
+                    $recentApplicationTotal /
+                    self::RECENT_APPLICATION_LIMIT
+                )
+            );
+
+        $recentApplicationPage =
+            max(
+                1,
+                min(
+                    (int) $recentApplicationPage,
+                    $recentApplicationTotalPages
+                )
+            );
+
+        $recentApplicationOffset =
+            ($recentApplicationPage - 1) *
+            self::RECENT_APPLICATION_LIMIT;
+
         $recentApplications =
             $this->requestDAO
                 ->getRecentAllocationsBySupervisor(
                     $supervisorID,
                     self::RECENT_APPLICATION_LIMIT,
+                    $recentApplicationOffset,
                     $allocationStatus,
                     $proposalStatus
                 );
@@ -149,6 +181,18 @@ class SupervisorDashboardService {
 
             "recentApplications" =>
                 $this->formatApplications($recentApplications),
+
+            "recentApplicationsTotal" =>
+                $recentApplicationTotal,
+
+            "recentApplicationsPage" =>
+                $recentApplicationPage,
+
+            "recentApplicationsPerPage" =>
+                self::RECENT_APPLICATION_LIMIT,
+
+            "recentApplicationsTotalPages" =>
+                $recentApplicationTotalPages,
 
             "deadlineAlert" =>
                 $this->buildDeadlineAlert(

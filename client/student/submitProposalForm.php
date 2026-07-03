@@ -68,7 +68,7 @@ function statusMessage() {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proposal Submission | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
-    <link rel="stylesheet" href="../assets/css/student.css">
+    <link rel="stylesheet" href="../assets/css/student.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/student.css'); ?>">
     <script src="../assets/js/student.js" defer></script>
 </head>
 <body>
@@ -80,12 +80,14 @@ function statusMessage() {
                 <div class="breadcrumb">Discovery > <?php echo $profile ? e($profile["fullName"]) : "Supervisor"; ?> > <?php echo $isResubmission ? "Resubmit Proposal" : "Submit Proposal"; ?></div>
                 <?php echo statusMessage(); ?>
                 
-                <h1><?php echo $isResubmission ? "Proposal Resubmission" : "Proposal Submission"; ?></h1>
-                <p class="subtitle">
-                    <?php echo $isResubmission
-                        ? "Upload a revised project proposal for supervisor review."
-                        : "Upload your project proposal for review. Ensure all documentation adheres to the guidelines."; ?>
-                </p>
+                <section class="proposal-hero">
+                    <h1><?php echo $isResubmission ? "Proposal Resubmission" : "Proposal Submission"; ?></h1>
+                    <p class="subtitle">
+                        <?php echo $isResubmission
+                            ? "Upload a revised project proposal for supervisor review."
+                            : "Upload your project proposal for review. Ensure all documentation adheres to the guidelines."; ?>
+                    </p>
+                </section>
 
                 <?php if (!$profile): ?>
                     <section class="empty">Supervisor profile was not found.</section>
@@ -99,10 +101,13 @@ function statusMessage() {
                         <input type="hidden" name="supervisorID" value="<?php echo e($supervisorID); ?>">
                         <input type="hidden" name="requestID" value="<?php echo e($requestID); ?>">
                         <section class="form-panel">
-                            <label for="projectTitle">Project Title</label>
-                            <input type="text" id="projectTitle" name="projectTitle" maxlength="255" required placeholder="e.g., AI-Driven Analytics for Campus Sustainability">
-                            <p class="hint">Must be unique and concise (max 255 characters).</p>
+                            <div class="proposal-field">
+                                <label for="projectTitle">Project Title</label>
+                                <input type="text" id="projectTitle" name="projectTitle" maxlength="255" required placeholder="e.g., AI-Driven Analytics for Campus Sustainability">
+                                <p class="hint">Must be unique and concise (max 255 characters).</p>
+                            </div>
 
+                            <div class="proposal-field">
                             <label for="proposalPDF">Proposal Document (PDF)</label>
                             <div class="drop-zone" id="dropZone">
                                 <div>
@@ -113,6 +118,7 @@ function statusMessage() {
                                 </div>
                                 <input type="hidden" name="MAX_FILE_SIZE" value="5242880">
                                 <input type="file" id="proposalPDF" name="proposalPDF" accept="application/pdf" required>
+                            </div>
                             </div>
                             <div class="tip">Recommended: Include a bibliography in the appendix.</div>
                             <button class="button" type="submit"><?php echo $isResubmission ? "Resubmit Proposal" : "Submit Proposal"; ?></button>

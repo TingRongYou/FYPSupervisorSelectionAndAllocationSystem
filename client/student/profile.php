@@ -43,6 +43,45 @@ function initials($name) {
     return $first . $second;
 }
 
+function researchTagCode($tagName) {
+
+    $normalisedName = strtolower(
+        preg_replace("/\s+/", " ", trim((string) $tagName))
+    );
+
+    $tagCodes = [
+        "artificial intelligence" => "AI",
+        "software engineering" => "SE",
+        "cybersecurity" => "CY",
+        "cyber security" => "CY",
+    ];
+
+    if (isset($tagCodes[$normalisedName])) {
+
+        return $tagCodes[$normalisedName];
+    }
+
+    $words = preg_split("/[\s\-\/]+/", trim((string) $tagName));
+    $code = "";
+
+    foreach ($words as $word) {
+
+        if ($word === "") {
+
+            continue;
+        }
+
+        $code .= strtoupper(substr($word, 0, 1));
+
+        if (strlen($code) >= 2) {
+
+            break;
+        }
+    }
+
+    return $code !== "" ? $code : strtoupper(substr((string) $tagName, 0, 2));
+}
+
 function statusMessage() {
 
     if (!isset($_GET["status"], $_GET["message"])) {
@@ -74,15 +113,11 @@ function statusMessage() {
         <main class="main">
             <div class="profile-shell">
                 <?php echo statusMessage(); ?>
-                <section class="page-header">
+                <section class="page-header student-hero">
                     <div>
                         <p class="eyebrow">Profile Management</p>
                         <h1>Student Profile</h1>
                         <p class="subtitle">Manage your personal information and academic recommendation signals.</p>
-                    </div>
-                    <div class="header-actions">
-                        <button class="button secondary" type="reset" form="studentProfileForm">Cancel</button>
-                        <button class="button" type="submit" form="studentProfileForm">Save Changes</button>
                     </div>
                 </section>
 
@@ -152,7 +187,10 @@ function statusMessage() {
                                     <?php foreach ($allTags as $tag): ?>
                                         <?php $checked = in_array((int) $tag["tagID"], $selectedTagIDs, true); ?>
                                         <label class="tag-option <?php echo $checked ? "selected" : ""; ?>">
-                                            <span><?php echo e($tag["tagName"]); ?></span>
+                                            <span class="tag-name">
+                                                <span class="tag-code"><?php echo e(researchTagCode($tag["tagName"])); ?></span>
+                                                <?php echo e($tag["tagName"]); ?>
+                                            </span>
                                             <input type="checkbox" name="interestTags[]" value="<?php echo e($tag["tagID"]); ?>" data-name="<?php echo e($tag["tagName"]); ?>" <?php echo $checked ? "checked" : ""; ?>>
                                         </label>
                                     <?php endforeach; ?>

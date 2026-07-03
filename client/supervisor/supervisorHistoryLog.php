@@ -22,6 +22,15 @@ $semester =
         $_GET["semester"] ?? ""
     );
 
+$historyPage =
+    max(
+        1,
+        (int) ($_GET["historyPage"] ?? 1)
+    );
+
+$historyPerPage =
+    3;
+
 // Report Facade
 // Fetches history through the supervisor report facade instead of querying pages directly.
 $reportFacade =
@@ -41,6 +50,43 @@ $year =
 $semester =
     $history["selectedSemester"];
 
+$historyTotal =
+    (int) ($history["total"] ?? count($history["records"]));
+
+$historyTotalPages =
+    max(
+        1,
+        (int) ceil($historyTotal / $historyPerPage)
+    );
+
+$historyPage =
+    min(
+        $historyPage,
+        $historyTotalPages
+    );
+
+$historyOffset =
+    ($historyPage - 1) *
+    $historyPerPage;
+
+$visibleHistoryRecords =
+    array_slice(
+        $history["records"],
+        $historyOffset,
+        $historyPerPage
+    );
+
+$historyStart =
+    $historyTotal === 0
+        ? 0
+        : $historyOffset + 1;
+
+$historyEnd =
+    min(
+        $historyTotal,
+        $historyOffset + count($visibleHistoryRecords)
+    );
+
 function historySemesterLabel(
     $currentSem
 ) {
@@ -56,6 +102,29 @@ function historySemesterLabel(
     }
 
     return $currentSem !== "" ? $currentSem : "Not recorded";
+}
+
+function historyPageUrl(
+    $page,
+    $year,
+    $semester
+) {
+
+    $query = [
+        "historyPage" => max(1, (int) $page)
+    ];
+
+    if ($year !== "") {
+
+        $query["year"] = $year;
+    }
+
+    if ($semester !== "") {
+
+        $query["semester"] = $semester;
+    }
+
+    return "supervisorHistoryLog.php?" . http_build_query($query);
 }
 
 ?>
@@ -101,6 +170,7 @@ function historySemesterLabel(
 
                 <div class="history-toolbar">
                     <form class="filter-row history-filter" method="GET" action="supervisorHistoryLog.php">
+                        <input type="hidden" name="historyPage" value="1">
                         <select name="year" aria-label="Year">
                             <option value="">All Years</option>
                             <?php foreach ($history["years"] as $availableYear): ?>
@@ -145,7 +215,7 @@ function historySemesterLabel(
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($history["records"] as $index => $record): ?>
+                                    <?php foreach ($visibleHistoryRecords as $index => $record): ?>
                                         <tr>
                                             <td><strong><?php echo e($record["completionYear"]); ?></strong></td>
                                             <td><?php echo e(historySemesterLabel($record["currentSem"] ?? "")); ?></td>
@@ -167,8 +237,22 @@ function historySemesterLabel(
                             </table>
                         </div>
                         <div class="pagination-note">
-                            <span>Showing <?php echo e(count($history["records"])); ?> historical record(s)</span>
-                            <span>1</span>
+                            <span>Showing <?php echo e($historyStart); ?>-<?php echo e($historyEnd); ?> of <?php echo e($historyTotal); ?> historical record(s)</span>
+                            <div class="table-pager" aria-label="Supervision history pagination">
+                                <?php if ($historyPage > 1): ?>
+                                    <a class="table-page-button" href="<?php echo e(historyPageUrl($historyPage - 1, $year, $semester)); ?>" aria-label="Previous history page">&lt;</a>
+                                <?php else: ?>
+                                    <span class="table-page-button disabled" aria-hidden="true">&lt;</span>
+                                <?php endif; ?>
+
+                                <span class="table-page-count">Page <?php echo e($historyPage); ?> of <?php echo e($historyTotalPages); ?></span>
+
+                                <?php if ($historyPage < $historyTotalPages): ?>
+                                    <a class="table-page-button" href="<?php echo e(historyPageUrl($historyPage + 1, $year, $semester)); ?>" aria-label="Next history page">&gt;</a>
+                                <?php else: ?>
+                                    <span class="table-page-button disabled" aria-hidden="true">&gt;</span>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     <?php endif; ?>
                 </section>

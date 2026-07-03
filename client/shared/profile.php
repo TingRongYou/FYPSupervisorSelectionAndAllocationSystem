@@ -60,7 +60,6 @@ SessionManager::setProfilePhotoPath(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/shared.css"); ?>">
-    <link rel="stylesheet" href="../assets/css/student.css">
     <script src="../assets/js/shared.js" defer></script>
 </head>
 <body>
@@ -102,6 +101,12 @@ SessionManager::setProfilePhotoPath(
                                 <button class="save-photo" type="submit">Save Photo</button>
                             </div>
                         </form>
+                        <?php if (!empty($profile["profilePhotoPath"])): ?>
+                            <form class="photo-remove-form" action="../../server/application/auth/removeProfilePhotoProcess.php" method="POST">
+                                <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($_SESSION["csrf_token"]); ?>">
+                                <button class="remove-photo" type="submit">Remove Photo</button>
+                            </form>
+                        <?php endif; ?>
                     </aside>
                     <section class="info-section">
                         <h2>SSAS Account Particulars</h2>

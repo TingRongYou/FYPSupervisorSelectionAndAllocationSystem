@@ -17,6 +17,8 @@ $projects = $pastProjectService->getProjectsBySupervisor($_SESSION["userID"]);
 $summary = $pastProjectService->getShowcaseSummary($_SESSION["userID"]);
 $editingProject = null;
 $showProjectForm = isset($_GET["addProject"]);
+$projectPage = max(1, (int) ($_GET["projectPage"] ?? 1));
+$projectsPerPage = 3;
 
 if (isset($_GET["editProjectID"])) {
 
@@ -26,6 +28,12 @@ if (isset($_GET["editProjectID"])) {
 
 $projectCount = $summary["totalProjects"];
 $studentsSupervised = $summary["studentsSupervised"];
+$totalProjectPages = max(1, (int) ceil($projectCount / $projectsPerPage));
+$projectPage = min($projectPage, $totalProjectPages);
+$projectOffset = ($projectPage - 1) * $projectsPerPage;
+$visibleProjects = array_slice($projects, $projectOffset, $projectsPerPage);
+$projectStart = $projectCount === 0 ? 0 : $projectOffset + 1;
+$projectEnd = min($projectOffset + count($visibleProjects), $projectCount);
 
 function projectPdfUrl($path) {
 
@@ -41,6 +49,11 @@ function projectImageUrl($path) {
         basename((string) $path);
 
     return "../../storage/past_project_images/" . rawurlencode($fileName);
+}
+
+function projectPageUrl($page) {
+
+    return "managePastProjects.php?projectPage=" . max(1, (int) $page);
 }
 
 ?>
@@ -167,9 +180,9 @@ function projectImageUrl($path) {
                     <section class="card empty">No past projects have been added yet.</section>
                 <?php else: ?>
                     <section class="project-grid">
-                        <?php foreach ($projects as $index => $project): ?>
+                        <?php foreach ($visibleProjects as $index => $project): ?>
                             <article class="card project-card">
-                                <div class="project-visual alt<?php echo e($index % 3); ?> <?php echo !empty($project["projectImagePath"]) ? "has-image" : ""; ?>">
+                                <div class="project-visual alt<?php echo e(($projectOffset + $index) % 3); ?> <?php echo !empty($project["projectImagePath"]) ? "has-image" : ""; ?>">
                                     <?php if (!empty($project["projectImagePath"])): ?>
                                         <img src="<?php echo e(projectImageUrl($project["projectImagePath"])); ?>" alt="">
                                     <?php endif; ?>
@@ -206,9 +219,22 @@ function projectImageUrl($path) {
                     </section>
                     
                     <div class="footer-page">
-                        <span>Showing <?php echo e($projectCount); ?> archived projects</span>
-                        <div class="pages"><span class="active">1</span><span>2</span><span>3</span></div>
-                        <span></span>
+                        <span>Showing <?php echo e($projectStart); ?>-<?php echo e($projectEnd); ?> of <?php echo e($projectCount); ?> archived projects</span>
+                        <div class="table-pager" aria-label="Past projects pagination">
+                            <?php if ($projectPage > 1): ?>
+                                <a class="table-page-button" href="<?php echo e(projectPageUrl($projectPage - 1)); ?>" aria-label="Previous projects page">&lt;</a>
+                            <?php else: ?>
+                                <span class="table-page-button disabled" aria-hidden="true">&lt;</span>
+                            <?php endif; ?>
+
+                            <span class="table-page-count">Page <?php echo e($projectPage); ?> of <?php echo e($totalProjectPages); ?></span>
+
+                            <?php if ($projectPage < $totalProjectPages): ?>
+                                <a class="table-page-button" href="<?php echo e(projectPageUrl($projectPage + 1)); ?>" aria-label="Next projects page">&gt;</a>
+                            <?php else: ?>
+                                <span class="table-page-button disabled" aria-hidden="true">&gt;</span>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 <?php endif; ?>
             <?php endif; ?>

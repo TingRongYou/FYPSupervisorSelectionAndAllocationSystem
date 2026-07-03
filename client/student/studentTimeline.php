@@ -63,8 +63,9 @@ function formatDateTimeText($value) {
         <?php echo studentSidebar("timeline"); ?>
         <main class="main">
             <div class="page-shell">
-                <section class="page-header">
+                <section class="page-header student-hero">
                     <div>
+                        <p class="eyebrow">Academic Timeline</p>
                         <h1>Timeline & Milestones</h1>
                         <p class="subtitle">Monitor the active academic phase and proposal submission lock using the central SSAS server clock.</p>
                     </div>

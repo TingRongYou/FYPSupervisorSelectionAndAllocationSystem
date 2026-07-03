@@ -35,8 +35,54 @@ $reportFacade =
 $programme =
     trim($_GET["programme"] ?? "");
 
+$rosterPage =
+    max(
+        1,
+        (int) ($_GET["rosterPage"] ?? 1)
+    );
+
+$recordsPerPage =
+    3;
+
 $report =
     $reportFacade->getAllocationSummary($programme);
+
+$supervisorTotal =
+    count($report["supervisors"]);
+
+$supervisorTotalPages =
+    max(
+        1,
+        (int) ceil($supervisorTotal / $recordsPerPage)
+    );
+
+$rosterPage =
+    min(
+        $rosterPage,
+        $supervisorTotalPages
+    );
+
+$supervisorOffset =
+    ($rosterPage - 1) *
+    $recordsPerPage;
+
+$visibleSupervisors =
+    array_slice(
+        $report["supervisors"],
+        $supervisorOffset,
+        $recordsPerPage
+    );
+
+$supervisorStart =
+    $supervisorTotal === 0
+        ? 0
+        : $supervisorOffset + 1;
+
+$supervisorEnd =
+    min(
+        $supervisorTotal,
+        $supervisorOffset + count($visibleSupervisors)
+    );
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +108,20 @@ function capacityClass($status) {
     }
 
     return "";
+}
+
+function allocationRosterPageUrl($page, $programme) {
+
+    $query = [
+        "rosterPage" => max(1, (int) $page)
+    ];
+
+    if ($programme !== "") {
+
+        $query["programme"] = $programme;
+    }
+
+    return "adminAllocationSummary.php?" . http_build_query($query);
 }
 
 ?>
@@ -124,6 +184,7 @@ function capacityClass($status) {
                             <p>Real-time supervisor load from allocation and quota records.</p>
                         </div>
                         <form class="filter-form allocation-filter-form" method="GET" action="adminAllocationSummary.php">
+                            <input type="hidden" name="rosterPage" value="1">
                             <div class="filter-field">
                                 <label>Programme</label>
                                 <select name="programme">
@@ -143,7 +204,7 @@ function capacityClass($status) {
                         <div class="empty-message"><?php echo e($report["message"]); ?></div>
                     <?php else: ?>
                         <div class="roster-list allocation-roster-list">
-                            <?php foreach ($report["supervisors"] as $supervisor): ?>
+                            <?php foreach ($visibleSupervisors as $supervisor): ?>
                                 <?php
                                     $statusClass = capacityClass($supervisor["capacityStatus"]);
                                     $fillRate = (float) $supervisor["fillRate"];
@@ -182,6 +243,24 @@ function capacityClass($status) {
                                     </div>
                                 </article>
                             <?php endforeach; ?>
+                        </div>
+                        <div class="pagination-note">
+                            <span>Showing <?php echo e($supervisorStart); ?>-<?php echo e($supervisorEnd); ?> of <?php echo e($supervisorTotal); ?> supervisors</span>
+                            <div class="table-pager" aria-label="Supervisor capacity roster pagination">
+                                <?php if ($rosterPage > 1): ?>
+                                    <a class="table-page-button" href="<?php echo e(allocationRosterPageUrl($rosterPage - 1, $programme)); ?>" aria-label="Previous supervisor roster page">&lt;</a>
+                                <?php else: ?>
+                                    <span class="table-page-button disabled" aria-hidden="true">&lt;</span>
+                                <?php endif; ?>
+
+                                <span class="table-page-count">Page <?php echo e($rosterPage); ?> of <?php echo e($supervisorTotalPages); ?></span>
+
+                                <?php if ($rosterPage < $supervisorTotalPages): ?>
+                                    <a class="table-page-button" href="<?php echo e(allocationRosterPageUrl($rosterPage + 1, $programme)); ?>" aria-label="Next supervisor roster page">&gt;</a>
+                                <?php else: ?>
+                                    <span class="table-page-button disabled" aria-hidden="true">&gt;</span>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     <?php endif; ?>
                 </section>

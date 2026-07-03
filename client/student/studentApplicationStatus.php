@@ -128,7 +128,7 @@ function statusMessage() {
         <main class="main">
             <div class="status-shell">
                 <?php echo statusMessage(); ?>
-                <section class="page-header">
+                <section class="page-header student-hero">
                     <div>
                         <p class="eyebrow">Request & Proposal</p>
                         <h1>Application Status</h1>

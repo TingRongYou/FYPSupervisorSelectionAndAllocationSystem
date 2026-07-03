@@ -183,6 +183,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password - SSAS</title>
     <link rel="stylesheet" href="../assets/css/auth.css">
+    <script src="../assets/js/auth.js" defer></script>
 </head>
 <body>
     <main class="page">
@@ -208,8 +209,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <?php endif; ?>
 
                 <?php if ($resetLink === ""): ?>
-                    <form method="POST">
-                        <input type="email" name="email" placeholder="Enter your university email" value="<?php echo e($_POST['email'] ?? ''); ?>" required>
+                    <form method="POST" data-email-validation>
+                        <div class="field">
+                            <input type="email" name="email" placeholder="Enter your university email" value="<?php echo e($_POST['email'] ?? ''); ?>" required>
+                        </div>
                         <div class="button-row">
                             <button type="submit">Send Reset Link</button>
                         </div>

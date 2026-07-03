@@ -84,8 +84,12 @@ function requestClass($status) {
         <main class="main">
             <div class="dashboard-shell">
 
-                <section class="page-header">
-                    <h1>Student Dashboard</h1>
+                <section class="page-header student-hero">
+                    <div>
+                        <p class="eyebrow">Student Workspace</p>
+                        <h1>Student Dashboard</h1>
+                        <p class="subtitle">Track supervisor recommendations, active requests, and your review timeline in one place.</p>
+                    </div>
                     <a class="search-button" href="studentDiscovery.php">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>

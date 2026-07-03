@@ -15,11 +15,12 @@ if (empty($_SESSION["csrf_token"])) {
 $requestDAO = new RequestDAO();
 $supervisorID = $_SESSION["userID"];
 $page = max(1, (int) ($_GET["page"] ?? 1));
-$perPage = 10;
-$offset = ($page - 1) * $perPage;
+$perPage = 3;
 $totalSupervisees = $requestDAO->countSuperviseesBySupervisor($supervisorID);
-$supervisees = $requestDAO->getSuperviseesBySupervisor($supervisorID, $perPage, $offset);
 $totalPages = max(1, (int) ceil($totalSupervisees / $perPage));
+$page = min($page, $totalPages);
+$offset = ($page - 1) * $perPage;
+$supervisees = $requestDAO->getSuperviseesBySupervisor($supervisorID, $perPage, $offset);
 $start = $totalSupervisees === 0 ? 0 : $offset + 1;
 $end = min($offset + count($supervisees), $totalSupervisees);
 
@@ -124,14 +125,20 @@ function formatResearchTitle($title) {
                             </tbody>
                         </table>
                         <div class="footer-row">
-                            <span>Showing <?php echo e($start); ?> to <?php echo e($end); ?> of <?php echo e($totalSupervisees); ?> supervisees</span>
-                            <div class="pager">
+                            <span>Showing <?php echo e($start); ?>-<?php echo e($end); ?> of <?php echo e($totalSupervisees); ?> supervisees</span>
+                            <div class="table-pager" aria-label="Supervisees pagination">
                                 <?php if ($page > 1): ?>
-                                    <a href="?page=<?php echo e($page - 1); ?>">&lt;</a>
+                                    <a class="table-page-button" href="?page=<?php echo e($page - 1); ?>" aria-label="Previous supervisees page">&lt;</a>
+                                <?php else: ?>
+                                    <span class="table-page-button disabled" aria-hidden="true">&lt;</span>
                                 <?php endif; ?>
-                                <span class="active"><?php echo e($page); ?></span>
+
+                                <span class="table-page-count">Page <?php echo e($page); ?> of <?php echo e($totalPages); ?></span>
+
                                 <?php if ($page < $totalPages): ?>
-                                    <a href="?page=<?php echo e($page + 1); ?>">&gt;</a>
+                                    <a class="table-page-button" href="?page=<?php echo e($page + 1); ?>" aria-label="Next supervisees page">&gt;</a>
+                                <?php else: ?>
+                                    <span class="table-page-button disabled" aria-hidden="true">&gt;</span>
                                 <?php endif; ?>
                             </div>
                         </div>

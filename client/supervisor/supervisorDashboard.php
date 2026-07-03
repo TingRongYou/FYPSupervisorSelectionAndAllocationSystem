@@ -25,6 +25,12 @@ $allocationStatusFilter =
 $proposalStatusFilter =
     trim($_GET["proposalStatus"] ?? "");
 
+$allocationPage =
+    max(
+        1,
+        (int) ($_GET["allocationPage"] ?? 1)
+    );
+
 $allowedAllocationFilters =
     ["", "Auto-Allocated", "Accepted", "Allocated"];
 
@@ -46,8 +52,28 @@ $dashboard =
     ->getDashboardData(
         $_SESSION["userID"],
         $allocationStatusFilter,
-        $proposalStatusFilter
+        $proposalStatusFilter,
+        $allocationPage
     );
+
+function allocationPageUrl($page, $allocationStatusFilter, $proposalStatusFilter) {
+
+    $query = [
+        "allocationPage" => max(1, (int) $page)
+    ];
+
+    if ($allocationStatusFilter !== "") {
+
+        $query["allocationStatus"] = $allocationStatusFilter;
+    }
+
+    if ($proposalStatusFilter !== "") {
+
+        $query["proposalStatus"] = $proposalStatusFilter;
+    }
+
+    return "supervisorDashboard.php?" . http_build_query($query);
+}
 
 ?>
 
@@ -121,6 +147,7 @@ $dashboard =
                 <div class="section-header">
                     <h2>Recent Student Allocations</h2>
                     <form class="allocation-filter" method="GET">
+                        <input type="hidden" name="allocationPage" value="1">
                         <select name="allocationStatus" aria-label="Allocation status">
                             <?php foreach ($allowedAllocationFilters as $option): ?>
                                 <option value="<?php echo e($option); ?>" <?php echo $allocationStatusFilter === $option ? "selected" : ""; ?>>
@@ -213,9 +240,49 @@ $dashboard =
 
                     <div class="table-footer">
                         <span>
-                            Showing <?php echo e(count($dashboard["recentApplications"])); ?> recent allocations
+                            <?php
+                                $recentTotal =
+                                    (int) $dashboard["recentApplicationsTotal"];
+
+                                $recentPage =
+                                    (int) $dashboard["recentApplicationsPage"];
+
+                                $recentPerPage =
+                                    (int) $dashboard["recentApplicationsPerPage"];
+
+                                $recentTotalPages =
+                                    (int) $dashboard["recentApplicationsTotalPages"];
+
+                                $recentStart =
+                                    $recentTotal > 0
+                                        ? (($recentPage - 1) * $recentPerPage) + 1
+                                        : 0;
+
+                                $recentEnd =
+                                    min(
+                                        $recentTotal,
+                                        $recentPage * $recentPerPage
+                                    );
+                            ?>
+                            Showing <?php echo e($recentStart); ?>-<?php echo e($recentEnd); ?> of <?php echo e($recentTotal); ?> recent allocations
                         </span>
-                        <span>&lt; &gt;</span>
+                        <div class="table-pager" aria-label="Recent allocations pagination">
+                            <?php if ($recentPage > 1): ?>
+                                <a class="table-page-button" href="<?php echo e(allocationPageUrl($recentPage - 1, $allocationStatusFilter, $proposalStatusFilter)); ?>" aria-label="Previous allocations page">&lt;</a>
+                            <?php else: ?>
+                                <span class="table-page-button disabled" aria-hidden="true">&lt;</span>
+                            <?php endif; ?>
+
+                            <span class="table-page-count">
+                                Page <?php echo e($recentPage); ?> of <?php echo e($recentTotalPages); ?>
+                            </span>
+
+                            <?php if ($recentPage < $recentTotalPages): ?>
+                                <a class="table-page-button" href="<?php echo e(allocationPageUrl($recentPage + 1, $allocationStatusFilter, $proposalStatusFilter)); ?>" aria-label="Next allocations page">&gt;</a>
+                            <?php else: ?>
+                                <span class="table-page-button disabled" aria-hidden="true">&gt;</span>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 <?php endif; ?>
             </section>

@@ -62,9 +62,13 @@ function statusMessage() {
         <main class="main">
             <div class="review-shell">
                 <?php echo statusMessage(); ?>
-                <p class="eyebrow">Student Supervision Assessment System</p>
-                <h1>Supervisor Performance Review</h1>
-                <p class="subtitle">Your feedback helps maintain academic excellence. Please provide an honest assessment of your supervisor's guidance during this semester.</p>
+                <section class="page-header student-hero">
+                    <div>
+                        <p class="eyebrow">Student Supervision Assessment System</p>
+                        <h1>Supervisor Performance Review</h1>
+                        <p class="subtitle">Your feedback helps maintain academic excellence. Please provide an honest assessment of your supervisor's guidance during this semester.</p>
+                    </div>
+                </section>
 
                 <?php if (!$context): ?>
                     <section class="empty-card">
@@ -73,19 +77,32 @@ function statusMessage() {
                     </section>
                 <?php else: ?>
                     <section class="review-layout">
-                        <aside class="supervisor-card">
-                            <div class="avatar">
-                                <?php if (!empty($context["profilePhotoPath"])): ?>
-                                    <img src="<?php echo e($context["profilePhotoPath"]); ?>" alt="Supervisor photo">
-                                <?php else: ?>
-                                    <?php echo e(initials($context["supervisorName"])); ?>
-                                <?php endif; ?>
+                        <aside class="supervisor-card review-profile-card">
+                            <div class="review-profile-top">
+                                <div class="avatar review-avatar">
+                                    <?php if (!empty($context["profilePhotoPath"])): ?>
+                                        <img src="<?php echo e($context["profilePhotoPath"]); ?>" alt="Supervisor photo">
+                                    <?php else: ?>
+                                        <?php echo e(initials($context["supervisorName"])); ?>
+                                    <?php endif; ?>
+                                </div>
+                                <span class="review-profile-kicker">Assigned Supervisor</span>
+                                <h2 class="supervisor-name"><?php echo e($context["supervisorName"]); ?></h2>
                             </div>
-                            <h2 class="supervisor-name"><?php echo e($context["supervisorName"]); ?></h2>
-                            <p class="supervisor-meta"><?php echo e($context["employmentCategory"]); ?><br><?php echo e($context["programme"]); ?></p>
+
+                            <div class="review-profile-meta">
+                                <span><?php echo e($context["employmentCategory"]); ?></span>
+                                <strong><?php echo e($context["programme"]); ?></strong>
+                            </div>
+
                             <div class="score-card">
-                                <strong><?php echo e(number_format((float) ($statistics["averageRating"] ?? 0), 1)); ?> / 5.0</strong>
-                                <?php echo e((int) ($statistics["reviewCount"] ?? 0)); ?> submitted review(s)
+                                <span class="score-label">Current Average</span>
+                                <strong>
+                                    <?php echo e(number_format((float) ($statistics["averageRating"] ?? 0), 1)); ?>
+                                    <span>/ 5.0</span>
+                                </strong>
+                                <div class="score-stars" aria-hidden="true">★★★★★</div>
+                                <small><?php echo e((int) ($statistics["reviewCount"] ?? 0)); ?> submitted review(s)</small>
                             </div>
                         </aside>
 

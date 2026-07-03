@@ -24,6 +24,8 @@ $quotaManager = new QuotaManager();
 // Keeps search and programme filters selected after applying the directory filter.
 $searchName = trim($_GET["searchName"] ?? "");
 $selectedProgramme = trim($_GET["programme"] ?? "");
+$quotaPage = max(1, (int) ($_GET["quotaPage"] ?? 1));
+$recordsPerPage = 3;
 
 $supervisors = $quotaManager->getQuotaDashboard($_GET);
 $programmeOptions = $quotaManager->getProgrammeOptions();
@@ -54,6 +56,12 @@ $utilizationRate = $totalCapacity > 0 ? round(($totalAllocated / $totalCapacity)
 $averageQuota = $totalSupervisors > 0 ? round($totalCapacity / $totalSupervisors, 1) : 0;
 $complianceRate = $totalSupervisors > 0 ? round(($validCount / $totalSupervisors) * 100) : 0;
 $overCapacityRate = $totalSupervisors > 0 ? round(($overCapacityCount / $totalSupervisors) * 100, 1) : 0;
+$quotaTotalPages = max(1, (int) ceil($totalSupervisors / $recordsPerPage));
+$quotaPage = min($quotaPage, $quotaTotalPages);
+$quotaOffset = ($quotaPage - 1) * $recordsPerPage;
+$visibleSupervisors = array_slice($supervisors, $quotaOffset, $recordsPerPage);
+$quotaStart = $totalSupervisors === 0 ? 0 : $quotaOffset + 1;
+$quotaEnd = min($quotaOffset + count($visibleSupervisors), $totalSupervisors);
 
 // HTML Escape Helper
 function e($value) {
@@ -87,6 +95,25 @@ function statusClass($status) {
     }
 
     return "over";
+}
+
+function quotaPageUrl($page, $searchName, $selectedProgramme) {
+
+    $query = [
+        "quotaPage" => max(1, (int) $page)
+    ];
+
+    if ($searchName !== "") {
+
+        $query["searchName"] = $searchName;
+    }
+
+    if ($selectedProgramme !== "") {
+
+        $query["programme"] = $selectedProgramme;
+    }
+
+    return "quotaManagement.php?" . http_build_query($query);
 }
 
 ?>
@@ -161,6 +188,7 @@ function statusClass($status) {
                             <p>Review current quota limits and adjust capacity by supervisor.</p>
                         </div>
                         <form class="filter-form quota-filter-form" method="GET" action="quotaManagement.php">
+                            <input type="hidden" name="quotaPage" value="1">
                             <div class="search-wrap">
                                 <label class="sr-only" for="quota-search">Search supervisor</label>
                                 <input id="quota-search" type="text" name="searchName" value="<?php echo e($searchName); ?>" placeholder="Filter by name or programme...">
@@ -192,7 +220,7 @@ function statusClass($status) {
                         <?php if (empty($supervisors)): ?>
                             <div class="empty">No supervisors match the selected criteria.</div>
                         <?php else: ?>
-                            <?php foreach ($supervisors as $supervisor): ?>
+                            <?php foreach ($visibleSupervisors as $supervisor): ?>
                                 <?php
                                     $supervisorID = $supervisor["userID"];
                                     $assignedQuota = (int) $supervisor["assignedQuotaLimit"];
@@ -235,7 +263,24 @@ function statusClass($status) {
                                     </div>
                                 </article>
                             <?php endforeach; ?>
-                            <div class="showing">Showing <?php echo e($totalSupervisors); ?> of <?php echo e($totalSupervisors); ?> supervisors</div>
+                            <div class="showing pagination-note">
+                                <span>Showing <?php echo e($quotaStart); ?>-<?php echo e($quotaEnd); ?> of <?php echo e($totalSupervisors); ?> supervisors</span>
+                                <div class="table-pager" aria-label="Supervisor quota directory pagination">
+                                    <?php if ($quotaPage > 1): ?>
+                                        <a class="table-page-button" href="<?php echo e(quotaPageUrl($quotaPage - 1, $searchName, $selectedProgramme)); ?>" aria-label="Previous quota directory page">&lt;</a>
+                                    <?php else: ?>
+                                        <span class="table-page-button disabled" aria-hidden="true">&lt;</span>
+                                    <?php endif; ?>
+
+                                    <span class="table-page-count">Page <?php echo e($quotaPage); ?> of <?php echo e($quotaTotalPages); ?></span>
+
+                                    <?php if ($quotaPage < $quotaTotalPages): ?>
+                                        <a class="table-page-button" href="<?php echo e(quotaPageUrl($quotaPage + 1, $searchName, $selectedProgramme)); ?>" aria-label="Next quota directory page">&gt;</a>
+                                    <?php else: ?>
+                                        <span class="table-page-button disabled" aria-hidden="true">&gt;</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         <?php endif; ?>
                     </form>
                 </section>

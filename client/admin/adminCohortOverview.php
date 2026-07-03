@@ -38,6 +38,15 @@ $filters = [
     "status" => strtolower(trim($_GET["status"] ?? ""))
 ];
 
+$rosterPage =
+    max(
+        1,
+        (int) ($_GET["rosterPage"] ?? 1)
+    );
+
+$recordsPerPage =
+    3;
+
 if (!in_array($filters["status"], ["assigned", "unassigned", ""], true)) {
 
     $filters["status"] = "";
@@ -45,6 +54,43 @@ if (!in_array($filters["status"], ["assigned", "unassigned", ""], true)) {
 
 $report =
     $reportFacade->getCohortOverview($filters);
+
+$studentTotal =
+    count($report["students"]);
+
+$studentTotalPages =
+    max(
+        1,
+        (int) ceil($studentTotal / $recordsPerPage)
+    );
+
+$rosterPage =
+    min(
+        $rosterPage,
+        $studentTotalPages
+    );
+
+$studentOffset =
+    ($rosterPage - 1) *
+    $recordsPerPage;
+
+$visibleStudents =
+    array_slice(
+        $report["students"],
+        $studentOffset,
+        $recordsPerPage
+    );
+
+$studentStart =
+    $studentTotal === 0
+        ? 0
+        : $studentOffset + 1;
+
+$studentEnd =
+    min(
+        $studentTotal,
+        $studentOffset + count($visibleStudents)
+    );
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +109,23 @@ function cohortLabel($value, $fallback) {
 
     return
         trim((string) $value) === "" ? $fallback : (string) $value;
+}
+
+function rosterPageUrl($page, $filters) {
+
+    $query = [
+        "rosterPage" => max(1, (int) $page)
+    ];
+
+    foreach (["programme", "batch", "status"] as $key) {
+
+        if (($filters[$key] ?? "") !== "") {
+
+            $query[$key] = $filters[$key];
+        }
+    }
+
+    return "adminCohortOverview.php?" . http_build_query($query);
 }
 
 ?>
@@ -98,6 +161,7 @@ function cohortLabel($value, $fallback) {
 
                 <section class="filter-card">
                     <form class="filter-form" method="GET" action="adminCohortOverview.php">
+                        <input type="hidden" name="rosterPage" value="1">
                         <div class="filter-field">
                             <label>Programme</label>
                             <select name="programme">
@@ -183,7 +247,7 @@ function cohortLabel($value, $fallback) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($report["students"] as $student): ?>
+                                    <?php foreach ($visibleStudents as $student): ?>
                                         <?php $assigned = !empty($student["allocationID"]); ?>
                                         <tr>
                                             <td>
@@ -215,7 +279,22 @@ function cohortLabel($value, $fallback) {
                             </table>
                         </div>
                         <div class="pagination-note">
-                            Showing 1-<?php echo e(count($report["students"])); ?> of <?php echo e(count($report["students"])); ?> results
+                            <span>Showing <?php echo e($studentStart); ?>-<?php echo e($studentEnd); ?> of <?php echo e($studentTotal); ?> results</span>
+                            <div class="table-pager" aria-label="Student roster pagination">
+                                <?php if ($rosterPage > 1): ?>
+                                    <a class="table-page-button" href="<?php echo e(rosterPageUrl($rosterPage - 1, $filters)); ?>" aria-label="Previous student roster page">&lt;</a>
+                                <?php else: ?>
+                                    <span class="table-page-button disabled" aria-hidden="true">&lt;</span>
+                                <?php endif; ?>
+
+                                <span class="table-page-count">Page <?php echo e($rosterPage); ?> of <?php echo e($studentTotalPages); ?></span>
+
+                                <?php if ($rosterPage < $studentTotalPages): ?>
+                                    <a class="table-page-button" href="<?php echo e(rosterPageUrl($rosterPage + 1, $filters)); ?>" aria-label="Next student roster page">&gt;</a>
+                                <?php else: ?>
+                                    <span class="table-page-button disabled" aria-hidden="true">&gt;</span>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     <?php endif; ?>
                 </section>

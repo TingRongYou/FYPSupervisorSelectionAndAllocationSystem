@@ -322,6 +322,53 @@ class AccountService {
 
     /*
     |--------------------------------------------------------------------------
+    | Remove Profile Photo
+    |--------------------------------------------------------------------------
+    | Clears the profile photo path and removes the managed photo file.
+    */
+    public function removeProfilePhoto($userID) {
+
+        $user =
+            $this->userDAO->getUserByID($userID);
+
+        if (!$user) {
+
+            return $this->failure(
+                "Account was not found."
+            );
+        }
+
+        if (empty($user["profilePhotoPath"])) {
+
+            return $this->failure(
+                "No profile photo is currently set."
+            );
+        }
+
+        $updated =
+            $this->userDAO->updateProfilePhoto(
+                $userID,
+                ""
+            );
+
+        if (!$updated) {
+
+            return $this->failure(
+                "Profile photo could not be removed."
+            );
+        }
+
+        $this->imageStorageDAO->deleteStoredImage(
+            $user["profilePhotoPath"]
+        );
+
+        return $this->success(
+            "Profile photo removed successfully."
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Strong Password Validation
     |--------------------------------------------------------------------------
     | Ensures the password has at least 8 characters, one letter, one digit,

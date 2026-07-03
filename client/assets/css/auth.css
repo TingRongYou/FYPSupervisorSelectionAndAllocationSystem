@@ -26,6 +26,7 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 18px 20px;
+    background: linear-gradient(180deg, rgba(3, 16, 31, .24) 0%, rgba(3, 16, 31, .05) 42%, rgba(3, 16, 31, .12) 100%);
 }
 
 .brand-image {
@@ -38,10 +39,16 @@ body {
 
 .subtitle {
     margin: 0 0 20px;
-    font-size: 35px;
-    font-weight: 300;
-    color: #2b3745;
+    padding: 0;
+    border-radius: 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffffff;
     text-align: center;
+    background: transparent;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, .55);
+    box-shadow: none;
+    letter-spacing: .2px;
 }
 
 .card,
@@ -101,6 +108,40 @@ input[type="password"]:focus,
 input[type="text"]:focus {
     border-color: #ff8a3d;
     box-shadow: 0 0 0 1px #ff8a3d inset;
+}
+
+.field.invalid input[type="email"],
+.field.invalid input[type="password"],
+.field.invalid input[type="text"] {
+    border-color: #d93030;
+    background: #fff5f5;
+    box-shadow: 0 0 0 1px rgba(217, 48, 48, .2) inset;
+}
+
+.field.valid input[type="email"],
+.field.valid input[type="password"],
+.field.valid input[type="text"] {
+    border-color: #1f9d55;
+    background: #f4fff8;
+    box-shadow: 0 0 0 1px rgba(31, 157, 85, .22) inset;
+}
+
+.field.invalid .field-icon,
+.field.invalid .toggle-pw {
+    color: #c02d2d;
+}
+
+.field.valid .field-icon,
+.field.valid .toggle-pw {
+    color: #1f9d55;
+}
+
+.field-error {
+    display: block;
+    margin: -7px 0 8px;
+    color: #9a2626;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .field-icon {
@@ -194,6 +235,7 @@ button:hover,
    ========================================================================== */
 
 .message {
+    display: none;
     border-radius: 8px;
     padding: 9px 10px;
     margin-bottom: 12px;
@@ -201,13 +243,19 @@ button:hover,
     font-weight: 800;
 }
 
+.message.show {
+    display: block;
+}
+
 .message.success {
     background: #e5f6ed;
+    border: 1px solid #b9e5c9;
     color: #177345;
 }
 
 .message.error {
     background: #fdeaea;
+    border: 1px solid #f2c1c1;
     color: #9a2626;
 }
 

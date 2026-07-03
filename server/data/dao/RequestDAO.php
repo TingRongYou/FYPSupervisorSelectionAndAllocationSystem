@@ -135,6 +135,7 @@ class RequestDAO {
     public function getRecentAllocationsBySupervisor(
         $supervisorID,
         $limit,
+        $offset = 0,
         $allocationStatus = "",
         $proposalStatus = ""
     ) {
@@ -193,6 +194,7 @@ class RequestDAO {
             ORDER BY ALR.allocationDate DESC,
                 ALR.allocationID DESC
             LIMIT :limit
+            OFFSET :offset
         ";
 
         $statement =
@@ -211,12 +213,88 @@ class RequestDAO {
             PDO::PARAM_INT
         );
 
+        $statement->bindValue(
+            ":offset",
+            (int) $offset,
+            PDO::PARAM_INT
+        );
+
         $statement->execute();
 
         return
             $statement->fetchAll(
                 PDO::FETCH_ASSOC
             );
+    }
+
+    public function countRecentAllocationsBySupervisor(
+        $supervisorID,
+        $allocationStatus = "",
+        $proposalStatus = ""
+    ) {
+
+        $having = [];
+        $params = [
+            ":supervisorID" => $supervisorID
+        ];
+
+        if ($allocationStatus !== "") {
+
+            $having[] = "decisionStatus = :allocationStatus";
+            $params[":allocationStatus"] = $allocationStatus;
+        }
+
+        if ($proposalStatus !== "") {
+
+            if ($proposalStatus === "Not Submitted") {
+
+                $having[] = "proposalStatus IS NULL";
+            } else {
+
+                $having[] = "proposalStatus = :proposalStatus";
+                $params[":proposalStatus"] = $proposalStatus;
+            }
+        }
+
+        $query = "
+            SELECT COUNT(*)
+            FROM (
+                SELECT
+                    ALR.allocationID,
+                    ARQ.decisionStatus AS proposalStatus,
+                    CASE
+                        WHEN ALR.allocationMethod = 'System Auto-Match'
+                            THEN 'Auto-Allocated'
+                        ELSE COALESCE(ARQ.decisionStatus, 'Allocated')
+                    END AS decisionStatus
+                FROM ALLOCATION_RECORD ALR
+                INNER JOIN STUDENT_PROFILE SP
+                    ON ALR.studentID = SP.studentID
+                INNER JOIN USER U
+                    ON SP.studentID = U.userID
+                LEFT JOIN APPLICATION_REQUEST ARQ
+                    ON ARQ.studentID = ALR.studentID
+                    AND ARQ.supervisorID = ALR.supervisorID
+                    AND ARQ.decisionStatus IN ('Accepted', 'Pending', 'Rejected', 'Proposal Requested')
+                WHERE ALR.supervisorID = :supervisorID
+                " . (!empty($having) ? "HAVING " . implode(" AND ", $having) : "") . "
+            ) recentAllocations
+        ";
+
+        $statement =
+            $this->conn->prepare(
+                $query
+            );
+
+        foreach ($params as $key => $value) {
+
+            $statement->bindValue($key, $value);
+        }
+
+        $statement->execute();
+
+        return
+            (int) $statement->fetchColumn();
     }
 
     public function getApplicationsBySupervisor(

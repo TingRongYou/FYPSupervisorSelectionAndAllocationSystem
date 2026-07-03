@@ -16,7 +16,7 @@ $supervisorManagementService = new SupervisorManagementService();
     $showCreatePanel   = ($_GET["source"] ?? "") === "createSupervisor"
         && ($_GET["status"] ?? "") === "error";
     $currentPage       = max(1, (int) ($_GET["page"] ?? 1));
-    $rowsPerPage       = 10;
+    $rowsPerPage       = 3;
 
     $supervisors      = $supervisorManagementService->getSupervisorDirectory($_GET);
     $quotaOptions     = $supervisorManagementService->getQuotaOptions();
@@ -192,6 +192,7 @@ $supervisorManagementService = new SupervisorManagementService();
                     <div class="directory-tools">
                         <button class="btn btn-ghost" type="button" data-open-create>Add Supervisor</button>
                         <form class="search-form" method="GET" action="supervisorsManagement.php">
+                        <input type="hidden" name="page" value="1">
                         <div class="search-wrap">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -238,7 +239,9 @@ $supervisorManagementService = new SupervisorManagementService();
 
                         <div class="create-field">
                             <label for="createProgramme">Programme</label>
-                            <input type="text" id="createProgramme" name="programme" maxlength="100" list="programmeList" required>
+                            <div class="combo-field">
+                                <input type="text" id="createProgramme" name="programme" maxlength="100" list="programmeList" placeholder="Type or choose programme" autocomplete="off" required>
+                            </div>
                             <datalist id="programmeList">
                                 <?php foreach ($programmeOptions as $prog): ?>
                                     <option value="<?php echo e($prog["programme"]); ?>"></option>
@@ -356,15 +359,20 @@ $supervisorManagementService = new SupervisorManagementService();
 
                         <div class="showing directory-footer">
                             <span>Showing <?php echo e($firstVisibleEntry); ?>-<?php echo e($lastVisibleEntry); ?> of <?php echo e($totalSupervisors); ?> supervisors</span>
-                            <nav class="pager" aria-label="Pagination">
-                                <a class="page-pill" href="<?php echo e(pageUrl(max(1, $currentPage - 1), $searchName, $selectedProgramme)); ?>">&lt;</a>
-                                <?php for ($page = 1; $page <= $totalPages; $page++): ?>
-                                    <a class="page-pill <?php echo $page === $currentPage ? "active" : ""; ?>"
-                                    href="<?php echo e(pageUrl($page, $searchName, $selectedProgramme)); ?>">
-                                        <?php echo e($page); ?>
-                                    </a>
-                                <?php endfor; ?>
-                                <a class="page-pill" href="<?php echo e(pageUrl(min($totalPages, $currentPage + 1), $searchName, $selectedProgramme)); ?>">&gt;</a>
+                            <nav class="table-pager" aria-label="Supervisor directory pagination">
+                                <?php if ($currentPage > 1): ?>
+                                    <a class="table-page-button" href="<?php echo e(pageUrl($currentPage - 1, $searchName, $selectedProgramme)); ?>" aria-label="Previous supervisor directory page">&lt;</a>
+                                <?php else: ?>
+                                    <span class="table-page-button disabled" aria-hidden="true">&lt;</span>
+                                <?php endif; ?>
+
+                                <span class="table-page-count">Page <?php echo e($currentPage); ?> of <?php echo e($totalPages); ?></span>
+
+                                <?php if ($currentPage < $totalPages): ?>
+                                    <a class="table-page-button" href="<?php echo e(pageUrl($currentPage + 1, $searchName, $selectedProgramme)); ?>" aria-label="Next supervisor directory page">&gt;</a>
+                                <?php else: ?>
+                                    <span class="table-page-button disabled" aria-hidden="true">&gt;</span>
+                                <?php endif; ?>
                             </nav>
                         </div>
                     <?php endif; ?>

@@ -31,7 +31,7 @@ if ($filterStatus === "eligible") {
 }
 
 $currentPage        = max(1, (int) ($_GET["page"] ?? 1));
-$rowsPerPage        = 10;
+$rowsPerPage        = 6;
 
 $totalStudents      = (int) ($summary["totalStudents"]      ?? 0);
 $eligibleStudents   = (int) ($summary["eligibleStudents"]   ?? 0);
@@ -49,6 +49,9 @@ $uploadedFileName   =
 
 $hasUploadedEligibilityCSV =
     !empty($_SESSION["eligibility_csv_uploaded"]);
+
+$hasUploadedFileName =
+    $uploadedFileName !== "";
 
 $semesterOptions = [
     "Y1S1",
@@ -215,12 +218,23 @@ function filterUrl($status) {
                                     <span>academicStatus</span>
                                 </div>
                             </div>
-                            <form class="upload-control" action="../../server/application/admin/uploadStudentEligibilityCSV.php" method="POST" enctype="multipart/form-data">
-                                <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
-                                <span class="file-name" id="fileName"><?php echo e($uploadedFileName !== "" ? $uploadedFileName : "No file uploaded"); ?></span>
-                                <input type="file" id="studentCSV" name="studentCSV" accept=".csv,text/csv" required>
-                                <button class="btn btn-secondary btn-upload" id="uploadButton" type="button">Upload CSV</button>
-                            </form>
+                            <div class="upload-actions">
+                                <form class="upload-control" action="../../server/application/admin/uploadStudentEligibilityCSV.php" method="POST" enctype="multipart/form-data">
+                                    <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
+                                    <span class="file-name <?php echo $hasUploadedFileName ? "has-file" : ""; ?>" id="fileName">
+                                        <span class="file-state"><?php echo $hasUploadedFileName ? "Uploaded CSV" : "CSV file"; ?></span>
+                                        <span class="file-title"><?php echo e($hasUploadedFileName ? $uploadedFileName : "No file uploaded"); ?></span>
+                                    </span>
+                                    <input type="file" id="studentCSV" name="studentCSV" accept=".csv,text/csv" required>
+                                    <button class="btn btn-secondary btn-upload" id="uploadButton" type="button">Upload CSV</button>
+                                </form>
+                                <?php if ($hasUploadedFileName): ?>
+                                    <form class="remove-upload-form" action="../../server/application/admin/removeStudentEligibilityCSV.php" method="POST">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
+                                        <button class="btn btn-danger-soft" type="submit">Remove</button>
+                                    </form>
+                                <?php endif; ?>
+                            </div>
                         </div>
 
                         <div class="rules-editor" id="rulesEditor">
@@ -315,14 +329,20 @@ function filterUrl($status) {
                                     &nbsp;<span style="color:#0d5be8; font-weight:700;">(filtered)</span>
                                 <?php endif; ?>
                             </span>
-                            <nav class="pager" aria-label="Pagination">
-                                <a class="page-pill" href="<?php echo e(pageUrl(max(1, $currentPage - 1), $filterStatus)); ?>">&lt;</a>
-                                <?php for ($page = 1; $page <= $totalPages; $page++): ?>
-                                    <a class="page-pill <?php echo $page === $currentPage ? 'active' : ''; ?>" href="<?php echo e(pageUrl($page, $filterStatus)); ?>">
-                                        <?php echo e($page); ?>
-                                    </a>
-                                <?php endfor; ?>
-                                <a class="page-pill" href="<?php echo e(pageUrl(min($totalPages, $currentPage + 1), $filterStatus)); ?>">&gt;</a>
+                            <nav class="table-pager" aria-label="Student eligibility pagination">
+                                <?php if ($currentPage > 1): ?>
+                                    <a class="table-page-button" href="<?php echo e(pageUrl($currentPage - 1, $filterStatus)); ?>" aria-label="Previous eligibility page">&lt;</a>
+                                <?php else: ?>
+                                    <span class="table-page-button disabled" aria-hidden="true">&lt;</span>
+                                <?php endif; ?>
+
+                                <span class="table-page-count">Page <?php echo e($currentPage); ?> of <?php echo e($totalPages); ?></span>
+
+                                <?php if ($currentPage < $totalPages): ?>
+                                    <a class="table-page-button" href="<?php echo e(pageUrl($currentPage + 1, $filterStatus)); ?>" aria-label="Next eligibility page">&gt;</a>
+                                <?php else: ?>
+                                    <span class="table-page-button disabled" aria-hidden="true">&gt;</span>
+                                <?php endif; ?>
                             </nav>
                         </div>
                     </section>
