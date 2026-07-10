@@ -396,24 +396,24 @@ document.addEventListener("DOMContentLoaded", function() {
 /* ==========================================================================
    5. SIDEBAR DROPDOWN TOGGLES
    ========================================================================== */
-window.toggleProfileMenu = function() {
-    const subnav = document.getElementById('profileSubnav');
-    if (subnav) {
-        subnav.style.display = (subnav.style.display === 'none' || subnav.style.display === '') ? 'block' : 'none';
-    }
-};
-
-window.toggleRequestMenu = function() {
-    const subnav = document.getElementById('requestSubnav');
-    if (subnav) {
-        subnav.style.display = (subnav.style.display === 'none' || subnav.style.display === '') ? 'block' : 'none';
-    }
-};
-
-window.toggleReportMenu = function() {
-    const subnav = document.getElementById('reportSubnav');
-    if (subnav) {
-        subnav.style.display = (subnav.style.display === 'none' || subnav.style.display === '') ? 'block' : 'none';
+window.toggleSupervisorSubnav = function(element) {
+    // Find the subnav menu that comes immediately after the clicked link
+    const subnav = element.nextElementSibling;
+    
+    if (subnav && subnav.classList.contains('subnav')) {
+        // Check if it is currently hidden
+        const isClosed = subnav.style.display === 'none' || window.getComputedStyle(subnav).display === 'none';
+        
+        // Toggle the display
+        subnav.style.display = isClosed ? 'block' : 'none';
+        
+        // Rotate the chevron arrow smoothly
+        const chevron = element.querySelector('.nav-chevron');
+        if (chevron) {
+            chevron.style.transform = isClosed ? 'rotate(-180deg)' : 'rotate(0deg)';
+            chevron.style.transition = 'transform 0.2s ease';
+            chevron.style.display = 'inline-block'; 
+        }
     }
 };
 

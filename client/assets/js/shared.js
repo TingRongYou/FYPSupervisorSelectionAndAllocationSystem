@@ -31,6 +31,33 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
+/*
+|--------------------------------------------------------------------------
+| Portal Sidebar Subnav Toggle
+|--------------------------------------------------------------------------
+| Handles the opening and closing of dropdown menus in the shared sidebar.
+*/
+function togglePortalSubnav(element) {
+    // Find the subnav menu that comes immediately after the clicked link
+    const subnav = element.nextElementSibling;
+    
+    if (subnav && subnav.classList.contains('portal-subnav')) {
+        // Check if it is currently hidden
+        const isClosed = subnav.style.display === 'none' || window.getComputedStyle(subnav).display === 'none';
+        
+        // Toggle the display
+        subnav.style.display = isClosed ? 'block' : 'none';
+        
+        // Rotate the chevron arrow smoothly
+        const chevron = element.querySelector('.portal-nav-chevron');
+        if (chevron) {
+            chevron.style.transform = isClosed ? 'rotate(-180deg)' : 'rotate(0deg)';
+            chevron.style.transition = 'transform 0.2s ease';
+            chevron.style.display = 'inline-block'; 
+        }
+    }
+}
+
 /* ==========================================================================
    PASSWORD MANAGEMENT (setPassword.php)
    ========================================================================== */
@@ -103,20 +130,4 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     document.getElementById("resetBtn").addEventListener("click", () => setTimeout(evaluatePassword, 10));
-});
-
-// Inside your eye-btn event listener in shared.js:
-btn.addEventListener("click", function () {
-    const input = document.getElementById(btn.dataset.target);
-    const isHidden = input.type === "password";
-    
-    input.type = isHidden ? "text" : "password";
-
-    // Toggle the display of both SVGs inside this specific button
-    const icons = btn.querySelectorAll("svg");
-    icons.forEach(svg => {
-        svg.style.display = (svg.style.display === "none") ? "block" : "none";
-    });
-
-    btn.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
 });

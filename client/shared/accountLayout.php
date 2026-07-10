@@ -228,15 +228,26 @@ if (!function_exists("ssasPortalSidebar")) {
             $roleTitle = "SSAS Supervisor";
             $roleSubtitle = "Supervisor Portal";
             $links = [
+                // format: [ID, Label, URL, Chevron, isParent, isSubnav]
                 ["dashboard", "Dashboard", "../../client/supervisor/supervisorDashboard.php", "", false],
+                
                 ["profile-management", "Profile Management", "#", "v", true],
                 ["business-card", "Digital Business Card", "../../client/supervisor/manageDigitalBusinessCard.php", "", false, true],
                 ["expertise-tags", "Expertise & Tags", "../../client/supervisor/manageExpertiseTags.php", "", false, true],
                 ["intro-video", "Introduction Video", "../../client/supervisor/manageIntroVideo.php", "", false, true],
                 ["past-projects", "Past Projects", "../../client/supervisor/managePastProjects.php", "", false, true],
-                ["requests", "Requests & Decisions", "#", "v", false],
-                ["supervision", "Supervision", "#", "", false],
-                ["reports", "Reports", "#", "v", false]
+                
+                ["requests", "Requests & Decisions", "#", "v", true],
+                ["incoming-requests", "Incoming Requests", "../../client/supervisor/supervisorIncomingRequests.php", "", false, true],
+                ["decision-action", "Decision Action", "../../client/supervisor/supervisorIncomingRequests.php", "", false, true],
+                
+                ["supervision", "Supervision", "../../client/supervisor/supervisorMySupervisees.php", "", false],
+                ["student-reviews", "Student Reviews", "../../client/supervisor/supervisorStudentReviews.php", "", false],
+                
+                ["reports", "Reports", "#", "v", true],
+                ["report-demographics", "Applicant Demographic Chart", "../../client/supervisor/supervisorApplicantDemographics.php", "", false, true],
+                ["report-history", "Supervision History Log", "../../client/supervisor/supervisorHistoryLog.php", "", false, true],
+                ["report-utilization", "Slot Utilization Tracker", "../../client/supervisor/supervisorSlotUtilization.php", "", false, true]
             ];
 
         /*
@@ -250,13 +261,19 @@ if (!function_exists("ssasPortalSidebar")) {
             $roleTitle = "SSAS Admin";
             $roleSubtitle = "Management Portal";
             $links = [
+                // format: [ID, Label, URL, Chevron, isParent, isSubnav]
                 ["dashboard", "Dashboard", "../../client/admin/adminDashboard.php", "", false],
                 ["supervisors", "Supervisors Management", "../../client/admin/supervisorsManagement.php", "", false],
                 ["eligibility", "Students Eligibility", "../../client/admin/studentEligibility.php", "", false],
                 ["quota", "Quota Management", "../../client/admin/quotaManagement.php", "", false],
                 ["allocations", "Allocations", "../../client/admin/autoAllocation.php", "", false],
                 ["reviews", "Supervisor Reviews Audit", "../../client/admin/adminSupervisorReviews.php", "", false],
-                ["reports", "Reports", "#", "v", false]
+                
+                // Define the Reports dropdown parent
+                ["reports", "Reports", "#", "v", true],
+                // Add the two child reports
+                ["report-cohort", "Cohort Overview", "../../client/admin/adminCohortOverview.php", "", false, true],
+                ["report-allocation", "Allocation Summary", "../../client/admin/adminAllocationSummary.php", "", false, true]
             ];
 
         /*
@@ -269,11 +286,17 @@ if (!function_exists("ssasPortalSidebar")) {
 
             $roleTitle = "SSAS Student";
             $roleSubtitle = "Student Portal";
+            
+            // These paths MUST use ../../client/student/ because they are 
+            // being rendered from inside the shared/ folder.
             $links = [
                 ["dashboard", "Dashboard", "../../client/student/studentDashboard.php", "", false],
                 ["discovery", "Supervisor Discovery", "../../client/student/studentDiscovery.php", "", false],
-                ["profile", "Student Profile", "../../client/shared/profile.php", "", false],
-                ["application-status", "Application Status", "#", "", false]
+                // Points to the read-only profile:
+                ["profile", "Student Profile", "../../client/shared/profile.php", "", false], 
+                ["application-status", "Application Status", "../../client/student/studentApplicationStatus.php", "", false],
+                ["review", "Supervisor Review", "../../client/student/studentReview.php", "", false],
+                ["timeline", "Timeline & Milestones", "../../client/student/studentTimeline.php", "", false]
             ];
         }
 
@@ -300,7 +323,7 @@ if (!function_exists("ssasPortalSidebar")) {
 
                 if (!$subnavOpen) {
 
-                    $navigation .= "<div class=\"portal-subnav\">";
+                    $navigation .= "<div class=\"portal-subnav\" style=\"display: none;\">";
                     $subnavOpen = true;
                 }
 
@@ -318,7 +341,7 @@ if (!function_exists("ssasPortalSidebar")) {
             }
 
             $tag = $isParent ? "div" : "a";
-            $hrefAttribute = $isParent ? "" : " href=\"" . ssasEscape($href) . "\"";
+            $hrefAttribute = $isParent ? " onclick=\"togglePortalSubnav(this)\" style=\"cursor: pointer;\"" : " href=\"" . ssasEscape($href) . "\"";
             $chevronMarkup = $chevron !== "" ? "<span class=\"portal-nav-chevron\">" . ssasEscape($chevron) . "</span>" : "";
 
             $navigation .= "
