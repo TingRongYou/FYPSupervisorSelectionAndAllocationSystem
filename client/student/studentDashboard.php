@@ -4,6 +4,7 @@ require_once "../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/SupervisorDiscoveryService.php";
 require_once __DIR__ . "/../../server/business/services/TemporalPhaseEngine.php";
 require_once __DIR__ . "/../../server/data/dao/RequestDAO.php";
+require_once __DIR__ . "/../../server/data/dao/TagDAO.php";
 require_once __DIR__ . "/studentLayout.php";
 
 SessionManager::startSession();
@@ -16,6 +17,9 @@ $studentName = $_SESSION["fullName"] ?? "Student";
 $discoveryService = new SupervisorDiscoveryService();
 $requestDAO       = new RequestDAO();
 $requestDAO->expireTimedOutRequestsByStudent($studentID);
+
+$tagDAO = new TagDAO();
+$studentTagIDs = $tagDAO->getStudentTagIDs($studentID) ?: [];
 
 $supervisors     = $discoveryService->getRecommendedMatches($studentID); // Search for recommended supervisors based on student's saved interest tags
 $hasSavedInterestTags = $discoveryService->hasSavedInterestTags($studentID); // Check if student has any interest tags
@@ -112,10 +116,9 @@ function requestClass($status) {
                 <?php endif; ?>
 
                 <!-- Display the recommended supervisors as dropdown box -->
-                <section class="dashboard-top-section recommendation-column" style="margin-bottom: 32px;">
-    
+                <section class="dashboard-top-section recommendation-column">
                     <div class="section-toolbar">
-                        <button class="selector" id="toggleRecommendations" style="border: none; cursor: pointer; font-family: inherit;">
+                        <button class="selector" id="toggleRecommendations">
                             Recommended Supervisors
                             <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                                 <polyline points="6 9 12 15 18 9"/>
@@ -130,7 +133,7 @@ function requestClass($status) {
 
                             <section class="supervisor-grid">
                                 <?php if (empty($supervisors)): ?>
-                                    <article class="supervisor-card" style="grid-column: 1 / -1;">
+                                    <article class="supervisor-card empty-grid-card">
                                         <p class="empty-state">
                                             <?php echo $hasSavedInterestTags
                                                 ? "No recommended supervisors currently match your saved interests with Available slot status. Browse Discovery to review all supervisors."
@@ -147,6 +150,17 @@ function requestClass($status) {
                                             $quotaParts  = explode("/", $supervisor["quotaText"]);
                                             $quotaUsed   = trim($quotaParts[0] ?? "0");
                                             $quotaMax    = preg_replace("/[^0-9]/", "", $quotaParts[1] ?? (string) $supervisor["maxSlots"]);
+                                            
+                                            // NEW LOGIC: Filter ONLY the tags that match the student's interests
+                                            $matchedTags = [];
+                                            if (!empty($supervisor["tagIDs"]) && !empty($supervisor["tagNames"])) {
+                                                foreach ($supervisor["tagIDs"] as $index => $tagID) {
+                                                    // If the supervisor's tag is in the student's list, keep the name
+                                                    if (in_array($tagID, $studentTagIDs)) {
+                                                        $matchedTags[] = $supervisor["tagNames"][$index];
+                                                    }
+                                                }
+                                            }
                                         ?>
                                         <article class="supervisor-card">
                                             <div class="supervisor-top">
@@ -166,15 +180,27 @@ function requestClass($status) {
                                                 </div>
                                             </div>
 
-                                            <h2 class="supervisor-name"><?php echo e($supervisor["fullName"]); ?></h2>
-                                            <div class="specialty">
-                                                Specialization: <?php echo e($supervisor["programme"]); ?>, <?php echo e($supervisor["employmentCategory"]); ?>
-                                            </div>
+                                            <?php $matchCount = count($matchedTags); ?>
 
-                                            <div class="tag-list">
-                                                <span class="tag"><?php echo e($supervisor["programme"]); ?></span>
-                                                <span class="tag"><?php echo e($supervisor["employmentCategory"]); ?></span>
-                                            </div>
+                                                <div class="name-row">
+                                                    <h2 class="supervisor-name"><?php echo e($supervisor["fullName"]); ?></h2>
+                                                    <?php if ($matchCount > 0): ?>
+                                                        <span class="match-score"><?php echo $matchCount; ?> Match<?php echo $matchCount === 1 ? '' : 'es'; ?></span>
+                                                    <?php endif; ?>
+                                                </div>
+
+                                                <div class="specialty">
+                                                    Specialization: <?php echo e($supervisor["programme"]); ?>, <?php echo e($supervisor["employmentCategory"]); ?>
+                                                </div>
+
+                                                <div class="tag-list">
+                                                    <span class="tag structural"><?php echo e($supervisor["programme"]); ?></span>
+                                                    <span class="tag structural"><?php echo e($supervisor["employmentCategory"]); ?></span>
+                                                    
+                                                    <?php foreach ($matchedTags as $tagName): ?>
+                                                        <span class="tag"><?php echo e($tagName); ?></span>
+                                                    <?php endforeach; ?>
+                                                </div>
 
                                             <?php if (!$canApply): ?>
                                                 <span class="btn-apply disabled"><?php echo e($supervisor["buttonLabel"] ?? "Application Closed"); ?></span>
@@ -188,8 +214,8 @@ function requestClass($status) {
                                 <?php endif; ?>
                             </section>
                             
-                        </div> 
-                    </div> 
+                        </div>
+                    </div>
                 </section>
 
                 <!-- Status card (Allocation Status, Active Requests, Phases) -->

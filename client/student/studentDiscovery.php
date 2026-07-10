@@ -2,10 +2,14 @@
 
 require_once __DIR__ . "/../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/SupervisorDiscoveryService.php";
+require_once __DIR__ . "/../../server/data/dao/TagDAO.php";
 require_once __DIR__ . "/studentLayout.php";
 
 SessionManager::startSession();
 SessionManager::requireRole("Student");
+
+$tagDAO = new TagDAO();
+$studentTagIDs = $tagDAO->getStudentTagIDs($_SESSION["userID"]) ?: [];
 
 $discoveryService = new SupervisorDiscoveryService();
 $searchName = trim($_GET["searchName"] ?? "");
@@ -13,11 +17,11 @@ $selectedProgramme = trim($_GET["programme"] ?? "");
 $selectedAvailability = trim($_GET["availability"] ?? "");
 $selectedInterestTagID = trim($_GET["interestTagID"] ?? "");
 
-$programmes = $discoveryService->getProgrammes();
-$researchTags = $discoveryService->getResearchTags();
-$supervisors = $discoveryService->discoverSupervisors($_GET);
-$recommendedMatches = $discoveryService->getRecommendedMatches($_SESSION["userID"]);
-$hasSavedInterestTags = $discoveryService->hasSavedInterestTags($_SESSION["userID"]);
+$programmes = $discoveryService->getProgrammes(); // Get supervisor programme
+$researchTags = $discoveryService->getResearchTags(); // Get supervisor research tags
+$supervisors = $discoveryService->discoverSupervisors($_GET); // Get all supervisors based on the search and filter criteria
+$recommendedMatches = $discoveryService->getRecommendedMatches($_SESSION["userID"]); // Get recommended supervisors
+$hasSavedInterestTags = $discoveryService->hasSavedInterestTags($_SESSION["userID"]); // Check if student has saved interest tags
 
 function e($value) {
 
@@ -35,7 +39,8 @@ function initials($name) {
 
 function selected($left, $right) {
 
-    return (string) $left === (string) $right ? "selected" : "";
+    return (string) $left === (string) $right ? "selected" : ""; // $left is the current tag selected, $right is the new tag selected
+    // If they match, return "selected", else return empty string
 }
 
 ?>
@@ -64,31 +69,92 @@ function selected($left, $right) {
                     </div>
                 </section>
 
-                <section class="recommendation-panel">
+                <section class="recommendation-panel recommendation-column">
                     <div class="recommendation-head">
                         <h2>Top Matches For You</h2>
                         <p class="recommendation-note">Based on your saved research interests and supervisors marked Available.</p>
                     </div>
 
-                    <?php if (empty($recommendedMatches)): ?>
-                        <div class="empty-state">
-                            <?php echo $hasSavedInterestTags
-                                ? "No recommended supervisors currently match your saved interests with Available slot status. You can still browse all supervisors below."
-                                : "Update your Research Interests in your Profile to unlock personalised supervisor recommendations."; ?>
-                        </div>
-                    <?php else: ?>
-                        <div class="match-strip">
+                    <section class="supervisor-grid">
+                        <?php if (empty($recommendedMatches)): ?>
+                            <article class="supervisor-card empty-grid-card">
+                                <p class="empty-state">
+                                    <?php echo $hasSavedInterestTags
+                                        ? "No recommended supervisors currently match your saved interests with Available slot status. You can still browse all supervisors below."
+                                        : "Update your Research Interests in your Profile to unlock personalised supervisor recommendations."; ?>
+                                </p>
+                            </article>
+                        <?php else: ?>
                             <?php foreach ($recommendedMatches as $match): ?>
-                                <a class="match-card" href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($match["userID"]); ?>">
-                                    <div>
-                                        <p class="match-name"><?php echo e($match["fullName"]); ?></p>
-                                        <div class="match-meta"><?php echo e($match["programme"]); ?> - <?php echo e(implode(", ", array_slice($match["tagNames"], 0, 2))); ?></div>
+                                <?php
+                                    $isOffline   = $match["status"] === "Offline";
+                                    $statusClass = $match["statusClass"] ?? ($isOffline ? "offline" : "online");
+                                    $canApply    = (bool) ($match["canApply"] ?? false);
+                                    $availabilityLabel = $match["quotaStatus"] ?? "Full";
+                                    $quotaParts  = explode("/", $match["quotaText"]);
+                                    $quotaUsed   = trim($quotaParts[0] ?? "0");
+                                    $quotaMax    = preg_replace("/[^0-9]/", "", $quotaParts[1] ?? (string) $match["maxSlots"]);
+                                    
+                                    // Filter ONLY the tags that match the student's interests
+                                    $matchedTags = [];
+                                    if (!empty($match["tagIDs"]) && !empty($match["tagNames"])) {
+                                        foreach ($match["tagIDs"] as $index => $tagID) {
+                                            if (in_array($tagID, $studentTagIDs)) {
+                                                $matchedTags[] = $match["tagNames"][$index];
+                                            }
+                                        }
+                                    }
+                                    $matchCount = count($matchedTags);
+                                ?>
+                                <article class="supervisor-card">
+                                    <div class="supervisor-top">
+                                        <div class="avatar <?php echo $isOffline ? "offline" : ""; ?>">
+                                            <?php if (!empty($match["profilePhotoPath"])): ?>
+                                                <img src="<?php echo e($match["profilePhotoPath"]); ?>" alt="">
+                                            <?php else: ?>
+                                                <?php echo e(initials($match["fullName"])); ?>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="top-right">
+                                            <span class="status-pill <?php echo e($statusClass); ?>"><?php echo e($match["status"]); ?></span>
+                                            <div class="quota">
+                                                <?php echo e($availabilityLabel); ?>
+                                                <strong><?php echo e($quotaUsed); ?> / <?php echo e($quotaMax); ?></strong>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span class="match-score"><?php echo e($match["matchScore"]); ?> match</span>
-                                </a>
+
+                                    <div class="name-row">
+                                        <h2 class="supervisor-name"><?php echo e($match["fullName"]); ?></h2>
+                                        <?php if ($matchCount > 0): ?>
+                                            <span class="match-score"><?php echo $matchCount; ?> Match<?php echo $matchCount === 1 ? '' : 'es'; ?></span>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <div class="specialty">
+                                        Specialization: <?php echo e($match["programme"]); ?>, <?php echo e($match["employmentCategory"]); ?>
+                                    </div>
+
+                                    <div class="tag-list">
+                                        <span class="tag structural"><?php echo e($match["programme"]); ?></span>
+                                        <span class="tag structural"><?php echo e($match["employmentCategory"]); ?></span>
+                                        
+                                        <?php foreach ($matchedTags as $tagName): ?>
+                                            <span class="tag"><?php echo e($tagName); ?></span>
+                                        <?php endforeach; ?>
+                                    </div>
+
+                                    <?php if (!$canApply): ?>
+                                        <span class="btn-apply disabled"><?php echo e($match["buttonLabel"] ?? "Application Closed"); ?></span>
+                                    <?php else: ?>
+                                        <a class="btn-apply" href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($match["userID"]); ?>">
+                                            Apply for Supervision
+                                        </a>
+                                    <?php endif; ?>
+                                </article>
                             <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
+                        <?php endif; ?>
+                    </section>
                 </section>
 
                 <form method="GET" action="studentDiscovery.php">
@@ -122,11 +188,12 @@ function selected($left, $right) {
                         </div>
                         <div>
                             <label>Availability Status</label>
+                            <input type="hidden" id="availabilityInput" name="availability" value="<?php echo e($selectedAvailability); ?>">
                             <div class="availability-tabs">
-                                <button class="tab <?php echo $selectedAvailability === "" ? "active" : ""; ?>" type="submit" name="availability" value="">All</button>
-                                <button class="tab <?php echo $selectedAvailability === "Available" ? "active" : ""; ?>" type="submit" name="availability" value="Available">Available</button>
-                                <button class="tab <?php echo $selectedAvailability === "Full" ? "active" : ""; ?>" type="submit" name="availability" value="Full">Full</button>
-                            </div>
+                            <button class="tab availability-tab <?php echo $selectedAvailability === "" ? "active" : ""; ?>" type="button" data-value="">All</button>
+                            <button class="tab availability-tab <?php echo $selectedAvailability === "Available" ? "active" : ""; ?>" type="button" data-value="Available">Available</button>
+                            <button class="tab availability-tab <?php echo $selectedAvailability === "Full" ? "active" : ""; ?>" type="button" data-value="Full">Full</button>
+                        </div>
                         </div>
                         <div class="filter-actions">
                             <button class="button" type="submit">Apply Filters</button>
@@ -177,7 +244,7 @@ function selected($left, $right) {
                                     </div>
                                     <div class="card-footer">
                                         <div class="mini-avatars">
-                                            <span class="mini-dot"><?php echo e(substr($supervisor["programme"], 0, 2)); ?></span>
+                                            <span class="mini-dot"><?php echo e(substr($supervisor["programme"], 0, 3)); ?></span>
                                             <span class="mini-dot">+<?php echo e(max(0, $max - $used)); ?></span>
                                         </div>
                                         <a class="button apply-button" href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($supervisor["userID"]); ?>">View Profile</a>

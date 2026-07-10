@@ -62,6 +62,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+// Availability filter
+document.addEventListener("DOMContentLoaded", function() {
+    const availabilityInput = document.getElementById("availabilityInput");
+    const tabs = document.querySelectorAll(".availability-tab");
+
+    if (!availabilityInput || tabs.length === 0) return;
+
+    tabs.forEach(tab => {
+        tab.addEventListener("click", function() {
+            // 1. Update the hidden input value
+            availabilityInput.value = this.dataset.value;
+
+            // 2. Remove 'active' class from all tabs
+            tabs.forEach(t => t.classList.remove("active"));
+
+            // 3. Add 'active' class to the clicked tab
+            this.classList.add("active");
+        });
+    });
+});
+
 /* ==========================================================================
    2. STUDENT PROFILE MANAGEMENT
    ========================================================================== */

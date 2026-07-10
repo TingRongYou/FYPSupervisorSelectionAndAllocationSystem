@@ -192,10 +192,13 @@ function statusMessage() { // Build a successe or error HTML banner
                                         <?php $checked = in_array((int) $tag["tagID"], $selectedTagIDs, true); ?>
                                         <label class="tag-option <?php echo $checked ? "selected" : ""; ?>">
                                             <span class="tag-name">
-                                                <span class="tag-code"><?php echo e(researchTagCode($tag["tagName"])); ?></span>
-                                                <?php echo e($tag["tagName"]); ?>
+                                                <span class="tag-info-group">
+                                                    <span class="tag-code"><?php echo e(researchTagCode($tag["tagName"])); ?></span>
+                                                    <?php echo e($tag["tagName"]); ?>
+                                                </span>
+                                                
+                                                <input type="checkbox" name="interestTags[]" value="<?php echo e($tag["tagID"]); ?>" data-name="<?php echo e($tag["tagName"]); ?>" <?php echo $checked ? "checked" : ""; ?>>
                                             </span>
-                                            <input type="checkbox" name="interestTags[]" value="<?php echo e($tag["tagID"]); ?>" data-name="<?php echo e($tag["tagName"]); ?>" <?php echo $checked ? "checked" : ""; ?>>
                                         </label>
                                     <?php endforeach; ?>
                                 </div>

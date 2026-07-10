@@ -85,6 +85,7 @@ class SupervisorDiscoveryService {
             ]);
     }
 
+    // Check if student has saved interest tags
     public function hasSavedInterestTags(
         $studentID
     ) {
