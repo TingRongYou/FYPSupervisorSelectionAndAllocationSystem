@@ -24,22 +24,22 @@ class StudentProfileFacade {
 
     public function getProfilePayload($studentID) {
 
-        $profile = $this->studentProfileDAO->getStudentProfile($studentID);
+        $profile = $this->studentProfileDAO->getStudentProfile($studentID); // Get base profile information for a specific student
 
-        if (!$profile) {
+        if (!$profile) { // Handle missing data
 
             return null;
         }
 
-        $selectedTagIDs = array_map(
+        $selectedTagIDs = array_map( // Fetch tag IDs currently associated with the student, turns it into integer so that it is cleaner and safer
             "intval",
             $this->tagDAO->getStudentTagIDs($studentID)
         );
 
         return [
-            "profile" => $profile,
-            "allTags" => $this->tagDAO->getAllTags(),
-            "selectedTagIDs" => $selectedTagIDs
+            "profile" => $profile, // Main student info
+            "allTags" => $this->tagDAO->getAllTags(), // A list of every possible tag (for dropdown or checkbox selection)
+            "selectedTagIDs" => $selectedTagIDs // Specific tags that belongs to the student
         ];
     }
 

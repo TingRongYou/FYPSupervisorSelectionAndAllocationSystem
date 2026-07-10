@@ -802,6 +802,7 @@ class RequestDAO {
             (int) $statement->fetchColumn();
     }
 
+    // Automatically reject after 72 hours
     public function expireTimedOutRequestsByStudent(
         $studentID
     ) {
@@ -838,6 +839,7 @@ class RequestDAO {
             $statement->execute();
     }
 
+    // Get student application statuses
     public function getApplicationsByStudent(
         $studentID
     ) {
@@ -1146,11 +1148,11 @@ class RequestDAO {
         ";
 
         $statement =
-            $this->conn->prepare(
+            $this->conn->prepare( // Sends SQL template to database instead of running query immediately, prevent SQL injection
                 $query
             );
 
-        $statement->bindParam(
+        $statement->bindParam( // Safely insert actual value ($studentID) into placeholder value, protect malicious code to be pass into input field
             ":studentID",
             $studentID
         );
@@ -1161,11 +1163,11 @@ class RequestDAO {
             PDO::PARAM_INT
         );
 
-        $statement->execute();
+        $statement->execute(); // Run final query with injected variables
 
         return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
+            $statement->fetchAll( // Gathers all matching rows from the database and returns them as associative array
+                PDO::FETCH_ASSOC // Associative array is an array where keys are column names ("supervisorName => Dr.Smith", ...)
             );
     }
 

@@ -181,6 +181,7 @@ class SupervisorDAO {
     |--------------------------------------------------------------------------
     */
 
+    // Get supervisor by filtering
     public function getSupervisorsForDiscovery(
         $searchName,
         $programme,

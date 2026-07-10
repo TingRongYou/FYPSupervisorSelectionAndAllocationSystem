@@ -310,9 +310,9 @@ h1 {
 /* --- Supervisor Cards --- */
 .supervisor-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 18px;
-    margin-bottom: 0;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 16;
 }
 
 .supervisor-card {
@@ -560,10 +560,9 @@ h1 {
 /* --- Stats Row --- */
 .stats-row {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
-    height: 100%;
-    margin-bottom: 0;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 14px;
 }
 
 .stat-card {
@@ -625,7 +624,6 @@ h1 {
     border: 1px solid #d9e7f3;
     border-radius: 12px;
     padding: 20px;
-    grid-column: 1 / -1;
     min-height: 104px;
     position: relative;
     overflow: hidden;
@@ -1445,7 +1443,8 @@ h1 {
 }
 
 .avatar-upload {
-    display: inline-flex;
+    text-align: center;
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
     min-height: 38px;
@@ -3364,6 +3363,34 @@ h1 {
     margin-bottom: 8px;
 }
 
+/* --- Collapsible Dropdown Logic --- */
+
+.collapsible-content {
+    display: grid;
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transition: grid-template-rows 0.3s ease, opacity 0.3s ease;
+}
+
+.collapsible-content.is-closed {
+    grid-template-rows: 0fr;
+    opacity: 0;
+}
+
+/* The new inner wrapper */
+.collapsible-inner {
+    min-height: 0; /* Crucial: Allows the grid to shrink properly */
+    overflow: hidden;
+}
+
+/* Smooth arrow rotation */
+.selector .chevron {
+    transition: transform 0.3s ease;
+}
+
+.selector.is-closed .chevron {
+    transform: rotate(-180deg);
+}
 /* --- Responsive Breakpoints --- */
 @media (max-width: 1100px) {
     .dashboard-top { grid-template-columns: 1fr; }
@@ -3398,6 +3425,17 @@ h1 {
     .side-panel {
         border-left: 0;
         border-top: 1px solid #edf2f7;
+    }
+    .supervisor-grid,
+    .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .supervisor-grid, 
+    .stats-row {
+        grid-template-columns: 1fr; /* 1 column on phones */
     }
 }
 

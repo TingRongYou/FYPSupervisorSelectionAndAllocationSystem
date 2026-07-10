@@ -9,14 +9,15 @@ SessionManager::requireRole("Student");
 
 $studentID = $_SESSION["userID"];
 $requestDAO = new RequestDAO();
-$requestDAO->expireTimedOutRequestsByStudent($studentID);
-$applications = $requestDAO->getApplicationsByStudent($studentID);
+$requestDAO->expireTimedOutRequestsByStudent($studentID); // Automatically reject after 72 hours
+$applications = $requestDAO->getApplicationsByStudent($studentID); // Get student application details
 
 function e($value) {
 
     return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
+// Translate database input to function output (CSS)
 function statusClass($status) {
 
     $normalized = strtolower(trim((string) $status));
@@ -46,9 +47,10 @@ function statusClass($status) {
         return "requested";
     }
 
-    return "pending";
+    return "pending"; // Default as pending
 }
 
+// Label text
 function statusLabel($status) {
 
     if ($status === "Rejected-Timeout") {
@@ -64,6 +66,7 @@ function statusLabel($status) {
     return $status;
 }
 
+// E.g., 10 Jul 2026 02:30 PM
 function formatDateText($value) {
 
     if (!$value) {
@@ -76,22 +79,23 @@ function formatDateText($value) {
 
 function countdownText($expiresAt) {
 
-    if (!$expiresAt) {
+    if (!$expiresAt) { // If empty, false or NULL
 
         return "-";
     }
 
-    $remaining = strtotime($expiresAt) - time();
+    $remaining = strtotime($expiresAt) - time(); // Calculate differences between expiry date and current time
 
     if ($remaining <= 0) {
 
         return "Expired";
     }
 
-    $hours = floor($remaining / 3600);
-    $minutes = floor(($remaining % 3600) / 60);
+    $hours = floor($remaining / 3600); // Round to nearest whole hour
+    $minutes = floor(($remaining % 3600) / 60); // Round to nearest minutes
 
-    return str_pad((string) $hours, 2, "0", STR_PAD_LEFT) .
+    // Ensure output is like 02h 05m
+    return str_pad((string) $hours, 2, "0", STR_PAD_LEFT) . 
         "h " .
         str_pad((string) $minutes, 2, "0", STR_PAD_LEFT) .
         "m";
@@ -164,7 +168,7 @@ function statusMessage() {
                     <article class="summary-card"><span>Closed</span><strong><?php echo $rejectedCount + $withdrawnCount; ?></strong></article>
                 </section>
 
-                <?php if (empty($applications)): ?>
+                <?php if (empty($applications)): ?> <!-- If no applications -->
                     <section class="empty-state">
                         <strong>My Empty Dashboard</strong>
                         You have not submitted any project proposals yet. Browse supervisors with open slots to start your application.
@@ -214,16 +218,18 @@ function statusMessage() {
                                         <span class="comment"><?php echo e($application["supervisorComment"] ?: "No supervisor comment recorded."); ?></span>
                                     <?php endif; ?>
                                 </div>
+                                    <!-- Dynamic action button based on proposal status-->
                                 <div>
                                     <div class="action-stack">
-                                    <?php if (trim((string) $application["proposalPDFPath"]) !== ""): ?>
+                                    <?php if (trim((string) $application["proposalPDFPath"]) !== ""): ?> <!-- If there is a proposal path, then view PDF-->
                                         <a class="row-action secondary" href="studentProposalDetails.php?requestID=<?php echo e($application["requestID"]); ?>">View Details</a>
                                     <?php endif; ?>
-                                    <?php if ($isProposalRequested || $canResubmitRejectedProposal): ?>
+                                    <?php if ($isProposalRequested || $canResubmitRejectedProposal): ?> <!-- Submit or resubmit button-->
                                         <a class="row-action" href="submitProposalForm.php?supervisorID=<?php echo urlencode($application["supervisorID"]); ?>&requestID=<?php echo e($application["requestID"]); ?>">
                                             <?php echo $canResubmitRejectedProposal ? "Resubmit Proposal" : "Submit Proposal"; ?>
                                         </a>
                                     <?php endif; ?>
+                                    <!-- Default state-->
                                     <?php if (
                                         trim((string) $application["proposalPDFPath"]) === "" &&
                                         !$isProposalRequested &&

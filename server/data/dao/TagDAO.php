@@ -102,7 +102,7 @@ class TagDAO {
             );
     }
 
-    public function getStudentTagIDs(
+public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECTION table based on studentID
         $studentID
     ) {
 

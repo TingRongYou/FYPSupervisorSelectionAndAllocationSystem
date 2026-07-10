@@ -219,6 +219,7 @@ class SupervisorAvailabilityService {
             new AllocationRegistry();
     }
 
+    // Calculate or fetches their current workload
     public function decorateAvailability(
         $supervisor
     ) {

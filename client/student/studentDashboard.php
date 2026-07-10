@@ -17,10 +17,10 @@ $discoveryService = new SupervisorDiscoveryService();
 $requestDAO       = new RequestDAO();
 $requestDAO->expireTimedOutRequestsByStudent($studentID);
 
-$supervisors     = $discoveryService->getRecommendedMatches($studentID);
-$hasSavedInterestTags = $discoveryService->hasSavedInterestTags($studentID);
-$discoveryList   = array_slice($discoveryService->discoverSupervisors([]), 0, 3);
-$requests        = $requestDAO->getRecentApplicationsByStudent($studentID, 2);
+$supervisors     = $discoveryService->getRecommendedMatches($studentID); // Search for recommended supervisors based on student's saved interest tags
+$hasSavedInterestTags = $discoveryService->hasSavedInterestTags($studentID); // Check if student has any interest tags
+$discoveryList   = array_slice($discoveryService->discoverSupervisors([]), 0, 3); // Get 3 supervisor
+$requests        = $requestDAO->getRecentApplicationsByStudent($studentID, 2); // Get user 2 of the most recent applications
 $proposalRequests = array_values(
     array_filter(
         $requestDAO->getApplicationsByStudent($studentID),
@@ -111,118 +111,125 @@ function requestClass($status) {
                     </section>
                 <?php endif; ?>
 
-                <section class="dashboard-top">
-                    <div class="recommendation-column">
-                        <div class="section-toolbar">
-                            <a class="selector" href="studentDiscovery.php">
-                                Recommended Supervisors
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                                    <polyline points="6 9 12 15 18 9"/>
-                                </svg>
-                            </a>
-                        </div>
+                <!-- Display the recommended supervisors as dropdown box -->
+                <section class="dashboard-top-section recommendation-column" style="margin-bottom: 32px;">
+    
+                    <div class="section-toolbar">
+                        <button class="selector" id="toggleRecommendations" style="border: none; cursor: pointer; font-family: inherit;">
+                            Recommended Supervisors
+                            <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </button>
+                    </div>
 
-                        <p class="muted-title">Top Match For You:</p>
+                    <div id="recommendationsContent" class="collapsible-content">
+                        <div class="collapsible-inner"> 
+                            
+                            <p class="muted-title">Top Match For You:</p>
 
-                        <section class="supervisor-grid">
-                            <?php if (empty($supervisors)): ?>
-                                <article class="supervisor-card">
-                                    <p class="empty-state">
-                                        <?php echo $hasSavedInterestTags
-                                            ? "No recommended supervisors currently match your saved interests with Available slot status. Browse Discovery to review all supervisors."
-                                            : "Update your Research Interests in your Profile to unlock personalised supervisor recommendations."; ?>
-                                    </p>
-                                </article>
-                            <?php else: ?>
-                                <?php foreach ($supervisors as $supervisor): ?>
-                                    <?php
-                                        $isOffline   = $supervisor["status"] === "Offline";
-                                        $statusClass = $supervisor["statusClass"] ?? ($isOffline ? "offline" : "online");
-                                        $canApply    = (bool) ($supervisor["canApply"] ?? false);
-                                        $availabilityLabel = $supervisor["quotaStatus"] ?? "Full";
-                                        $quotaParts  = explode("/", $supervisor["quotaText"]);
-                                        $quotaUsed   = trim($quotaParts[0] ?? "0");
-                                        $quotaMax    = preg_replace("/[^0-9]/", "", $quotaParts[1] ?? (string) $supervisor["maxSlots"]);
-                                    ?>
-                                    <article class="supervisor-card">
-                                        <div class="supervisor-top">
-                                            <div class="avatar <?php echo $isOffline ? "offline" : ""; ?>">
-                                                <?php if (!empty($supervisor["profilePhotoPath"])): ?>
-                                                    <img src="<?php echo e($supervisor["profilePhotoPath"]); ?>" alt="">
-                                                <?php else: ?>
-                                                    <?php echo e(initials($supervisor["fullName"])); ?>
-                                                <?php endif; ?>
-                                            </div>
-                                            <div class="top-right">
-                                                <span class="status-pill <?php echo e($statusClass); ?>"><?php echo e($supervisor["status"]); ?></span>
-                                                <div class="quota">
-                                                    <?php echo e($availabilityLabel); ?>
-                                                    <strong><?php echo e($quotaUsed); ?> / <?php echo e($quotaMax); ?></strong>
+                            <section class="supervisor-grid">
+                                <?php if (empty($supervisors)): ?>
+                                    <article class="supervisor-card" style="grid-column: 1 / -1;">
+                                        <p class="empty-state">
+                                            <?php echo $hasSavedInterestTags
+                                                ? "No recommended supervisors currently match your saved interests with Available slot status. Browse Discovery to review all supervisors."
+                                                : "Update your Research Interests in your Profile to unlock personalised supervisor recommendations."; ?>
+                                        </p>
+                                    </article>
+                                <?php else: ?>
+                                    <?php foreach ($supervisors as $supervisor): ?>
+                                        <?php
+                                            $isOffline   = $supervisor["status"] === "Offline";
+                                            $statusClass = $supervisor["statusClass"] ?? ($isOffline ? "offline" : "online");
+                                            $canApply    = (bool) ($supervisor["canApply"] ?? false);
+                                            $availabilityLabel = $supervisor["quotaStatus"] ?? "Full";
+                                            $quotaParts  = explode("/", $supervisor["quotaText"]);
+                                            $quotaUsed   = trim($quotaParts[0] ?? "0");
+                                            $quotaMax    = preg_replace("/[^0-9]/", "", $quotaParts[1] ?? (string) $supervisor["maxSlots"]);
+                                        ?>
+                                        <article class="supervisor-card">
+                                            <div class="supervisor-top">
+                                                <div class="avatar <?php echo $isOffline ? "offline" : ""; ?>">
+                                                    <?php if (!empty($supervisor["profilePhotoPath"])): ?>
+                                                        <img src="<?php echo e($supervisor["profilePhotoPath"]); ?>" alt="">
+                                                    <?php else: ?>
+                                                        <?php echo e(initials($supervisor["fullName"])); ?>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="top-right">
+                                                    <span class="status-pill <?php echo e($statusClass); ?>"><?php echo e($supervisor["status"]); ?></span>
+                                                    <div class="quota">
+                                                        <?php echo e($availabilityLabel); ?>
+                                                        <strong><?php echo e($quotaUsed); ?> / <?php echo e($quotaMax); ?></strong>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <h2 class="supervisor-name"><?php echo e($supervisor["fullName"]); ?></h2>
-                                        <div class="specialty">
-                                            Specialization: <?php echo e($supervisor["programme"]); ?>, <?php echo e($supervisor["employmentCategory"]); ?>
-                                        </div>
+                                            <h2 class="supervisor-name"><?php echo e($supervisor["fullName"]); ?></h2>
+                                            <div class="specialty">
+                                                Specialization: <?php echo e($supervisor["programme"]); ?>, <?php echo e($supervisor["employmentCategory"]); ?>
+                                            </div>
 
-                                        <div class="tag-list">
-                                            <span class="tag"><?php echo e($supervisor["programme"]); ?></span>
-                                            <span class="tag"><?php echo e($supervisor["employmentCategory"]); ?></span>
-                                        </div>
+                                            <div class="tag-list">
+                                                <span class="tag"><?php echo e($supervisor["programme"]); ?></span>
+                                                <span class="tag"><?php echo e($supervisor["employmentCategory"]); ?></span>
+                                            </div>
 
-                                        <?php if (!$canApply): ?>
-                                            <span class="btn-apply disabled"><?php echo e($supervisor["buttonLabel"] ?? "Application Closed"); ?></span>
-                                        <?php else: ?>
-                                            <a class="btn-apply" href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($supervisor["userID"]); ?>">
-                                                Apply for Supervision
-                                            </a>
-                                        <?php endif; ?>
-                                    </article>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </section>
-                    </div>
+                                            <?php if (!$canApply): ?>
+                                                <span class="btn-apply disabled"><?php echo e($supervisor["buttonLabel"] ?? "Application Closed"); ?></span>
+                                            <?php else: ?>
+                                                <a class="btn-apply" href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($supervisor["userID"]); ?>">
+                                                    Apply for Supervision
+                                                </a>
+                                            <?php endif; ?>
+                                        </article>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </section>
+                            
+                        </div> 
+                    </div> 
+                </section>
 
-                    <div class="status-column">
-                        <section class="stats-row">
-                            <article class="stat-card">
-                                <div class="stat-top">
-                                    <div class="stat-icon">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="#0b3760" stroke-width="2">
-                                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
-                                            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                                        </svg>
-                                    </div>
-                                    <span class="stat-label">Status</span>
+                <!-- Status card (Allocation Status, Active Requests, Phases) -->
+                <section class="dashboard-middle-section">
+                    <section class="stats-row">
+                        <article class="stat-card">
+                            <div class="stat-top">
+                                <div class="stat-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0b3760" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                        <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
                                 </div>
-                                <div class="stat-value"><?php echo e($allocationStatus); ?></div>
-                                <div class="stat-caption">Allocation Status</div>
-                            </article>
+                                <span class="stat-label">Status</span>
+                            </div>
+                            <div class="stat-value"><?php echo e($allocationStatus); ?></div>
+                            <div class="stat-caption">Allocation Status</div>
+                        </article>
 
-                            <article class="stat-card">
-                                <div class="stat-top">
-                                    <div class="stat-icon">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="#0b3760" stroke-width="2">
-                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                                        </svg>
-                                    </div>
-                                    <span class="stat-label">Real-Time</span>
+                        <article class="stat-card">
+                            <div class="stat-top">
+                                <div class="stat-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0b3760" stroke-width="2">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                    </svg>
                                 </div>
-                                <div class="stat-value"><?php echo e($pendingRequests); ?></div>
-                                <div class="stat-caption">Active Requests</div>
-                            </article>
+                                <span class="stat-label">Real-Time</span>
+                            </div>
+                            <div class="stat-value"><?php echo e($pendingRequests); ?></div>
+                            <div class="stat-caption">Active Requests</div>
+                        </article>
 
-                            <article class="timer-card">
-                                <p class="timer-phase"><?php echo e($phaseLabel); ?></p>
-                                <div class="timer-value" id="phaseTimer">--:--:--</div>
-                                <div class="timer-date">
-                                    <?php echo $phaseEnd !== "" ? e(strtoupper(date("d M Y", strtotime($phaseEnd)))) : "No active phase"; ?>
-                                </div>
-                            </article>
-                        </section>
-                    </div>
+                        <article class="timer-card">
+                            <p class="timer-phase"><?php echo e($phaseLabel); ?></p>
+                            <div class="timer-value" id="phaseTimer">--:--:--</div>
+                            <div class="timer-date">
+                                <?php echo $phaseEnd !== "" ? e(strtoupper(date("d M Y", strtotime($phaseEnd)))) : "No active phase"; ?>
+                            </div>
+                        </article>
+                    </section>
                 </section>
 
                 <section class="dashboard-lower">

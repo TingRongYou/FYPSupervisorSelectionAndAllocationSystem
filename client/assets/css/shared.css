@@ -115,7 +115,7 @@ html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; b
 .id-band { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; min-width: 170px; border-radius: 999px; background: #448dca; color: #fff; padding: 0 16px; font-weight: 800; line-height: 1; }
 .info-section h2 { color: #3c82d7; font-weight: 300; border-bottom: 1px solid #d8e4ef; padding-bottom: 9px; margin: 0 0 8px; }
 .info-row { display: grid; grid-template-columns: 190px 1fr; gap: 16px; border-bottom: 1px dotted #c8d8e6; padding: 11px 0; font-size: 14px; }
-.label { color: #54708b; text-align: right; }
+.label { color: #54708b; text-align: right;}
 .value { color: #1d2b3a; }
 
 /* ==========================================================================

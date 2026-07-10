@@ -45,6 +45,23 @@ document.addEventListener("DOMContentLoaded", function() {
     setInterval(updateTimer, 1000);
 });
 
+
+// Wait for the DOM to fully load
+document.addEventListener("DOMContentLoaded", () => {
+    
+    const toggleBtn = document.getElementById("toggleRecommendations");
+    const contentArea = document.getElementById("recommendationsContent");
+
+    if (toggleBtn && contentArea) {
+        toggleBtn.addEventListener("click", () => {
+            // Toggle the closed classes on both the content and the button
+            contentArea.classList.toggle("is-closed");
+            toggleBtn.classList.toggle("is-closed");
+        });
+    }
+
+});
+
 /* ==========================================================================
    2. STUDENT PROFILE MANAGEMENT
    ========================================================================== */

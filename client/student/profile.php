@@ -1,23 +1,26 @@
 <?php
 
+// import another PHP file's code
 require_once __DIR__ . "/../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/StudentProfileFacade.php";
 require_once __DIR__ . "/studentLayout.php";
 
-SessionManager::startSession();
-SessionManager::requireRole("Student");
+// Only allows access to students
+SessionManager::startSession(); // auth/sessionManager.php
+SessionManager::requireRole("Student"); // :: is a Scope Resolution Operator, used to access static properties, methods or constants of a class without needing to create an object instance
 
 if (empty($_SESSION["csrf_token"])) {
 
-    $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
+    $_SESSION["csrf_token"] = bin2hex(random_bytes(32)); // Generate random CSRF token so server can verify form submission
 }
 
+// Creates an object and calls a method on it to fetch this student's profile data from database
 $profileFacade = new StudentProfileFacade();
 $payload = $profileFacade->getProfilePayload($_SESSION["userID"]);
 
 if (!$payload) {
 
-    header("Location: ../auth/login.html?status=error&message=Student profile was not found");
+    header("Location: ../auth/login.html?status=error&message=Student profile was not found"); // Redirect browser elsewhere and stop the scripts immediately
     exit();
 }
 
@@ -29,12 +32,13 @@ SessionManager::setProfilePhotoPath(
     $profile["profilePhotoPath"] ?? ""
 );
 
-function e($value) {
+// Helper functions
+function e($value) { // Escape text before printing into HTMl, preventing XSS attacks
 
     return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
-function initials($name) {
+function initials($name) { // Turns name into abbreviation for profile pic
 
     $parts = preg_split("/\s+/", trim((string) $name));
     $first = strtoupper(substr($parts[0] ?? "S", 0, 1));
@@ -42,8 +46,8 @@ function initials($name) {
 
     return $first . $second;
 }
-
-function researchTagCode($tagName) {
+ 
+function researchTagCode($tagName) { // Turns tag name into short code for little badge next to the checkboxes
 
     $normalisedName = strtolower(
         preg_replace("/\s+/", " ", trim((string) $tagName))
@@ -82,7 +86,7 @@ function researchTagCode($tagName) {
     return $code !== "" ? $code : strtoupper(substr((string) $tagName, 0, 2));
 }
 
-function statusMessage() {
+function statusMessage() { // Build a successe or error HTML banner
 
     if (!isset($_GET["status"], $_GET["message"])) {
 
@@ -102,7 +106,7 @@ function statusMessage() {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Profile | SSAS</title>
-    <link rel="stylesheet" href="../assets/css/shared.css">
+    <link rel="stylesheet" href="../assets/css/shared.css"> <!-- Pull css and js file -->
     <link rel="stylesheet" href="../assets/css/student.css">
     <script src="../assets/js/student.js" defer></script>
 </head>
@@ -121,21 +125,21 @@ function statusMessage() {
                     </div>
                 </section>
 
-                <form id="studentProfileForm" class="profile-grid" action="../../server/application/student/updateStudentProfile.php" method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
+                <form id="studentProfileForm" class="profile-grid" action="../../server/application/student/updateStudentProfile.php" method="POST" enctype="multipart/form-data"> <!-- enctype="multipart/form-data" tells browser, this form is allowed to upload files -->
+                    <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>"> <!-- Security measures to ensure request to save profile actually comes from the page instead of a malicious third-party site -->
                     <input type="hidden" name="MAX_FILE_SIZE" value="524288">
 
                     <aside class="side-panel">
                         <section class="avatar-wrap">
                             <div class="avatar" id="avatarPreview">
-                                <?php if (!empty($profile["profilePhotoPath"])): ?>
+                                <?php if (!empty($profile["profilePhotoPath"])): ?> <!-- If have profile photo, display it-->
                                     <img src="<?php echo e($profile["profilePhotoPath"]); ?>" alt="Profile photo">
                                 <?php else: ?>
-                                    <?php echo e(initials($profile["fullName"])); ?>
+                                    <?php echo e(initials($profile["fullName"])); ?> <!-- Else, display the abbreviated name -->
                                 <?php endif; ?>
                             </div>
-                            <p class="identity-name"><?php echo e($profile["fullName"]); ?></p>
-                            <p class="identity-id"><?php echo e($profile["studentID"]); ?></p>
+                            <p class="identity-name"><?php echo e($profile["fullName"]); ?></p> <!-- Display full name -->
+                            <p class="identity-id"><?php echo e($profile["studentID"]); ?></p> <!-- Display student ID -->
                             <label class="avatar-upload" for="avatarFile">
                                 Choose Avatar
                                 <input id="avatarFile" name="avatarFile" type="file" accept="image/jpeg,image/png">
@@ -143,7 +147,7 @@ function statusMessage() {
                             <span class="file-name" id="avatarFileName">JPG or PNG, max 0.5MB.</span>
                         </section>
 
-                        <section class="readonly-block">
+                        <section class="readonly-block"> <!-- Display academic record (read-only)-->
                             <p class="readonly-title">Academic Record</p>
                             <div class="readonly-field"><span>Programme</span><strong><?php echo e($profile["programme"]); ?></strong></div>
                             <div class="readonly-field"><span>Intake Batch</span><strong><?php echo e($profile["intakeBatch"]); ?></strong></div>
@@ -170,7 +174,7 @@ function statusMessage() {
                                     <input id="contactNumber" name="contactNumber" type="text" maxlength="20" value="<?php echo e($profile["contactNumber"]); ?>" placeholder="e.g., 0123456789">
                                 </div>
                                 <div>
-                                    <label>Eligibility</label>
+                                    <label>Eligibility</label> <!-- Read-only field -->
                                     <div class="readonly-field" style="margin: 0;"><strong><?php echo $profile["eligibilityStatus"] ? "Eligible for FYP" : "Not Eligible"; ?></strong></div>
                                 </div>
                             </div>
@@ -184,7 +188,7 @@ function statusMessage() {
                             <div class="tag-box">
                                 <div class="selected-tags" id="selectedTags"></div>
                                 <div class="tag-grid">
-                                    <?php foreach ($allTags as $tag): ?>
+                                    <?php foreach ($allTags as $tag): ?> <!-- Display all of the tags -->
                                         <?php $checked = in_array((int) $tag["tagID"], $selectedTagIDs, true); ?>
                                         <label class="tag-option <?php echo $checked ? "selected" : ""; ?>">
                                             <span class="tag-name">

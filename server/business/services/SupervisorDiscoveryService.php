@@ -56,18 +56,19 @@ class SupervisorDiscoveryService {
     |--------------------------------------------------------------------------
     */
 
+    // Manual discovery
     public function discoverSupervisors(
         $filters
     ) {
 
         $filters =
-            $this->normalizeFilters($filters);
+            $this->normalizeFilters($filters); // Normalize data into standardized format engine expected
 
         $processor =
-            new ManualSearchProcessor();
+            new ManualSearchProcessor(); // Decide strategy to search supervisors
 
         return $processor
-            ->executeSearch($filters);
+            ->executeSearch($filters); // Trigger search process
     }
 
     public function getRecommendedMatches(
@@ -88,7 +89,7 @@ class SupervisorDiscoveryService {
         $studentID
     ) {
 
-        return count(
+        return count( // If count > 0, then true, else false
             $this->tagDAO
             ->getStudentTagIDs($studentID)
         ) > 0;

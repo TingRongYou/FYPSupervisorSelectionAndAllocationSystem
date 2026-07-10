@@ -24,28 +24,30 @@ abstract class DiscoveryEngine {
             new SupervisorAvailabilityService();
     }
 
+    // Calls multiple methods to transform raw data into polished result
     public function executeSearch(
         $context
     ) {
 
         $supervisors =
-            $this->fetchActiveSupervisors();
+            $this->fetchActiveSupervisors(); // Get a raw list of supervisors and decorates them with their availability status
 
         $supervisors =
-            $this->attachTagPayload($supervisors);
+            $this->attachTagPayload($supervisors); // Add supervisor's research interest tag to their profile
 
         $supervisors =
-            $this->filterSlotAvailability($supervisors, $context);
+            $this->filterSlotAvailability($supervisors, $context); // Filter student's availability status choice
 
         $supervisors =
-            $this->applyMatchingLogic($supervisors, $context);
+            $this->applyMatchingLogic($supervisors, $context); // An abstract method
 
         $supervisors =
-            $this->rankResults($supervisors, $context);
+            $this->rankResults($supervisors, $context); // sorts the filtered list
 
-        return $this->renderResults($supervisors, $context);
+        return $this->renderResults($supervisors, $context); // Returns the final results
     }
 
+    // Get supervisors that are available
     protected function fetchActiveSupervisors() {
 
         $supervisors =
@@ -62,6 +64,7 @@ abstract class DiscoveryEngine {
         return $supervisors;
     }
 
+    // Attach tags to supervisors
     protected function attachTagPayload(
         $supervisors
     ) {
@@ -106,6 +109,7 @@ abstract class DiscoveryEngine {
         return $supervisors;
     }
 
+    // Filter availability statuses
     protected function filterSlotAvailability(
         $supervisors,
         $context
@@ -117,7 +121,7 @@ abstract class DiscoveryEngine {
         return array_values(
             array_filter(
                 $supervisors,
-                function ($supervisor) use ($quotaStatus) {
+                function ($supervisor) use ($quotaStatus) { // Depends on availability status filter
 
                     return
                         $quotaStatus === "" ||
@@ -127,7 +131,7 @@ abstract class DiscoveryEngine {
         );
     }
 
-    abstract protected function applyMatchingLogic(
+    abstract protected function applyMatchingLogic( // Used for different search types, including manual and recommendation
         $supervisors,
         $context
     );
@@ -137,23 +141,24 @@ abstract class DiscoveryEngine {
         $context
     ) {
 
+        // Ranking priorities
         usort(
             $supervisors,
             function ($first, $second) {
 
-                if ($first["canApply"] !== $second["canApply"]) {
+                if ($first["canApply"] !== $second["canApply"]) { // Can apply one on the top
 
                     return $first["canApply"] ? -1 : 1;
                 }
 
-                if ($first["availabilityStatus"] !== $second["availabilityStatus"]) {
+                if ($first["availabilityStatus"] !== $second["availabilityStatus"]) { // Online on top if both can apply
 
                     return $first["availabilityStatus"] === "Online"
                         ? -1
                         : 1;
                 }
 
-                return strcmp(
+                return strcmp( // If both can't apply and offline, then based on the name alphebtical order
                     $first["fullName"],
                     $second["fullName"]
                 );
@@ -176,15 +181,16 @@ abstract class DiscoveryEngine {
         $second
     ) {
 
-        return count(
-            array_intersect(
-                array_map("intval", $first),
+        return count( // Returns the number of matches
+            array_intersect( // Compare two arrays and returns a new array with intersects value
+                array_map("intval", $first), // intval ensures the comparison is done on integers
                 array_map("intval", $second)
             )
         );
     }
 }
 
+// Allows student to filter
 class ManualSearchProcessor extends DiscoveryEngine {
 
     protected function applyMatchingLogic(
@@ -208,7 +214,7 @@ class ManualSearchProcessor extends DiscoveryEngine {
 
                     if (
                         $searchName !== "" &&
-                        strpos(strtolower($supervisor["fullName"]), $searchName) === false
+                        strpos(strtolower($supervisor["fullName"]), $searchName) === false // Checks if searchName exist within supervisor's fullName
                     ) {
 
                         return false;
@@ -216,7 +222,7 @@ class ManualSearchProcessor extends DiscoveryEngine {
 
                     if (
                         $programme !== "" &&
-                        $supervisor["programme"] !== $programme
+                        $supervisor["programme"] !== $programme // Check the programme
                     ) {
 
                         return false;
@@ -224,7 +230,7 @@ class ManualSearchProcessor extends DiscoveryEngine {
 
                     if (
                         $interestTagID > 0 &&
-                        !in_array($interestTagID, $supervisor["tagIDs"], true)
+                        !in_array($interestTagID, $supervisor["tagIDs"], true) // Check if the interestTagID is in their list of research interest
                     ) {
 
                         return false;
@@ -237,6 +243,7 @@ class ManualSearchProcessor extends DiscoveryEngine {
     }
 }
 
+// Recommends supervisors based on student's saved interest tags
 class RecommendationProcessor extends DiscoveryEngine {
 
     protected function applyMatchingLogic(
@@ -244,6 +251,7 @@ class RecommendationProcessor extends DiscoveryEngine {
         $context
     ) {
 
+        // Check if student has any tags
         $studentTagIDs =
             $this->tagDAO
             ->getStudentTagIDs($context["studentID"] ?? "");
@@ -256,13 +264,15 @@ class RecommendationProcessor extends DiscoveryEngine {
         $matched =
             [];
 
+        // Calculate supervisor limit
         foreach ($supervisors as $supervisor) {
 
-            if (($supervisor["quotaStatus"] ?? "Full") !== "Available") {
+            if (($supervisor["quotaStatus"] ?? "Full") !== "Available") { // Skip if supervisor is not available
 
                 continue;
             }
 
+            // Find overlapping tags between student and supervisor
             $matchScore =
                 $this->intersects(
                     $studentTagIDs,
@@ -284,6 +294,7 @@ class RecommendationProcessor extends DiscoveryEngine {
         return $matched;
     }
 
+    // Sorts overlapping count DESCENDING, limit output to maximum of 3 elements
     protected function rankResults(
         $supervisors,
         $context
@@ -295,7 +306,7 @@ class RecommendationProcessor extends DiscoveryEngine {
 
                 if ($first["matchScore"] !== $second["matchScore"]) {
 
-                    return $second["matchScore"] <=> $first["matchScore"];
+                    return $second["matchScore"] <=> $first["matchScore"]; // Sort in descending order
                 }
 
                 return strcmp(
@@ -313,7 +324,7 @@ class RecommendationProcessor extends DiscoveryEngine {
         $context
     ) {
 
-        return array_slice(
+        return array_slice( // Ensure only top 3 are returned to the UI
             array_values($supervisors),
             0,
             3
