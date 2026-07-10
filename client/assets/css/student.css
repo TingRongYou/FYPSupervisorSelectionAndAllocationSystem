@@ -562,7 +562,7 @@ h1 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
-    margin-bottom: 14px;
+    margin-bottom: 24px;
 }
 
 .stat-card {
