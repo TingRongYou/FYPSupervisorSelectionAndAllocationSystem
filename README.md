@@ -1,9 +1,110 @@
-# TAR UMT Supervisor Selection and Allocation System (SSAS)
+<a id="readme-top"></a>
 
-## 🛠️ Local Environment Setup Guide
+<br />
+<div align="center">
+  <a href="https://github.com/TingRongYou/FYPSupervisorSelectionAndAllocationSystem">
+    <img src="client/assets/img/tarumt_logo_with_name.png" alt="Logo" width="250" height="80">
+  </a>
+
+  <h3 align="center">SSAS — Supervisor Selection and Allocation System</h3>
+
+  <p align="center">
+    A streamlined system for managing student-supervisor selection and auto allocation processes.
+    <br />
+    <a href="https://github.com/TingRongYou/FYPSupervisorSelectionAndAllocationSystem"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/TingRongYou/FYPSupervisorSelectionAndAllocationSystem">View Demo</a>
+    &middot;
+    <a href="https://github.com/TingRongYou/FYPSupervisorSelectionAndAllocationSystem/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    &middot;
+    <a href="https://github.com/TingRongYou/FYPSupervisorSelectionAndAllocationSystem/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+  </p>
+</div>
+
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#about-the-project">About the Project</a></li>
+    <li><a href="#built-with">Built With</a></li>
+    <li><a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#1-prerequisites">1. Prerequisites</a></li>
+        <li><a href="#2-cloning-the-repository">2. Cloning The Repository</a></li>
+        <li><a href="#3-database-initialisation">3. Database Initialisation</a></li>
+        <li><a href="#4-architecture-overview">4. Architecture Overview</a></li>
+      </ul>
+    </li>
+    <li><a href="#development">Development</a>
+      <ul>
+        <li><a href="#1-team-workload-distribution">Team Workload Distribution</a></li>
+        <li><a href="#2-development-rules">Development Rules</a></li>
+        <li><a href="#3-role-based-access-control-rbac">Role-Based Access Control (RBAC)</a></li>
+        <li><a href="#4-coding-standards">Coding Standards</a></li>
+      </ul>
+    </li>
+    <li><a href="#demo">Demo</a>
+      <ul>
+        <li><a href="#1-student">Student</a></li>
+        <li><a href="#2-supervisor">Supervisor</a></li>
+        <li><a href="#3-admin">Admin</a></li>
+      </ul>
+    </li>
+    <li><a href="#license">License</a></li>
+    <ul>
+      <li><a href="#disclaimer">Disclaimer</a></li>
+    </ul>
+    <li><a href="#contact">Contact</a></li>
+  </ol>
+</details>
+
+## About The Project
+
+The Supervisor Selection and Allocation System (SSAS) is a web-based Final Year Project (FYP) management platform developed for TAR UMT.
+
+The Supervisor Selection and Allocation System (SSAS) was developed to eliminate the chaos and inefficient manual processes traditionally involved in Final Year Project (FYP) supervisor matching.
+
+**The Problem with Manual Selection**\
+Previously, supervisor allocation relied heavily on manual Excel spreadsheet management and disconnected communication using Email.
+ 1. **Inefficient Communication:** Students rely on static supervisor lists and manual email inquiries to submit project proposals. This process is opaque, leaving students to wait indefinitely for responses without clear visibility into supervisor status or availability. 
+ 2. **Redundant Data Entry & Inconsistency:** The workflow forces both students and supervisors to independently update separate Excel spreadsheets to confirm project acceptance. This fragmented approach frequently leads to redundant work and data discrepancies, making it difficult to maintain a "single source of truth."
+ 3. **High Workload:** The supervisors are forced to review a large amount of proposal Email, which is exhaustive, the high workload might forces some of the supervisor to skip on giving comment on some of the rejected proposals, causing the students to wait infinitely for reply.
+ 4. **Administrative Bottlenecks:** Coordinators are tasked with manually compiling disparate spreadsheets to track allocations. They are then forced to perform the high-pressure, manual task of assigning unallocated students to supervisors, increasing the risk of administrative errors and overall system inefficiency.
+
+ This lack of a centralized system made it incredibly difficult for students to know which supervisors still had available quotas, leading to blind applications, communication gaps, and administrative bottlenecks. The whole process is error prone, consume a lot of resources and leaves a bad experience for all of the personnel involves in the process.
+
+**Our Solution**\
+SSAS provides a centralized, web-based platform that digitalizes and automates the entire allocation lifecycle. It solves the inefficiencies of the manual process by:
+* **Providing Real-Time Visibility:** Students can view supervisor profiles, academic backgrounds, and most importantly, real-time quota availability before submitting a request.
+* **Digitalizing Proposals:** Students submit their project proposals and PDF documents directly through the platform, and are automatically rejected after 72 hours of no reply, eliminate endless wait.
+* **Quick and Easy Student Acceptance and Rejection:** The supervisors can easily accept and reject the students by simply clicking a button, and leaving a quick comment on their proposals, without the need to draft an email for it, increasing the supervisor's enthusiasm.
+* **Automating Quota Management:** Supervisors can review, accept, or reject applications online, while the system's backend allocation engine strictly tracks and enforces quota limits to prevent over-allocation.
+* **Eliminating unnecessary processes:** Students, supervisors and coordinators are not required to fill in separate Excel forms, reducing the risk of inconsistency and redundant information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Built With
+This section lists the tools used for the SSAS project.
+* **Frontend**:
+    * HTML5
+    * CSS3
+    * Vanilla JavaScript
+* **Backend**:
+    * PHP 8.0.30
+* **Database**:
+    * MySQL
+* **Development Environment & Tools**:
+    * XAMPP (Apache/MySQL)
+    * Visual Studio Code
+    * Git & GitHub (for version control and team collaboration)
+    * Database Client JDBC (for schema management)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Getting Started
 To ensure code compatibility and prevent database conflicts, please follow these exact steps to set up the SSAS project on your local workstation.
 
-### 1. Prerequisite
+### 1. Prerequisites
 You **must** use the exact same XAMPP version as the rest of the team to ensure PHP 8.0 compatibility.
 * **Download XAMPP:** XAMPP for Windows`8.0.30 / PHP 8.0.30 64-bit version` at [Apache Friend websites](https://www.apachefriends.org/download.html).
 * **IDE:** Visual Studio Code.
@@ -21,7 +122,7 @@ Your local server needs to host the files. Do not clone this to your Desktop.
    ```
 3. Open the newly created SSAS folder in VS Code
 
-### 3. Database Initialisation (Clean Slate)
+### 3. Database Initialisation
 We are using a single "idempotent" SQL script to build the entire database architecture at once.
 1. Open the XAMPP Control Panel and Start both Apache and MySQL.
 2. Inside VS Code, locate the `database/schema.sql` file.
@@ -29,38 +130,74 @@ We are using a single "idempotent" SQL script to build the entire database archi
 
 ### 4. Architecture Overview
 This project strictly follows a 2-Tier Client-Server Layered Architecture. Please ensure new files are created in their designated layers:
-* `/client` - Presentation Layer (HTML, CSS, JS / AJAX API calls)
-* `/server/application` - API Gateway & Authentication Managers
-* `/server/business` - Core Logic (Allocation Engine, Quota Calculations)
-* `/server/data` - Data Access Objects (DAOs) and PDO Database Drivers
-* `/database` - SQL schema blueprints
-* `/storage` - External file storage for FYP Proposal PDFs (Ignored by Git)
 
-# TAR UMT Supervisor Selection and Allocation System (SSAS)
-===========================================================
+```plaintext
+ssas/
+│
+├── .github/
+│   └── workflows/                  # CI/CD pipelines
+│
+├── client/                         # Frontend Presentation Layer
+│   ├── admin/
+│   ├── assets/
+│   │   ├── css/
+│   │   ├── img/
+│   │   └── js/
+│   ├── auth/
+│   ├── shared/
+│   ├── student/
+│   └── supervisor/
+│
+├── database/                       # SQL Schema & Seed Data
+├── docs/                           
+│   └── img/                   
+│
+├── server/
+│   ├── application/                # API Gateway & Controllers
+│   │   ├── admin/
+│   │   ├── auth/
+│   │   ├── student/
+│   │   └── supervisor/
+│   │
+│   ├── business/                   # Core Business Logic Layer
+│   │   ├── decorators/
+│   │   ├── entities/
+│   │   ├── factories/
+│   │   ├── services/
+│   │   └── states/
+│   │
+│   └── data/                       # Data Access Layer
+│       ├── dao/
+│       ├── database/
+│       └── storage/
+│
+├── storage/                        # External File Storage (Ignored by Git)
+│   ├── intro_videos/
+│   ├── profile_photos/
+│   └── proposals/
+│
+├── .gitignore
+├── .htaccess
+└── README.md
+```
 
-## 📌 Project Overview
-=======================
+* `/client` - Presentation Layer organized by system roles (`admin`, `student`, `supervisor`), authentication pages (`auth`), shared UI components (`shared`), and static web assets (`css`, `img`, `js`).
+* `/server/application` - API Gateway acting as controllers. It handles session validation, request routing, and delegates tasks to the business layer (organized by role modules).
+* `/server/business` - The Core Logic layer containing system services, domain `entities`, and structural design patterns (`states`, `factories`, `decorators`).
+* `/server/data` - The Data Access Layer containing Data Access Objects (`dao`), PDO database connection scripts (`database`), and file system managers (`storage`).
+* `/database` - SQL schema blueprints and CSV data required to initialize the local environment.
+* `/storage` - Local directory for user-uploaded media (`proposals`, `profile_photos`, `intro_videos`). This is intentionally ignored by Git to prevent repository bloat.
 
-The Supervisor Selection and Allocation System (SSAS) is a web-based Final Year Project (FYP) management platform developed for TAR UMT to digitize and automate the existing manual supervisor allocation workflow.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-The system replaces spreadsheet and email-based processes with a centralized platform that supports:
+## Development
 
-* Real-time supervisor quota management
-* Student-supervisor matching
-* Request tracking workflows
-* Automated allocation logic
-* Administrative reporting
-* Supervisor professional profiling
+### 1. Team Workload Distribution
+![Module Distribution Image](docs/img/module_distribution.jpg)
 
-The project strictly follows the Software Requirements Specification (SRS) and Software Design Document (SDD).
+### 2. Development Rules
 
----
-
-## ⚠️ Important Development Rules
-==================================
-
-All implementation MUST strictly follow:
+All implementation strictly follow:
 
 * Functional Requirements (FR)
 * Non-Functional Requirements (NFR)
@@ -74,317 +211,102 @@ All implementation MUST strictly follow:
 * System Architecture Design
 * Waterfall SDLC Documentation
 
-Developers and AI-assisted tools (e.g. Codex) must NOT introduce workflows, database structures, or business logic that contradict the approved SRS and SDD documentation.
+_For more information, please refer to the [Documentation](https://github.com/TingRongYou/FYPSupervisorSelectionAndAllocationSystem.git)_
 
----
-
-## 👥 Team Distribution
-========================
-
-### Ting Rong You
-==================
-
-Student Journey Developer & QA Testing Lead
-
-Modules:
-
-* Availability & Status Module
-* Discovery & Search Module
-* Request & Proposal Module
-* Student Profile Module
-* Student Review Module
-* Timeline & Milestone Module
-
-### Yong Chong Xin
-===================
-
-Supervisor Journey Developer & Backend Architect
-
-Modules:
-
-* User Management Module
-* Allocation & Quota Module
-* Administrator Report Module
-* Professional Profile Module
-* Request Management Module
-* Supervisor Report Module
-
----
-
-## 🏗️ System Architecture
-==========================
-
-This project follows a strict 2-Tier Client-Server Layered Architecture.
-
-### Layer Structure
-===================
-
-* `/client`
-
-  * Presentation Layer
-  * HTML / CSS / JavaScript / AJAX
-
-* `/server/application`
-
-  * API Gateway
-  * Authentication Managers
-
-* `/server/business`
-
-  * Business Logic Layer
-  * Allocation Engine
-  * Quota Validation
-  * Workflow Enforcement
-
-* `/server/data`
-
-  * Data Access Objects (DAO)
-  * PDO Database Drivers
-
-* `/database`
-
-  * SQL Schema
-  * Database Initialization Scripts
-
-* `/storage`
-
-  * Uploaded proposal PDFs
-  * Ignored by Git
-
----
-
-## 🔒 Architectural Constraints
-================================
-
-The system implementation MUST:
-
-* Preserve layered architecture separation
-* Prevent direct database access from frontend
-* Enforce RBAC authorization rules
-* Maintain quota consistency
-* Follow centralized workflow transitions
-* Preserve proposal lifecycle states:
-
-  * Pending
-  * Accepted
-  * Rejected
-
----
-
-## 🔄 Workflow Integrity
-=========================
-
-All request flows and allocation processes must follow the approved activity diagrams and system flow documentation.
-
-Critical business rules:
-
-* No supervisor overallocation
-* No invalid proposal state transitions
-* No bypassing quota validation
-* Auto-allocation only after selection deadline
-* Role-based authorization required for all protected actions
-
----
-
-## 🧠 AI-Assisted Development Notes
-====================================
-
-When using AI tools such as Codex:
-
-* Read README.md before generating code
-* Follow SRS and SDD documents strictly
-* Preserve database consistency with ERD
-* Preserve class/module relationships
-* Do not modify teammate-owned modules
-* Do not create duplicate workflows
-* Follow existing naming conventions and folder structure
-
----
-
-# 📂 Recommended Project Structure
-
-```plaintext
-ssas/
-│
-├── client/                         # Frontend Presentation Layer
-│   ├── css/
-│   ├── js/
-│   ├── pages/
-│   └── assets/
-│
-├── server/
-│   ├── application/               # API Gateway & Authentication
-│   │   ├── AuthManager.php
-│   │   └── SessionManager.php
-│   │
-│   ├── business/                  # Business Logic Layer
-│   │   ├── AllocationEngine.php
-│   │   ├── QuotaManager.php
-│   │   └── RequestWorkflowManager.php
-│   │
-│   └── data/                      # DAO & Database Layer
-│       ├── database.php
-│       ├── UserDAO.php
-│       ├── SupervisorDAO.php
-│       └── RequestDAO.php
-│
-├── database/
-│   └── schema.sql
-│
-├── storage/
-│
-├── README.md
-├── index.php
-└── .gitignore
-```
-
----
-
-# 🔄 Application Request Lifecycle
-
-The supervisor application workflow strictly follows the approved activity diagrams and business rules from the SRS and SDD documentation.
-
-```plaintext
-Pending
-   ↓
-Accepted
-   ↓
-Allocated
-```
-
-```plaintext
-Pending
-   ↓
-Rejected
-```
-
-### Workflow Rules
-
-* Students cannot submit duplicate active requests
-* Supervisors cannot exceed quota limits
-* Allocation only occurs after supervisor approval
-* Invalid state transitions are prohibited
-* Request lifecycle validation must occur inside the business layer
-* Workflow implementation must follow the approved activity diagrams
-
----
-
-# 🔐 Role-Based Access Control (RBAC)
+### 3. Role-Based Access Control (RBAC)
 
 The system implements strict role-based authorization.
 
-### System Roles
-
+**System Roles:**
 * Student
 * Supervisor
 * Administrator
 
-### Authorization Rules
-
+**Authorization Rules:**
 * Students can only manage their own applications
 * Supervisors can only manage assigned requests
 * Administrators have full system access
 * Protected routes must validate session authentication
 * Unauthorized access attempts must be blocked
 
----
+### 4. Coding Standards
 
-# 🌿 Git Workflow
+**Backend Rules:**
+* **Layer Isolation:** Business logic must remain inside `/server/business`, database queries inside `/server/data`, and API/Controllers inside `/server/application`.
+* **Design Patterns:** Maintain the established design patterns.
+* **Data Access:** All database interactions must be routed strictly through Data Access Objects (DAOs). The frontend must never directly access the database.
+* **Security:** Use PDO prepared statements exclusively to prevent SQL injection vulnerabilities.
 
-This project uses branch-based collaborative development.
+**Frontend Rules:**
+* **Separation of Concerns:** Maintain strict separation between presentation (HTML/CSS) and backend API logic.
+* **Role-Based Boundaries:** UI components and scripts must stay within their designated role directories (`admin`, `student`, `supervisor`, `shared`).
+* **Asynchronous Operations:** Use modular Vanilla JavaScript for non-blocking server communication.
+* **Reusability:** Keep UI components modular and maintainable.
 
-### Main Branch
+**General Rules:**
+* **Consistency:** Follow naming consistency across all modules and files.
+* **Documentation Compliance:** Preserve ERD relationships, database constraints, class relationships, and workflow integrity exactly as defined in the project documentation.
+* **DRY Principle (Don't Repeat Yourself):** Avoid duplicate business logic implementations.
 
-```plaintext
-main
-```
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Developer Branches
+## Demo
 
-```plaintext
-Admin
-Student
-```
+### 1. Student
 
-### Git Rules
+<div align="center">
 
-* Never push directly to main
-* Commit frequently with meaningful messages
-* Pull latest updates before pushing
-* Resolve merge conflicts immediately
-* Test functionality before committing
-* Keep commits modular and readable
+  <a href="https://github.com/x">
+    <img src="docs/gif/x.gif" alt="Placeholder" width="1500" height="900">
+  </a>
 
-### Recommended Git Commands
+   <h3 align="center">This is a Placeholder</h3>
 
-```bash
-git pull
-git status
-git add .
-git commit -m "Implemented quota validation"
-git push
-```
+</div>
 
----
+### 2. Supervisor
 
-# 🧹 Coding Standards
+<div align="center">
 
-### Backend Rules
+  <a href="https://github.com/x">
+    <img src="docs/gif/x.gif" alt="Placeholder" width="1500" height="900">
+  </a>
 
-* Business logic must remain inside `/server/business`
-* Database queries must remain inside `/server/data`
-* Authentication must remain inside `/server/application`
-* Frontend must never directly access the database
-* Use PDO prepared statements only
-* Prevent SQL injection vulnerabilities
+   <h3 align="center">This is a Placeholder</h3>
 
-### Frontend Rules
+</div>
 
-* Maintain separation between UI and backend logic
-* Use modular JavaScript structure
-* Keep UI components reusable and maintainable
+### 3. Admin
 
-### General Rules
+<div align="center">
 
-* Follow naming consistency across modules
-* Preserve ERD relationships and constraints
-* Preserve class relationships from class diagrams
-* Preserve workflow integrity from activity diagrams
-* Avoid duplicate business logic implementations
+  <a href="https://github.com/x">
+    <img src="docs/gif/x.gif" alt="Placeholder" width="1500" height="900">
+  </a>
 
----
+   <h3 align="center">This is a Placeholder</h3>
 
-# 🚀 Recommended Development Roadmap
+</div>
 
-### Phase 1 — Core Infrastructure
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-* Database Connection
-* Session Management
-* Authentication System
-* RBAC Authorization
+## License
 
-### Phase 2 — Core Modules
+Copyright &copy; 2025/26 by Tunku Abdul Rahman University of Management and Technology (TAR UMT).
 
-* User Management Module
-* Professional Profile Module
-* Request Management Module
+All rights reserved. No part of this project, including its documentation and source code, may be reproduced, stored in a retrieval system, or transmitted in any form or by any means without prior permission of Tunku Abdul Rahman University of Management and Technology.
 
-### Phase 3 — Business Logic
+<a id="disclaimer"></a>
+### ⚠️ Disclaimer
 
-* Allocation Engine
-* Quota Validation
-* Workflow Enforcement
+This repository contains an academic Final Year Project (FYP) developed by undergraduate students. It is **not** an official system commissioned, endorsed, or deployed by Tunku Abdul Rahman University of Management and Technology (TAR UMT). The university's name, logo, and related trademarks are used strictly for academic context, prototyping, and demonstration purposes.
 
-### Phase 4 — Reporting & Analytics
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-* Supervisor Reports
-* Administrator Reports
-* Dashboard Statistics
+## Contact
+* Ting Rong You - [ryting999@gmail.com](ryting999@gmail.com) - [LinkedIn](https://linkedin.com/in/ting-rong-you-945aab3b6)
+* Yong Chong Xin - [yongchongxin0517@gmail.com](yongchongxin0517@gmail.com) - [LinkedIn](https://www.linkedin.com/in/yong-chong-xin-55aab13b6/)
 
-### Phase 5 — Finalisation
+Project Link: https://github.com/TingRongYou/FYPSupervisorSelectionAndAllocationSystem.git
 
-* Validation Testing
-* UI Refinement
-* Security Testing
-* Integration Testing
-* Deployment Preparation
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
