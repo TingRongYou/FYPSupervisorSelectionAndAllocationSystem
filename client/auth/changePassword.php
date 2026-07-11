@@ -205,6 +205,7 @@ if (!$validToken) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Change Password - SSAS</title>
     <link rel="stylesheet" href="../assets/css/auth.css">
+    <link rel="icon" type="image/png" href="../assets/img/tarumt_logo_only.png">
 </head>
 <body>
     <main class="page">

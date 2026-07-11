@@ -2440,6 +2440,12 @@ button.selector {
     text-align: center;
 }
 
+/* Hide the green online status dot specifically on the review profile card */
+.review-profile-card .avatar::after,
+.review-profile-card .avatar::before {
+    display: none !important;
+}
+
 .score-label {
     display: block;
     color: #7d8fa3;

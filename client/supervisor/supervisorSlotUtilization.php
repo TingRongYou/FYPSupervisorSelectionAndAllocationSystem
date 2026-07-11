@@ -51,6 +51,7 @@ $maxTrendValue =
     <title>Slot Utilization | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
     <link rel="stylesheet" href="../assets/css/supervisor.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/supervisor.css"); ?>">
+    <link rel="icon" type="image/png" href="../assets/img/tarumt_logo_only.png">
     <script src="../assets/js/supervisor.js" defer></script>
 </head>
 <body>

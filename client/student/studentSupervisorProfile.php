@@ -91,6 +91,7 @@ $embedUrl = $videoLink !== "" && !$isUploadedVideo ? videoEmbedUrl($videoLink) :
     <title>Supervisor Profile | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
     <link rel="stylesheet" href="../assets/css/student.css">
+    <link rel="icon" type="image/png" href="../assets/img/tarumt_logo_only.png">
     <script src="../assets/js/student.js" defer></script>
 </head>
 <body>

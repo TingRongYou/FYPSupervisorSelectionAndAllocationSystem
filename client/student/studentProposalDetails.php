@@ -56,6 +56,7 @@ function proposalStatusClass($status) {
     <title>Proposal Details | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
     <link rel="stylesheet" href="../assets/css/student.css">
+    <link rel="icon" type="image/png" href="../assets/img/tarumt_logo_only.png">
     <script src="../assets/js/student.js" defer></script>
 </head>
 <body>
@@ -95,6 +96,7 @@ function proposalStatusClass($status) {
                                     <div class="pdf-title">Proposal Document</div>
                                     <a class="pdf-action" href="<?php echo e($proposalUrl); ?>" target="_blank">Open in New Tab</a>
                                 </div>
+                                <!-- iframe is used to display a webpage in a webpage -->
                                 <iframe class="pdf-frame" src="<?php echo e($proposalUrl); ?>" title="Proposal Document"></iframe>
                             </div>
                         <?php else: ?>

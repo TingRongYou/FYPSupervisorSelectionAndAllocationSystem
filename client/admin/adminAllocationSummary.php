@@ -133,6 +133,7 @@ function allocationRosterPageUrl($page, $programme) {
     <title>Allocation Summary | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
     <link rel="stylesheet" href="../assets/css/admin.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/admin.css"); ?>">
+    <link rel="icon" type="image/png" href="../assets/img/tarumt_logo_only.png">
     <script src="../assets/js/admin.js" defer></script>
 </head>
 <body>

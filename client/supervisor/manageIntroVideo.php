@@ -43,7 +43,7 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
     <title>Introductory Video | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
     <link rel="stylesheet" href="../assets/css/supervisor.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/supervisor.css"); ?>">
-    
+    <link rel="icon" type="image/png" href="../assets/img/tarumt_logo_only.png">
     <script>
         window.ssasVideoConfig = {
             existingUploadedVideo: <?php echo $isUploadedVideo ? "true" : "false"; ?>,

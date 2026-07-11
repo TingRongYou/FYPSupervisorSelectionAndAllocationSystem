@@ -183,6 +183,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password - SSAS</title>
     <link rel="stylesheet" href="../assets/css/auth.css">
+    <link rel="icon" type="image/png" href="../assets/img/tarumt_logo_only.png">
     <script src="../assets/js/auth.js" defer></script>
 </head>
 <body>

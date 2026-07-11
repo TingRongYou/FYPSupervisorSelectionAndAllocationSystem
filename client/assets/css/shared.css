@@ -10,8 +10,8 @@ html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; b
 |--------------------------------------------------------------------------
 */
 .topbar { height: 52px; margin: 0; background: #1195c1; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: 0 3px 12px rgba(11,79,138,.16); }
-.topbar-brand { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 900; letter-spacing: .2px; }
-.brand-logo { width: 38px; height: 38px; object-fit: contain; border-radius: 0; background: transparent; display: block; margin: -3px 0; }
+.topbar-brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 400; letter-spacing: .2px; }
+.brand-logo { width: 20px; height: 20px; object-fit: contain; border-radius: 0; background: transparent; display: block; margin-right: 5px; }
 .topbar-right { display: flex; align-items: stretch; align-self: stretch; margin-right: -16px; }
 .topbar-clock { display: flex; align-items: center; gap: 6px; padding: 0 14px; color: rgba(255,255,255,.86); font-size: 12px; white-space: nowrap; }
 .topbar-clock:before { content: ""; width: 12px; height: 12px; border: 2px solid rgba(255,255,255,.72); border-radius: 50%; display: inline-block; }
@@ -302,6 +302,28 @@ html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; b
 .save:hover { background: #0947c2; }
 .reset { background: #a9b8c3; }
 .reset:hover { background: #8a9caf; }
+
+/* |--------------------------------------------------------------------------
+| Dynamic Star Rating Component
+|--------------------------------------------------------------------------
+*/
+.dynamic-stars {
+    position: relative;
+    display: inline-block;
+    font-size: 18px;          /* Size of the stars */
+    color: #cbd8e6;           /* Color of the empty stars (matches your border colors) */
+    line-height: 1;
+    letter-spacing: 2px;      /* Gives the stars a little breathing room */
+}
+
+.dynamic-stars .stars-filled {
+    position: absolute;
+    top: 0;
+    left: 0;
+    white-space: nowrap;
+    overflow: hidden;         /* This is the magic: cuts off the gold stars exactly at the percentage */
+    color: #f59e0b;           /* A nice, professional golden-yellow */
+}
 
 /* |--------------------------------------------------------------------------
 | Mobile Responsive Styles

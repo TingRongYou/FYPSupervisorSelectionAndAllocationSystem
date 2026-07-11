@@ -14,9 +14,10 @@ class StudentReviewService {
         $this->reviewDAO = new SupervisorReviewDAO();
     }
 
+    // Gather all review information from database and organize into a single payload array
     public function getReviewPagePayload($studentID) {
 
-        $context = $this->reviewDAO->getReviewContextForStudent($studentID);
+        $context = $this->reviewDAO->getReviewContextForStudent($studentID); // Retrieve details about student's relationship with supervisor
         $phase = $this->reviewDAO->getActiveSystemPhase();
         $isReviewPeriod = $this->isReviewPeriod($phase);
 

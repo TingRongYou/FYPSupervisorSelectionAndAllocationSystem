@@ -42,6 +42,31 @@ if (!function_exists("ssasInitials")) {
 
 /*
 |--------------------------------------------------------------------------
+| Dynamic Star Rating Generator
+|--------------------------------------------------------------------------
+| Generates a visually accurate star rating bar based on a 0.0 to 5.0 score.
+*/
+if (!function_exists("ssasRenderStars")) {
+
+    function ssasRenderStars($rating) {
+        
+        // Ensure the rating is a safe float between 0 and 5
+        $safeRating = max(0, min(5, (float) $rating));
+        
+        // Calculate what percentage of the 5 stars should be filled
+        $percentage = ($safeRating / 5) * 100;
+
+        return "
+            <div class=\"dynamic-stars\" aria-label=\"Rating: {$safeRating} out of 5\" title=\"{$safeRating} out of 5\">
+                <div class=\"stars-empty\">★★★★★</div>
+                <div class=\"stars-filled\" style=\"width: {$percentage}%;\">★★★★★</div>
+            </div>
+        ";
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
 | Role Label Mapping
 |--------------------------------------------------------------------------
 | Converts internal system roles into readable labels.

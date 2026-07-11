@@ -53,6 +53,7 @@ function statusMessage() {
     <title>Supervisor Review | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css">
     <link rel="stylesheet" href="../assets/css/student.css">
+    <link rel="icon" type="image/png" href="../assets/img/tarumt_logo_only.png">
     <script src="../assets/js/student.js" defer></script>
 </head>
 <body>
@@ -101,7 +102,9 @@ function statusMessage() {
                                     <?php echo e(number_format((float) ($statistics["averageRating"] ?? 0), 1)); ?>
                                     <span>/ 5.0</span>
                                 </strong>
-                                <div class="score-stars" aria-hidden="true">★★★★★</div>
+                                <div class="score-stars" aria-hidden="true">
+                                    <?php echo ssasRenderStars($statistics["averageRating"] ?? 0); ?>
+                                </div>
                                 <small><?php echo e((int) ($statistics["reviewCount"] ?? 0)); ?> submitted review(s)</small>
                             </div>
                         </aside>
@@ -111,7 +114,6 @@ function statusMessage() {
                                 <?php if (!empty($context["reviewID"])): ?>
                                     <div class="completed-review">
                                         <span class="badge">Completed</span>
-                                        <strong>M2: Msg Already Reviewed</strong>
                                         <span>You have already submitted an evaluation for your supervisor this semester.</span>
                                         <span>Previous rating: <?php echo e((int) $context["starRating"]); ?> / 5</span>
                                         <?php if (trim((string) $context["textFeedback"]) !== ""): ?>

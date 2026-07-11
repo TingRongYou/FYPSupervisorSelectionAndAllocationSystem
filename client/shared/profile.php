@@ -60,6 +60,7 @@ SessionManager::setProfilePhotoPath(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile | SSAS</title>
     <link rel="stylesheet" href="../assets/css/shared.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/shared.css"); ?>">
+    <link rel="icon" type="image/png" href="../assets/img/tarumt_logo_only.png">
     <script src="../assets/js/shared.js" defer></script>
 </head>
 <body>
