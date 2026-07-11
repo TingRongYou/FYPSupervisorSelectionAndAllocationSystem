@@ -12,7 +12,7 @@ $supervisorID = trim($_GET["supervisorID"] ?? "");
 $profileService = new SupervisorProfileService();
 $profile = $supervisorID !== "" ? $profileService->getPublicProfessionalProfile($supervisorID) : null;
 $allocationWindowService = new AllocationWindowService();
-$allocationWindow = $allocationWindowService->getWindow();
+$allocationWindow = $allocationWindowService->getWindow(); // Retrieve active allocation time window
 
 function e($value) {
 
@@ -32,7 +32,7 @@ function videoEmbedUrl($url) {
 
     if (preg_match("/youtu\.be\/([^?&]+)/", $url, $matches)) {
 
-        return "https://www.youtube.com/embed/" . $matches[1];
+        return "https://www.youtube.com/embed/" . $matches[1]; // return specific link to be placed in iframe
     }
 
     if (preg_match("/youtube\.com\/watch\?v=([^?&]+)/", $url, $matches)) {
@@ -152,7 +152,7 @@ $embedUrl = $videoLink !== "" && !$isUploadedVideo ? videoEmbedUrl($videoLink) :
                         <section class="profile-section">
                             <h2 class="section-title">Introductory Video</h2>
                             <div class="video-frame">
-                                <?php if ($isUploadedVideo): ?>
+                                <?php if ($isUploadedVideo): ?> <!-- Support both embedded video and uploaded video-->
                                     <video controls src="<?php echo e($videoLink); ?>"></video>
                                 <?php elseif ($embedUrl !== ""): ?>
                                     <iframe src="<?php echo e($embedUrl); ?>" title="Introductory video" allowfullscreen></iframe>

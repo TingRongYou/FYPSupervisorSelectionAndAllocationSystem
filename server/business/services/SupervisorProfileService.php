@@ -113,7 +113,7 @@ class SupervisorProfileService {
     |--------------------------------------------------------------------------
     */
 
-    public function getPublicProfessionalProfile(
+    public function getPublicProfessionalProfile( // Get supervisor profile through decorator, wrap only profile information that are available
         $supervisorID
     ) {
 

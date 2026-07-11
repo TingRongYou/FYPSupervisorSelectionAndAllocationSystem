@@ -2752,7 +2752,7 @@ button.selector {
     letter-spacing: .5px;
 }
 
-.status-pill.offline { background: #64748b; }
+.status-pill.offline { background: #64748b; color: #fff;}
 .quota-pill.full { background: #c02d2d; }
 
 .availability-note {

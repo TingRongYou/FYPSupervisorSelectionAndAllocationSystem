@@ -15,3 +15,7 @@ storage/*
 !storage/proposals/.gitkeep
 !storage/profile_photos/
 !storage/profile_photos/.gitkeep
+!storage/past_projects/
+!storage/past_projects/.gitkeep
+!storage/past_project_images/
+!storage/past_project_images/.gitkeep
