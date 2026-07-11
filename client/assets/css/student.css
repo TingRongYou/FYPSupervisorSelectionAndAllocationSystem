@@ -2980,7 +2980,10 @@ button.selector {
 }
 
 .actions {
+    width: 860px;
     margin-top: 18px;
+    display: flex;
+    justify-content: center;
 }
 
 /* ==========================================================================
