@@ -3390,7 +3390,7 @@ button.selector {
 .requirement {
     display: flex;
     gap: 12px;
-    align-items: flex-start;
+    align-items: center; /* Changed from flex-start to center */
     margin-bottom: 24px;
     padding: 0;
     border: 0;
@@ -3405,10 +3405,13 @@ button.selector {
     border-radius: 50%;
     background: #f1f7ff;
     color: #003f8f;
-    display: grid;
-    place-items: center;
+    display: flex !important;           /* Use flexbox instead of grid */
+    align-items: center !important;     /* Force vertical center */
+    justify-content: center !important; /* Force horizontal center */
     font-weight: 900;
     flex: 0 0 auto;
+    line-height: 0 !important;          /* This kills the invisible font spacing */
+    padding-top: 2px;                   /* Nudges the specific ✓ character perfectly */
 }
 
 .requirement strong { display: block; color: #172033; font-size: 14px; }

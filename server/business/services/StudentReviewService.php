@@ -111,8 +111,8 @@ class StudentReviewService {
         return array_map(
             function ($review) {
 
-                return (new AnonymousReviewProxy(
-                    new SupervisorReviewRecord($review)
+                return (new AnonymousReviewProxy( // Decides which part of raw data the user is allowed to see
+                    new SupervisorReviewRecord($review) // Holds all of the raw data 
                 ))->display();
             },
             $reviews

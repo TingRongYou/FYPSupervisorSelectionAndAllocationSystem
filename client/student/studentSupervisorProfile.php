@@ -3,11 +3,15 @@
 require_once __DIR__ . "/../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/SupervisorProfileService.php";
 require_once __DIR__ . "/../../server/business/services/AllocationWindowService.php";
+require_once __DIR__ . "/../../server/data/dao/RequestDAO.php";
 require_once __DIR__ . "/studentLayout.php";
 
 SessionManager::startSession();
 SessionManager::requireRole("Student");
 
+$studentID = $_SESSION["userID"] ?? "";
+$requestDAO = new RequestDAO();
+$studentAlreadyAllocated = $requestDAO -> studentHasAllocation($studentID); // Check allocation status
 $supervisorID = trim($_GET["supervisorID"] ?? "");
 $profileService = new SupervisorProfileService();
 $profile = $supervisorID !== "" ? $profileService->getPublicProfessionalProfile($supervisorID) : null;
@@ -191,12 +195,18 @@ $embedUrl = $videoLink !== "" && !$isUploadedVideo ? videoEmbedUrl($videoLink) :
                     <?php endif; ?>
 
                     <div class="actions">
-                        <?php if ($canApply && $allocationWindow["canStudentsSubmit"]): ?>
+                        <?php if ($studentAlreadyAllocated): ?>
+                            <span class="button disabled">Already Allocated</span>
+
+                        <?php elseif ($canApply && $allocationWindow["canStudentsSubmit"]): ?>
                             <a class="button" href="submitProposalForm.php?supervisorID=<?php echo urlencode($profile["userID"]); ?>">Submit Proposal</a>
+
                         <?php elseif ($canApply): ?>
                             <span class="button disabled"><?php echo e($allocationWindow["status"] === "closed" ? "Selection Closed" : "Selection Not Open"); ?></span>
+
                         <?php else: ?>
                             <span class="button disabled"><?php echo e($profile["buttonLabel"] ?? "Applications Closed"); ?></span>
+                            
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>

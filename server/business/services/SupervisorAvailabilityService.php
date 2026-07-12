@@ -89,7 +89,7 @@ class SupervisorAvailabilityUI implements AvailabilityObserver {
     }
 }
 
-class AllocationRegistry {
+class AllocationRegistry { // Calculate and broadcast supervisor's real time availabiltiy
 
     private const ONLINE_THRESHOLD_SECONDS =
         900;

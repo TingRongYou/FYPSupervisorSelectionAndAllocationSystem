@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const config = window.ssasDashboardConfig || { phaseEnd: "", serverEpoch: Date.now() / 1000 };
     const phaseEnd = config.phaseEnd;
-    const serverOffset = (Number(config.serverEpoch) * 1000) - Date.now();
+    const serverOffset = (Number(config.serverEpoch) * 1000) - Date.now(); // JavaScript calculates in milliseconds while PHP in seconds, hence * 1000
 
     function updateTimer() {
         if (!phaseEnd) { 
@@ -33,16 +33,16 @@ document.addEventListener("DOMContentLoaded", function() {
         
         const h = Math.floor(remaining / 3600000);
         const m = Math.floor((remaining % 3600000) / 60000);
-        const s = Math.floor((remaining % 60000) / 1000);
+        const s = Math.floor((remaining % 60000) / 1000); // 1000 ms = 1 s
         
         timer.textContent =
-            String(h).padStart(2, "0") + ": " +
-            String(m).padStart(2, "0") + ": " +
-            String(s).padStart(2, "0");
+            String(h).padStart(2, "0") + "h: " + 
+            String(m).padStart(2, "0") + "m: " +
+            String(s).padStart(2, "0") + "s";
     }
 
     updateTimer();
-    setInterval(updateTimer, 1000);
+    setInterval(updateTimer, 1000); // Run the function every one second
 });
 
 
@@ -72,10 +72,10 @@ document.addEventListener("DOMContentLoaded", function() {
     tabs.forEach(tab => {
         tab.addEventListener("click", function() {
             // 1. Update the hidden input value
-            availabilityInput.value = this.dataset.value;
+            availabilityInput.value = this.dataset.value; // Set value to the specific tab that was clicked
 
             // 2. Remove 'active' class from all tabs
-            tabs.forEach(t => t.classList.remove("active"));
+            tabs.forEach(t => t.classList.remove("active")); // Ensure only one tab looked highlighted at a time
 
             // 3. Add 'active' class to the clicked tab
             this.classList.add("active");

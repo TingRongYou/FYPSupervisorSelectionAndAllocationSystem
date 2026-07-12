@@ -180,8 +180,8 @@ class AccountService {
         | Prevents the user from reusing the current password as the new one.
         */
         $sameAsCurrentPassword =
-            password_verify($newPassword, $storedHash) ||
-            hash_equals($storedHash, $newPassword);
+            password_verify($newPassword, $storedHash) || // Hash new password using same algorithm and compare them
+            hash_equals($storedHash, $newPassword); // prevent timing-attack
 
         if ($sameAsCurrentPassword) {
 

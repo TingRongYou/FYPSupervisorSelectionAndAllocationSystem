@@ -4,7 +4,7 @@ require_once __DIR__ . "/../../data/dao/SupervisorDAO.php";
 require_once __DIR__ . "/../../data/dao/TagDAO.php";
 require_once __DIR__ . "/SupervisorAvailabilityService.php";
 
-abstract class DiscoveryEngine {
+abstract class DiscoveryEngine { // Abstract class that defines structure for discovery method
 
     protected $supervisorDAO;
 
@@ -191,7 +191,7 @@ abstract class DiscoveryEngine {
 }
 
 // Allows student to filter
-class ManualSearchProcessor extends DiscoveryEngine {
+class ManualSearchProcessor extends DiscoveryEngine { // Manual search that overwrite applyMatchingLogic function
 
     protected function applyMatchingLogic(
         $supervisors,
