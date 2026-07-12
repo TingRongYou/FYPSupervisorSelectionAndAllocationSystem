@@ -1136,12 +1136,15 @@ class RequestDAO {
                 U.fullName AS supervisorName,
                 U.profilePhotoPath AS supervisorPhotoPath,
                 SP.employmentCategory,
-                SP.programme
+                SP.programme,
+                UAS.isOnline 
             FROM APPLICATION_REQUEST ARQ
             INNER JOIN SUPERVISOR_PROFILE SP
                 ON ARQ.supervisorID = SP.supervisorID
             INNER JOIN USER U
                 ON SP.supervisorID = U.userID
+            LEFT JOIN USER_ACTIVITY_STATUS UAS
+                ON U.userID = UAS.userID
             WHERE ARQ.studentID = :studentID
             ORDER BY ARQ.applicationDate DESC
             LIMIT :limit

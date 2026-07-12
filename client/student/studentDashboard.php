@@ -278,7 +278,7 @@ function requestClass($status) {
                                 <?php foreach ($requests as $request): ?>
                                     <?php $statusCls = requestClass($request["decisionStatus"]); ?>
                                     <article class="request-item">
-                                        <div class="request-avatar">
+                                        <div class="request-avatar <?php echo (!empty($request['isOnline']) && $request['isOnline'] == 1) ? '' : 'offline'; ?>">
                                             <?php if (!empty($request["supervisorPhotoPath"])): ?>
                                                 <img src="<?php echo e($request["supervisorPhotoPath"]); ?>" alt="<?php echo e($request["supervisorName"]); ?>">
                                             <?php else: ?>
@@ -340,7 +340,7 @@ function requestClass($status) {
                             <?php foreach ($discoveryList as $supervisor): ?>
                                 <?php $miniStatusClass = $supervisor["statusClass"] ?? "offline"; ?>
                                 <a class="mini-item" href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($supervisor["userID"]); ?>">
-                                    <span class="mini-avatar">
+                                    <span class="mini-avatar <?php echo (isset($supervisor['status']) && $supervisor['status'] === 'Online') ? '' : 'offline'; ?>">
                                         <?php if (!empty($supervisor["profilePhotoPath"])): ?>
                                             <img src="<?php echo e($supervisor["profilePhotoPath"]); ?>" alt="<?php echo e($supervisor["fullName"]); ?>">
                                         <?php else: ?>
