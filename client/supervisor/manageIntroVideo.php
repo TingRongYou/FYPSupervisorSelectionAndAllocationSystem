@@ -96,6 +96,10 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
                                 <div class="play-btn" aria-label="Preview"></div>
                                 <span class="preview-label">Preview Mode</span>
                             <?php endif; ?>
+                            <button class="video-fullscreen-button" id="videoFullscreenButton" type="button" aria-label="Toggle video fullscreen">
+                                <span class="fullscreen-enter">Fullscreen</span>
+                                <span class="fullscreen-exit">Exit</span>
+                            </button>
                         </div>
 
                         <section class="card description-card">
