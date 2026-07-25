@@ -8,7 +8,7 @@ class StudentProfileFacade {
 
     private const MAX_BIO_LENGTH = 500;
     private const MAX_TAGS = 5;
-    private const MAX_AVATAR_SIZE = 524288;
+    private const MAX_AVATAR_SIZE = 2097152;
     private const VALID_URL_PATTERN = "/^https?:\/\/[^\s\/$.?#].[^\s]*$/i";
 
     private $studentProfileDAO;

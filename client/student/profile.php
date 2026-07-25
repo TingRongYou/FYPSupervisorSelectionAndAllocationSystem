@@ -128,7 +128,7 @@ function statusMessage() { // Build a successe or error HTML banner
 
                 <form id="studentProfileForm" class="profile-grid" action="../../server/application/student/updateStudentProfile.php" method="POST" enctype="multipart/form-data"> <!-- enctype="multipart/form-data" tells browser, this form is allowed to upload files -->
                     <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>"> <!-- Security measures to ensure request to save profile actually comes from the page instead of a malicious third-party site -->
-                    <input type="hidden" name="MAX_FILE_SIZE" value="524288">
+                    <input type="hidden" name="MAX_FILE_SIZE" value="2097152">
 
                     <aside class="side-panel">
                         <section class="avatar-wrap">
