@@ -145,6 +145,25 @@ if (
         exit();
     }
 
+    if (
+        $action === "add" &&
+        (
+            !is_array($projectPDF) ||
+            !isset($projectPDF["error"]) ||
+            (int) $projectPDF["error"] === UPLOAD_ERR_NO_FILE ||
+            !is_array($projectImage) ||
+            !isset($projectImage["error"]) ||
+            (int) $projectImage["error"] === UPLOAD_ERR_NO_FILE
+        )
+    ) {
+
+        header(
+            "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Please%20upload%20both%20the%20past%20project%20PDF%20and%20cover%20image.&addProject=1"
+        );
+
+        exit();
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Title Length

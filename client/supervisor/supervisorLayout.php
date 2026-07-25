@@ -75,7 +75,7 @@ function supervisorSidebar($activePage) {
                 <span class=\"nav-text\">Dashboard</span>
             </a>
 
-            <div class=\"nav-parent {$profileActive}\" role=\"button\" tabindex=\"0\" onclick=\"toggleSupervisorSubnav(this)\">
+            <div class=\"nav-parent {$profileActive}\" role=\"button\" tabindex=\"0\" data-subnav-target=\"profileSubnav\" aria-expanded=\"" . ($profileActive ? "true" : "false") . "\">
                 <span class=\"nav-text\">Profile Management</span>
                 <span class=\"nav-chevron\">v</span>
             </div>
@@ -83,7 +83,7 @@ function supervisorSidebar($activePage) {
                 {$renderSubnav($items, $activePage)}
             </div>
 
-            <div class=\"nav-parent {$requestActive}\" role=\"button\" tabindex=\"0\" onclick=\"toggleSupervisorSubnav(this)\">
+            <div class=\"nav-parent {$requestActive}\" role=\"button\" tabindex=\"0\" data-subnav-target=\"requestSubnav\" aria-expanded=\"" . ($requestActive ? "true" : "false") . "\">
                 <span class=\"nav-text\">Requests & Decisions</span>
                 <span class=\"nav-chevron\">v</span>
             </div>
@@ -99,7 +99,7 @@ function supervisorSidebar($activePage) {
                 <span class=\"nav-text\">Student Reviews</span>
             </a>
 
-            <div class=\"nav-parent {$reportActive}\" role=\"button\" tabindex=\"0\" onclick=\"toggleSupervisorSubnav(this)\">
+            <div class=\"nav-parent {$reportActive}\" role=\"button\" tabindex=\"0\" data-subnav-target=\"reportSubnav\" aria-expanded=\"" . ($reportActive ? "true" : "false") . "\">
                 <span class=\"nav-text\">Reports</span>
                 <span class=\"nav-chevron\">v</span>
             </div>

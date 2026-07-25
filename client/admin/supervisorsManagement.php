@@ -304,7 +304,7 @@ $supervisorManagementService = new SupervisorManagementService();
                             <form class="data-row" action="../../server/application/admin/updateSupervisorClassification.php" method="POST">
                                 <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                 <input type="hidden" name="supervisorID" value="<?php echo e($supervisor["userID"]); ?>">
-                                <input type="hidden" name="quotaID" value="<?php echo e($selectedQuotaID); ?>">
+                                <input class="classification-quota-id" type="hidden" name="quotaID" value="<?php echo e($selectedQuotaID); ?>">
 
                                 <div class="person-cell">
                                     <div class="avatar">
@@ -333,7 +333,7 @@ $supervisorManagementService = new SupervisorManagementService();
                                     </select>
                                 </div>
 
-                                <div class="quota-status-cell">
+                                <div class="quota-status-cell" data-current-supervisees="<?php echo e($supervisor["currentSupervisees"]); ?>">
                                     <div class="load-row <?php echo $isFull ? "full" : ""; ?>">
                                         <span><?php echo e($supervisor["quotaText"]); ?></span>
                                         <span><?php echo e($supervisor["loadPercentage"]); ?>%</span>

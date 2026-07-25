@@ -177,6 +177,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const fileInput = document.getElementById("introVideoFile");
     const fileLabel = document.getElementById("fileLabel");
     const videoPreview = document.querySelector(".video-preview");
+    const fullscreenButton = document.getElementById("videoFullscreenButton");
     const introVideoLink = document.getElementById("introVideoLink");
     const urlWrap = document.getElementById("urlWrap");
     const savedLinkPill = document.getElementById("savedLinkPill");
@@ -221,11 +222,43 @@ document.addEventListener("DOMContentLoaded", function() {
         if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
         localPreviewUrl = URL.createObjectURL(file);
         
+        const existingFullscreenButton = document.getElementById("videoFullscreenButton");
         videoPreview.innerHTML = "";
         const video = document.createElement("video");
         video.controls = true;
         video.src = localPreviewUrl;
         videoPreview.appendChild(video);
+        if (existingFullscreenButton) {
+            videoPreview.appendChild(existingFullscreenButton);
+        }
+    }
+
+    function syncFullscreenState() {
+        if (!videoPreview) {
+            return;
+        }
+
+        const isFullscreen = document.fullscreenElement === videoPreview;
+        videoPreview.classList.toggle("is-fullscreen", isFullscreen);
+        if (fullscreenButton) {
+            fullscreenButton.setAttribute("aria-label", isFullscreen ? "Exit video fullscreen" : "Open video fullscreen");
+        }
+    }
+
+    if (fullscreenButton && videoPreview) {
+        fullscreenButton.addEventListener("click", function() {
+            if (document.fullscreenElement === videoPreview) {
+                document.exitFullscreen();
+                return;
+            }
+
+            if (videoPreview.requestFullscreen) {
+                videoPreview.requestFullscreen();
+            }
+        });
+
+        document.addEventListener("fullscreenchange", syncFullscreenState);
+        syncFullscreenState();
     }
 
     function validateVideoFile(file) {
@@ -397,25 +430,46 @@ document.addEventListener("DOMContentLoaded", function() {
    5. SIDEBAR DROPDOWN TOGGLES
    ========================================================================== */
 window.toggleSupervisorSubnav = function(element) {
-    // Find the subnav menu that comes immediately after the clicked link
-    const subnav = element.nextElementSibling;
-    
-    if (subnav && subnav.classList.contains('subnav')) {
-        // Check if it is currently hidden
-        const isClosed = subnav.style.display === 'none' || window.getComputedStyle(subnav).display === 'none';
-        
-        // Toggle the display
-        subnav.style.display = isClosed ? 'block' : 'none';
-        
-        // Rotate the chevron arrow smoothly
-        const chevron = element.querySelector('.nav-chevron');
-        if (chevron) {
-            chevron.style.transform = isClosed ? 'rotate(-180deg)' : 'rotate(0deg)';
-            chevron.style.transition = 'transform 0.2s ease';
-            chevron.style.display = 'inline-block'; 
-        }
+    const targetID = element.dataset.subnavTarget;
+    const subnav = targetID
+        ? document.getElementById(targetID)
+        : element.nextElementSibling;
+
+    if (!subnav || !subnav.classList.contains("subnav")) {
+        return;
+    }
+
+    const isClosed =
+        subnav.hidden ||
+        subnav.style.display === "none" ||
+        window.getComputedStyle(subnav).display === "none";
+
+    subnav.hidden = false;
+    subnav.style.display = isClosed ? "block" : "none";
+    element.classList.toggle("active", isClosed);
+    element.setAttribute("aria-expanded", isClosed ? "true" : "false");
+
+    const chevron = element.querySelector(".nav-chevron");
+    if (chevron) {
+        chevron.style.transform = isClosed ? "rotate(-180deg)" : "rotate(0deg)";
+        chevron.style.transition = "transform 0.2s ease";
     }
 };
+
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll(".sidebar .nav-parent[data-subnav-target]").forEach(function(parent) {
+        parent.addEventListener("click", function() {
+            window.toggleSupervisorSubnav(parent);
+        });
+
+        parent.addEventListener("keydown", function(event) {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                window.toggleSupervisorSubnav(parent);
+            }
+        });
+    });
+});
 
 /* ==========================================================================
    6. REPORT EXPORT (supervisorReportComponents.php)

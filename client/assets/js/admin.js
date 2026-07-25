@@ -275,6 +275,48 @@ document.addEventListener("DOMContentLoaded", function() {
         createQuotaID.value = rule ? rule.quotaID : "";
     })();
 
+    // Sync row quota tier/status when classification changes
+    function syncClassificationRow(select) {
+        const row = select.closest(".data-row");
+        if (!row) return;
+
+        const rule = quotaRules[select.value];
+        const quotaInput = row.querySelector(".classification-quota-id");
+        const quotaCell = row.querySelector(".quota-status-cell");
+        const loadRow = row.querySelector(".load-row");
+        const loadValues = loadRow ? loadRow.querySelectorAll("span") : [];
+        const barFill = row.querySelector(".bar-fill");
+        const badge = row.querySelector(".avail-badge");
+
+        if (quotaInput) {
+            quotaInput.value = rule ? rule.quotaID : "";
+        }
+
+        if (!rule || !quotaCell || loadValues.length < 2 || !barFill || !badge) {
+            return;
+        }
+
+        const currentSupervisees = Number(quotaCell.dataset.currentSupervisees || 0);
+        const quotaLimit = Number(rule.maxSuperviseesAllowed || 0);
+        const loadPercentage = quotaLimit > 0
+            ? Math.min(100, Math.round((currentSupervisees / quotaLimit) * 100))
+            : 0;
+        const isFull = quotaLimit > 0 && currentSupervisees >= quotaLimit;
+
+        loadValues[0].textContent = `${currentSupervisees}/${quotaLimit}`;
+        loadValues[1].textContent = `${loadPercentage}%`;
+        loadRow.classList.toggle("full", isFull);
+        barFill.style.width = `${loadPercentage}%`;
+        barFill.classList.toggle("full", isFull);
+        badge.textContent = isFull ? "Full" : "Available";
+        badge.className = `avail-badge ${isFull ? "full" : "available"}`;
+    }
+
+    document.querySelectorAll(".classification-select").forEach((select) => {
+        select.addEventListener("change", () => syncClassificationRow(select));
+        syncClassificationRow(select);
+    });
+
     // ── Account modal ──
     function openAccountModal(button) {
         editSupervisorID.value = button.dataset.supervisorId || "";

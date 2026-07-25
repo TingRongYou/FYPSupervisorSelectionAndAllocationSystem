@@ -132,10 +132,10 @@ function projectPageUrl($page) {
                                 <label class="upload-tile <?php echo !empty($editingProject["projectPDFPath"]) ? "has-current-file" : ""; ?>" for="projectPDF">
                                     <span class="upload-icon">PDF</span>
                                     <span class="upload-title"><?php echo !empty($editingProject["projectPDFPath"]) ? "Current PDF uploaded" : "Choose project document"; ?></span>
-                                    <span class="upload-meta"><?php echo !empty($editingProject["projectPDFPath"]) ? "Students can already open this PDF. Choose a new file only if you want to replace it." : "Optional PDF, maximum 5.0 MB. Students can open it from the public profile."; ?></span>
+                                    <span class="upload-meta"><?php echo !empty($editingProject["projectPDFPath"]) ? "Students can already open this PDF. Choose a new file only if you want to replace it." : "Required PDF, maximum 5.0 MB. Students can open it from the public profile."; ?></span>
                                     <span class="selected-file" data-default-label="<?php echo !empty($editingProject["projectPDFPath"]) ? "No replacement selected" : "No PDF selected"; ?>" data-file-label="projectPDF"><?php echo !empty($editingProject["projectPDFPath"]) ? "No replacement selected" : "No PDF selected"; ?></span>
                                 </label>
-                                <input class="native-file" type="file" id="projectPDF" name="projectPDF" accept="application/pdf,.pdf">
+                                <input class="native-file" type="file" id="projectPDF" name="projectPDF" accept="application/pdf,.pdf" <?php echo $editingProject ? "" : "required"; ?>>
                                 <?php if (!empty($editingProject["projectPDFPath"])): ?>
                                     <div class="existing-file">
                                         <a class="pdf-link" href="<?php echo e(projectPdfUrl($editingProject["projectPDFPath"])); ?>" target="_blank" rel="noopener">View Current PDF</a>
@@ -152,10 +152,10 @@ function projectPageUrl($page) {
                                 <label class="upload-tile <?php echo !empty($editingProject["projectImagePath"]) ? "has-current-file" : ""; ?>" for="projectImage">
                                     <span class="upload-icon">IMG</span>
                                     <span class="upload-title"><?php echo !empty($editingProject["projectImagePath"]) ? "Current cover image uploaded" : "Choose cover image"; ?></span>
-                                    <span class="upload-meta"><?php echo !empty($editingProject["projectImagePath"]) ? "The project card is already using this image. Choose a new file only if you want to replace it." : "Optional JPG or PNG, maximum 5.0 MB. This replaces the generated card banner."; ?></span>
+                                    <span class="upload-meta"><?php echo !empty($editingProject["projectImagePath"]) ? "The project card is already using this image. Choose a new file only if you want to replace it." : "Required JPG or PNG, maximum 5.0 MB. This replaces the generated card banner."; ?></span>
                                     <span class="selected-file" data-default-label="<?php echo !empty($editingProject["projectImagePath"]) ? "No replacement selected" : "No image selected"; ?>" data-file-label="projectImage"><?php echo !empty($editingProject["projectImagePath"]) ? "No replacement selected" : "No image selected"; ?></span>
                                 </label>
-                                <input class="native-file" type="file" id="projectImage" name="projectImage" accept="image/jpeg,image/png,.jpg,.jpeg,.png">
+                                <input class="native-file" type="file" id="projectImage" name="projectImage" accept="image/jpeg,image/png,.jpg,.jpeg,.png" <?php echo $editingProject ? "" : "required"; ?>>
                                 <?php if (!empty($editingProject["projectImagePath"])): ?>
                                     <div class="existing-file">
                                         <a class="pdf-link" href="<?php echo e(projectImageUrl($editingProject["projectImagePath"])); ?>" target="_blank" rel="noopener">View Current Image</a>
