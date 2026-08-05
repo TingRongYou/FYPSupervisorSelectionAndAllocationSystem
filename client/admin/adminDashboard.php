@@ -22,86 +22,38 @@ SessionManager::requireLogin();
 |--------------------------------------------------------------------------
 */
 
-SessionManager::requireRole(
-    "Administrator"
-);
+SessionManager::requireRole("Administrator");
 
 if (empty($_SESSION["csrf_token"])) {
-
-    $_SESSION["csrf_token"] =
-        bin2hex(random_bytes(32));
+    $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
 }
 
-$allocationEngine =
-    new AllocationEngine();
+$allocationEngine = new AllocationEngine();
+$adminReportFacade = new AdminReportFacade();
+$allocationWindowService = new AllocationWindowService();
 
-$adminReportFacade =
-    new AdminReportFacade();
+$allocationSummary = $allocationEngine->getAllocationDashboard();
+$capacitySummary = $adminReportFacade->getAllocationSummary();
+$allocationWindow =$allocationWindowService->getWindow();
+$reviewPeriod = $allocationWindowService->getReviewPeriod();
 
-$allocationWindowService =
-    new AllocationWindowService();
+$totalStudents = (int) ($allocationSummary["eligibleStudents"] ?? 0);
+$assignedStudents = (int) ($allocationSummary["allocatedStudents"] ?? 0);
+$pendingStudents = (int) ($allocationSummary["unassignedStudents"] ?? 0);
+$allocationRate = (float) ($allocationSummary["allocationRate"] ?? 0);
+$pendingRequests = (int) ($allocationSummary["pendingRequests"] ?? 0);
+$allocationWindowNotice = $allocationWindow["statusText"] ?? "";
+$allocationWindowAlertClass = "warning";
 
-$allocationSummary =
-    $allocationEngine
-    ->getAllocationDashboard();
-
-$capacitySummary =
-    $adminReportFacade
-    ->getAllocationSummary();
-
-$allocationWindow =
-    $allocationWindowService
-    ->getWindow();
-
-$reviewPeriod =
-    $allocationWindowService
-    ->getReviewPeriod();
-
-$totalStudents =
-    (int) ($allocationSummary["eligibleStudents"] ?? 0);
-
-$assignedStudents =
-    (int) ($allocationSummary["allocatedStudents"] ?? 0);
-
-$pendingStudents =
-    (int) ($allocationSummary["unassignedStudents"] ?? 0);
-
-$allocationRate =
-    (float) ($allocationSummary["allocationRate"] ?? 0);
-
-$pendingRequests =
-    (int) ($allocationSummary["pendingRequests"] ?? 0);
-
-$allocationWindowNotice =
-    $allocationWindow["statusText"] ?? "";
-
-$allocationWindowAlertClass =
-    "warning";
-
-if (
-    ($allocationWindow["status"] ?? "") === "closed" &&
-    $pendingStudents === 0
-) {
-
-    $allocationWindowNotice =
-        "Final allocation date has passed. All eligible students have been allocated; no students are pending auto-allocation.";
-
-    $allocationWindowAlertClass =
-        "success";
+if (($allocationWindow["status"] ?? "") === "closed" && $pendingStudents === 0) {
+    $allocationWindowNotice = "Final allocation date has passed. All eligible students have been allocated; no students are pending auto-allocation.";
+    $allocationWindowAlertClass = "success";
 }
 
-$supervisorsAtCapacity =
-    (int) ($capacitySummary["atCapacity"] ?? 0);
-
-$totalCapacity =
-    (int) ($capacitySummary["totalCapacity"] ?? 0);
-
-$allocatedTotal =
-    (int) ($capacitySummary["allocatedTotal"] ?? 0);
-
-$programmeDistribution =
-    $adminReportFacade
-    ->getAllocatedStudentProgrammeDistribution();
+$supervisorsAtCapacity = (int) ($capacitySummary["atCapacity"] ?? 0);
+$totalCapacity = (int) ($capacitySummary["totalCapacity"] ?? 0);
+$allocatedTotal = (int) ($capacitySummary["allocatedTotal"] ?? 0);
+$programmeDistribution = $adminReportFacade->getAllocatedStudentProgrammeDistribution();
 
 /*
 |--------------------------------------------------------------------------
@@ -110,36 +62,21 @@ $programmeDistribution =
 */
 
 function e($value) {
-
-    return htmlspecialchars(
-        (string) $value,
-        ENT_QUOTES,
-        "UTF-8"
-    );
+    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
 function statusMessage() {
-
     if (!isset($_GET["status"], $_GET["message"])) {
-
         return "";
     }
 
-    $class =
-        $_GET["status"] === "success"
-        ? "success"
-        : "error";
+    $class = $_GET["status"] === "success" ? "success" : "error";
 
-    return
-        "<div class=\"message {$class}\">"
-        . e($_GET["message"])
-        . "</div>";
+    return "<div class=\"message {$class}\">" . e($_GET["message"]) . "</div>";
 }
 
 function dateTimeInputValue($value) {
-
     if (empty($value)) {
-
         return "";
     }
 

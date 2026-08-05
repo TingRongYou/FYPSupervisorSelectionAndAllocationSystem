@@ -729,6 +729,7 @@ class RequestDAO {
                     $insertStatement->execute();
                 }
 
+                // Bulk UPDATE query targets all OTHER pending requests for this student
                 $withdrawQuery = "
                     UPDATE APPLICATION_REQUEST
                     SET decisionStatus = 'Withdrawn',
@@ -744,6 +745,7 @@ class RequestDAO {
                 $withdrawStatement->execute();
             }
 
+            // Commits the acceptance and the withdrawals simultaneously
             $this->conn->commit();
 
             return [
@@ -775,9 +777,7 @@ class RequestDAO {
         }
     }
 
-    public function countPendingRequestsByStudent(
-        $studentID
-    ) {
+    public function countPendingRequestsByStudent($studentID) {
 
         $query = "
             SELECT COUNT(*)
@@ -786,20 +786,13 @@ class RequestDAO {
             AND decisionStatus IN ('Pending', 'Proposal Requested')
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":studentID",
-            $studentID
-        );
+        $statement->bindParam(":studentID", $studentID);
 
         $statement->execute();
 
-        return
-            (int) $statement->fetchColumn();
+        return (int) $statement->fetchColumn();
     }
 
     // Automatically reject after 72 hours

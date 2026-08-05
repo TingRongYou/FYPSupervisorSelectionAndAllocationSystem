@@ -12,7 +12,6 @@ SessionManager::requireRole("Administrator");
 // CSRF Token
 // Protects quota update forms from cross-site request forgery.
 if (empty($_SESSION["csrf_token"])) {
-
     $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
 }
 
@@ -38,7 +37,6 @@ $overCapacityCount = 0;
 $validCount = 0;
 
 foreach ($supervisors as $supervisor) {
-
     $totalCapacity += (int) $supervisor["assignedQuotaLimit"];
     $totalAllocated += (int) $supervisor["currentSupervisees"];
 
@@ -65,19 +63,16 @@ $quotaEnd = min($quotaOffset + count($visibleSupervisors), $totalSupervisors);
 
 // HTML Escape Helper
 function e($value) {
-
     return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
 // Select Option Helper
 function selected($left, $right) {
-
     return (string) $left === (string) $right ? "selected" : "";
 }
 
 // Status Message Helper
 function statusMessage() {
-
     if (!isset($_GET["status"], $_GET["message"])) {
         return "";
     }
@@ -89,7 +84,6 @@ function statusMessage() {
 
 // Status Badge Helper
 function statusClass($status) {
-
     if ($status === "Valid") {
         return "valid";
     }
@@ -99,17 +93,13 @@ function statusClass($status) {
 
 function quotaPageUrl($page, $searchName, $selectedProgramme) {
 
-    $query = [
-        "quotaPage" => max(1, (int) $page)
-    ];
+    $query = ["quotaPage" => max(1, (int) $page)];
 
     if ($searchName !== "") {
-
         $query["searchName"] = $searchName;
     }
 
     if ($selectedProgramme !== "") {
-
         $query["programme"] = $selectedProgramme;
     }
 

@@ -8,57 +8,36 @@ require_once __DIR__ . "/adminReportComponents.php";
 SessionManager::startSession();
 SessionManager::requireRole("Administrator");
 
-$reviewService =
-    new StudentReviewService();
+$reviewService = new StudentReviewService();
 
-$supervisorID =
-    trim($_GET["supervisorID"] ?? "");
+$supervisorID = trim($_GET["supervisorID"] ?? "");
+$reviews = $reviewService->getReviewAuditRecords($supervisorID);
+$totalReviews = count($reviews);
 
-$reviews =
-    $reviewService->getReviewAuditRecords($supervisorID);
-
-$totalReviews =
-    count($reviews);
-
-$visibleReviews =
-    0;
-
-$anonymousReviews =
-    0;
-
-$ratingTotal =
-    0;
+$visibleReviews = 0;
+$anonymousReviews = 0;
+$ratingTotal = 0;
 
 foreach ($reviews as $review) {
-
     $ratingTotal += (int) ($review["starRating"] ?? 0);
 
     if (!empty($review["isAnonymous"])) {
-
         $anonymousReviews++;
     } else {
-
         $visibleReviews++;
     }
 }
 
-$averageRating =
-    $totalReviews > 0
-        ? number_format($ratingTotal / $totalReviews, 1)
-        : "0.0";
+$averageRating = $totalReviews > 0 ? number_format($ratingTotal / $totalReviews, 1) : "0.0";
 
 function reviewStars($rating) {
-
-    $rating =
-        max(1, min(5, (int) $rating));
+    $rating = max(1, min(5, (int) $rating));
 
     return str_repeat("*", $rating) . str_repeat("-", 5 - $rating);
 }
 
 function auditDate($value) {
-
     if (!$value) {
-
         return "-";
     }
 

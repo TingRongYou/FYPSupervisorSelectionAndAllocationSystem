@@ -3,51 +3,26 @@
 require_once __DIR__ . "/../../data/dao/SupervisorProfileDAO.php";
 
 interface AvailabilityObserver {
-
-    public function update(
-        $availabilityPayload
-    );
+    public function update($availabilityPayload);
 }
 
 class SupervisorAvailabilityUI implements AvailabilityObserver {
 
-    private $payload =
-        [];
+    private $payload = [];
 
-    public function update(
-        $availabilityPayload
-    ) {
-
-        $isOnline =
-            ($availabilityPayload["availabilityStatus"] ?? "Offline") === "Online";
-
-        $isQuotaOpen =
-            ($availabilityPayload["quotaStatus"] ?? "Full") === "Available";
-
-        $this->payload =
-            array_merge(
-                $availabilityPayload,
-                [
-                    "availabilityClass" =>
-                        $isOnline ? "online" : "offline",
-
-                    "quotaClass" =>
-                        $isQuotaOpen ? "available" : "full",
-
-                    "canApply" =>
-                        $this->toggleApplyButton($isQuotaOpen),
-
-                    "buttonLabel" =>
-                        $this->buttonLabel($isQuotaOpen),
-
-                    "message" =>
-                        $this->statusMessage($isQuotaOpen)
-                ]
-            );
+    public function update($availabilityPayload) {
+        $isOnline = ($availabilityPayload["availabilityStatus"] ?? "Offline") === "Online";
+        $isQuotaOpen = ($availabilityPayload["quotaStatus"] ?? "Full") === "Available";
+        $this->payload = array_merge($availabilityPayload, [
+                    "availabilityClass" => $isOnline ? "online" : "offline",
+                    "quotaClass" => $isQuotaOpen ? "available" : "full",
+                    "canApply" => $this->toggleApplyButton($isQuotaOpen),
+                    "buttonLabel" => $this->buttonLabel($isQuotaOpen),
+                    "message" => $this->statusMessage($isQuotaOpen)
+                ]);
     }
 
     public function calculateQuota() {
-
         return
             ($this->payload["activeStudents"] ?? 0) .
             "/" .
@@ -56,7 +31,6 @@ class SupervisorAvailabilityUI implements AvailabilityObserver {
     }
 
     public function toggleApplyButton($isQuotaOpen) {
-
         return (bool) $isQuotaOpen;
     }
 
@@ -91,43 +65,25 @@ class SupervisorAvailabilityUI implements AvailabilityObserver {
 
 class AllocationRegistry { // Calculate and broadcast supervisor's real time availabiltiy
 
-    private const ONLINE_THRESHOLD_SECONDS =
-        900;
+    private const ONLINE_THRESHOLD_SECONDS = 900;
 
-    private $observers =
-        [];
+    private $observers = [];
 
-    public function attach(
-        AvailabilityObserver $observer
-    ) {
-
-        $this->observers[] =
-            $observer;
+    public function attach(AvailabilityObserver $observer) {
+        $this->observers[] = $observer;
     }
 
-    public function detach(
-        AvailabilityObserver $observer
-    ) {
-
+    public function detach(AvailabilityObserver $observer) {
         $this->observers =
-            array_filter(
-                $this->observers,
-                function ($registeredObserver) use ($observer) {
-
+            array_filter($this->observers, function ($registeredObserver) use ($observer) {
                     return $registeredObserver !== $observer;
                 }
             );
     }
 
-    public function saveAllocationStatus(
-        $supervisor
-    ) {
-
-        $payload =
-            $this->buildAvailabilityPayload($supervisor);
-
+    public function saveAllocationStatus($supervisor) {
+        $payload = $this->buildAvailabilityPayload($supervisor);
         $this->notifyObservers($payload);
-
         return $payload;
     }
 
@@ -187,15 +143,12 @@ class AllocationRegistry { // Calculate and broadcast supervisor's real time ava
         ];
     }
 
-    private function notifyObservers(
-        $payload
-    ) {
-
+    private function notifyObservers($payload) {
         foreach ($this->observers as $observer) {
-
             $observer->update($payload);
         }
     }
+    
 }
 
 class SupervisorAvailabilityService {

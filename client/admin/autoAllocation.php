@@ -14,171 +14,72 @@ SessionManager::startSession();
 |--------------------------------------------------------------------------
 */
 
-SessionManager::requireRole(
-    "Administrator"
-);
+SessionManager::requireRole("Administrator");
 
 if (empty($_SESSION["csrf_token"])) {
-
-    $_SESSION["csrf_token"] =
-        bin2hex(random_bytes(32));
+    $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
 }
 
-$allocationEngine =
-    new AllocationEngine();
+$allocationEngine = new AllocationEngine();
 
-$summary =
-    $allocationEngine
-    ->getAllocationDashboard();
+$summary = $allocationEngine->getAllocationDashboard();
+$autoAllocationLogs = $allocationEngine->getRecentAutoAllocationLogs(5);
 
-$autoAllocationLogs =
-    $allocationEngine
-    ->getRecentAutoAllocationLogs(5);
+$allocationWindowService = new AllocationWindowService();
 
-$allocationWindowService =
-    new AllocationWindowService();
+$allocationWindow = $allocationWindowService->getWindow();
 
-$allocationWindow =
-    $allocationWindowService
-    ->getWindow();
+$initialAllocationDate = !empty($allocationWindow["initialAllocationDate"]) ? date("d M Y, h:i A", strtotime($allocationWindow["initialAllocationDate"])) : "Not configured";
+$finalAllocationDate = !empty($allocationWindow["finalAllocationDate"]) ? date("d M Y, h:i A", strtotime($allocationWindow["finalAllocationDate"])) : "Not configured";
 
-$initialAllocationDate =
-    !empty($allocationWindow["initialAllocationDate"])
-        ? date("d M Y, h:i A", strtotime($allocationWindow["initialAllocationDate"]))
-        : "Not configured";
-
-$finalAllocationDate =
-    !empty($allocationWindow["finalAllocationDate"])
-        ? date("d M Y, h:i A", strtotime($allocationWindow["finalAllocationDate"]))
-        : "Not configured";
-
-$countdownDays =
-    "00";
-
-$countdownHours =
-    "00";
-
-$countdownMinutes =
-    "00";
+$countdownDays = "00";
+$countdownHours = "00";
+$countdownMinutes = "00";
 
 if (!empty($allocationWindow["finalAllocationDate"])) {
-
-    $remainingSeconds =
-        strtotime($allocationWindow["finalAllocationDate"])
-        -
-        time();
+    $remainingSeconds = strtotime($allocationWindow["finalAllocationDate"]) - time();
 
     if ($remainingSeconds > 0) {
-
-        $countdownDays =
-            str_pad(
-                (string) floor($remainingSeconds / 86400),
-                2,
-                "0",
-                STR_PAD_LEFT
-            );
-
-        $countdownHours =
-            str_pad(
-                (string) floor(($remainingSeconds % 86400) / 3600),
-                2,
-                "0",
-                STR_PAD_LEFT
-            );
-
-        $countdownMinutes =
-            str_pad(
-                (string) floor(($remainingSeconds % 3600) / 60),
-                2,
-                "0",
-                STR_PAD_LEFT
-            );
+        $countdownDays = str_pad((string) floor($remainingSeconds / 86400), 2, "0", STR_PAD_LEFT);
+        $countdownHours =str_pad((string) floor(($remainingSeconds % 86400) / 3600), 2, "0", STR_PAD_LEFT);
+        $countdownMinutes = str_pad((string) floor(($remainingSeconds % 3600) / 60), 2, "0", STR_PAD_LEFT);
     }
 }
 
-$adminReportFacade =
-    new AdminReportFacade();
+$adminReportFacade = new AdminReportFacade();
 
-$unassignedOverview =
-    $adminReportFacade
-    ->getCohortOverview([
-        "status" => "unassigned"
-    ]);
+$unassignedOverview = $adminReportFacade->getCohortOverview(["status" => "unassigned"]);
+$unassignedStudents = array_slice($unassignedOverview["students"] ?? [], 0, 8);
+$hasUnassignedStudents = ((int) ($summary["unassignedStudents"] ?? 0)) > 0;
+$assignedStudents = (int) ($summary["allocatedStudents"] ?? 0);
+$unassignedStudentCount = (int) ($summary["unassignedStudents"] ?? 0);
+$allocationBalanceTotal = max(1, $assignedStudents + $unassignedStudentCount);
+$assignedRate = round(($assignedStudents / $allocationBalanceTotal) * 100, 1);
+$unassignedRate = round(($unassignedStudentCount / $allocationBalanceTotal) * 100, 1);
+$allocationStatusText = $allocationWindow["statusText"] ?? "";
 
-$unassignedStudents =
-    array_slice(
-        $unassignedOverview["students"] ?? [],
-        0,
-        8
-    );
-
-$hasUnassignedStudents =
-    ((int) ($summary["unassignedStudents"] ?? 0)) > 0;
-
-$assignedStudents =
-    (int) ($summary["allocatedStudents"] ?? 0);
-
-$unassignedStudentCount =
-    (int) ($summary["unassignedStudents"] ?? 0);
-
-$allocationBalanceTotal =
-    max(1, $assignedStudents + $unassignedStudentCount);
-
-$assignedRate =
-    round(($assignedStudents / $allocationBalanceTotal) * 100, 1);
-
-$unassignedRate =
-    round(($unassignedStudentCount / $allocationBalanceTotal) * 100, 1);
-
-$allocationStatusText =
-    $allocationWindow["statusText"] ?? "";
-
-if (
-    ($allocationWindow["status"] ?? "") === "closed" &&
-    !$hasUnassignedStudents
-) {
-
-    $allocationStatusText =
-        "Final allocation date has passed. All eligible students have been allocated; no students are pending auto-allocation.";
+if (($allocationWindow["status"] ?? "") === "closed" && !$hasUnassignedStudents) {
+    $allocationStatusText = "Final allocation date has passed. All eligible students have been allocated; no students are pending auto-allocation.";
 }
 
-$unassignedDescription =
-    $hasUnassignedStudents
-        ? "Eligible students without an allocation record. After the final allocation date, these students are pending auto-allocation."
-        : "All eligible students currently have allocation records. No students are waiting for auto-allocation.";
+$unassignedDescription = $hasUnassignedStudents ? "Eligible students without an allocation record. After the final allocation date, these students are pending auto-allocation." : "All eligible students currently have allocation records. No students are waiting for auto-allocation.";
 
 function e($value) {
-
-    return htmlspecialchars(
-        (string) $value,
-        ENT_QUOTES,
-        "UTF-8"
-    );
+    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
 function statusMessage() {
-
     if (!isset($_GET["status"], $_GET["message"])) {
-
         return "";
     }
 
-    $class =
-        $_GET["status"] === "success"
-        ? "success"
-        : "error";
+    $class = $_GET["status"] === "success" ? "success" : "error";
 
-    return
-        "<div class=\"message {$class}\">"
-        . e($_GET["message"])
-        . "</div>";
+    return "<div class=\"message {$class}\">" . e($_GET["message"]) . "</div>";
 }
 
 function engineReadinessLabel($allocationWindow) {
-
-    return $allocationWindow["canRunAutoAllocation"]
-        ? "Ready for administrator trigger."
-        : "Locked until final allocation date is reached.";
+    return $allocationWindow["canRunAutoAllocation"] ? "Ready for administrator trigger." : "Locked until final allocation date is reached.";
 }
 
 ?>

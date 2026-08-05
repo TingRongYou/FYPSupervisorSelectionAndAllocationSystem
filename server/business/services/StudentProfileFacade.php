@@ -6,17 +6,19 @@ require_once __DIR__ . "/../../data/storage/ImageStorageDAO.php";
 
 class StudentProfileFacade {
 
+    // Physical enforcement of Functional Constraint
     private const MAX_BIO_LENGTH = 500;
     private const MAX_TAGS = 5;
-    private const MAX_AVATAR_SIZE = 2097152;
+    private const MAX_AVATAR_SIZE = 2097152; // 2.0 MB payload limit
     private const VALID_URL_PATTERN = "/^https?:\/\/[^\s\/$.?#].[^\s]*$/i";
 
+    // Subsystem collaborators
     private $studentProfileDAO;
     private $tagDAO;
     private $imageStorageDAO;
 
     public function __construct() {
-
+        // Composition of underlying data access objects
         $this->studentProfileDAO = new StudentProfileDAO();
         $this->tagDAO = new TagDAO();
         $this->imageStorageDAO = new ImageStorageDAO();
@@ -27,14 +29,10 @@ class StudentProfileFacade {
         $profile = $this->studentProfileDAO->getStudentProfile($studentID); // Get base profile information for a specific student
 
         if (!$profile) { // Handle missing data
-
             return null;
         }
 
-        $selectedTagIDs = array_map( // Fetch tag IDs currently associated with the student, turns it into integer so that it is cleaner and safer
-            "intval",
-            $this->tagDAO->getStudentTagIDs($studentID)
-        );
+        $selectedTagIDs = array_map("intval", $this->tagDAO->getStudentTagIDs($studentID)); // Fetch tag IDs currently associated with the student, turns it into integer so that it is cleaner and safer
 
         return [
             "profile" => $profile, // Main student info
@@ -43,14 +41,12 @@ class StudentProfileFacade {
         ];
     }
 
+    // Unified Facade method: Orchestrates the entire update lifecycle
     public function updateProfile($studentID, $input, $avatarFile) {
-
         $studentID = trim((string) $studentID);
-
         $profile = $this->studentProfileDAO->getStudentProfile($studentID);
 
         if (!$profile) {
-
             return $this->failure("Student profile was not found.");
         }
 
@@ -61,67 +57,43 @@ class StudentProfileFacade {
         $portfolioURL = trim((string) ($input["portfolioURL"] ?? ""));
         $tagIDs = $this->normaliseTagIDs($input["interestTags"] ?? []);
 
+        // Constraint C1: Personal Bio limitation
         if (strlen($personalBio) > self::MAX_BIO_LENGTH) {
-
-            return $this->failure(
-                "Validation Error - Personal Bio cannot exceed 500 characters."
-            );
+            return $this->failure("Validation Error - Personal Bio cannot exceed 500 characters.");
         }
 
+        // FR 2.2: Tag Array limitation
         if (count($tagIDs) > self::MAX_TAGS) {
-
-            return $this->failure(
-                "Err Max Tags - You can only select a maximum of 5 research interests. Please remove one to add another."
-            );
+            return $this->failure("You can select a minimum of 1 and a maximum of 5 research interests . Please remove one to add another.");
         }
 
         if (empty($tagIDs)) {
-
-            return $this->failure(
-                "Please select at least one research interest."
-            );
+            return $this->failure("Please select at least one research interest.");
         }
 
         if (!$this->tagDAO->tagIDsExist($tagIDs)) {
-
-            return $this->failure(
-                "Err Invalid Data - Save failed. Please ensure all selected research interests are valid."
-            );
+            return $this->failure("Save failed. Please ensure all selected research interests are valid.");
         }
 
-        if (
-            !$this->isValidOptionalURL($linkedInURL) ||
+        if (!$this->isValidOptionalURL($linkedInURL) ||
             !$this->isValidOptionalURL($githubURL) ||
-            !$this->isValidOptionalURL($portfolioURL)
-        ) {
-
-            return $this->failure(
-                "Err Invalid Data - Save failed. Please ensure all links begin with a valid URL."
-            );
+            !$this->isValidOptionalURL($portfolioURL)) {
+            return $this->failure("Save failed. Please ensure all links begin with a valid URL.");
         }
 
         $avatarPath = null;
         $oldAvatarPath = $profile["profilePhotoPath"] ?? "";
 
+        // Defense in Depth: Fail-fast file size check before DAO delegation
         if ($this->hasUploadedAvatar($avatarFile)) {
-
             if ((int) $avatarFile["size"] > self::MAX_AVATAR_SIZE) {
-
-                return $this->failure(
-                    "Err Invalid File - Upload failed. Please ensure your profile picture is in JPG or PNG format and does not exceed 0.5MB."
-                );
+                return $this->failure("Upload failed. Please ensure your profile picture is in JPG or PNG format and does not exceed 2.0MB.");
             }
 
-            $avatarResult = $this->imageStorageDAO->storeProfilePhoto(
-                $avatarFile,
-                $studentID
-            );
+            $avatarResult = $this->imageStorageDAO->storeProfilePhoto($avatarFile,$studentID);
 
             if (!$avatarResult["success"] || $avatarResult["path"] === null) {
-
-                return $this->failure(
-                    "Err Invalid File - Upload failed. Please ensure your profile picture is in JPG or PNG format and does not exceed 0.5MB."
-                );
+                return $this->failure("Upload failed. Please ensure your profile picture is in JPG or PNG format and does not exceed 2.0MB.");
             }
 
             $avatarPath = $avatarResult["path"];
@@ -141,25 +113,16 @@ class StudentProfileFacade {
         );
 
         if (!$updated) {
-
             if ($avatarPath !== null) {
-
                 $this->imageStorageDAO->deleteStoredImage($avatarPath);
             }
-
-            return $this->failure(
-                "Err Invalid Data - Save failed. Please ensure all links begin with a valid URL."
-            );
+            return $this->failure("Save failed. Please ensure all links begin with a valid URL.");
         }
 
         if ($avatarPath !== null) {
-
             $this->imageStorageDAO->deleteStoredImage($oldAvatarPath);
         }
-
-        return $this->success(
-            "Msg Profile Saved - Your profile has been successfully updated. Your supervisor recommendations have been recalibrated."
-        );
+        return $this->success("Your profile has been successfully updated.");
     }
 
     private function normaliseTagIDs($tagIDs) {
@@ -184,6 +147,7 @@ class StudentProfileFacade {
         return $normalised;
     }
 
+    // Constraint C2: Regex evaluation for external links
     private function isValidOptionalURL($url) {
 
         return $url === "" ||

@@ -145,7 +145,7 @@ function statusMessage() { // Build a successe or error HTML banner
                                 Choose Avatar
                                 <input id="avatarFile" name="avatarFile" type="file" accept="image/jpeg,image/png">
                             </label>
-                            <span class="file-name" id="avatarFileName">JPG or PNG, max 0.5MB.</span>
+                            <span class="file-name" id="avatarFileName">JPG or PNG, max 2.0MB.</span>
                         </section>
 
                         <section class="readonly-block"> <!-- Display academic record (read-only)-->

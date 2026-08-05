@@ -5,37 +5,22 @@ require_once __DIR__ . "/../../data/dao/RequestDAO.php";
 
 class TemporalPhaseEngine {
 
-    private const SYSTEM_TIMEZONE =
-        "Asia/Kuala_Lumpur";
-
+    private const SYSTEM_TIMEZONE = "Asia/Kuala_Lumpur";
     private static $instance = null;
-
     private $conn;
-
     private $requestDAO;
 
     private function __construct() {
-
         date_default_timezone_set(self::SYSTEM_TIMEZONE);
-
-        $database =
-            new Database();
-
-        $this->conn =
-            $database->connect();
-
-        $this->requestDAO =
-            new RequestDAO();
-
+        $database = new Database();
+        $this->conn = $database->connect();
+        $this->requestDAO = new RequestDAO();
         $this->ensureSystemPhaseTable();
     }
 
     public static function getInstance() {
-
         if (self::$instance === null) {
-
-            self::$instance =
-                new TemporalPhaseEngine();
+            self::$instance = new TemporalPhaseEngine();
         }
 
         return self::$instance;
@@ -90,23 +75,13 @@ class TemporalPhaseEngine {
             0;
 
         if ($activePhase) {
-
+            // Epoch subtraction using the server's immutable timestamp
             $remainingSeconds =
-                max(
-                    0,
-                    $this->toDateTime($activePhase["endTimestamp"])->getTimestamp()
-                    -
-                    $serverNow->getTimestamp()
-                );
+                max(0, $this->toDateTime($activePhase["endTimestamp"])->getTimestamp() - $serverNow->getTimestamp());
         } elseif ($nextPhase) {
 
             $remainingSeconds =
-                max(
-                    0,
-                    $this->toDateTime($nextPhase["startTimestamp"])->getTimestamp()
-                    -
-                    $serverNow->getTimestamp()
-                );
+                max(0, $this->toDateTime($nextPhase["startTimestamp"])->getTimestamp() - $serverNow->getTimestamp());
         }
 
         $canSubmitProposal =
@@ -278,27 +253,17 @@ class TemporalPhaseEngine {
         return "No active academic phase is configured. Proposal submission is currently locked.";
     }
 
+    // Formats output into strictly chunked strings
     private function formatRemaining($seconds) {
-
-        $seconds =
-            max(0, (int) $seconds);
-
-        $days =
-            intdiv($seconds, 86400);
-
-        $hours =
-            intdiv($seconds % 86400, 3600);
-
-        $minutes =
-            intdiv($seconds % 3600, 60);
+        $seconds = max(0, (int) $seconds);
+        $days = intdiv($seconds, 86400);
+        $hours = intdiv($seconds % 86400, 3600);
+        $minutes = intdiv($seconds % 3600, 60);
 
         return
-            str_pad((string) $days, 2, "0", STR_PAD_LEFT)
-            . "d "
-            . str_pad((string) $hours, 2, "0", STR_PAD_LEFT)
-            . "h "
-            . str_pad((string) $minutes, 2, "0", STR_PAD_LEFT)
-            . "m";
+            str_pad((string) $days, 2, "0", STR_PAD_LEFT) . "d "
+            . str_pad((string) $hours, 2, "0", STR_PAD_LEFT) . "h "
+            . str_pad((string) $minutes, 2, "0", STR_PAD_LEFT) . "m";
     }
 
     private function toDateTime($value) {

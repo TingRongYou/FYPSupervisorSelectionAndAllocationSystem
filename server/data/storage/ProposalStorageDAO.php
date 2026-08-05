@@ -66,10 +66,7 @@ class ProposalStorageDAO {
         */
         if ((int) $uploadedFile["size"] > self::MAX_PROPOSAL_SIZE) {
 
-            return [
-                "success" => false,
-                "message" => self::INVALID_FILE_MESSAGE
-            ];
+            return ["success" => false, "message" => self::INVALID_FILE_MESSAGE];
         }
 
         /*
@@ -94,27 +91,15 @@ class ProposalStorageDAO {
         |--------------------------------------------------------------------------
         | Ensures only PDF proposal documents are accepted.
         */
+        // Gate 2: True MIME-type inspection via server-side 'finfo' (FR 1.3)
         $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($uploadedFile["tmp_name"]);
 
-        $mimeType =
-            $finfo->file(
-                $uploadedFile["tmp_name"]
-            );
-
-        $extension =
-            strtolower(
-                pathinfo(
-                    $uploadedFile["name"] ?? "",
-                    PATHINFO_EXTENSION
-                )
-            );
+        // Gate 3: Extension sanitization
+        $extension = strtolower(pathinfo($uploadedFile["name"] ?? "", PATHINFO_EXTENSION));
 
         if ($mimeType !== "application/pdf" || $extension !== "pdf") {
-
-            return [
-                "success" => false,
-                "message" => self::INVALID_FILE_MESSAGE
-            ];
+            return ["success" => false, "message" => self::INVALID_FILE_MESSAGE];
         }
 
         /*
@@ -201,17 +186,9 @@ class ProposalStorageDAO {
         | Move Uploaded Proposal
         |--------------------------------------------------------------------------
         */
-        if (
-            !move_uploaded_file(
-                $uploadedFile["tmp_name"],
-                $destination
-            )
-        ) {
-
-            return [
-                "success" => false,
-                "message" => "Unable to store proposal document."
-            ];
+        // Physical file routing to secure server directory
+        if (!move_uploaded_file($uploadedFile["tmp_name"], $destination)) {
+            return ["success" => false, "message" => "Unable to store proposal document."];
         }
 
         /*

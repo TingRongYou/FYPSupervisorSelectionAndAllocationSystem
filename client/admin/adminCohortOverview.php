@@ -22,8 +22,7 @@ SessionManager::requireRole("Administrator");
 | Uses the facade pattern to keep page rendering separate from data assembly.
 */
 
-$reportFacade =
-    new AdminReportFacade();
+$reportFacade = new AdminReportFacade();
 
 /*
 |--------------------------------------------------------------------------
@@ -38,59 +37,21 @@ $filters = [
     "status" => strtolower(trim($_GET["status"] ?? ""))
 ];
 
-$rosterPage =
-    max(
-        1,
-        (int) ($_GET["rosterPage"] ?? 1)
-    );
-
-$recordsPerPage =
-    3;
+$rosterPage = max(1, (int) ($_GET["rosterPage"] ?? 1));
+$recordsPerPage = 3;
 
 if (!in_array($filters["status"], ["assigned", "unassigned", ""], true)) {
-
     $filters["status"] = "";
 }
 
-$report =
-    $reportFacade->getCohortOverview($filters);
-
-$studentTotal =
-    count($report["students"]);
-
-$studentTotalPages =
-    max(
-        1,
-        (int) ceil($studentTotal / $recordsPerPage)
-    );
-
-$rosterPage =
-    min(
-        $rosterPage,
-        $studentTotalPages
-    );
-
-$studentOffset =
-    ($rosterPage - 1) *
-    $recordsPerPage;
-
-$visibleStudents =
-    array_slice(
-        $report["students"],
-        $studentOffset,
-        $recordsPerPage
-    );
-
-$studentStart =
-    $studentTotal === 0
-        ? 0
-        : $studentOffset + 1;
-
-$studentEnd =
-    min(
-        $studentTotal,
-        $studentOffset + count($visibleStudents)
-    );
+$report = $reportFacade->getCohortOverview($filters);
+$studentTotal = count($report["students"]);
+$studentTotalPages = max(1, (int) ceil($studentTotal / $recordsPerPage));
+$rosterPage = min($rosterPage, $studentTotalPages);
+$studentOffset = ($rosterPage - 1) * $recordsPerPage;
+$visibleStudents = array_slice($report["students"], $studentOffset, $recordsPerPage);
+$studentStart = $studentTotal === 0 ? 0 : $studentOffset + 1;
+$studentEnd = min($studentTotal, $studentOffset + count($visibleStudents));
 
 /*
 |--------------------------------------------------------------------------
@@ -99,28 +60,19 @@ $studentEnd =
 */
 
 function selected($left, $right) {
-
-    return
-        (string) $left === (string) $right ? "selected" : "";
+    return (string) $left === (string) $right ? "selected" : "";
 }
 
 // Shows friendly text for empty filters in the active cohort card.
 function cohortLabel($value, $fallback) {
-
-    return
-        trim((string) $value) === "" ? $fallback : (string) $value;
+    return trim((string) $value) === "" ? $fallback : (string) $value;
 }
 
 function rosterPageUrl($page, $filters) {
-
-    $query = [
-        "rosterPage" => max(1, (int) $page)
-    ];
+    $query = ["rosterPage" => max(1, (int) $page)];
 
     foreach (["programme", "batch", "status"] as $key) {
-
         if (($filters[$key] ?? "") !== "") {
-
             $query[$key] = $filters[$key];
         }
     }

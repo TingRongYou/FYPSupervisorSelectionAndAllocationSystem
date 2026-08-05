@@ -62,25 +62,19 @@ class StudentReviewService {
             );
         }
 
+        // Dependency check: prevents duplicate reviews for the same allocation
         if ($this->reviewDAO->reviewExistsForAllocation($allocationID)) {
-
-            return $this->failure(
-                "You have already submitted an evaluation for your supervisor this semester."
-            );
+            return $this->failure("You have already submitted an evaluation for your supervisor this semester.");
         }
 
+        // Constraint: mandatory 1 to 5 rating scale
         if ($starRating < 1 || $starRating > 5) {
-
-            return $this->failure(
-                "Err Missing Rating - Submission failed. You must select a star rating (1-5) to submit a review. Text feedback is optional."
-            );
+            return $this->failure("Submission failed. You must select a star rating (1-5) to submit a review. Text feedback is optional.");
         }
 
+        // Constraint C1: Feedback payload limit
         if (strlen($textFeedback) > self::MAX_FEEDBACK_LENGTH) {
-
-            return $this->failure(
-                "Submission failed. Feedback cannot exceed 1000 characters."
-            );
+            return $this->failure("Submission failed. Feedback cannot exceed 1000 characters.");
         }
 
         $created = $this->reviewDAO->createReview(
@@ -104,13 +98,10 @@ class StudentReviewService {
     }
 
     public function getSanitizedReviewsForSupervisor($supervisorID) {
-
-        $reviews = $this->reviewDAO
-            ->getSanitizedReviewsForSupervisor($supervisorID);
+        $reviews = $this->reviewDAO->getSanitizedReviewsForSupervisor($supervisorID);
 
         return array_map(
             function ($review) {
-
                 return (new AnonymousReviewProxy( // Decides which part of raw data the user is allowed to see
                     new SupervisorReviewRecord($review) // Holds all of the raw data 
                 ))->display();

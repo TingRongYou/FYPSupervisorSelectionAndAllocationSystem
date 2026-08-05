@@ -13,7 +13,6 @@ require_once "../../server/application/auth/SessionManager.php";
 SessionManager::startSession();
 
 if (!SessionManager::isLoggedIn()) {
-
     die("Access Denied");
 }
 
@@ -22,7 +21,6 @@ SessionManager::requireRole("Administrator");
 $csrfToken = SessionManager::getCsrfToken();
 
 function e($value) {
-
     return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 

@@ -22,8 +22,7 @@ SessionManager::requireRole("Administrator");
 | Uses the facade pattern to keep page rendering separate from data assembly.
 */
 
-$reportFacade =
-    new AdminReportFacade();
+$reportFacade = new AdminReportFacade();
 
 /*
 |--------------------------------------------------------------------------
@@ -32,57 +31,17 @@ $reportFacade =
 | UC301 filters supervisor workload by programme when selected.
 */
 
-$programme =
-    trim($_GET["programme"] ?? "");
-
-$rosterPage =
-    max(
-        1,
-        (int) ($_GET["rosterPage"] ?? 1)
-    );
-
-$recordsPerPage =
-    3;
-
-$report =
-    $reportFacade->getAllocationSummary($programme);
-
-$supervisorTotal =
-    count($report["supervisors"]);
-
-$supervisorTotalPages =
-    max(
-        1,
-        (int) ceil($supervisorTotal / $recordsPerPage)
-    );
-
-$rosterPage =
-    min(
-        $rosterPage,
-        $supervisorTotalPages
-    );
-
-$supervisorOffset =
-    ($rosterPage - 1) *
-    $recordsPerPage;
-
-$visibleSupervisors =
-    array_slice(
-        $report["supervisors"],
-        $supervisorOffset,
-        $recordsPerPage
-    );
-
-$supervisorStart =
-    $supervisorTotal === 0
-        ? 0
-        : $supervisorOffset + 1;
-
-$supervisorEnd =
-    min(
-        $supervisorTotal,
-        $supervisorOffset + count($visibleSupervisors)
-    );
+$programme = trim($_GET["programme"] ?? "");
+$rosterPage = max(1, (int) ($_GET["rosterPage"] ?? 1));
+$recordsPerPage = 3;
+$report = $reportFacade->getAllocationSummary($programme);
+$supervisorTotal = count($report["supervisors"]);
+$supervisorTotalPages = max(1,(int) ceil($supervisorTotal / $recordsPerPage));
+$rosterPage =min($rosterPage, $supervisorTotalPages);
+$supervisorOffset = ($rosterPage - 1) * $recordsPerPage;
+$visibleSupervisors = array_slice($report["supervisors"], $supervisorOffset, $recordsPerPage);
+$supervisorStart = $supervisorTotal === 0 ? 0 : $supervisorOffset + 1;
+$supervisorEnd = min($supervisorTotal, $supervisorOffset + count($visibleSupervisors));
 
 /*
 |--------------------------------------------------------------------------
@@ -91,14 +50,11 @@ $supervisorEnd =
 */
 
 function selected($left, $right) {
-
-    return
-        (string) $left === (string) $right ? "selected" : "";
+    return (string) $left === (string) $right ? "selected" : "";
 }
 
 // Maps workload status values to CSS classes used by the roster item.
 function capacityClass($status) {
-
     if ($status === "Full Capacity") {
         return "full";
     }
@@ -111,13 +67,9 @@ function capacityClass($status) {
 }
 
 function allocationRosterPageUrl($page, $programme) {
-
-    $query = [
-        "rosterPage" => max(1, (int) $page)
-    ];
+    $query = ["rosterPage" => max(1, (int) $page)];
 
     if ($programme !== "") {
-
         $query["programme"] = $programme;
     }
 

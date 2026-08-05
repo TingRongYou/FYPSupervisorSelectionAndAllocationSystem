@@ -7,43 +7,22 @@ require_once __DIR__ . "/SupervisorAvailabilityService.php";
 abstract class DiscoveryEngine { // Abstract class that defines structure for discovery method
 
     protected $supervisorDAO;
-
     protected $tagDAO;
-
     protected $availabilityService;
 
     public function __construct() {
-
-        $this->supervisorDAO =
-            new SupervisorDAO();
-
-        $this->tagDAO =
-            new TagDAO();
-
-        $this->availabilityService =
-            new SupervisorAvailabilityService();
+        $this->supervisorDAO = new SupervisorDAO();
+        $this->tagDAO = new TagDAO();
+        $this->availabilityService = new SupervisorAvailabilityService();
     }
 
     // Calls multiple methods to transform raw data into polished result
-    public function executeSearch(
-        $context
-    ) {
-
-        $supervisors =
-            $this->fetchActiveSupervisors(); // Get a raw list of supervisors and decorates them with their availability status
-
-        $supervisors =
-            $this->attachTagPayload($supervisors); // Add supervisor's research interest tag to their profile
-
-        $supervisors =
-            $this->filterSlotAvailability($supervisors, $context); // Filter student's availability status choice
-
-        $supervisors =
-            $this->applyMatchingLogic($supervisors, $context); // An abstract method
-
-        $supervisors =
-            $this->rankResults($supervisors, $context); // sorts the filtered list
-
+    public function executeSearch($context) {
+        $supervisors = $this->fetchActiveSupervisors(); // Get a raw list of supervisors and decorates them with their availability status
+        $supervisors = $this->attachTagPayload($supervisors); // Add supervisor's research interest tag to their profile
+        $supervisors = $this->filterSlotAvailability($supervisors, $context); // Filter student's availability status choice
+        $supervisors = $this->applyMatchingLogic($supervisors, $context); // An abstract method
+        $supervisors = $this->rankResults($supervisors, $context); // sorts the filtered list
         return $this->renderResults($supervisors, $context); // Returns the final results
     }
 
@@ -131,10 +110,7 @@ abstract class DiscoveryEngine { // Abstract class that defines structure for di
         );
     }
 
-    abstract protected function applyMatchingLogic( // Used for different search types, including manual and recommendation
-        $supervisors,
-        $context
-    );
+    abstract protected function applyMatchingLogic($supervisors, $context); // Used for different search types, including manual and recommendation
 
     protected function rankResults(
         $supervisors,
@@ -246,89 +222,48 @@ class ManualSearchProcessor extends DiscoveryEngine { // Manual search that over
 // Recommends supervisors based on student's saved interest tags
 class RecommendationProcessor extends DiscoveryEngine {
 
-    protected function applyMatchingLogic(
-        $supervisors,
-        $context
-    ) {
-
+    protected function applyMatchingLogic($supervisors, $context) {
         // Check if student has any tags
-        $studentTagIDs =
-            $this->tagDAO
-            ->getStudentTagIDs($context["studentID"] ?? "");
+        $studentTagIDs = $this->tagDAO->getStudentTagIDs($context["studentID"] ?? "");
 
-        if (empty($studentTagIDs)) {
+        if (empty($studentTagIDs)) { return []; }
 
-            return [];
-        }
-
-        $matched =
-            [];
+        $matched = [];
 
         // Calculate supervisor limit
         foreach ($supervisors as $supervisor) {
-
             if (($supervisor["quotaStatus"] ?? "Full") !== "Available") { // Skip if supervisor is not available
-
                 continue;
             }
 
             // Find overlapping tags between student and supervisor
-            $matchScore =
-                $this->intersects(
-                    $studentTagIDs,
-                    $supervisor["tagIDs"]
-                );
+            $matchScore = $this->intersects($studentTagIDs, $supervisor["tagIDs"]);
 
             if ($matchScore <= 0) {
-
                 continue;
             }
 
-            $supervisor["matchScore"] =
-                $matchScore;
-
-            $matched[] =
-                $supervisor;
+            $supervisor["matchScore"] = $matchScore;
+            $matched[] =$supervisor;
         }
 
         return $matched;
     }
 
     // Sorts overlapping count DESCENDING, limit output to maximum of 3 elements
-    protected function rankResults(
-        $supervisors,
-        $context
-    ) {
-
-        usort(
-            $supervisors,
-            function ($first, $second) {
-
+    protected function rankResults($supervisors, $context) {
+        usort($supervisors, function ($first, $second) {
                 if ($first["matchScore"] !== $second["matchScore"]) {
-
                     return $second["matchScore"] <=> $first["matchScore"]; // Sort in descending order
                 }
 
-                return strcmp(
-                    $first["fullName"],
-                    $second["fullName"]
-                );
-            }
-        );
-
+                return strcmp($first["fullName"], $second["fullName"]);
+            });
         return $supervisors;
     }
 
-    protected function renderResults(
-        $supervisors,
-        $context
-    ) {
-
-        return array_slice( // Ensure only top 3 are returned to the UI
-            array_values($supervisors),
-            0,
-            3
-        );
+    protected function renderResults($supervisors,$context) {
+        return array_slice(array_values($supervisors), 0, 3); // Ensure only top 3 are returned to the UI
     }
 }
 

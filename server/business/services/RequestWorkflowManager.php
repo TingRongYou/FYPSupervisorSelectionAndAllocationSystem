@@ -30,6 +30,7 @@ class RequestWorkflowManager {
     */
     private const MAX_TITLE_LENGTH = 255;
 
+    // Defining strict concurrency threshold
     private const MAX_PENDING_REQUESTS = 3;
 
     /*
@@ -56,24 +57,14 @@ class RequestWorkflowManager {
     | Initializes DAO, storage, and service dependencies.
     */
     public function __construct() {
+        $this->requestDAO = new RequestDAO();
+        $this->supervisorProfileService = new SupervisorProfileService();
+        $this->proposalStorageDAO = new ProposalStorageDAO();
+        $this->allocationWindowService = new AllocationWindowService();
+        $this->availabilityService = new SupervisorAvailabilityService();
 
-        $this->requestDAO =
-            new RequestDAO();
-
-        $this->supervisorProfileService =
-            new SupervisorProfileService();
-
-        $this->proposalStorageDAO =
-            new ProposalStorageDAO();
-
-        $this->allocationWindowService =
-            new AllocationWindowService();
-
-        $this->availabilityService =
-            new SupervisorAvailabilityService();
-
-        $this->temporalPhaseEngine =
-            TemporalPhaseEngine::getInstance();
+        // Accesses the global temporal engine Singleton
+        $this->temporalPhaseEngine = TemporalPhaseEngine::getInstance();
     }
 
     /*
@@ -187,14 +178,8 @@ class RequestWorkflowManager {
         | Uses the singleton temporal engine so proposal POST access follows the
         | central server timeline, not a browser-controlled clock.
         */
-        if (
-            $requestedProposal === null &&
-            !$this->temporalPhaseEngine->isSubmissionPhaseActive()
-        ) {
-
-            return $this->failure(
-                "Submission phase has expired. Proposal submission is currently locked."
-            );
+        if ($requestedProposal === null && !$this->temporalPhaseEngine->isSubmissionPhaseActive()) {
+            return $this->failure("Submission phase has expired. Proposal submission is currently locked.");
         }
 
         /*
@@ -260,6 +245,7 @@ class RequestWorkflowManager {
         |--------------------------------------------------------------------------
         | Enforces the maximum of three concurrent pending proposal requests.
         */
+        // Validates active requests against threshold
         if (
             $requestedProposal === null &&
             $this->requestDAO->countPendingRequestsByStudent($studentID)

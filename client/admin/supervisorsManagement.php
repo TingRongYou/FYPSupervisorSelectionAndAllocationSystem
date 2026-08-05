@@ -64,9 +64,7 @@ $supervisorManagementService = new SupervisorManagementService();
     function activeFilter($a, $b) { return (string) $a === (string) $b ? "active" : ""; }
 
     function pageUrl($page, $searchName, $programme) {
-        $query = [
-            "page" => max(1, (int) $page)
-        ];
+        $query = ["page" => max(1, (int) $page)];
 
         if ($searchName !== "") {
             $query["searchName"] = $searchName;
@@ -84,8 +82,9 @@ $supervisorManagementService = new SupervisorManagementService();
         $cls = $_GET["status"] === "success" ? "success" : "error";
         return '<div class="message ' . $cls . '">' . e($_GET["message"]) . '</div>';
     }
-    ?>
-    <!DOCTYPE html>
+    
+?>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">

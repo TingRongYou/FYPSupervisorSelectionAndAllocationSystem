@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             if (selected.length > 5) {
                 input.checked = false;
-                alert("Err Max Tags - You can only select a maximum of 5 research interests. Please remove one to add another.");
+                alert("You can select a minimum of 1 and a maximum of 5 research interests . Please remove one to add another.");
             }
 
             updateTags();
@@ -153,14 +153,14 @@ document.addEventListener("DOMContentLoaded", function() {
             const file = avatarFile.files[0];
 
             if (!file) {
-                avatarFileName.textContent = "JPG or PNG, max 0.5MB.";
+                avatarFileName.textContent = "JPG or PNG, max 2.0MB.";
                 return;
             }
 
             if (!["image/jpeg", "image/png"].includes(file.type) || file.size > maxAvatarBytes) {
-                alert("Err Invalid File - Upload failed. Please ensure your profile picture is in JPG or PNG format and does not exceed 0.5MB.");
+                alert("Upload failed. Please ensure your profile picture is in JPG or PNG format and does not exceed 2.0MB.");
                 avatarFile.value = "";
-                avatarFileName.textContent = "JPG or PNG, max 0.5MB.";
+                avatarFileName.textContent = "JPG or PNG, max 2.0MB.";
                 return;
             }
 
@@ -180,7 +180,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if (selected.length === 0 || selected.length > 5) {
             event.preventDefault();
-            alert("Err Max Tags - You can only select a maximum of 5 research interests. Please remove one to add another.");
+            alert("You can select a minimum of 1 and a maximum of 5 research interests . Please remove one to add another.");
             return;
         }
     });
@@ -189,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function() {
         setTimeout(function() {
             updateBioCounter();
             updateTags();
-            if (avatarFileName) avatarFileName.textContent = "JPG or PNG, max 0.5MB.";
+            if (avatarFileName) avatarFileName.textContent = "JPG or PNG, max 2.0MB.";
         }, 0);
     });
 
@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if (!selected) {
             event.preventDefault();
-            alert("Err Missing Rating - Submission failed. You must select a star rating (1-5) to submit a review. Text feedback is optional.");
+            alert("Submission failed. You must select a star rating (1-5) to submit a review. Text feedback is optional.");
             return;
         }
 
@@ -329,8 +329,10 @@ document.addEventListener("DOMContentLoaded", function() {
         const target = timelinePayload.activePhase ? timelinePayload.endTimestamp : (timelinePayload.startTimestamp || null);
         let remainingSeconds = 0;
         if (target) {
+            // Calculates remaining time by comparing target against local time + server offset
             remainingSeconds = Math.max(0, Math.floor((new Date(target.replace(" ", "T")).getTime() - (Date.now() + serverOffsetMs)) / 1000));
         }
+        // Physically mutates the DOM text without reloading the page
         timer.textContent = formatRemaining(remainingSeconds);
     }
 
@@ -348,6 +350,7 @@ document.addEventListener("DOMContentLoaded", function() {
         renderCountdown();
     }
 
+    // Re-syncs the UI with the authoritative server clock
     async function refreshTimeline() {
         try {
             const response = await fetch("../../server/application/student/getTimelineStatus.php", { credentials: "same-origin" });
@@ -355,9 +358,10 @@ document.addEventListener("DOMContentLoaded", function() {
         } catch (error) { /* Silent fail */ }
     }
 
+    // Local 1000ms visual tick
     renderCountdown();
-    setInterval(renderCountdown, 1000);
-    setInterval(refreshTimeline, 60000);
+    setInterval(renderCountdown, 1000); // Executes the DOM mutation every 1000 milliseconds
+    setInterval(refreshTimeline, 60000); // Authoritative server poll to prevent browser desynchronization
 });
 
 /* ==========================================================================

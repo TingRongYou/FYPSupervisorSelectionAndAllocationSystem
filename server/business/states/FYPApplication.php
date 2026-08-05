@@ -49,12 +49,10 @@ class FYPApplication {
     }
 
     public function changeState(ApplicationState $state) {
-
         $this->state = $state;
     }
 
     public function accept($comment) {
-
         return $this->state->accept($this, $comment);
     }
 
