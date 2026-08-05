@@ -10,47 +10,32 @@ SessionManager::startSession();
 SessionManager::requireRole("Student");
 
 if (empty($_SESSION["csrf_token"])) {
-
     $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
 }
 
 $supervisorID = trim($_GET["supervisorID"] ?? "");
 $requestID = (int) ($_GET["requestID"] ?? 0);
 $requestDAO = new RequestDAO();
-$requestedProposal =
-    $requestID > 0
-        ? $requestDAO->getProposalRequestForStudent($requestID, $_SESSION["userID"])
-        : null;
+$requestedProposal = $requestID > 0 ? $requestDAO->getProposalRequestForStudent($requestID, $_SESSION["userID"]) : null;
 
 if ($requestedProposal) {
-
-    $supervisorID =
-        $requestedProposal["supervisorID"];
+    $supervisorID = $requestedProposal["supervisorID"];
 }
 
-$isResubmission =
-    $requestedProposal &&
-    ($requestedProposal["decisionStatus"] ?? "") === "Rejected";
+$isResubmission = $requestedProposal && ($requestedProposal["decisionStatus"] ?? "") === "Rejected";
 
 $profileService = new SupervisorProfileService();
 $profile = $supervisorID !== "" ? $profileService->getDigitalBusinessCard($supervisorID) : null;
 $allocationWindowService = new AllocationWindowService();
 $allocationWindow = $allocationWindowService->getWindow();
-$canApplyToSupervisor =
-    $profile && (
-        (bool) ($profile["canApply"] ?? false) ||
-        $requestedProposal !== null
-    );
+$canApplyToSupervisor = $profile && ((bool) ($profile["canApply"] ?? false) || $requestedProposal !== null);
 
 function e($value) {
-
     return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
 function statusMessage() {
-
     if (!isset($_GET["status"], $_GET["message"])) {
-
         return "";
     }
 

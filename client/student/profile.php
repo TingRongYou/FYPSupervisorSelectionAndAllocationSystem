@@ -10,7 +10,6 @@ SessionManager::startSession(); // auth/sessionManager.php
 SessionManager::requireRole("Student"); // :: is a Scope Resolution Operator, used to access static properties, methods or constants of a class without needing to create an object instance
 
 if (empty($_SESSION["csrf_token"])) {
-
     $_SESSION["csrf_token"] = bin2hex(random_bytes(32)); // Generate random CSRF token so server can verify form submission
 }
 
@@ -19,7 +18,6 @@ $profileFacade = new StudentProfileFacade();
 $payload = $profileFacade->getProfilePayload($_SESSION["userID"]);
 
 if (!$payload) {
-
     header("Location: ../auth/login.html?status=error&message=Student profile was not found"); // Redirect browser elsewhere and stop the scripts immediately
     exit();
 }
@@ -28,18 +26,14 @@ $profile = $payload["profile"];
 $allTags = $payload["allTags"];
 $selectedTagIDs = $payload["selectedTagIDs"];
 
-SessionManager::setProfilePhotoPath(
-    $profile["profilePhotoPath"] ?? ""
-);
+SessionManager::setProfilePhotoPath($profile["profilePhotoPath"] ?? "");
 
 // Helper functions
 function e($value) { // Escape text before printing into HTMl, preventing XSS attacks
-
     return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
 function initials($name) { // Turns name into abbreviation for profile pic
-
     $parts = preg_split("/\s+/", trim((string) $name));
     $first = strtoupper(substr($parts[0] ?? "S", 0, 1));
     $second = strtoupper(substr($parts[1] ?? "", 0, 1));
@@ -48,10 +42,7 @@ function initials($name) { // Turns name into abbreviation for profile pic
 }
  
 function researchTagCode($tagName) { // Turns tag name into short code for little badge next to the checkboxes
-
-    $normalisedName = strtolower(
-        preg_replace("/\s+/", " ", trim((string) $tagName))
-    );
+    $normalisedName = strtolower(preg_replace("/\s+/", " ", trim((string) $tagName)));
 
     $tagCodes = [
         "artificial intelligence" => "AI",
@@ -61,7 +52,6 @@ function researchTagCode($tagName) { // Turns tag name into short code for littl
     ];
 
     if (isset($tagCodes[$normalisedName])) {
-
         return $tagCodes[$normalisedName];
     }
 
@@ -69,16 +59,13 @@ function researchTagCode($tagName) { // Turns tag name into short code for littl
     $code = "";
 
     foreach ($words as $word) {
-
         if ($word === "") {
-
             continue;
         }
 
         $code .= strtoupper(substr($word, 0, 1));
 
         if (strlen($code) >= 2) {
-
             break;
         }
     }
@@ -87,9 +74,7 @@ function researchTagCode($tagName) { // Turns tag name into short code for littl
 }
 
 function statusMessage() { // Build a successe or error HTML banner
-
     if (!isset($_GET["status"], $_GET["message"])) {
-
         return "";
     }
 

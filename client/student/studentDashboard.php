@@ -38,12 +38,8 @@ $allocation      = $requestDAO->getAllocationByStudent($studentID);
 $timeline        = TemporalPhaseEngine::getInstance()->getPhasePayload();
 
 $allocationStatus = $allocation ? "Allocated" : ($pendingRequests > 0 ? "Pending" : "Not Started");
-$phaseEnd         = !empty($timeline["activePhase"])
-    ? ($timeline["endTimestamp"] ?? "")
-    : ($timeline["startTimestamp"] ?? "");
-$phaseLabel       = !empty($timeline["activePhase"])
-    ? ($timeline["activePhaseName"] ?? "No Active Phase")
-    : (!empty($timeline["nextPhase"]["phaseName"]) ? "Next: " . $timeline["nextPhase"]["phaseName"] : "No Active Phase");
+$phaseEnd         = !empty($timeline["activePhase"]) ? ($timeline["endTimestamp"] ?? "") : ($timeline["startTimestamp"] ?? "");
+$phaseLabel       = !empty($timeline["activePhase"]) ? ($timeline["activePhaseName"] ?? "No Active Phase") : (!empty($timeline["nextPhase"]["phaseName"]) ? "Next: " . $timeline["nextPhase"]["phaseName"] : "No Active Phase");
 $serverEpoch      = $timeline["serverEpoch"] ?? time();
 
 function e($value) {
@@ -64,6 +60,7 @@ function requestClass($status) {
     return "pending";
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

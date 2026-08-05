@@ -24,12 +24,10 @@ $recommendedMatches = $discoveryService->getRecommendedMatches($_SESSION["userID
 $hasSavedInterestTags = $discoveryService->hasSavedInterestTags($_SESSION["userID"]); // Check if student has saved interest tags
 
 function e($value) {
-
     return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
 function initials($name) {
-
     $parts = preg_split("/\s+/", trim((string) $name));
     $first = strtoupper(substr($parts[0] ?? "S", 0, 1));
     $second = strtoupper(substr($parts[1] ?? "", 0, 1));
@@ -38,7 +36,6 @@ function initials($name) {
 }
 
 function selected($left, $right) {
-
     return (string) $left === (string) $right ? "selected" : ""; // $left is the current tag selected, $right is the new tag selected
     // If they match, return "selected", else return empty string
 }

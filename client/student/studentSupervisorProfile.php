@@ -19,12 +19,10 @@ $allocationWindowService = new AllocationWindowService();
 $allocationWindow = $allocationWindowService->getWindow(); // Retrieve active allocation time window
 
 function e($value) {
-
     return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
 function initials($name) {
-
     $parts = preg_split("/\s+/", trim((string) $name));
     $first = strtoupper(substr($parts[0] ?? "S", 0, 1));
     $second = strtoupper(substr($parts[1] ?? "", 0, 1));
@@ -33,19 +31,15 @@ function initials($name) {
 }
 
 function videoEmbedUrl($url) {
-
     if (preg_match("/youtu\.be\/([^?&]+)/", $url, $matches)) {
-
         return "https://www.youtube.com/embed/" . $matches[1]; // return specific link to be placed in iframe
     }
 
     if (preg_match("/youtube\.com\/watch\?v=([^?&]+)/", $url, $matches)) {
-
         return "https://www.youtube.com/embed/" . $matches[1];
     }
 
     if (preg_match("/vimeo\.com\/([0-9]+)/", $url, $matches)) {
-
         return "https://player.vimeo.com/video/" . $matches[1];
     }
 
@@ -53,17 +47,13 @@ function videoEmbedUrl($url) {
 }
 
 function projectPdfUrl($path) {
-
-    $fileName =
-        basename((string) $path);
+    $fileName = basename((string) $path);
 
     return "../../storage/past_projects/" . rawurlencode($fileName);
 }
 
 function projectImageUrl($path) {
-
-    $fileName =
-        basename((string) $path);
+    $fileName = basename((string) $path);
 
     return "../../storage/past_project_images/" . rawurlencode($fileName);
 }
@@ -78,9 +68,7 @@ $activeTime = $profile["activeTime"] ?? "Consultation by appointment";
 $bio = $profile["supervisorBio"] ?? "This supervisor has not added a biography yet.";
 $expertiseTags = $profile["expertiseTags"] ?? [];
 $pastProjects = $profile["pastProjects"] ?? [];
-$videoLink = !empty($profile["hasIntroVideo"])
-    ? ($profile["introVideoLink"] ?? "")
-    : "";
+$videoLink = !empty($profile["hasIntroVideo"]) ? ($profile["introVideoLink"] ?? "") : "";
 $videoDescription = $profile["introVideoDescription"] ?? "";
 $isUploadedVideo = preg_match("/\/storage\/intro_videos\/.+\.(mp4|webm)$/i", $videoLink) === 1;
 $embedUrl = $videoLink !== "" && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";

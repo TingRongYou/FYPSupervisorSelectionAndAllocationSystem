@@ -7,32 +7,20 @@ require_once __DIR__ . "/studentLayout.php";
 SessionManager::startSession();
 SessionManager::requireRole("Student");
 
-$requestID =
-    (int) ($_GET["requestID"] ?? 0);
+$requestID = (int) ($_GET["requestID"] ?? 0);
 
-$requestDAO =
-    new RequestDAO();
+$requestDAO = new RequestDAO();
 
-$request =
-    $requestID > 0
-        ? $requestDAO->getApplicationRequestForStudent(
-            $requestID,
-            $_SESSION["userID"]
-        )
-        : null;
+$request = $requestID > 0 ? $requestDAO->getApplicationRequestForStudent($requestID, $_SESSION["userID"]) : null;
 
 function e($value) {
-
     return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
 function proposalStatusClass($status) {
-
-    $status =
-        strtolower(trim((string) $status));
+    $status = strtolower(trim((string) $status));
 
     if ($status === "accepted") {
-
         return "accepted";
     }
 
@@ -40,7 +28,6 @@ function proposalStatusClass($status) {
         $status === "rejected" ||
         $status === "rejected-timeout"
     ) {
-
         return "rejected";
     }
 

@@ -7,26 +7,20 @@ require_once __DIR__ . "/studentLayout.php";
 SessionManager::startSession();
 SessionManager::requireRole("Student");
 
-$timeline =
-    TemporalPhaseEngine::getInstance()->getPhasePayload();
+$timeline = TemporalPhaseEngine::getInstance()->getPhasePayload();
 
 function e($value) {
-
     return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
 function phaseClass($status) {
-
-    $status =
-        strtolower((string) $status);
+    $status = strtolower((string) $status);
 
     if ($status === "active") {
-
         return "active";
     }
 
     if ($status === "completed") {
-
         return "completed";
     }
 
@@ -34,9 +28,7 @@ function phaseClass($status) {
 }
 
 function formatDateTimeText($value) {
-
     if (!$value) {
-
         return "-";
     }
 

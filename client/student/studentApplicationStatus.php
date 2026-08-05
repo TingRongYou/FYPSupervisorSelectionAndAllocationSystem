@@ -13,37 +13,30 @@ $requestDAO->expireTimedOutRequestsByStudent($studentID); // Automatically rejec
 $applications = $requestDAO->getApplicationsByStudent($studentID); // Get student application details
 
 function e($value) {
-
     return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
 // Translate database input to function output (CSS)
 function statusClass($status) {
-
     $normalized = strtolower(trim((string) $status));
 
     if ($normalized === "accepted") {
-
         return "accepted";
     }
 
     if ($normalized === "rejected" || $normalized === "rejected-timeout") {
-
         return "rejected";
     }
 
     if ($normalized === "withdrawn") {
-
         return "withdrawn";
     }
 
     if ($normalized === "auto-allocated") {
-
         return "auto-allocated";
     }
 
     if ($normalized === "proposal requested") {
-
         return "requested";
     }
 
@@ -52,14 +45,11 @@ function statusClass($status) {
 
 // Label text
 function statusLabel($status) {
-
     if ($status === "Rejected-Timeout") {
-
         return "Rejected Timeout";
     }
 
     if ($status === "Proposal Requested") {
-
         return "Proposal Requested";
     }
 
@@ -68,9 +58,7 @@ function statusLabel($status) {
 
 // E.g., 10 Jul 2026 02:30 PM
 function formatDateText($value) {
-
     if (!$value) {
-
         return "-";
     }
 
@@ -78,16 +66,13 @@ function formatDateText($value) {
 }
 
 function countdownText($expiresAt) {
-
     if (!$expiresAt) { // If empty, false or NULL
-
         return "-";
     }
 
     $remaining = strtotime($expiresAt) - time(); // Calculate differences between expiry date and current time
 
     if ($remaining <= 0) {
-
         return "Expired";
     }
 
@@ -102,9 +87,7 @@ function countdownText($expiresAt) {
 }
 
 function statusMessage() {
-
     if (!isset($_GET["status"], $_GET["message"])) {
-
         return "";
     }
 

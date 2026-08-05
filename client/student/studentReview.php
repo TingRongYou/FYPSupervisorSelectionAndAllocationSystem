@@ -8,7 +8,6 @@ SessionManager::startSession();
 SessionManager::requireRole("Student");
 
 if (empty($_SESSION["csrf_token"])) {
-
     $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
 }
 
@@ -18,12 +17,10 @@ $context = $payload["context"];
 $statistics = $payload["statistics"] ?? null;
 
 function e($value) {
-
     return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
 function initials($name) {
-
     $parts = preg_split("/\s+/", trim((string) $name));
     $first = strtoupper(substr($parts[0] ?? "S", 0, 1));
     $second = strtoupper(substr($parts[1] ?? "", 0, 1));
@@ -32,9 +29,7 @@ function initials($name) {
 }
 
 function statusMessage() {
-
     if (!isset($_GET["status"], $_GET["message"])) {
-
         return "";
     }
 
