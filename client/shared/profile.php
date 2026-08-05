@@ -21,7 +21,6 @@ SessionManager::requireLogin();
 */
 
 if (empty($_SESSION["csrf_token"])) {
-
     $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
 }
 
@@ -43,7 +42,6 @@ $profile = $accountService->getAccountProfile($_SESSION["userID"]);
 */
 
 if (!$profile) {
-
     header("Location: ../auth/login.html?status=error&message=Account was not found");
     exit();
 }

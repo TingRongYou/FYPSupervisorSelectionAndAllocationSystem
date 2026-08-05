@@ -15,9 +15,7 @@
 */
 
 if (!function_exists("ssasEscape")) {
-
     function ssasEscape($value) {
-
         return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
     }
 }
@@ -29,7 +27,6 @@ if (!function_exists("ssasEscape")) {
 | Generates user initials for avatar display.
 */
 if (!function_exists("ssasInitials")) {
-
     function ssasInitials($name) {
 
         $parts = preg_split("/\s+/", trim((string) $name));
@@ -47,7 +44,6 @@ if (!function_exists("ssasInitials")) {
 | Generates a visually accurate star rating bar based on a 0.0 to 5.0 score.
 */
 if (!function_exists("ssasRenderStars")) {
-
     function ssasRenderStars($rating) {
         
         // Ensure the rating is a safe float between 0 and 5
@@ -73,9 +69,7 @@ if (!function_exists("ssasRenderStars")) {
 */
 
 if (!function_exists("ssasRoleLabel")) {
-
     function ssasRoleLabel($role) {
-
         if ($role === "Administrator") {
             return "Administrator";
         }
@@ -100,7 +94,6 @@ if (!function_exists("ssasRoleLabel")) {
 */
 
 if (!function_exists("ssasAccountMenu")) {
-
     function ssasAccountMenu() {
 
         $name = $_SESSION["fullName"] ?? "SSAS User";
@@ -139,16 +132,10 @@ if (!function_exists("ssasAccountMenu")) {
 */
 
 if (!function_exists("ssasTopbar")) {
-
     function ssasTopbar($title = "TAR UMT SSAS") {
 
         $role = $_SESSION["systemRole"] ?? "User";
-        $dateTime =
-            (new DateTime(
-                "now",
-                new DateTimeZone("Asia/Kuala_Lumpur")
-            ))
-            ->format("D M d H:i:s");
+        $dateTime = (new DateTime("now", new DateTimeZone("Asia/Kuala_Lumpur")))->format("D M d H:i:s");
 
         // Dynamically route the logo link based on the active session role
         $dashboardLink = "#";
@@ -185,11 +172,8 @@ if (!function_exists("ssasTopbar")) {
 */
 
 if (!function_exists("ssasStatusMessage")) {
-
     function ssasStatusMessage() {
-
         if (!isset($_GET["status"], $_GET["message"])) {
-
             return "";
         }
 
@@ -207,7 +191,6 @@ if (!function_exists("ssasStatusMessage")) {
 */
 
 if (!function_exists("ssasDashboardUrlForRole")) {
-
     function ssasDashboardUrlForRole($role) {
 
         if ($role === "Administrator") {
@@ -234,7 +217,6 @@ if (!function_exists("ssasDashboardUrlForRole")) {
 */
 
 if (!function_exists("ssasPortalSidebar")) {
-
     function ssasPortalSidebar($activePage) {
 
         $role = $_SESSION["systemRole"] ?? "User";
@@ -249,7 +231,6 @@ if (!function_exists("ssasPortalSidebar")) {
         */
 
         if ($role === "Supervisor") {
-
             $roleTitle = "SSAS Supervisor";
             $roleSubtitle = "Supervisor Portal";
             $links = [
@@ -282,7 +263,6 @@ if (!function_exists("ssasPortalSidebar")) {
         */
 
         } elseif ($role === "Administrator") {
-
             $roleTitle = "SSAS Admin";
             $roleSubtitle = "Management Portal";
             $links = [
@@ -308,7 +288,6 @@ if (!function_exists("ssasPortalSidebar")) {
         */
 
         } elseif ($role === "Student") {
-
             $roleTitle = "SSAS Student";
             $roleSubtitle = "Student Portal";
             
@@ -345,9 +324,7 @@ if (!function_exists("ssasPortalSidebar")) {
             $isActive = $activePage === $key ? "active" : "";
 
             if ($isSubnav) {
-
                 if (!$subnavOpen) {
-
                     $navigation .= "<div class=\"portal-subnav\" style=\"display: none;\">";
                     $subnavOpen = true;
                 }
@@ -360,7 +337,6 @@ if (!function_exists("ssasPortalSidebar")) {
             }
 
             if ($subnavOpen) {
-
                 $navigation .= "</div>";
                 $subnavOpen = false;
             }
