@@ -70,8 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $status = "success";
 
-        $message =
-            "If that email is registered, a password reset link will appear below.";
+        $message = "If that email is registered, a password reset link will appear below.";
 
             /*
         |--------------------------------------------------------------------------
@@ -81,9 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         */
 
         // Prepare SQL query to find user by university email
-        $stmt = $pdo->prepare(
-            "SELECT userID FROM USER WHERE universityEmail = ? LIMIT 1"
-        );
+        $stmt = $pdo->prepare("SELECT userID FROM USER WHERE universityEmail = ? LIMIT 1");
 
         // Execute query using entered email
         $stmt->execute([$email]);
@@ -122,11 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             ");
 
             // Execute update query
-            $stmt->execute([
-                $token,
-                $expiresAt,
-                $email
-            ]);
+            $stmt->execute([$token, $expiresAt, $email]);
 
             /*
             |--------------------------------------------------------------------------
@@ -136,21 +129,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             */
 
             // Detect whether website uses HTTPS
-            $scheme =
-                (isset($_SERVER["HTTPS"])
-                && $_SERVER["HTTPS"] === "on")
-                ? "https"
-                : "http";
+            $scheme = (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on") ? "https" : "http";
 
             // Get current website host/domain
             $host = $_SERVER["HTTP_HOST"];
 
             // Get current directory path
-            $dir =
-                rtrim(
-                    dirname($_SERVER["PHP_SELF"]),
-                    "/\\"
-                );
+            $dir = rtrim(dirname($_SERVER["PHP_SELF"]), "/\\");
 
             if ($stmt->rowCount() > 0) {
                 // Build full password reset link only after the token is saved.

@@ -36,12 +36,7 @@ $pdo = $database->connect();
 |--------------------------------------------------------------------------
 | Retrieve token from URL parameter (GET) or form submission (POST).
 */
-$token =
-    trim(
-        $_GET["token"]
-        ?? $_POST["token"]
-        ?? ""
-    );
+$token = trim($_GET["token"] ?? $_POST["token"] ?? "");
 
 /*
 |--------------------------------------------------------------------------
@@ -67,12 +62,7 @@ if ($token !== "") {
 
     // Check if token exists and is still valid using the same PHP clock
     // used when the token was created.
-    if (
-        $user
-        && !empty($user["resetExpires"])
-        && strtotime($user["resetExpires"]) >= time()
-    ) {
-
+    if ($user && !empty($user["resetExpires"]) && strtotime($user["resetExpires"]) >= time()) {
         // Mark token as valid
         $validToken = true;
     }
@@ -91,8 +81,7 @@ if (!$validToken) {
     $status = "error";
 
     // Error message
-    $message =
-        "This password reset link is invalid or has expired.";
+    $message = "This password reset link is invalid or has expired.";
 
 /*
 |--------------------------------------------------------------------------
@@ -103,12 +92,10 @@ if (!$validToken) {
 } elseif ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Get new password input
-    $newPassword =
-        $_POST["newPassword"] ?? "";
+    $newPassword = $_POST["newPassword"] ?? "";
 
     // Get confirm password input
-    $confirmPassword =
-        $_POST["confirmPassword"] ?? "";
+    $confirmPassword = $_POST["confirmPassword"] ?? "";
 
     /*
     |--------------------------------------------------------------------------
@@ -116,10 +103,7 @@ if (!$validToken) {
     |--------------------------------------------------------------------------
     | Validate password inputs before updating database.
     */
-    if (
-        $newPassword === ""
-        || $confirmPassword === ""
-    ) {
+    if ($newPassword === "" || $confirmPassword === "") {
 
         // Set error status
         $status = "error";
@@ -143,11 +127,9 @@ if (!$validToken) {
         $status = "error";
 
         // Error message
-        $message =
-            "Password must be at least 8 characters.";
-
+        $message ="Password must be at least 8 characters.";
+        
     } else {
-
         /*
         |--------------------------------------------------------------------------
         | Password Update
@@ -156,11 +138,7 @@ if (!$validToken) {
         */
 
         // Hash password securely
-        $hashedPassword =
-            password_hash(
-                $newPassword,
-                PASSWORD_DEFAULT
-            );
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
         // Prepare SQL query to update password
         $stmt = $pdo->prepare("
@@ -172,10 +150,7 @@ if (!$validToken) {
         ");
 
         // Execute update query
-        $stmt->execute([
-            $hashedPassword,
-            $user["universityEmail"]
-        ]);
+        $stmt->execute([$hashedPassword, $user["universityEmail"]]);
 
         /*
         |--------------------------------------------------------------------------
@@ -184,13 +159,7 @@ if (!$validToken) {
         | Redirect user back to login page after password reset.
         */
 
-        header(
-            "Location: login.html?message="
-            . urlencode(
-                "Password changed successfully. Please login."
-            )
-            . "&type=success"
-        );
+        header("Location: login.html?message=" . urlencode("Password changed successfully. Please login.") . "&type=success");
 
         // Stop script execution
         exit;
