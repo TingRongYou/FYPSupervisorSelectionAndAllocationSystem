@@ -6,7 +6,6 @@ require_once __DIR__ . "/../../business/services/StudentProfileFacade.php";
 SessionManager::startSession();
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
     header("Location: ../../../client/student/profile.php?status=error&message=Invalid request method");
     exit();
 }
@@ -18,7 +17,6 @@ if (
     !isset($_SESSION["csrf_token"]) ||
     !hash_equals($_SESSION["csrf_token"], $_POST["csrf_token"])
 ) {
-
     header("Location: ../../../client/student/profile.php?status=error&message=Invalid CSRF token");
     exit();
 }

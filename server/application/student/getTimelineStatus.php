@@ -8,8 +8,6 @@ SessionManager::requireRole("Student");
 
 header("Content-Type: application/json");
 
-echo json_encode(
-    TemporalPhaseEngine::getInstance()->getPhasePayload()
-);
+echo json_encode(TemporalPhaseEngine::getInstance()->getPhasePayload());
 
 ?>

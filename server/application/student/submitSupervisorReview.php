@@ -6,7 +6,6 @@ require_once __DIR__ . "/../../business/services/StudentReviewService.php";
 SessionManager::startSession();
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
     header("Location: ../../../client/student/studentReview.php?status=error&message=Invalid request method");
     exit();
 }

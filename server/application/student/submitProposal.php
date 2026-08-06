@@ -6,7 +6,6 @@ require_once __DIR__ . "/../../business/services/RequestWorkflowManager.php";
 SessionManager::startSession();
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
     header("Location: ../../../client/student/studentDiscovery.php?status=error&message=Invalid request method");
     exit();
 }
@@ -18,7 +17,6 @@ if (
     !isset($_SESSION["csrf_token"]) ||
     !hash_equals($_SESSION["csrf_token"], $_POST["csrf_token"])
 ) {
-
     header("Location: ../../../client/student/studentDiscovery.php?status=error&message=Invalid CSRF token");
     exit();
 }
@@ -40,7 +38,6 @@ $status = $result["success"] ? "success" : "error";
 $message = urlencode($result["message"]);
 
 if ($result["success"]) {
-
     header("Location: ../../../client/student/studentApplicationStatus.php?status={$status}&message={$message}");
     exit();
 }

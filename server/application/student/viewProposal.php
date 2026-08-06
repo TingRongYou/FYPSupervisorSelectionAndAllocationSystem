@@ -7,7 +7,6 @@ SessionManager::startSession();
 SessionManager::requireRole("Student");
 
 function renderProposalError($title, $message, $statusCode = 404) {
-
     http_response_code($statusCode);
     header("Content-Type: text/html; charset=UTF-8");
 
@@ -78,72 +77,38 @@ function renderProposalError($title, $message, $statusCode = 404) {
     exit();
 }
 
-$requestID =
-    (int) ($_GET["requestID"] ?? 0);
+$requestID = (int) ($_GET["requestID"] ?? 0);
 
 if ($requestID <= 0) {
-
-    renderProposalError(
-        "Proposal Not Found",
-        "The selected proposal request could not be found."
-    );
+    renderProposalError("Proposal Not Found", "The selected proposal request could not be found.");
 }
 
-$requestDAO =
-    new RequestDAO();
+$requestDAO = new RequestDAO();
 
-$request =
-    $requestDAO->getApplicationRequestForStudent(
-        $requestID,
-        $_SESSION["userID"]
-    );
+$request = $requestDAO->getApplicationRequestForStudent($requestID, $_SESSION["userID"]);
 
 if (!$request) {
-
     http_response_code(403);
-    renderProposalError(
-        "Access Restricted",
-        "You are not authorized to view this proposal document.",
-        403
-    );
+    renderProposalError("Access Restricted", "You are not authorized to view this proposal document.", 403);
 }
 
-$proposalPath =
-    str_replace(
-        "\\",
-        "/",
-        trim((string) ($request["proposalPDFPath"] ?? ""))
-    );
+$proposalPath = str_replace("\\", "/", trim((string) ($request["proposalPDFPath"] ?? "")));
 
-$proposalUrlPath =
-    parse_url($proposalPath, PHP_URL_PATH);
+$proposalUrlPath = parse_url($proposalPath, PHP_URL_PATH);
 
 if ($proposalUrlPath === null || $proposalUrlPath === false) {
-
-    $proposalUrlPath =
-        $proposalPath;
+    $proposalUrlPath = $proposalPath;
 }
 
-$proposalFileName =
-    basename(rawurldecode($proposalUrlPath));
+$proposalFileName = basename(rawurldecode($proposalUrlPath));
 
 if (preg_match("/^[A-Za-z0-9_-]+\.pdf$/", $proposalFileName) !== 1) {
-
-    renderProposalError(
-        "Proposal File Path Is Invalid",
-        "The saved proposal file reference is invalid. Upload the PDF again."
-    );
+    renderProposalError("Proposal File Path Is Invalid", "The saved proposal file reference is invalid. Upload the PDF again.");
 }
 
-$storageRoot =
-    realpath(
-        __DIR__ . "/../../../storage/proposals"
-    );
+$storageRoot =realpath(__DIR__ . "/../../../storage/proposals");
 
-$proposalFile =
-    $storageRoot !== false
-        ? realpath($storageRoot . DIRECTORY_SEPARATOR . $proposalFileName)
-        : false;
+$proposalFile = $storageRoot !== false ? realpath($storageRoot . DIRECTORY_SEPARATOR . $proposalFileName) : false;
 
 if (
     $storageRoot === false ||
@@ -151,11 +116,7 @@ if (
     strpos($proposalFile, $storageRoot) !== 0 ||
     !is_file($proposalFile)
 ) {
-
-    renderProposalError(
-        "Proposal File Missing",
-        "A proposal record exists, but the PDF file is missing from storage. Upload the PDF again."
-    );
+    renderProposalError("Proposal File Missing", "A proposal record exists, but the PDF file is missing from storage. Upload the PDF again.");
 }
 
 header("Content-Type: application/pdf");
