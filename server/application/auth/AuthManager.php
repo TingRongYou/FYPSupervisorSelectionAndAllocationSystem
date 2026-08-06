@@ -10,11 +10,9 @@ require_once "SessionManager.php";
 | Handles user authentication and login session management.
 */
 class AuthManager {
-
     private $userDAO;
 
     public function __construct() {
-
         $this->userDAO = new UserDAO();
     }
 
@@ -26,7 +24,6 @@ class AuthManager {
     */
 
     public function login($email, $password) {
-
         $user = $this->userDAO->getUserByEmail($email);
 
         /*
@@ -36,7 +33,6 @@ class AuthManager {
         | Verify entered password against stored password.
         */
         if ($user&&(password_verify($password, $user["password"]))) { // Verify hashed password
-
             SessionManager::startSession();
 
             /*

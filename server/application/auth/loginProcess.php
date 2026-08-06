@@ -1,6 +1,5 @@
 <?php
 
-
 require_once "AuthManager.php";
 require_once "SessionManager.php";
 
@@ -19,7 +18,6 @@ SessionManager::startSession();
 */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
     header("Location: ../../../client/auth/login.html?status=error&message=Invalid request method");
     exit();
 }
@@ -30,11 +28,9 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 |--------------------------------------------------------------------------
 */
 
-$email =
-    trim($_POST["email"] ?? "");
+$email = trim($_POST["email"] ?? "");
 
-$password =
-    trim($_POST["password"] ?? "");
+$password = trim($_POST["password"] ?? "");
 
 /*
 |--------------------------------------------------------------------------
@@ -43,7 +39,6 @@ $password =
 */
 
 if ($email === "" || $password === "") {
-
     header("Location: ../../../client/auth/login.html?status=error&message=Email and password are required");
     exit();
 }
@@ -54,11 +49,9 @@ if ($email === "" || $password === "") {
 |--------------------------------------------------------------------------
 */
 
-$authManager =
-    new AuthManager();
+$authManager = new AuthManager();
 
-$isLoggedIn =
-    $authManager->login($email,$password);
+$isLoggedIn = $authManager->login($email,$password);
 
 /*
 |--------------------------------------------------------------------------
@@ -67,7 +60,6 @@ $isLoggedIn =
 */
 
 if (!$isLoggedIn) {
-
     header("Location: ../../../client/auth/login.html?status=error&message=Invalid email or password");
     exit();
 }
@@ -78,8 +70,7 @@ if (!$isLoggedIn) {
 |--------------------------------------------------------------------------
 */
 
-$systemRole =
-    $_SESSION["systemRole"] ?? "";
+$systemRole = $_SESSION["systemRole"] ?? "";
 
 /*
 |--------------------------------------------------------------------------
@@ -88,7 +79,6 @@ $systemRole =
 */
 
 if ($systemRole === "Administrator") {
-
     header("Location: ../../../client/admin/adminDashboard.php");
     exit();
 }
@@ -100,7 +90,6 @@ if ($systemRole === "Administrator") {
 */
 
 if ($systemRole === "Supervisor") {
-
     header("Location: ../../../client/supervisor/supervisorDashboard.php");
     exit();
 }
@@ -112,7 +101,6 @@ if ($systemRole === "Supervisor") {
 */
 
 if ($systemRole === "Student") {
-
     header("Location: ../../../client/student/studentDashboard.php");
     exit();
 }

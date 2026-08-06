@@ -20,8 +20,7 @@ SessionManager::startSession();
 */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    header("Location: ../../../client/shared/setPassword.php"
-        . "?status=error&message=" . urlencode("Invalid request method."));
+    header("Location: ../../../client/shared/setPassword.php" . "?status=error&message=" . urlencode("Invalid request method."));
     exit();
 }
 
@@ -49,8 +48,7 @@ if (
         $_POST["csrf_token"]
     )
 ) {
-    header("Location: ../../../client/shared/setPassword.php"
-        . "?status=error&message=" . urlencode("Security token mismatch. Please try again."));
+    header("Location: ../../../client/shared/setPassword.php" . "?status=error&message=" . urlencode("Security token mismatch. Please try again."));
     exit();
 }
 
@@ -74,8 +72,7 @@ $confirmPassword = trim($_POST["confirmPassword"] ?? "");
 */
 
 if ($currentPassword === "" || $newPassword === "" || $confirmPassword === "") {
-    header("Location: ../../../client/shared/setPassword.php"
-        . "?status=error&message=" . urlencode("All fields are required."));
+    header("Location: ../../../client/shared/setPassword.php" . "?status=error&message=" . urlencode("All fields are required."));
     exit();
 }
 

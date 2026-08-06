@@ -20,7 +20,6 @@ SessionManager::startSession();
 */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
     header("Location: ../../../client/shared/profile.php?status=error&message=Invalid request method");
     exit();
 }
@@ -83,15 +82,9 @@ $result =
 
 if ($result["success"]) {
 
-    $profile =
-        $accountService
-        ->getAccountProfile(
-            $_SESSION["userID"]
-        );
+    $profile = $accountService->getAccountProfile($_SESSION["userID"]);
 
-    SessionManager::setProfilePhotoPath(
-        $profile["profilePhotoPath"] ?? ""
-    );
+    SessionManager::setProfilePhotoPath($profile["profilePhotoPath"] ?? "");
 }
 /*
 |--------------------------------------------------------------------------
@@ -100,15 +93,9 @@ if ($result["success"]) {
 | Convert service response into success or error status.
 */
 
-$status =
-    $result["success"]
-    ? "success"
-    : "error";
+$status = $result["success"] ? "success" : "error";
 
-$message =
-    urlencode(
-        $result["message"]
-    );
+$message = urlencode($result["message"]);
 
 /*
 |--------------------------------------------------------------------------

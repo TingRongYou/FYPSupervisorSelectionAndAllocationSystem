@@ -21,11 +21,8 @@ class SessionManager {
     |--------------------------------------------------------------------------
     */
 
-    private const SESSION_TIMEOUT =
-        900; // 15 minutes
-
-    private const ONLINE_THRESHOLD =
-        900; // 15 minutes
+    private const SESSION_TIMEOUT = 900; // 15 minutes
+    private const ONLINE_THRESHOLD = 900; // 15 minutes
 
     /*
     |--------------------------------------------------------------------------
@@ -34,7 +31,6 @@ class SessionManager {
     */
 
     public static function startSession() {
-
         if (session_status()===PHP_SESSION_NONE) {
             session_start();
         }
@@ -56,9 +52,7 @@ class SessionManager {
     |--------------------------------------------------------------------------
     */
 
-    public static function setUserSession(
-        $user
-    ) {
+    public static function setUserSession($user) {
 
         /*
         |--------------------------------------------------------------------------
@@ -74,17 +68,10 @@ class SessionManager {
         |--------------------------------------------------------------------------
         */
 
-        $_SESSION["userID"] =
-            $user["userID"];
-
-        $_SESSION["fullName"] =
-            $user["fullName"];
-
-        $_SESSION["systemRole"] =
-            $user["systemRole"];
-
-        $_SESSION["profilePhotoPath"] =
-            $user["profilePhotoPath"] ?? "";
+        $_SESSION["userID"] = $user["userID"];
+        $_SESSION["fullName"] = $user["fullName"];
+        $_SESSION["systemRole"] = $user["systemRole"];
+        $_SESSION["profilePhotoPath"] = $user["profilePhotoPath"] ?? "";
 
         /*
         |--------------------------------------------------------------------------
@@ -92,8 +79,7 @@ class SessionManager {
         |--------------------------------------------------------------------------
         */
 
-        $_SESSION["lastActivity"] =
-            time();
+        $_SESSION["lastActivity"] = time();
     }
 
     /*
@@ -103,9 +89,7 @@ class SessionManager {
     */
 
     public static function setProfilePhotoPath($profilePhotoPath) {
-
-        $_SESSION["profilePhotoPath"] =
-            $profilePhotoPath ?? "";
+        $_SESSION["profilePhotoPath"] = $profilePhotoPath ?? "";
     }
 
     /*
@@ -115,10 +99,7 @@ class SessionManager {
     */
 
     public static function isLoggedIn() {
-
-        return isset(
-            $_SESSION["userID"]
-        );
+        return isset($_SESSION["userID"]);
     }
 
     /*
@@ -128,13 +109,8 @@ class SessionManager {
     */
 
     public static function requireLogin() {
-
         if (!self::isLoggedIn()) {
-
-            self::redirectToLogin(
-                "error",
-                "Please login first"
-            );
+            self::redirectToLogin("error", "Please login first");
 
             exit();
         }
@@ -162,11 +138,7 @@ class SessionManager {
         */
 
         if (!isset($_SESSION["systemRole"])||$_SESSION["systemRole"]!==$role) {
-
-            self::redirectToLogin(
-                "error",
-                "Access denied"
-            );
+            self::redirectToLogin("error", "Access denied");
 
             exit();
         }
@@ -180,13 +152,9 @@ class SessionManager {
     */
 
     public static function getCsrfToken() {
-
         if (empty($_SESSION["csrf_token"])) {
 
-            $_SESSION["csrf_token"] =
-                bin2hex(
-                    random_bytes(32)
-                );
+            $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
         }
 
         return $_SESSION["csrf_token"];
@@ -199,19 +167,13 @@ class SessionManager {
     | Validates posted tokens before state-changing requests continue.
     */
 
-    public static function validateCsrfToken(
-        $token
-    ) {
-
+    public static function validateCsrfToken($token) {
         return
             isset($_SESSION["csrf_token"])
             &&
             is_string($token)
             &&
-            hash_equals(
-                $_SESSION["csrf_token"],
-                $token
-            );
+            hash_equals($_SESSION["csrf_token"],$token);
     }
 
     /*
@@ -221,17 +183,12 @@ class SessionManager {
     */
 
     private static function redirectToLogin($status,$message) {
-
-        $scriptName =
-            $_SERVER["SCRIPT_NAME"] ?? "";
+        $scriptName = $_SERVER["SCRIPT_NAME"] ?? "";
 
         if (strpos($scriptName,"/client/")!==false) {
-            $basePath =
-                substr($scriptName,0,strpos($scriptName,"/client/"));
-
+            $basePath = substr($scriptName,0,strpos($scriptName,"/client/"));
         } elseif (strpos($scriptName,"/server/")!== false) {
-            $basePath =
-                substr($scriptName,0,strpos($scriptName,"/server/"));
+            $basePath = substr($scriptName,0,strpos($scriptName,"/server/"));
         } else {
             $basePath ="";
         }
@@ -262,17 +219,12 @@ class SessionManager {
     */
 
     private static function validateSessionTimeout() {
-
         /*
         |--------------------------------------------------------------------------
         | Skip if User Not Logged In
         |--------------------------------------------------------------------------
         */
-
-        if (
-            !isset($_SESSION["userID"])
-        ) {
-
+        if (!isset($_SESSION["userID"])) {
             return;
         }
 
@@ -282,21 +234,14 @@ class SessionManager {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            isset($_SESSION["lastActivity"])
-        ) {
-
-            $inactiveDuration =
-                time() - $_SESSION["lastActivity"];
+        if (isset($_SESSION["lastActivity"])) {
+            $inactiveDuration = time() - $_SESSION["lastActivity"];
 
             if ($inactiveDuration > self::SESSION_TIMEOUT ) {
 
                 self::destroySession();
 
-                self::redirectToLogin(
-                    "error",
-                    "Session expired"
-                );
+                self::redirectToLogin("error", "Session expired");
 
                 exit();
             }
@@ -308,8 +253,7 @@ class SessionManager {
         |--------------------------------------------------------------------------
         */
 
-        $_SESSION["lastActivity"] =
-            time();
+        $_SESSION["lastActivity"] = time();
     }
 
     /*
@@ -319,13 +263,9 @@ class SessionManager {
     */
 
     public static function logout() {
-
         self::destroySession();
 
-        self::redirectToLogin(
-            "success",
-            "Logged out successfully"
-        );
+        self::redirectToLogin("success", "Logged out successfully");
 
         exit();
     }
@@ -337,7 +277,6 @@ class SessionManager {
     */
 
     public static function destroySession() {
-
         self::markUserOffline();
 
         /*
@@ -354,29 +293,10 @@ class SessionManager {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            ini_get("session.use_cookies")
-        ) {
+        if (ini_get("session.use_cookies")) {
+            $parameters = session_get_cookie_params();
 
-            $parameters =
-                session_get_cookie_params();
-
-            setcookie(
-
-                session_name(),
-
-                "",
-
-                time() - 42000,
-
-                $parameters["path"],
-
-                $parameters["domain"],
-
-                $parameters["secure"],
-
-                $parameters["httponly"]
-            );
+            setcookie(session_name(), "", time() - 42000, $parameters["path"], $parameters["domain"], $parameters["secure"], $parameters["httponly"]);
         }
 
         /*
@@ -389,12 +309,7 @@ class SessionManager {
     }
 
     private static function touchUserActivity() {
-
-        if (
-            empty($_SESSION["userID"]) ||
-            empty($_SESSION["systemRole"])
-        ) {
-
+        if (empty($_SESSION["userID"]) || empty($_SESSION["systemRole"])) {
             return;
         }
 
@@ -402,11 +317,9 @@ class SessionManager {
 
         try {
 
-            $database =
-                new Database();
+            $database = new Database();
 
-            $conn =
-                $database->connect();
+            $conn = $database->connect();
 
             self::ensureUserActivityTable($conn);
 
@@ -431,8 +344,7 @@ class SessionManager {
                     isOnline = TRUE
             ";
 
-            $statement =
-                $conn->prepare($query);
+            $statement = $conn->prepare($query);
 
             $statement->execute([
                 ":userID" =>
@@ -443,15 +355,12 @@ class SessionManager {
             ]);
 
         } catch (Exception $exception) {
-
             return;
         }
     }
 
     private static function markUserOffline() {
-
         if (empty($_SESSION["userID"])) {
-
             return;
         }
 
@@ -459,11 +368,9 @@ class SessionManager {
 
         try {
 
-            $database =
-                new Database();
+            $database = new Database();
 
-            $conn =
-                $database->connect();
+            $conn = $database->connect();
 
             self::ensureUserActivityTable($conn);
 
@@ -487,8 +394,7 @@ class SessionManager {
                     isOnline = FALSE
             ";
 
-            $statement =
-                $conn->prepare($query);
+            $statement = $conn->prepare($query);
 
             $statement->execute([
                 ":userID" =>
@@ -499,14 +405,11 @@ class SessionManager {
             ]);
 
         } catch (Exception $exception) {
-
             return;
         }
     }
 
-    private static function ensureUserActivityTable(
-        $conn
-    ) {
+    private static function ensureUserActivityTable($conn) {
 
         $query = "
             CREATE TABLE IF NOT EXISTS USER_ACTIVITY_STATUS (

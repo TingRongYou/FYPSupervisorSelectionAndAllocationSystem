@@ -6,7 +6,6 @@ require_once __DIR__ . "/../../business/services/AccountService.php";
 SessionManager::startSession();
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
     header("Location: ../../../client/shared/profile.php?status=error&message=Invalid request method");
     exit();
 }
@@ -18,33 +17,21 @@ if (
     !isset($_SESSION["csrf_token"]) ||
     !hash_equals($_SESSION["csrf_token"], $_POST["csrf_token"])
 ) {
-
     header("Location: ../../../client/shared/profile.php?status=error&message=Invalid CSRF token");
     exit();
 }
 
-$accountService =
-    new AccountService();
+$accountService = new AccountService();
 
-$result =
-    $accountService->removeProfilePhoto(
-        $_SESSION["userID"]
-    );
+$result = $accountService->removeProfilePhoto($_SESSION["userID"]);
 
 if ($result["success"]) {
-
     SessionManager::setProfilePhotoPath("");
 }
 
-$status =
-    $result["success"]
-    ? "success"
-    : "error";
+$status = $result["success"] ? "success" : "error";
 
-$message =
-    urlencode(
-        $result["message"]
-    );
+$message = urlencode($result["message"]);
 
 header("Location: ../../../client/shared/profile.php?status={$status}&message={$message}");
 exit();
