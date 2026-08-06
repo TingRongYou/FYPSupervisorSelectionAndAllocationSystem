@@ -21,7 +21,6 @@ SessionManager::requireRole("Supervisor");
 */
 
 function redirectWithMessage($requestID, $status, $message) {
-
     header(
         "Location: ../../../client/supervisor/supervisorRequestDecision.php?requestID="
         . urlencode((string) $requestID) // encode
@@ -40,7 +39,6 @@ function redirectWithMessage($requestID, $status, $message) {
 */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
     header("Location: ../../../client/supervisor/supervisorIncomingRequests.php");
     exit;
 }
@@ -62,11 +60,7 @@ $csrfToken = $_POST["csrf_token"] ?? "";
 | Ensure the request comes from the official decision form.
 */
 
-if (
-    empty($_SESSION["csrf_token"]) ||
-    !hash_equals($_SESSION["csrf_token"], $csrfToken)
-) {
-
+if (empty($_SESSION["csrf_token"]) || !hash_equals($_SESSION["csrf_token"], $csrfToken)) {
     redirectWithMessage($requestID, "error", "Invalid session token. Please try again.");
 }
 
@@ -87,10 +81,7 @@ $supervisorComment = trim($_POST["supervisorComment"] ?? "");
 | Only Accepted and Rejected decisions are allowed.
 */
 
-$allowedStatuses = [
-    "Accepted",
-    "Rejected"
-];
+$allowedStatuses = ["Accepted", "Rejected"];
 
 /*
 |--------------------------------------------------------------------------
@@ -100,7 +91,6 @@ $allowedStatuses = [
 */
 
 if ($requestID <= 0 || !in_array($decisionStatus, $allowedStatuses, true)) {
-
     redirectWithMessage($requestID, "error", "Invalid decision request.");
 }
 
@@ -136,7 +126,6 @@ $result = $requestDecisionService->processDecision(
 */
 
 if (!$result["success"]) {
-
     redirectWithMessage($requestID, "error", $result["message"]);
 }
 
@@ -147,10 +136,6 @@ if (!$result["success"]) {
 | Redirect back with success message after decision is processed.
 */
 
-redirectWithMessage(
-    $requestID,
-    "success",
-    $result["message"]
-);
+redirectWithMessage($requestID, "success", $result["message"]);
 
 ?>

@@ -24,15 +24,9 @@ header("Pragma: no-cache");
 | Retrieve selected report type and export format from URL.
 */
 
-$reportType =
-    trim(
-        $_GET["reportType"] ?? ""
-    );
+$reportType = trim($_GET["reportType"] ?? "");
 
-$format =
-    trim(
-        $_GET["format"] ?? "csv"
-    );
+$format = trim($_GET["format"] ?? "csv");
 
 /*
 |--------------------------------------------------------------------------
@@ -41,19 +35,9 @@ $format =
 | Define supported report types and export formats.
 */
 
-$allowedReports =
-    [
-        "demographics",
-        "history",
-        "utilization"
-    ];
+$allowedReports = ["demographics", "history", "utilization"];
 
-$allowedFormats =
-    [
-        "csv",
-        "xls",
-        "pdf"
-    ];
+$allowedFormats = ["csv", "xls", "pdf"];
 
 /*
 |--------------------------------------------------------------------------
@@ -63,10 +47,7 @@ $allowedFormats =
 */
 
 if (!in_array($reportType, $allowedReports, true) || !in_array($format, $allowedFormats, true)) {
-
-    header(
-        "Location: ../../../client/supervisor/supervisorApplicantDemographics.php?status=error&message=Invalid report export request"
-    );
+    header("Location: ../../../client/supervisor/supervisorApplicantDemographics.php?status=error&message=Invalid report export request");
 
     exit();
 }
@@ -78,8 +59,7 @@ if (!in_array($reportType, $allowedReports, true) || !in_array($format, $allowed
 | Create facade object to retrieve supervisor report data.
 */
 
-$reportFacade =
-    new SupervisorReportFacade();
+$reportFacade = new SupervisorReportFacade();
 
 /*
 |--------------------------------------------------------------------------
@@ -88,14 +68,11 @@ $reportFacade =
 | Prepare rows array and report title for export output.
 */
 
-$rows =
-    [];
+$rows = [];
 
-$title =
-    "";
+$title = "";
 
-$emptyDetail =
-    "No report records are available for the selected filter.";
+$emptyDetail = "No report records are available for the selected filter.";
 
 /*
 |--------------------------------------------------------------------------
@@ -105,29 +82,16 @@ $emptyDetail =
 */
 
 if ($reportType === "demographics") {
-
     // Retrieve selected year filter
-    $year =
-        trim(
-            $_GET["year"] ?? ""
-        );
+    $year = trim($_GET["year"] ?? "");
 
     // Retrieve demographic report data
-    $report =
-        $reportFacade
-        ->getDemographicData(
-            $_SESSION["userID"],
-            $year
-        );
+    $report = $reportFacade->getDemographicData($_SESSION["userID"], $year);
 
-    $emptyDetail =
-        $report["message"] !== ""
-        ? $report["message"]
-        : $emptyDetail;
+    $emptyDetail = $report["message"] !== "" ? $report["message"] : $emptyDetail;
 
     // Report title
-    $title =
-        "Applicant Demographic Chart";
+    $title = "Applicant Demographic Chart";
 
     /*
     |--------------------------------------------------------------------------
@@ -137,7 +101,6 @@ if ($reportType === "demographics") {
     */
 
     foreach ($report["programmes"] as $programme) {
-
         $rows[] = [
             "Programme" => $programme["programme"],
             "Applicants" => $programme["count"],
@@ -153,35 +116,18 @@ if ($reportType === "demographics") {
 */
 
 } elseif ($reportType === "history") {
-
     // Retrieve filters
-    $year =
-        trim(
-            $_GET["year"] ?? ""
-        );
+    $year = trim($_GET["year"] ?? "");
 
-    $semester =
-        trim(
-            $_GET["semester"] ?? ""
-        );
+    $semester = trim($_GET["semester"] ?? "");
 
     // Retrieve history report data
-    $report =
-        $reportFacade
-        ->getSupervisionHistory(
-            $_SESSION["userID"],
-            $year,
-            $semester
-        );
+    $report = $reportFacade->getSupervisionHistory($_SESSION["userID"], $year, $semester);
 
-    $emptyDetail =
-        $report["message"] !== ""
-        ? $report["message"]
-        : $emptyDetail;
+    $emptyDetail = $report["message"] !== "" ? $report["message"] : $emptyDetail;
 
     // Report title
-    $title =
-        "Supervision History Log";
+    $title = "Supervision History Log";
 
     /*
     |--------------------------------------------------------------------------
@@ -191,14 +137,10 @@ if ($reportType === "demographics") {
     */
 
     foreach ($report["records"] as $record) {
-
-        $semesterLabel =
-            $record["currentSem"] ?? "";
+        $semesterLabel = $record["currentSem"] ?? "";
 
         if (preg_match('/S\s*([0-9]+)/i', (string) $semesterLabel, $matches)) {
-
-            $semesterLabel =
-                "Semester " . $matches[1];
+            $semesterLabel = "Semester " . $matches[1];
         }
 
         $rows[] = [
@@ -220,15 +162,10 @@ if ($reportType === "demographics") {
 */
 
     // Retrieve utilization report
-    $report =
-        $reportFacade
-        ->getUtilizationStats(
-            $_SESSION["userID"]
-        );
+    $report = $reportFacade->getUtilizationStats($_SESSION["userID"]);
 
     // Report title
-    $title =
-        "Slot Utilization Tracker";
+    $title ="Slot Utilization Tracker";
 
     /*
     |--------------------------------------------------------------------------
@@ -269,7 +206,6 @@ if ($reportType === "demographics") {
 */
 
 if (empty($rows)) {
-
     $rows[] = [
         "Message" => "No Data",
         "Detail" => $emptyDetail
@@ -283,10 +219,7 @@ if (empty($rows)) {
 | Generate timestamped filename for exported report.
 */
 
-$filename =
-    $reportType
-    . "_report_"
-    . date("Ymd_His");
+$filename = $reportType . "_report_" . date("Ymd_His");
 
 /*
 |--------------------------------------------------------------------------
@@ -296,31 +229,19 @@ $filename =
 */
 
 if ($format === "csv") {
-
     // CSV response headers
     header("Content-Type: text/csv; charset=UTF-8");
     header("Content-Disposition: attachment; filename=\"{$filename}.csv\"");
 
     // Open output stream
-    $output =
-        fopen(
-            "php://output",
-            "w"
-        );
+    $output = fopen("php://output", "w");
 
     // Write table headings
-    fputcsv(
-        $output,
-        array_keys($rows[0])
-    );
+    fputcsv($output, array_keys($rows[0]));
 
     // Write each row
     foreach ($rows as $row) {
-
-        fputcsv(
-            $output,
-            $row
-        );
+        fputcsv($output, $row);
     }
 
     // Close output stream
@@ -336,16 +257,12 @@ if ($format === "csv") {
 */
 
 if ($format === "xls") {
-
     // Excel response headers
     header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
     header("Content-Disposition: attachment; filename=\"{$filename}.xls\"");
 
     // Output export table
-    echo renderExportTable(
-        $title,
-        $rows
-    );
+    echo renderExportTable($title, $rows);
 
     exit();
 }
@@ -377,17 +294,11 @@ exit();
 | Safely escape values before rendering into HTML.
 */
 
-function h(
-    $value
-) {
+function h($value) {
 
     // HTML Escape Helper
     // Escapes table and visual content before it is written into export markup.
-    return htmlspecialchars(
-        (string) $value,
-        ENT_QUOTES,
-        "UTF-8"
-    );
+    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
 /*
@@ -397,27 +308,20 @@ function h(
 | Generate reusable HTML table for Excel and printable reports.
 */
 
-function renderExportTable(
-    $title,
-    $rows
-) {
+function renderExportTable($title, $rows) {
 
-    $html =
-        "<table border=\"1\"><thead><tr><th colspan=\"" . count($rows[0]) . "\">" . h($title) . "</th></tr><tr>";
+    $html = "<table border=\"1\"><thead><tr><th colspan=\"" . count($rows[0]) . "\">" . h($title) . "</th></tr><tr>";
 
     foreach (array_keys($rows[0]) as $heading) {
-
         $html .= "<th>" . h($heading) . "</th>";
     }
 
     $html .= "</tr></thead><tbody>";
 
     foreach ($rows as $row) {
-
         $html .= "<tr>";
 
         foreach ($row as $value) {
-
             $html .= "<td>" . h($value) . "</td>";
         }
 
@@ -434,18 +338,9 @@ function renderExportTable(
 | Build complete printable HTML report layout.
 */
 
-function renderPrintableReport(
-    $title,
-    $rows,
-    $reportType,
-    $report
-) {
+function renderPrintableReport($title, $rows, $reportType, $report) {
     // Generate matching chart or visual
-    $visual =
-        renderPrintableVisual(
-            $reportType,
-            $report
-        );
+    $visual = renderPrintableVisual($reportType, $report);
 
     return "
         <!DOCTYPE html>
@@ -503,23 +398,14 @@ function renderPrintableReport(
 | Select printable chart based on report type.
 */
 
-function renderPrintableVisual(
-    $reportType,
-    $report
-) {
+function renderPrintableVisual($reportType, $report) {
 
     if ($reportType === "demographics") {
-
-        return renderDemographicChart(
-            $report
-        );
+        return renderDemographicChart($report);
     }
 
     if ($reportType === "utilization") {
-
-        return renderUtilizationChart(
-            $report
-        );
+        return renderUtilizationChart($report);
     }
 
     return "";
@@ -533,7 +419,6 @@ function renderPrintableVisual(
 */
 
 function chartPalette() {
-
     return [
         "#0d5be8",
         "#334155",
@@ -551,27 +436,19 @@ function chartPalette() {
 | Generate printable SVG donut chart for programme distribution.
 */
 
-function renderDemographicChart(
-    $report
-) {
+function renderDemographicChart($report) {
+    $programmes = $report["programmes"] ?? [];
 
-    $programmes =
-        $report["programmes"] ?? [];
-
-    $total =
-        (int) ($report["totalApplicants"] ?? 0);
+    $total = (int) ($report["totalApplicants"] ?? 0);
 
     if ($total === 0 || empty($programmes)) {
-
         return "";
     }
 
-    $palette =
-        chartPalette();
+    $palette = chartPalette();
 
     $radius = 82;
-    $circumference =
-        2 * pi() * $radius;
+    $circumference = 2 * pi() * $radius;
 
     $offset = 0;
     $circles = "";
@@ -585,18 +462,13 @@ function renderDemographicChart(
     */
 
     foreach ($programmes as $index => $programme) {
+        $percentage = (float) $programme["percentage"];
 
-        $percentage =
-            (float) $programme["percentage"];
+        $dash = ($percentage / 100) * $circumference;
 
-        $dash =
-            ($percentage / 100) * $circumference;
+        $gap = $circumference - $dash;
 
-        $gap =
-            $circumference - $dash;
-
-        $color =
-            $palette[$index % count($palette)];
+        $color = $palette[$index % count($palette)];
 
         $circles .= "
             <circle cx=\"120\" cy=\"120\" r=\"{$radius}\" fill=\"none\" stroke=\"" . h($color) . "\" stroke-width=\"28\"
@@ -645,15 +517,10 @@ function renderDemographicChart(
 | Generate printable SVG bar chart for weekly utilization trends.
 */
 
-function renderUtilizationChart(
-    $report
-) {
-
-    $trend =
-        $report["weeklyTrend"] ?? [];
+function renderUtilizationChart($report) {
+    $trend = $report["weeklyTrend"] ?? [];
 
     if (empty($trend)) {
-
         return "";
     }
 
@@ -667,59 +534,36 @@ function renderUtilizationChart(
     */
 
     foreach ($trend as $day) {
-
-        $maxValue =
-            max(
-                $maxValue,
-                (float) $day["departmentAverage"],
-                (float) $day["personal"]
-            );
+        $maxValue = max($maxValue, (float) $day["departmentAverage"], (float) $day["personal"]);
     }
 
     $svgWidth = 700;
     $svgHeight = 260;
     $chartTop = 24;
     $chartBottom = 205;
-    $chartHeight =
-        $chartBottom - $chartTop;
+    $chartHeight = $chartBottom - $chartTop;
 
-    $groupWidth =
-        $svgWidth / max(1, count($trend));
+    $groupWidth = $svgWidth / max(1, count($trend));
 
     $bars = "";
     $labels = "";
 
     foreach ($trend as $index => $day) {
-
         // Weekly Bar Pair
         // Places department average on the left and personal value on the right for each day.
-        $center =
-            ($index * $groupWidth)
-            + ($groupWidth / 2);
+        $center = ($index * $groupWidth) + ($groupWidth / 2);
 
-        $departmentHeight =
-            ((float) $day["departmentAverage"] / $maxValue)
-            * $chartHeight;
+        $departmentHeight = ((float) $day["departmentAverage"] / $maxValue) * $chartHeight;
 
-        $personalHeight =
-            ((float) $day["personal"] / $maxValue)
-            * $chartHeight;
+        $personalHeight = ((float) $day["personal"] / $maxValue) * $chartHeight;
 
-        $departmentHeight =
-            (float) $day["departmentAverage"] > 0
-            ? max(4, $departmentHeight)
-            : 0;
+        $departmentHeight = (float) $day["departmentAverage"] > 0 ? max(4, $departmentHeight) : 0;
 
-        $personalHeight =
-            (float) $day["personal"] > 0
-            ? max(4, $personalHeight)
-            : 0;
+        $personalHeight = (float) $day["personal"] > 0 ? max(4, $personalHeight) : 0;
 
-        $departmentY =
-            $chartBottom - $departmentHeight;
+        $departmentY = $chartBottom - $departmentHeight;
 
-        $personalY =
-            $chartBottom - $personalHeight;
+        $personalY = $chartBottom - $personalHeight;
 
         $bars .= "
             <rect x=\"" . h(round($center - 12, 1)) . "\" y=\"" . h(round($departmentY, 1)) . "\" width=\"9\" height=\"" . h(round($departmentHeight, 1)) . "\" rx=\"4\" fill=\"#cbd5e1\" />

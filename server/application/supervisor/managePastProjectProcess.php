@@ -18,10 +18,7 @@ SessionManager::startSession();
 */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
-    header(
-        "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Invalid request method"
-    );
+    header("Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Invalid request method");
 
     exit();
 }
@@ -33,7 +30,6 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 */
 
 if (!SessionManager::isLoggedIn()) {
-
     header("Location: ../../../client/auth/login.html");
     exit();
 }
@@ -61,9 +57,7 @@ if (
     )
 ) {
 
-    header(
-        "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Invalid CSRF token"
-    );
+    header("Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Invalid CSRF token");
 
     exit();
 }
@@ -84,34 +78,23 @@ $pastProjectService = new PastProjectService();
 
 $action = trim($_POST["action"] ?? "");
 
-$projectID =
-    trim($_POST["projectID"] ?? "");
+$projectID = trim($_POST["projectID"] ?? "");
 
-$projectTitle =
-    trim($_POST["projectTitle"] ?? "");
+$projectTitle = trim($_POST["projectTitle"] ?? "");
 
-$completionYear =
-    trim($_POST["completionYear"] ?? "");
+$completionYear = trim($_POST["completionYear"] ?? "");
 
-$alumniName =
-    trim($_POST["alumniName"] ?? "");
+$alumniName = trim($_POST["alumniName"] ?? "");
 
-$projectDescription =
-    trim($_POST["projectDescription"] ?? "");
+$projectDescription = trim($_POST["projectDescription"] ?? "");
 
-$projectPDF =
-    $_FILES["projectPDF"] ?? null;
+$projectPDF = $_FILES["projectPDF"] ?? null;
 
-$projectImage =
-    $_FILES["projectImage"] ?? null;
+$projectImage = $_FILES["projectImage"] ?? null;
 
-$removeProjectPDF =
-    isset($_POST["removeProjectPDF"]) &&
-    $_POST["removeProjectPDF"] === "1";
+$removeProjectPDF = isset($_POST["removeProjectPDF"]) && $_POST["removeProjectPDF"] === "1";
 
-$removeProjectImage =
-    isset($_POST["removeProjectImage"]) &&
-    $_POST["removeProjectImage"] === "1";
+$removeProjectImage = isset($_POST["removeProjectImage"]) && $_POST["removeProjectImage"] === "1";
 
 /*
 |--------------------------------------------------------------------------
@@ -121,10 +104,7 @@ $removeProjectImage =
 
 $currentYear = ((int) date("Y")) + 1;
 
-if (
-    in_array($action, ["add", "update"])
-) {
-
+if (in_array($action, ["add", "update"])) {
     /*
     |--------------------------------------------------------------------------
     | Empty Validation
@@ -137,10 +117,7 @@ if (
         empty($alumniName) ||
         empty($projectDescription)
     ) {
-
-        header(
-            "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Please%20enter%20all%20the%20required%20information."
-        );
+        header("Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Please%20enter%20all%20the%20required%20information.");
 
         exit();
     }
@@ -156,10 +133,7 @@ if (
             (int) $projectImage["error"] === UPLOAD_ERR_NO_FILE
         )
     ) {
-
-        header(
-            "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Please%20upload%20both%20the%20past%20project%20PDF%20and%20cover%20image.&addProject=1"
-        );
+        header("Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Please%20upload%20both%20the%20past%20project%20PDF%20and%20cover%20image.&addProject=1");
 
         exit();
     }
@@ -171,10 +145,7 @@ if (
     */
 
     if (strlen($projectTitle) > 255) {
-
-        header(
-            "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Please%20enter%20all%20the%20required%20information."
-        );
+        header("Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Please%20enter%20all%20the%20required%20information.");
 
         exit();
     }
@@ -186,19 +157,13 @@ if (
     */
 
     if (strlen($alumniName) > 100) {
-
-        header(
-            "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Please%20enter%20all%20the%20required%20information."
-        );
+        header("Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Please%20enter%20all%20the%20required%20information.");
 
         exit();
     }
 
     if (strlen($projectDescription) > 1000) {
-
-        header(
-            "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Project%20description%20cannot%20exceed%201000%20characters."
-        );
+        header("Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Project%20description%20cannot%20exceed%201000%20characters.");
 
         exit();
     }
@@ -214,10 +179,7 @@ if (
         (int) $completionYear < 2000 ||
         (int) $completionYear > $currentYear
     ) {
-
-        header(
-            "Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Please%20enter%20all%20the%20required%20information."
-        );
+        header("Location: ../../../client/supervisor/managePastProjects.php?status=error&message=Validation%20Error%20-%20Please%20enter%20all%20the%20required%20information.");
 
         exit();
     }
@@ -230,7 +192,6 @@ if (
 */
 
 if ($action === "add") {
-
     $result =
         $pastProjectService->addProject(
 
@@ -248,18 +209,10 @@ if ($action === "add") {
 
             $projectImage
         );
-
 } elseif ($action === "update") {
-
     if (empty($projectID)) {
-
-        $result = [
-            "success" => false,
-            "message" => "Project ID is required"
-        ];
-
+        $result = ["success" => false, "message" => "Project ID is required"];
     } else {
-
         $result =
             $pastProjectService->updateProject(
 
@@ -286,31 +239,13 @@ if ($action === "add") {
     }
 
 } elseif ($action === "delete") {
-
     if (empty($projectID)) {
-
-        $result = [
-            "success" => false,
-            "message" => "Project ID is required"
-        ];
-
+        $result = ["success" => false, "message" => "Project ID is required"];
     } else {
-
-        $result =
-            $pastProjectService->deleteProject(
-
-                $projectID,
-
-                $_SESSION["userID"]
-            );
+        $result = $pastProjectService->deleteProject($projectID, $_SESSION["userID"]);
     }
-
 } else {
-
-    $result = [
-        "success" => false,
-        "message" => "Invalid project action"
-    ];
+    $result = ["success" => false, "message" => "Invalid project action"];
 }
 
 /*
@@ -319,34 +254,21 @@ if ($action === "add") {
 |--------------------------------------------------------------------------
 */
 
-$status =
-    $result["success"]
-    ? "success"
-    : "error";
+$status = $result["success"] ? "success" : "error";
 
-$message =
-    urlencode($result["message"]);
+$message = urlencode($result["message"]);
 
-$returnQuery =
-    "";
+$returnQuery = "";
 
 if (!$result["success"]) {
-
     if ($action === "update" && !empty($projectID)) {
-
-        $returnQuery =
-            "&editProjectID=" . urlencode($projectID);
-
+        $returnQuery = "&editProjectID=" . urlencode($projectID);
     } elseif ($action === "add") {
-
-        $returnQuery =
-            "&addProject=1";
+        $returnQuery = "&addProject=1";
     }
 }
 
-header(
-    "Location: ../../../client/supervisor/managePastProjects.php?status={$status}&message={$message}{$returnQuery}"
-);
+header("Location: ../../../client/supervisor/managePastProjects.php?status={$status}&message={$message}{$returnQuery}");
 
 exit();
 

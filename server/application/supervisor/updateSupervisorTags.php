@@ -18,10 +18,7 @@ SessionManager::startSession();
 */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
-    header(
-        "Location: ../../../client/supervisor/manageExpertiseTags.php?status=error&message=Invalid request method"
-    );
+    header("Location: ../../../client/supervisor/manageExpertiseTags.php?status=error&message=Invalid request method");
 
     exit();
 }
@@ -40,9 +37,7 @@ SessionManager::requireLogin();
 |--------------------------------------------------------------------------
 */
 
-SessionManager::requireRole(
-    "Supervisor"
-);
+SessionManager::requireRole("Supervisor");
 
 /*
 |--------------------------------------------------------------------------
@@ -58,10 +53,7 @@ if (
         $_POST["csrf_token"]
     )
 ) {
-
-    header(
-        "Location: ../../../client/supervisor/manageExpertiseTags.php?status=error&message=Invalid CSRF token"
-    );
+    header("Location: ../../../client/supervisor/manageExpertiseTags.php?status=error&message=Invalid CSRF token");
 
     exit();
 }
@@ -72,8 +64,7 @@ if (
 |--------------------------------------------------------------------------
 */
 
-$tagIDs =
-    $_POST["tagIDs"] ?? [];
+$tagIDs = $_POST["tagIDs"] ?? [];
 
 /*
 |--------------------------------------------------------------------------
@@ -81,16 +72,9 @@ $tagIDs =
 |--------------------------------------------------------------------------
 */
 
-$tagService =
-    new TagManagementService();
+$tagService = new TagManagementService();
 
-$result =
-    $tagService->updateSupervisorTags(
-
-        $_SESSION["userID"],
-
-        $tagIDs
-    );
+$result = $tagService->updateSupervisorTags($_SESSION["userID"], $tagIDs);
 
 /*
 |--------------------------------------------------------------------------
@@ -98,19 +82,11 @@ $result =
 |--------------------------------------------------------------------------
 */
 
-$status =
-    $result["success"]
-    ? "success"
-    : "error";
+$status = $result["success"] ? "success" : "error";
 
-$message =
-    urlencode(
-        $result["message"]
-    );
+$message = urlencode($result["message"]);
 
-header(
-    "Location: ../../../client/supervisor/manageExpertiseTags.php?status={$status}&message={$message}"
-);
+header("Location: ../../../client/supervisor/manageExpertiseTags.php?status={$status}&message={$message}");
 
 exit();
 

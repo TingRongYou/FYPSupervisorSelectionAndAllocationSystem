@@ -18,10 +18,7 @@ SessionManager::startSession();
 */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
-    header(
-        "Location: ../../../client/supervisor/manageDigitalBusinessCard.php?status=error&message=Invalid request method"
-    );
+    header("Location: ../../../client/supervisor/manageDigitalBusinessCard.php?status=error&message=Invalid request method");
 
     exit();
 }
@@ -40,9 +37,7 @@ SessionManager::requireLogin();
 |--------------------------------------------------------------------------
 */
 
-SessionManager::requireRole(
-    "Supervisor"
-);
+SessionManager::requireRole("Supervisor");
 
 /*
 |--------------------------------------------------------------------------
@@ -58,10 +53,7 @@ if (
         $_POST["csrf_token"]
     )
 ) {
-
-    header(
-        "Location: ../../../client/supervisor/manageDigitalBusinessCard.php?status=error&message=Invalid CSRF token"
-    );
+    header("Location: ../../../client/supervisor/manageDigitalBusinessCard.php?status=error&message=Invalid CSRF token");
 
     exit();
 }
@@ -72,30 +64,15 @@ if (
 |--------------------------------------------------------------------------
 */
 
-$programme =
-    trim(
-        $_POST["programme"] ?? ""
-    );
+$programme = trim($_POST["programme"] ?? "");
 
-$employmentCategory =
-    trim(
-        $_POST["employmentCategory"] ?? ""
-    );
+$employmentCategory = trim($_POST["employmentCategory"] ?? "");
 
-$activeTime =
-    trim(
-        $_POST["activeTime"] ?? ""
-    );
+$activeTime = trim($_POST["activeTime"] ?? "");
 
-$introVideoLink =
-    trim(
-        $_POST["introVideoLink"] ?? ""
-    );
+$introVideoLink = trim($_POST["introVideoLink"] ?? "");
 
-$supervisorBio =
-    trim(
-        $_POST["supervisorBio"] ?? ""
-    );
+$supervisorBio = trim($_POST["supervisorBio"] ?? "");
 
 /*
 |--------------------------------------------------------------------------
@@ -103,8 +80,7 @@ $supervisorBio =
 |--------------------------------------------------------------------------
 */
 
-$profileService =
-    new SupervisorProfileService();
+$profileService = new SupervisorProfileService();
 
 $result =
     $profileService->updateDigitalBusinessCard(
@@ -126,15 +102,9 @@ $result =
 
 if ($result["success"]) {
 
-    $profile =
-        $profileService
-        ->getDigitalBusinessCard(
-            $_SESSION["userID"]
-        );
+    $profile = $profileService->getDigitalBusinessCard($_SESSION["userID"]);
 
-    SessionManager::setProfilePhotoPath(
-        $profile["profilePhotoPath"] ?? ""
-    );
+    SessionManager::setProfilePhotoPath($profile["profilePhotoPath"] ?? "");
 }
 
 /*
@@ -143,19 +113,11 @@ if ($result["success"]) {
 |--------------------------------------------------------------------------
 */
 
-$status =
-    $result["success"]
-    ? "success"
-    : "error";
+$status = $result["success"] ? "success" : "error";
 
-$message =
-    urlencode(
-        $result["message"]
-    );
+$message = urlencode($result["message"]);
 
-header(
-    "Location: ../../../client/supervisor/manageDigitalBusinessCard.php?status={$status}&message={$message}"
-);
+header("Location: ../../../client/supervisor/manageDigitalBusinessCard.php?status={$status}&message={$message}");
 
 exit();
 
