@@ -49,14 +49,11 @@ class UserManagementService {
 
     public function __construct() {
 
-        $this->userDAO =
-            new UserDAO();
+        $this->userDAO = new UserDAO();
 
-        $this->supervisorDAO =
-            new SupervisorDAO();
+        $this->supervisorDAO = new SupervisorDAO();
 
-        $this->userAccountManager =
-            new UserAccountManager();
+        $this->userAccountManager = new UserAccountManager();
     }
 
     /*
@@ -82,15 +79,9 @@ class UserManagementService {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            !$this->isAdministrator(
-                $administratorRole
-            )
-        ) {
+        if (!$this->isAdministrator($administratorRole)) {
 
-            return $this->failure(
-                "Access Denied"
-            );
+            return $this->failure("Access Denied");
         }
 
         /*
@@ -99,23 +90,17 @@ class UserManagementService {
         |--------------------------------------------------------------------------
         */
 
-        $supervisorID =
-            trim($supervisorID);
+        $supervisorID = trim($supervisorID);
 
-        $fullName =
-            trim($fullName);
+        $fullName = trim($fullName);
 
-        $universityEmail =
-            trim($universityEmail);
+        $universityEmail = trim($universityEmail);
 
-        $programme =
-            trim($programme);
+        $programme = trim($programme);
 
-        $employmentCategory =
-            trim($employmentCategory);
+        $employmentCategory = trim($employmentCategory);
 
-        $quotaID =
-            trim($quotaID);
+        $quotaID = trim($quotaID);
 
         /*
         |--------------------------------------------------------------------------
@@ -142,9 +127,7 @@ class UserManagementService {
             )
         ) {
 
-            return $this->failure(
-                "All supervisor account fields are required"
-            );
+            return $this->failure("All supervisor account fields are required");
         }
 
         /*
@@ -153,15 +136,9 @@ class UserManagementService {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            strlen($supervisorID) < 3
-            ||
-            strlen($supervisorID) > 20
-        ) {
+        if (strlen($supervisorID) < 3 || strlen($supervisorID) > 20) {
 
-            return $this->failure(
-                "Supervisor ID must be between 3 and 20 characters"
-            );
+            return $this->failure("Supervisor ID must be between 3 and 20 characters");
         }
 
         /*
@@ -170,15 +147,9 @@ class UserManagementService {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            strlen($fullName)
-            >
-            self::MAX_NAME_LENGTH
-        ) {
+        if (strlen($fullName) > self::MAX_NAME_LENGTH) {
 
-            return $this->failure(
-                "Full name cannot exceed 100 characters"
-            );
+            return $this->failure("Full name cannot exceed 100 characters");
         }
 
         /*
@@ -187,16 +158,9 @@ class UserManagementService {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            !filter_var(
-                $universityEmail,
-                FILTER_VALIDATE_EMAIL
-            )
-        ) {
+        if (!filter_var($universityEmail, FILTER_VALIDATE_EMAIL)) {
 
-            return $this->failure(
-                "Invalid email format"
-            );
+            return $this->failure("Invalid email format");
         }
 
         /*
@@ -205,15 +169,9 @@ class UserManagementService {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            strlen($password)
-            <
-            self::MIN_PASSWORD_LENGTH
-        ) {
+        if (strlen($password) < self::MIN_PASSWORD_LENGTH) {
 
-            return $this->failure(
-                "Password must contain at least 8 characters"
-            );
+            return $this->failure( "Password must contain at least 8 characters");
         }
 
         /*
@@ -222,15 +180,9 @@ class UserManagementService {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            strlen($programme)
-            >
-            self::MAX_PROGRAMME_LENGTH
-        ) {
+        if (strlen($programme) > self::MAX_PROGRAMME_LENGTH) {
 
-            return $this->failure(
-                "Programme cannot exceed 100 characters"
-            );
+            return $this->failure("Programme cannot exceed 100 characters");
         }
 
         /*
@@ -239,15 +191,9 @@ class UserManagementService {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            strlen($employmentCategory)
-            >
-            self::MAX_EMPLOYMENT_CATEGORY_LENGTH
-        ) {
+        if (strlen($employmentCategory) > self::MAX_EMPLOYMENT_CATEGORY_LENGTH) {
 
-            return $this->failure(
-                "Employment category cannot exceed 50 characters"
-            );
+            return $this->failure("Employment category cannot exceed 50 characters");
         }
 
         /*
@@ -256,13 +202,9 @@ class UserManagementService {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            !ctype_digit($quotaID)
-        ) {
+        if (!ctype_digit($quotaID)) {
 
-            return $this->failure(
-                "Invalid quota tier"
-            );
+            return $this->failure("Invalid quota tier");
         }
 
         /*
@@ -273,23 +215,14 @@ class UserManagementService {
 
         try {
 
-            if (
-                $this->userDAO
-                ->getUserByID(
-                    $supervisorID
-                )
-            ) {
+            if ($this->userDAO->getUserByID($supervisorID)) {
 
-                return $this->failure(
-                    "User ID already exists"
-                );
+                return $this->failure("User ID already exists");
             }
 
         } catch (Exception $exception) {
 
-            return $this->failure(
-                "Unable to validate supervisor ID"
-            );
+            return $this->failure("Unable to validate supervisor ID");
         }
 
         /*
@@ -300,23 +233,14 @@ class UserManagementService {
 
         try {
 
-            if (
-                $this->userDAO
-                ->getUserByEmail(
-                    $universityEmail
-                )
-            ) {
+            if ($this->userDAO->getUserByEmail($universityEmail)) {
 
-                return $this->failure(
-                    "Email already exists"
-                );
+                return $this->failure("Email already exists");
             }
 
         } catch (Exception $exception) {
 
-            return $this->failure(
-                "Unable to validate supervisor email"
-            );
+            return $this->failure("Unable to validate supervisor email");
         }
 
         /*
@@ -327,36 +251,21 @@ class UserManagementService {
 
         try {
 
-            $quota =
-                $this->supervisorDAO
-                ->getQuotaByID(
-                    (int) $quotaID
-                );
+            $quota = $this->supervisorDAO->getQuotaByID((int) $quotaID);
 
             if (!$quota) {
 
-                return $this->failure(
-                    "Invalid quota tier"
-                );
+                return $this->failure("Invalid quota tier");
             }
 
-            if (
-                !$this->quotaMatchesClassification(
-                    $employmentCategory,
-                    $quota
-                )
-            ) {
+            if (!$this->quotaMatchesClassification($employmentCategory, $quota)) {
 
-                return $this->failure(
-                    "Selected quota tier does not match the supervisor classification"
-                );
+                return $this->failure("Selected quota tier does not match the supervisor classification");
             }
 
         } catch (Exception $exception) {
 
-            return $this->failure(
-                "Unable to validate quota tier"
-            );
+            return $this->failure("Unable to validate quota tier");
         }
 
         $supervisor =
@@ -382,24 +291,16 @@ class UserManagementService {
 
         try {
 
-            $userCreated =
-                $this->userAccountManager
-                ->registerUser(
-                    $supervisor
-                );
+            $userCreated = $this->userAccountManager->registerUser($supervisor);
 
             if (!$userCreated) {
 
-                return $this->failure(
-                    "Supervisor user record could not be created"
-                );
+                return $this->failure("Supervisor user record could not be created");
             }
 
         } catch (Exception $exception) {
 
-            return $this->failure(
-                "System error occurred while creating user account"
-            );
+            return $this->failure("System error occurred while creating user account");
         }
 
         /*
@@ -410,12 +311,7 @@ class UserManagementService {
 
         try {
 
-            $profileCreated =
-                $this->userAccountManager
-                ->registerSupervisorProfile(
-                    $supervisor,
-                    (int) $quotaID
-                );
+            $profileCreated = $this->userAccountManager->registerSupervisorProfile($supervisor, (int) $quotaID);
 
             /*
             |--------------------------------------------------------------------------
@@ -425,14 +321,9 @@ class UserManagementService {
 
             if (!$profileCreated) {
 
-                $this->userAccountManager
-                    ->removeUser(
-                        $supervisorID
-                    );
+                $this->userAccountManager->removeUser($supervisorID);
 
-                return $this->failure(
-                    "Supervisor profile record could not be created"
-                );
+                return $this->failure("Supervisor profile record could not be created");
             }
 
         } catch (Exception $exception) {
@@ -443,19 +334,12 @@ class UserManagementService {
             |--------------------------------------------------------------------------
             */
 
-            $this->userAccountManager
-                ->removeUser(
-                    $supervisorID
-                );
+            $this->userAccountManager->removeUser($supervisorID);
 
-            return $this->failure(
-                "System error occurred while creating supervisor profile"
-            );
+            return $this->failure("System error occurred while creating supervisor profile");
         }
 
-        return $this->success(
-            "Supervisor account created successfully"
-        );
+        return $this->success("Supervisor account created successfully");
     }
 
     /*
@@ -464,14 +348,9 @@ class UserManagementService {
     |--------------------------------------------------------------------------
     */
 
-    private function isAdministrator(
-        $administratorRole
-    ) {
+    private function isAdministrator($administratorRole) {
 
-        return
-            $administratorRole
-            ===
-            "Administrator";
+        return $administratorRole === "Administrator";
     }
 
     /*
@@ -526,22 +405,14 @@ class UserManagementService {
             !empty($quotaID);
     }
 
-    private function quotaMatchesClassification(
-        $employmentCategory,
-        $quota
-    ) {
+    private function quotaMatchesClassification($employmentCategory, $quota) {
 
         if (!isset(self::CLASSIFICATION_QUOTA_RULES[$employmentCategory])) {
 
             return false;
         }
 
-        return stripos(
-            $quota["quotaTierName"],
-            self::CLASSIFICATION_QUOTA_RULES[$employmentCategory]
-        )
-        !==
-        false;
+        return stripos($quota["quotaTierName"], self::CLASSIFICATION_QUOTA_RULES[$employmentCategory]) !== false;
     }
 
     /*
@@ -550,16 +421,9 @@ class UserManagementService {
     |--------------------------------------------------------------------------
     */
 
-    private function success(
-        $message
-    ) {
+    private function success($message) {
 
-        return [
-
-            "success" => true,
-
-            "message" => $message
-        ];
+        return ["success" => true, "message" => $message];
     }
 
     /*
@@ -568,16 +432,9 @@ class UserManagementService {
     |--------------------------------------------------------------------------
     */
 
-    private function failure(
-        $message
-    ) {
+    private function failure($message) {
 
-        return [
-
-            "success" => false,
-
-            "message" => $message
-        ];
+        return ["success" => false, "message" => $message];
     }
 }
 

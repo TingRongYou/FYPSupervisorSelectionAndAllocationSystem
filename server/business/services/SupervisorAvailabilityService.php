@@ -36,8 +36,7 @@ class SupervisorAvailabilityUI implements AvailabilityObserver {
 
     public function getPayload() {
 
-        $this->payload["quotaText"] =
-            $this->calculateQuota();
+        $this->payload["quotaText"] = $this->calculateQuota();
 
         return $this->payload;
     }
@@ -87,28 +86,13 @@ class AllocationRegistry { // Calculate and broadcast supervisor's real time ava
         return $payload;
     }
 
-    private function buildAvailabilityPayload(
-        $supervisor
-    ) {
+    private function buildAvailabilityPayload($supervisor) {
 
-        $activeStudents =
-            max(
-                0,
-                (int) ($supervisor["activeStudents"]
-                    ?? $supervisor["currentSupervisees"]
-                    ?? 0)
-            );
+        $activeStudents = max(0, (int) ($supervisor["activeStudents"] ?? $supervisor["currentSupervisees"] ?? 0));
 
-        $maxSlots =
-            max(
-                0,
-                (int) ($supervisor["maxSuperviseesAllowed"]
-                    ?? $supervisor["maxSlots"]
-                    ?? 0)
-            );
+        $maxSlots = max(0, (int) ($supervisor["maxSuperviseesAllowed"] ?? $supervisor["maxSlots"] ?? 0));
 
-        $lastSeenAt =
-            $supervisor["lastSeenAt"] ?? null;
+        $lastSeenAt = $supervisor["lastSeenAt"] ?? null;
 
         $isOnline =
             ((int) ($supervisor["isOnline"] ?? 0)) === 1
@@ -123,23 +107,17 @@ class AllocationRegistry { // Calculate and broadcast supervisor's real time ava
                 : "Full";
 
         return [
-            "availabilityStatus" =>
-                $isOnline ? "Online" : "Offline",
+            "availabilityStatus" => $isOnline ? "Online" : "Offline",
 
-            "quotaStatus" =>
-                $quotaStatus,
+            "quotaStatus" => $quotaStatus,
 
-            "activeStudents" =>
-                $activeStudents,
+            "activeStudents" => $activeStudents,
 
-            "maxSlots" =>
-                $maxSlots,
+            "maxSlots" => $maxSlots,
 
-            "availableSlots" =>
-                max(0, $maxSlots - $activeStudents),
+            "availableSlots" => max(0, $maxSlots - $activeStudents),
 
-            "lastSeenAt" =>
-                $lastSeenAt
+            "lastSeenAt" => $lastSeenAt
         ];
     }
 
@@ -165,56 +143,39 @@ class SupervisorAvailabilityService {
 
     public function __construct() {
 
-        $this->profileDAO =
-            new SupervisorProfileDAO();
+        $this->profileDAO = new SupervisorProfileDAO();
 
-        $this->registry =
-            new AllocationRegistry();
+        $this->registry = new AllocationRegistry();
     }
 
     // Calculate or fetches their current workload
-    public function decorateAvailability(
-        $supervisor
-    ) {
+    public function decorateAvailability($supervisor) {
 
-        $uiObserver =
-            new SupervisorAvailabilityUI();
+        $uiObserver = new SupervisorAvailabilityUI();
 
-        $this->registry
-            ->attach($uiObserver);
+        $this->registry->attach($uiObserver);
 
-        $payload =
-            $this->registry
-            ->saveAllocationStatus($supervisor);
+        $payload = $this->registry->saveAllocationStatus($supervisor);
 
-        $uiPayload =
-            $uiObserver
-            ->getPayload();
+        $uiPayload = $uiObserver->getPayload();
 
-        $this->registry
-            ->detach($uiObserver);
+        $this->registry->detach($uiObserver);
 
         return array_merge(
             $supervisor,
             $payload,
             $uiPayload,
             [
-                "status" =>
-                    $uiPayload["availabilityStatus"],
+                "status" => $uiPayload["availabilityStatus"],
 
-                "statusClass" =>
-                    $uiPayload["availabilityClass"]
+                "statusClass" => $uiPayload["availabilityClass"]
             ]
         );
     }
 
-    public function getSupervisorAvailability(
-        $supervisorID
-    ) {
+    public function getSupervisorAvailability($supervisorID) {
 
-        $profile =
-            $this->profileDAO
-            ->getSupervisorProfile($supervisorID);
+        $profile = $this->profileDAO->getSupervisorProfile($supervisorID);
 
         if (!$profile) {
 
@@ -224,34 +185,21 @@ class SupervisorAvailabilityService {
         return $this->decorateAvailability($profile);
     }
 
-    public function canStudentApply(
-        $supervisorID
-    ) {
+    public function canStudentApply($supervisorID) {
 
-        $availability =
-            $this->getSupervisorAvailability($supervisorID);
+        $availability = $this->getSupervisorAvailability($supervisorID);
 
         if (!$availability) {
 
-            return [
-                "success" => false,
-                "message" => "Selected supervisor was not found."
-            ];
+            return ["success" => false, "message" => "Selected supervisor was not found."];
         }
 
         if (!$availability["canApply"]) {
 
-            return [
-                "success" => false,
-                "message" => $availability["message"]
-            ];
+            return [ "success" => false, "message" => $availability["message"]];
         }
 
-        return [
-            "success" => true,
-            "message" => "This supervisor has available supervision slots and is accepting proposals.",
-            "availability" => $availability
-        ];
+        return ["success" => true, "message" => "This supervisor has available supervision slots and is accepting proposals.","availability" => $availability];
     }
 }
 

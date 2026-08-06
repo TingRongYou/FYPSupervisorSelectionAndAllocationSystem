@@ -60,26 +60,19 @@ class SupervisorProfileService {
 
     public function __construct() {
 
-        $this->profileDAO =
-            new SupervisorProfileDAO();
+        $this->profileDAO = new SupervisorProfileDAO();
 
-        $this->videoStorageDAO =
-            new VideoStorageDAO();
+        $this->videoStorageDAO = new VideoStorageDAO();
 
-        $this->imageStorageDAO =
-            new ImageStorageDAO();
+        $this->imageStorageDAO = new ImageStorageDAO();
 
-        $this->userDAO =
-            new UserDAO();
+        $this->userDAO = new UserDAO();
 
-        $this->tagDAO =
-            new TagDAO();
+        $this->tagDAO = new TagDAO();
 
-        $this->pastProjectDAO =
-            new PastProjectDAO();
+        $this->pastProjectDAO = new PastProjectDAO();
 
-        $this->availabilityService =
-            new SupervisorAvailabilityService();
+        $this->availabilityService = new SupervisorAvailabilityService();
     }
 
     /*
@@ -88,23 +81,16 @@ class SupervisorProfileService {
     |--------------------------------------------------------------------------
     */
 
-    public function getDigitalBusinessCard(
-        $supervisorID
-    ) {
+    public function getDigitalBusinessCard($supervisorID) {
 
-        $profile =
-            $this->profileDAO
-            ->getSupervisorProfile(
-                $supervisorID
-            );
+        $profile = $this->profileDAO->getSupervisorProfile($supervisorID);
 
         if (!$profile) {
 
             return null;
         }
 
-        return $this->availabilityService
-            ->decorateAvailability($profile);
+        return $this->availabilityService->decorateAvailability($profile);
     }
 
     /*
@@ -113,25 +99,17 @@ class SupervisorProfileService {
     |--------------------------------------------------------------------------
     */
 
-    public function getPublicProfessionalProfile( // Get supervisor profile through decorator, wrap only profile information that are available
-        $supervisorID
-    ) {
+    // Get supervisor profile through decorator, wrap only profile information that are available
+    public function getPublicProfessionalProfile( $supervisorID) {
 
-        $profile =
-            $this->getDigitalBusinessCard(
-                $supervisorID
-            );
+        $profile = $this->getDigitalBusinessCard($supervisorID);
 
         if (!$profile) {
 
             return null;
         }
 
-        $selectedTagIDs =
-            $this->tagDAO
-            ->getSupervisorTagIDs(
-                $supervisorID
-            );
+        $selectedTagIDs = $this->tagDAO->getSupervisorTagIDs($supervisorID);
 
         $expertiseTags =
             array_map(
@@ -139,25 +117,14 @@ class SupervisorProfileService {
 
                     return $tag["tagName"];
                 },
-                $this->tagDAO
-                ->getTagNamesByIDs(
-                    $selectedTagIDs
-                )
+                $this->tagDAO->getTagNamesByIDs($selectedTagIDs)
             );
 
         $pastProjects =
-            $this->pastProjectDAO
-            ->getProjectsBySupervisor(
-                $supervisorID
-            );
+            $this->pastProjectDAO->getProjectsBySupervisor($supervisorID);
 
         $hasPublishedVideo =
-            strtolower(
-                $profile["introVideoStatus"] ?? ""
-            )
-            === "published"
-            &&
-            trim((string) ($profile["introVideoLink"] ?? "")) !== "";
+            strtolower($profile["introVideoStatus"] ?? "") === "published" && trim((string) ($profile["introVideoLink"] ?? "")) !== "";
 
         if (!$hasPublishedVideo) {
 
@@ -166,36 +133,18 @@ class SupervisorProfileService {
             $profile["hasIntroVideo"] = false;
         }
 
-        $decoratedProfile =
-            new BasicSupervisorProfile(
-                $profile
-            );
+        $decoratedProfile = new BasicSupervisorProfile($profile );
 
-        $decoratedProfile =
-            new ExpertiseDecorator(
-                $decoratedProfile,
-                $expertiseTags
-            );
+        $decoratedProfile = new ExpertiseDecorator($decoratedProfile, $expertiseTags);
 
         if ($hasPublishedVideo) {
 
-            $decoratedProfile =
-                new VideoDecorator(
-                    $decoratedProfile,
-                    $profile["introVideoLink"] ?? "",
-                    $profile["introVideoDescription"] ?? ""
-                );
+            $decoratedProfile = new VideoDecorator($decoratedProfile, $profile["introVideoLink"] ?? "", $profile["introVideoDescription"] ?? "");
         }
 
-        $decoratedProfile =
-            new ProjectShowcaseDecorator(
-                $decoratedProfile,
-                $pastProjects
-            );
+        $decoratedProfile = new ProjectShowcaseDecorator($decoratedProfile, $pastProjects);
 
-        return
-            $decoratedProfile
-            ->display();
+        return $decoratedProfile->display();
     }
 
     /*
@@ -220,20 +169,15 @@ class SupervisorProfileService {
         |--------------------------------------------------------------------------
         */
 
-        $programme =
-            trim($programme);
+        $programme = trim($programme);
 
-        $employmentCategory =
-            trim($employmentCategory);
+        $employmentCategory = trim($employmentCategory);
 
-        $activeTime =
-            trim($activeTime);
+        $activeTime = trim($activeTime);
 
-        $introVideoLink =
-            trim($introVideoLink);
+        $introVideoLink = trim($introVideoLink);
 
-        $supervisorBio =
-            trim($supervisorBio);
+        $supervisorBio = trim($supervisorBio);
 
         /*
         |--------------------------------------------------------------------------
@@ -243,20 +187,12 @@ class SupervisorProfileService {
 
         if ($programme === "") {
 
-            return $this->failure(
-                "Validation Error - Please complete all required fields before saving your profile."
-            );
+            return $this->failure("Validation Error - Please complete all required fields before saving your profile.");
         }
 
-        if (
-            strlen($programme)
-            >
-            self::MAX_PROGRAMME_LENGTH
-        ) {
+        if (strlen($programme) > self::MAX_PROGRAMME_LENGTH) {
 
-            return $this->failure(
-                "Validation Error - Please complete all required fields before saving your profile."
-            );
+            return $this->failure("Validation Error - Please complete all required fields before saving your profile.");
         }
 
         /*
@@ -267,45 +203,28 @@ class SupervisorProfileService {
 
         if ($employmentCategory === "") {
 
-            return $this->failure(
-                "Validation Error - Please complete all required fields before saving your profile."
-            );
+            return $this->failure("Validation Error - Please complete all required fields before saving your profile.");
         }
 
-        if (
-            strlen($employmentCategory)
-            >
-            self::MAX_EMPLOYMENT_CATEGORY_LENGTH
-        ) {
+        if (strlen($employmentCategory) > self::MAX_EMPLOYMENT_CATEGORY_LENGTH) {
 
-            return $this->failure(
-                "Validation Error - Please complete all required fields before saving your profile."
-            );
+            return $this->failure("Validation Error - Please complete all required fields before saving your profile.");
         }
 
         if ($activeTime === "") {
 
-            return $this->failure(
-                "Validation Error - Please complete all required fields before saving your profile."
-            );
+            return $this->failure("Validation Error - Please complete all required fields before saving your profile.");
         }
 
-        if (
-            strlen($activeTime)
-            >
-            self::MAX_ACTIVE_TIME_LENGTH
+        if (strlen($activeTime) > self::MAX_ACTIVE_TIME_LENGTH
         ) {
 
-            return $this->failure(
-                "Validation Error - Please complete all required fields before saving your profile."
-            );
+            return $this->failure("Validation Error - Please complete all required fields before saving your profile.");
         }
 
         if ($supervisorBio === "") {
 
-            return $this->failure(
-                "Validation Error - Please complete all required fields before saving your profile."
-            );
+            return $this->failure("Validation Error - Please complete all required fields before saving your profile.");
         }
 
         /*
@@ -314,39 +233,19 @@ class SupervisorProfileService {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            strlen($introVideoLink)
-            >
-            self::MAX_VIDEO_URL_LENGTH
-        ) {
+        if (strlen($introVideoLink) > self::MAX_VIDEO_URL_LENGTH) {
 
-            return $this->failure(
-                "Invalid Format/Size - The uploaded file is not supported or exceeds the 50MB limit. Please provide a valid MP4 file or URL."
-            );
+            return $this->failure("Invalid Format/Size - The uploaded file is not supported or exceeds the 50MB limit. Please provide a valid MP4 file or URL.");
         }
 
-        if (
-            strlen($supervisorBio)
-            >
-            self::MAX_BIO_LENGTH
-        ) {
+        if (strlen($supervisorBio) > self::MAX_BIO_LENGTH) {
 
-            return $this->failure(
-                "Validation Error - Please complete all required fields before saving your profile."
-            );
+            return $this->failure("Validation Error - Please complete all required fields before saving your profile.");
         }
 
-        if (
-            $introVideoLink !== ""
-            &&
-            !$this->isValidVideoUrl(
-                $introVideoLink
-            )
-        ) {
+        if ($introVideoLink !== "" && !$this->isValidVideoUrl($introVideoLink)) {
 
-            return $this->failure(
-                "Invalid Format/Size - The uploaded file is not supported or exceeds the 50MB limit. Please provide a valid MP4 file or URL."
-            );
+            return $this->failure("Invalid Format/Size - The uploaded file is not supported or exceeds the 50MB limit. Please provide a valid MP4 file or URL.");
         }
 
         /*
@@ -359,46 +258,25 @@ class SupervisorProfileService {
 
             if ($profilePhotoFile !== null) {
 
-                $photoResult =
-                    $this->imageStorageDAO
-                    ->storeProfilePhoto(
-                        $profilePhotoFile,
-                        $supervisorID
-                    );
+                $photoResult = $this->imageStorageDAO->storeProfilePhoto($profilePhotoFile, $supervisorID);
 
                 if (!$photoResult["success"]) {
 
-                    return $this->failure(
-                        $photoResult["message"]
-                    );
+                    return $this->failure($photoResult["message"]);
                 }
 
                 if ($photoResult["path"] !== null) {
 
-                    $currentProfile =
-                        $this->userDAO
-                        ->getUserByID(
-                            $supervisorID
-                        );
+                    $currentProfile = $this->userDAO->getUserByID($supervisorID);
 
-                    $photoUpdated =
-                        $this->userDAO
-                        ->updateProfilePhoto(
-                            $supervisorID,
-                            $photoResult["path"]
-                        );
+                    $photoUpdated = $this->userDAO->updateProfilePhoto($supervisorID, $photoResult["path"]);
 
                     if (!$photoUpdated) {
 
-                        return $this->failure(
-                            "Profile photo could not be updated"
-                        );
+                        return $this->failure("Profile photo could not be updated");
                     }
 
-                    $this->imageStorageDAO
-                    ->deleteStoredImage(
-                        $currentProfile["profilePhotoPath"] ?? ""
-                    );
+                    $this->imageStorageDAO->deleteStoredImage($currentProfile["profilePhotoPath"] ?? "");
                 }
             }
 
@@ -421,21 +299,15 @@ class SupervisorProfileService {
 
             if (!$updated) {
 
-                return $this->failure(
-                    "Digital business card could not be updated"
-                );
+                return $this->failure("Digital business card could not be updated");
             }
 
         } catch (Exception $exception) {
 
-            return $this->failure(
-                "System error occurred while updating business card"
-            );
+            return $this->failure("System error occurred while updating business card");
         }
 
-        return $this->success(
-            "Update Successful - Your professional details have been updated successfully."
-        );
+        return $this->success("Update Successful - Your professional details have been updated successfully.");
     }
 
     /*
@@ -444,11 +316,7 @@ class SupervisorProfileService {
     |--------------------------------------------------------------------------
     */
 
-    public function updateIntroVideo(
-        $supervisorID,
-        $introVideoLink,
-        $introVideoDescription
-    ) {
+    public function updateIntroVideo($supervisorID, $introVideoLink, $introVideoDescription) {
 
         /*
         |--------------------------------------------------------------------------
@@ -456,11 +324,9 @@ class SupervisorProfileService {
         |--------------------------------------------------------------------------
         */
 
-        $introVideoLink =
-            trim($introVideoLink);
+        $introVideoLink = trim($introVideoLink);
 
-        $introVideoDescription =
-            trim($introVideoDescription);
+        $introVideoDescription = trim($introVideoDescription);
 
         /*
         |--------------------------------------------------------------------------
@@ -470,9 +336,7 @@ class SupervisorProfileService {
 
         if ($introVideoLink === "") {
 
-            return $this->failure(
-                "Invalid Format/Size - The uploaded file is not supported or exceeds the 50MB limit. Please provide a valid MP4 file or URL."
-            );
+            return $this->failure("Invalid Format/Size - The uploaded file is not supported or exceeds the 50MB limit. Please provide a valid MP4 file or URL.");
         }
 
         /*
@@ -481,26 +345,14 @@ class SupervisorProfileService {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            strlen($introVideoLink)
-            >
-            self::MAX_VIDEO_URL_LENGTH
-        ) {
+        if (strlen($introVideoLink) > self::MAX_VIDEO_URL_LENGTH) {
 
-            return $this->failure(
-                "Invalid Format/Size - The uploaded file is not supported or exceeds the 50MB limit. Please provide a valid MP4 file or URL."
-            );
+            return $this->failure("Invalid Format/Size - The uploaded file is not supported or exceeds the 50MB limit. Please provide a valid MP4 file or URL.");
         }
 
-        if (
-            strlen($introVideoDescription)
-            >
-            self::MAX_VIDEO_DESCRIPTION_LENGTH
-        ) {
+        if (strlen($introVideoDescription) > self::MAX_VIDEO_DESCRIPTION_LENGTH) {
 
-            return $this->failure(
-                "Validation Error - Please complete all required fields before saving your profile."
-            );
+            return $this->failure("Validation Error - Please complete all required fields before saving your profile.");
         }
 
         /*
@@ -509,15 +361,9 @@ class SupervisorProfileService {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            !$this->isValidVideoUrl(
-                $introVideoLink
-            )
-        ) {
+        if (!$this->isValidVideoUrl($introVideoLink)) {
 
-            return $this->failure(
-                "Invalid Format/Size - The uploaded file is not supported or exceeds the 50MB limit. Please provide a valid MP4 file or URL."
-            );
+            return $this->failure("Invalid Format/Size - The uploaded file is not supported or exceeds the 50MB limit. Please provide a valid MP4 file or URL.");
         }
 
         /*
@@ -528,91 +374,45 @@ class SupervisorProfileService {
 
         try {
 
-            $updated =
-                $this->profileDAO
-                ->updateIntroVideo(
-
-                    $supervisorID,
-
-                    $introVideoLink,
-
-                    $introVideoDescription,
-
-                    "published"
-                );
+            $updated = $this->profileDAO->updateIntroVideo($supervisorID, $introVideoLink, $introVideoDescription, "published");
 
             if (!$updated) {
 
-                return $this->failure(
-                    "Introductory video could not be updated"
-                );
+                return $this->failure("Introductory video could not be updated");
             }
 
         } catch (Exception $exception) {
 
-            return $this->failure(
-                "System error occurred while updating introductory video"
-            );
+            return $this->failure("System error occurred while updating introductory video");
         }
 
-        return $this->success(
-            "Update Successful - Your introductory video has been successfully updated and is now visible to students."
-        );
+        return $this->success("Update Successful - Your introductory video has been successfully updated and is now visible to students.");
     }
 
-    public function updateIntroVideoFromUpload(
-        $supervisorID,
-        $uploadedFile,
-        $introVideoDescription
-    ) {
+    public function updateIntroVideoFromUpload($supervisorID, $uploadedFile, $introVideoDescription) {
 
-        $introVideoDescription =
-            trim($introVideoDescription);
+        $introVideoDescription = trim($introVideoDescription);
 
-        if (
-            strlen($introVideoDescription)
-            >
-            self::MAX_VIDEO_DESCRIPTION_LENGTH
-        ) {
+        if (strlen($introVideoDescription) > self::MAX_VIDEO_DESCRIPTION_LENGTH) {
 
-            return $this->failure(
-                "Validation Error - Please complete all required fields before saving your profile."
-            );
+            return $this->failure("Validation Error - Please complete all required fields before saving your profile.");
         }
 
-        $storageResult =
-            $this->videoStorageDAO
-            ->storeIntroVideo(
-                $uploadedFile,
-                $supervisorID
-            );
+        $storageResult = $this->videoStorageDAO->storeIntroVideo($uploadedFile, $supervisorID);
 
         if (!$storageResult["success"]) {
 
-            return $this->failure(
-                $storageResult["message"]
-            );
+            return $this->failure($storageResult["message"]);
         }
 
-        return $this->updateIntroVideo(
-            $supervisorID,
-            $storageResult["path"],
-            $introVideoDescription
-        );
+        return $this->updateIntroVideo($supervisorID, $storageResult["path"], $introVideoDescription);
     }
 
-    public function saveIntroVideoDraft(
-        $supervisorID,
-        $introVideoLink,
-        $introVideoDescription,
-        $uploadedFile = null
-    ) {
+    public function saveIntroVideoDraft($supervisorID, $introVideoLink, $introVideoDescription, $uploadedFile = null) {
 
-        $introVideoLink =
-            trim($introVideoLink);
+        $introVideoLink = trim($introVideoLink);
 
-        $introVideoDescription =
-            trim($introVideoDescription);
+        $introVideoDescription = trim($introVideoDescription);
 
         if (
             is_array($uploadedFile)
@@ -622,142 +422,77 @@ class SupervisorProfileService {
             (int) $uploadedFile["error"] !== UPLOAD_ERR_NO_FILE
         ) {
 
-            $storageResult =
-                $this->videoStorageDAO
-                ->storeIntroVideo(
-                    $uploadedFile,
-                    $supervisorID
-                );
+            $storageResult = $this->videoStorageDAO->storeIntroVideo($uploadedFile, $supervisorID);
 
             if (!$storageResult["success"]) {
 
-                return $this->failure(
-                    $storageResult["message"]
-                );
+                return $this->failure($storageResult["message"]);
             }
 
-            $introVideoLink =
-                $storageResult["path"];
+            $introVideoLink = $storageResult["path"];
         }
 
         if ($introVideoLink === "") {
 
-            $profile =
-                $this->profileDAO
-                ->getSupervisorProfile(
-                    $supervisorID
-                );
+            $profile = $this->profileDAO->getSupervisorProfile($supervisorID);
 
-            $introVideoLink =
-                trim($profile["introVideoLink"] ?? "");
+            $introVideoLink = trim($profile["introVideoLink"] ?? "");
         }
 
-        if (
-            strlen($introVideoDescription)
-            >
-            self::MAX_VIDEO_DESCRIPTION_LENGTH
-        ) {
+        if (strlen($introVideoDescription) > self::MAX_VIDEO_DESCRIPTION_LENGTH) {
 
-            return $this->failure(
-                "Validation Error - Please complete all required fields before saving your profile."
-            );
+            return $this->failure("Validation Error - Please complete all required fields before saving your profile.");
         }
 
-        if (
-            $introVideoLink !== ""
-            &&
-            !$this->isValidVideoUrl(
-                $introVideoLink
-            )
+        if ($introVideoLink !== "" &&!$this->isValidVideoUrl($introVideoLink)
         ) {
 
-            return $this->failure(
-                "Invalid Format/Size - The uploaded file is not supported or exceeds the 50MB limit. Please provide a valid MP4 file or URL."
-            );
+            return $this->failure("Invalid Format/Size - The uploaded file is not supported or exceeds the 50MB limit. Please provide a valid MP4 file or URL.");
         }
 
         try {
 
-            $updated =
-                $this->profileDAO
-                ->updateIntroVideo(
-
-                    $supervisorID,
-
-                    $introVideoLink,
-
-                    $introVideoDescription,
-
-                    "draft"
-                );
+            $updated = $this->profileDAO->updateIntroVideo($supervisorID, $introVideoLink, $introVideoDescription, "draft");
 
             if (!$updated) {
 
-                return $this->failure(
-                    "Introductory video draft could not be saved"
-                );
+                return $this->failure("Introductory video draft could not be saved");
             }
 
         } catch (Exception $exception) {
 
-            return $this->failure(
-                "System error occurred while saving introductory video draft"
-            );
+            return $this->failure("System error occurred while saving introductory video draft");
         }
 
-        return $this->success(
-            "Introductory video draft saved successfully."
-        );
+        return $this->success("Introductory video draft saved successfully.");
     }
 
     public function removeIntroVideo($supervisorID) {
 
-        $profile =
-            $this->profileDAO
-            ->getSupervisorProfile(
-                $supervisorID
-            );
+        $profile = $this->profileDAO->getSupervisorProfile($supervisorID);
 
         if (!$profile) {
 
-            return $this->failure(
-                "Supervisor profile was not found"
-            );
+            return $this->failure("Supervisor profile was not found");
         }
 
         try {
 
-            $updated =
-                $this->profileDAO
-                ->updateIntroVideo(
-                    $supervisorID,
-                    "",
-                    "",
-                    "draft"
-                );
+            $updated = $this->profileDAO->updateIntroVideo($supervisorID, "", "", "draft");
 
             if (!$updated) {
 
-                return $this->failure(
-                    "Introductory video could not be removed"
-                );
+                return $this->failure("Introductory video could not be removed");
             }
 
-            $this->videoStorageDAO
-            ->deleteStoredVideo(
-                $profile["introVideoLink"] ?? ""
-            );
+            $this->videoStorageDAO->deleteStoredVideo($profile["introVideoLink"] ?? "");
 
         } catch (Exception $exception) {
 
-            return $this->failure(
-                "System error occurred while removing introductory video"
-            );
+            return $this->failure("System error occurred while removing introductory video");
         }
 
-        return $this->success(
-            "Introductory video removed successfully"
-        );
+        return $this->success("Introductory video removed successfully");
     }
 
     /*
@@ -766,17 +501,9 @@ class SupervisorProfileService {
     |--------------------------------------------------------------------------
     */
 
-    private function isValidVideoUrl(
-        $url
-    ) {
+    private function isValidVideoUrl($url) {
 
-        if (preg_match(
-
-            "/\/storage\/intro_videos\/[A-Za-z0-9_-]+\.(mp4|webm)$/i",
-
-            $url
-
-        ) === 1) {
+        if (preg_match("/\/storage\/intro_videos\/[A-Za-z0-9_-]+\.(mp4|webm)$/i", $url) === 1) {
 
             return true;
         }
@@ -787,12 +514,7 @@ class SupervisorProfileService {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            !filter_var(
-                $url,
-                FILTER_VALIDATE_URL
-            )
-        ) {
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
 
             return false;
         }
@@ -803,13 +525,7 @@ class SupervisorProfileService {
         |--------------------------------------------------------------------------
         */
 
-        return preg_match(
-
-            "/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|vimeo\.com)\/.+$/i",
-
-            $url
-
-        ) === 1;
+        return preg_match("/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|vimeo\.com)\/.+$/i", $url) === 1;
     }
 
     /*
@@ -818,16 +534,9 @@ class SupervisorProfileService {
     |--------------------------------------------------------------------------
     */
 
-    private function success(
-        $message
-    ) {
+    private function success($message) {
 
-        return [
-
-            "success" => true,
-
-            "message" => $message
-        ];
+        return ["success" => true, "message" => $message];
     }
 
     /*
@@ -836,16 +545,9 @@ class SupervisorProfileService {
     |--------------------------------------------------------------------------
     */
 
-    private function failure(
-        $message
-    ) {
+    private function failure($message) {
 
-        return [
-
-            "success" => false,
-
-            "message" => $message
-        ];
+        return [ "success" => false,"message" => $message];
     }
 }
 

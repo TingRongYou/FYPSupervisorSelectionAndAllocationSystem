@@ -150,8 +150,7 @@ class StudentProfileFacade {
     // Constraint C2: Regex evaluation for external links
     private function isValidOptionalURL($url) {
 
-        return $url === "" ||
-            preg_match(self::VALID_URL_PATTERN, $url) === 1;
+        return $url === "" || preg_match(self::VALID_URL_PATTERN, $url) === 1;
     }
 
     private function hasUploadedAvatar($avatarFile) {
@@ -163,18 +162,12 @@ class StudentProfileFacade {
 
     private function success($message) {
 
-        return [
-            "success" => true,
-            "message" => $message
-        ];
+        return ["success" => true, "message" => $message];
     }
 
     private function failure($message) {
 
-        return [
-            "success" => false,
-            "message" => $message
-        ];
+        return ["success" => false, "message" => $message];
     }
 }
 

@@ -21,8 +21,7 @@ class AllocationRepository {
 
     public function __construct($reportDAO) {
 
-        $this->reportDAO =
-            $reportDAO;
+        $this->reportDAO = $reportDAO;
     }
 
     /*
@@ -34,8 +33,7 @@ class AllocationRepository {
 
     public function getAllocationRecords($filters = []) {
 
-        return
-            $this->reportDAO->fetchStudents($filters);
+        return $this->reportDAO->fetchStudents($filters);
     }
 
     /*
@@ -47,15 +45,13 @@ class AllocationRepository {
 
     public function calculateFillRate($currentTotal, $quotaLimit) {
 
-        $quotaLimit =
-            (int) $quotaLimit;
+        $quotaLimit = (int) $quotaLimit;
 
         if ($quotaLimit <= 0) {
             return 0;
         }
 
-        return
-            round(((int) $currentTotal / $quotaLimit) * 100, 1);
+        return round(((int) $currentTotal / $quotaLimit) * 100, 1);
     }
 }
 

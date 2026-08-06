@@ -31,34 +31,18 @@ class SupervisorReportFacade {
     | any subsystem or DAO receives user-supplied input.
     */
 
-    private function normalizeYear(
-        $year
-    ) {
+    private function normalizeYear($year) {
 
-        $year =
-            trim(
-                (string) $year
-            );
+        $year = trim((string) $year);
 
-        return
-            preg_match("/^[0-9]{4}$/", $year)
-            ? $year
-            : "";
+        return preg_match("/^[0-9]{4}$/", $year) ? $year : "";
     }
 
-    private function normalizeSemester(
-        $semester
-    ) {
+    private function normalizeSemester($semester) {
 
-        $semester =
-            trim(
-                (string) $semester
-            );
+        $semester = trim((string) $semester);
 
-        return
-            in_array($semester, ["1", "2", "3"], true)
-            ? $semester
-            : "";
+        return in_array($semester, ["1", "2", "3"], true) ? $semester : "";
     }
 
     /*
@@ -70,23 +54,13 @@ class SupervisorReportFacade {
 
     public function __construct() {
 
-        $this->reportDAO =
-            new SupervisorReportDAO();
+        $this->reportDAO = new SupervisorReportDAO();
 
-        $this->studentSys =
-            new StudentTrackingSystem(
-                $this->reportDAO
-            );
+        $this->studentSys = new StudentTrackingSystem($this->reportDAO);
 
-        $this->historySys =
-            new SupervisionArchive(
-                $this->reportDAO
-            );
+        $this->historySys = new SupervisionArchive($this->reportDAO);
 
-        $this->quotaSys =
-            new QuotaAnalytics(
-                $this->reportDAO
-            );
+        $this->quotaSys = new QuotaAnalytics($this->reportDAO);
     }
 
     /*
@@ -97,22 +71,11 @@ class SupervisorReportFacade {
     | allocated supervisees shown in the donut-chart report.
     */
 
-    public function getDemographicData(
-        $supervisorID,
-        $year = ""
-    ) {
+    public function getDemographicData($supervisorID, $year = "") {
 
-        $year =
-            $this->normalizeYear(
-                $year
-            );
+        $year = $this->normalizeYear($year);
 
-        $rows =
-            $this->studentSys
-            ->countByMajor(
-                $supervisorID,
-                $year
-            );
+        $rows = $this->studentSys->countByMajor($supervisorID, $year);
 
         $total =
             array_sum(
@@ -130,8 +93,7 @@ class SupervisorReportFacade {
         // Convert raw programme counts into percentages for chart legends.
         foreach ($rows as $row) {
 
-            $count =
-                (int) $row["totalApplicants"];
+            $count = (int) $row["totalApplicants"];
 
             $programmes[] = [
                 "programme" => $row["programme"],
@@ -160,40 +122,15 @@ class SupervisorReportFacade {
     | filters for the supervisor's supervision history.
     */
 
-    public function getSupervisionHistory(
-        $supervisorID,
-        $year = "",
-        $semester = ""
-    ) {
+    public function getSupervisionHistory($supervisorID, $year = "", $semester = "") {
 
-        $year =
-            $this->normalizeYear(
-                $year
-            );
+        $year = $this->normalizeYear($year);
 
-        $semester =
-            $this->normalizeSemester(
-                $semester
-            );
+        $semester = $this->normalizeSemester($semester);
 
-        $careerTotal =
-            count(
-                $this->historySys
-                ->getPastStudents(
-                    $supervisorID,
-                    ""
-                )
-            );
+        $careerTotal = count($this->historySys->getPastStudents($supervisorID, ""));
 
-        $history =
-            $this->historySys
-            ->sortByYear(
-                $this->historySys
-                ->getPastStudents(
-                    $supervisorID,
-                    $year
-                )
-            );
+        $history = $this->historySys->sortByYear($this->historySys->getPastStudents($supervisorID, $year));
 
         if ($semester !== "") {
 
@@ -228,9 +165,7 @@ class SupervisorReportFacade {
         ];
     }
 
-    private function extractSemesterNumber(
-        $semesterLabel
-    ) {
+    private function extractSemesterNumber($semesterLabel) {
 
         if (preg_match('/S\s*([0-9]+)/i', (string) $semesterLabel, $matches)) {
 
@@ -252,15 +187,9 @@ class SupervisorReportFacade {
     | Combines personal quota, department average, and weekly trend data.
     */
 
-    public function getUtilizationStats(
-        $supervisorID
-    ) {
+    public function getUtilizationStats($supervisorID) {
 
-        $stats =
-            $this->reportDAO
-            ->getSlotUtilization(
-                $supervisorID
-            );
+        $stats = $this->reportDAO->getSlotUtilization($supervisorID);
 
         if (!$stats) {
 
@@ -280,32 +209,17 @@ class SupervisorReportFacade {
             ];
         }
 
-        $current =
-            (int) ($stats["currentSlots"] ?? 0);
+        $current = (int) ($stats["currentSlots"] ?? 0);
 
-        $quota =
-            (int) ($stats["maxSuperviseesAllowed"] ?? 0);
+        $quota = (int) ($stats["maxSuperviseesAllowed"] ?? 0);
 
-        $available =
-            max(
-                0,
-                $quota - $current
-            );
+        $available = max(0, $quota - $current);
 
-        $fillRate =
-            $this->quotaSys
-            ->getFillRate(
-                $supervisorID
-            );
+        $fillRate = $this->quotaSys->getFillRate($supervisorID);
 
-        $departmentAverage =
-            $this->quotaSys
-            ->getDepartmentAverage();
+        $departmentAverage = $this->quotaSys->getDepartmentAverage();
 
-        $weeklyTrend =
-            $this->buildWeeklyTrend(
-                $supervisorID
-            );
+        $weeklyTrend = $this->buildWeeklyTrend($supervisorID);
 
         return [
             "currentSlots" => $current,
@@ -337,9 +251,7 @@ class SupervisorReportFacade {
     | side-by-side chart.
     */
 
-    private function buildWeeklyTrend(
-        $supervisorID
-    ) {
+    private function buildWeeklyTrend($supervisorID) {
 
         $labels = [
             2 => "MON",
@@ -351,29 +263,21 @@ class SupervisorReportFacade {
             1 => "SUN"
         ];
 
-        $personalRows =
-            $this->reportDAO
-            ->getWeeklyAllocationTrend(
-                $supervisorID
-            );
+        $personalRows = $this->reportDAO->getWeeklyAllocationTrend($supervisorID);
 
-        $departmentRows =
-            $this->reportDAO
-            ->getDepartmentWeeklyAverageTrend();
+        $departmentRows = $this->reportDAO->getDepartmentWeeklyAverageTrend();
 
         $personalMap = [];
         $departmentMap = [];
 
         foreach ($personalRows as $row) {
 
-            $personalMap[(int) $row["weekdayNumber"]] =
-                (int) $row["personalTotal"];
+            $personalMap[(int) $row["weekdayNumber"]] = (int) $row["personalTotal"];
         }
 
         foreach ($departmentRows as $row) {
 
-            $departmentMap[(int) $row["weekdayNumber"]] =
-                round((float) $row["departmentAverage"], 1);
+            $departmentMap[(int) $row["weekdayNumber"]] = round((float) $row["departmentAverage"], 1);
         }
 
         $trend = [];
@@ -398,20 +302,13 @@ class SupervisorReportFacade {
     | comparable on the utilization screen and PDF output.
     */
 
-    private function getMaxTrendValue(
-        $weeklyTrend
-    ) {
+    private function getMaxTrendValue($weeklyTrend) {
 
         $maxValue = 1;
 
         foreach ($weeklyTrend as $day) {
 
-            $maxValue =
-                max(
-                    $maxValue,
-                    (float) $day["departmentAverage"],
-                    (float) $day["personal"]
-                );
+            $maxValue = max($maxValue, (float) $day["departmentAverage"], (float) $day["personal"]);
         }
 
         return $maxValue;

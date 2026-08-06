@@ -29,24 +29,18 @@ abstract class DiscoveryEngine { // Abstract class that defines structure for di
     // Get supervisors that are available
     protected function fetchActiveSupervisors() {
 
-        $supervisors =
-            $this->supervisorDAO
-            ->getSupervisorsForDiscovery("", "", "");
+        $supervisors = $this->supervisorDAO->getSupervisorsForDiscovery("", "", "");
 
         foreach ($supervisors as $index => $supervisor) {
 
-            $supervisors[$index] =
-                $this->availabilityService
-                ->decorateAvailability($supervisor);
+            $supervisors[$index] = $this->availabilityService->decorateAvailability($supervisor);
         }
 
         return $supervisors;
     }
 
     // Attach tags to supervisors
-    protected function attachTagPayload(
-        $supervisors
-    ) {
+    protected function attachTagPayload($supervisors) {
 
         $supervisorIDs =
             array_map(
@@ -57,14 +51,11 @@ abstract class DiscoveryEngine { // Abstract class that defines structure for di
                 $supervisors
             );
 
-        $tagMap =
-            $this->tagDAO
-            ->getSupervisorTagMap($supervisorIDs);
+        $tagMap = $this->tagDAO->getSupervisorTagMap($supervisorIDs);
 
         foreach ($supervisors as $index => $supervisor) {
 
-            $tags =
-                $tagMap[$supervisor["userID"]] ?? [];
+            $tags = $tagMap[$supervisor["userID"]] ?? [];
 
             $supervisors[$index]["tagIDs"] =
                 array_map(
@@ -89,22 +80,16 @@ abstract class DiscoveryEngine { // Abstract class that defines structure for di
     }
 
     // Filter availability statuses
-    protected function filterSlotAvailability(
-        $supervisors,
-        $context
-    ) {
+    protected function filterSlotAvailability($supervisors, $context) {
 
-        $quotaStatus =
-            $context["quotaStatus"] ?? $context["availability"] ?? "";
+        $quotaStatus = $context["quotaStatus"] ?? $context["availability"] ?? "";
 
         return array_values(
             array_filter(
                 $supervisors,
                 function ($supervisor) use ($quotaStatus) { // Depends on availability status filter
 
-                    return
-                        $quotaStatus === "" ||
-                        $supervisor["quotaStatus"] === $quotaStatus;
+                    return $quotaStatus === "" || $supervisor["quotaStatus"] === $quotaStatus;
                 }
             )
         );
@@ -112,10 +97,7 @@ abstract class DiscoveryEngine { // Abstract class that defines structure for di
 
     abstract protected function applyMatchingLogic($supervisors, $context); // Used for different search types, including manual and recommendation
 
-    protected function rankResults(
-        $supervisors,
-        $context
-    ) {
+    protected function rankResults($supervisors, $context) {
 
         // Ranking priorities
         usort(
@@ -129,33 +111,23 @@ abstract class DiscoveryEngine { // Abstract class that defines structure for di
 
                 if ($first["availabilityStatus"] !== $second["availabilityStatus"]) { // Online on top if both can apply
 
-                    return $first["availabilityStatus"] === "Online"
-                        ? -1
-                        : 1;
+                    return $first["availabilityStatus"] === "Online" ? -1 : 1;
                 }
 
-                return strcmp( // If both can't apply and offline, then based on the name alphebtical order
-                    $first["fullName"],
-                    $second["fullName"]
-                );
+                // If both can't apply and offline, then based on the name alphebtical order
+                return strcmp($first["fullName"], $second["fullName"]);
             }
         );
 
         return $supervisors;
     }
 
-    protected function renderResults(
-        $supervisors,
-        $context
-    ) {
+    protected function renderResults($supervisors, $context) {
 
         return array_values($supervisors);
     }
 
-    protected function intersects(
-        $first,
-        $second
-    ) {
+    protected function intersects($first, $second) {
 
         return count( // Returns the number of matches
             array_intersect( // Compare two arrays and returns a new array with intersects value
@@ -169,19 +141,13 @@ abstract class DiscoveryEngine { // Abstract class that defines structure for di
 // Allows student to filter
 class ManualSearchProcessor extends DiscoveryEngine { // Manual search that overwrite applyMatchingLogic function
 
-    protected function applyMatchingLogic(
-        $supervisors,
-        $context
-    ) {
+    protected function applyMatchingLogic($supervisors, $context) {
 
-        $searchName =
-            strtolower(trim($context["searchName"] ?? ""));
+        $searchName = strtolower(trim($context["searchName"] ?? ""));
 
-        $programme =
-            trim($context["programme"] ?? "");
+        $programme = trim($context["programme"] ?? "");
 
-        $interestTagID =
-            (int) ($context["interestTagID"] ?? 0);
+        $interestTagID = (int) ($context["interestTagID"] ?? 0);
 
         return array_values(
             array_filter(

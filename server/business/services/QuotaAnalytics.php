@@ -18,12 +18,9 @@ class QuotaAnalytics {
     |--------------------------------------------------------------------------
     */
 
-    public function __construct(
-        $reportDAO
-    ) {
+    public function __construct($reportDAO) {
 
-        $this->reportDAO =
-            $reportDAO;
+        $this->reportDAO = $reportDAO;
     }
 
     /*
@@ -33,34 +30,23 @@ class QuotaAnalytics {
     | Calculates the supervisor's current slot usage as a percentage.
     */
 
-    public function getFillRate(
-        $supervisorID
-    ) {
+    public function getFillRate($supervisorID) {
 
-        $stats =
-            $this->reportDAO
-            ->getSlotUtilization(
-                $supervisorID
-            );
+        $stats = $this->reportDAO->getSlotUtilization($supervisorID);
 
         if (!$stats) {
 
             return 0;
         }
 
-        $quota =
-            (int) ($stats["maxSuperviseesAllowed"] ?? 0);
+        $quota = (int) ($stats["maxSuperviseesAllowed"] ?? 0);
 
         if ($quota <= 0) {
 
             return 0;
         }
 
-        return
-            round(
-                ((int) $stats["currentSlots"] / $quota) * 100,
-                1
-            );
+        return round(((int) $stats["currentSlots"] / $quota) * 100, 1);
     }
 
     /*
@@ -72,12 +58,7 @@ class QuotaAnalytics {
 
     public function getDepartmentAverage() {
 
-        return
-            round(
-                $this->reportDAO
-                ->getDepartmentAverageFillRate(),
-                1
-            );
+        return round($this->reportDAO->getDepartmentAverageFillRate(), 1);
     }
 }
 

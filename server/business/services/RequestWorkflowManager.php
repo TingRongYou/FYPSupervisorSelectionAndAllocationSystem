@@ -74,52 +74,33 @@ class RequestWorkflowManager {
     | Validates proposal details, confirms supervisor availability, stores the
     | proposal PDF, and creates a pending application request.
     */
-    public function submitProposal(
-        $studentID,
-        $supervisorID,
-        $projectTitle,
-        $proposalFile,
-        $requestID = 0
-    ) {
+    public function submitProposal($studentID, $supervisorID, $projectTitle, $proposalFile, $requestID = 0) {
 
         /*
         |--------------------------------------------------------------------------
         | Normalize Input Values
         |--------------------------------------------------------------------------
         */
-        $studentID =
-            trim($studentID);
+        $studentID = trim($studentID);
 
-        $supervisorID =
-            trim($supervisorID);
+        $supervisorID = trim($supervisorID);
 
-        $projectTitle =
-            trim($projectTitle);
+        $projectTitle = trim($projectTitle);
 
-        $requestID =
-            (int) $requestID;
+        $requestID = (int) $requestID;
 
-        $requestedProposal =
-            null;
+        $requestedProposal = null;
 
         if ($requestID > 0) {
 
-            $requestedProposal =
-                $this->requestDAO
-                    ->getProposalRequestForStudent(
-                        $requestID,
-                        $studentID
-                    );
+            $requestedProposal = $this->requestDAO->getProposalRequestForStudent($requestID, $studentID);
 
             if (!$requestedProposal) {
 
-                return $this->failure(
-                    "Proposal request was not found or has already been completed."
-                );
+                return $this->failure("Proposal request was not found or has already been completed.");
             }
 
-            $supervisorID =
-                $requestedProposal["supervisorID"];
+            $supervisorID = $requestedProposal["supervisorID"];
         }
 
         /*
@@ -127,15 +108,9 @@ class RequestWorkflowManager {
         | Required Field Validation
         |--------------------------------------------------------------------------
         */
-        if (
-            $studentID === "" ||
-            $supervisorID === "" ||
-            $projectTitle === ""
-        ) {
+        if ($studentID === "" || $supervisorID === "" || $projectTitle === "") {
 
-            return $this->failure(
-                "Project title and proposal document are required."
-            );
+            return $this->failure("Project title and proposal document are required.");
         }
 
         /*
@@ -145,9 +120,7 @@ class RequestWorkflowManager {
         */
         if (strlen($projectTitle) > self::MAX_TITLE_LENGTH) {
 
-            return $this->failure(
-                "Project title cannot exceed 255 characters."
-            );
+            return $this->failure("Project title cannot exceed 255 characters.");
         }
 
         /*
@@ -157,9 +130,7 @@ class RequestWorkflowManager {
         */
         if ($requestedProposal === null) {
 
-            $allocationWindow =
-                $this->allocationWindowService
-                ->getWindow();
+            $allocationWindow = $this->allocationWindowService->getWindow();
 
             if (!$allocationWindow["canStudentsSubmit"]) {
 
@@ -189,9 +160,7 @@ class RequestWorkflowManager {
         */
         if (!$this->requestDAO->isStudentEligibleForFYP($studentID)) {
 
-            return $this->failure(
-                "Requirements Not Met for FYP."
-            );
+            return $this->failure("Requirements Not Met for FYP.");
         }
 
         /*
@@ -199,14 +168,9 @@ class RequestWorkflowManager {
         | Existing Allocation Validation
         |--------------------------------------------------------------------------
         */
-        if (
-            $requestedProposal === null &&
-            $this->requestDAO->studentHasAllocation($studentID)
-        ) {
+        if ($requestedProposal === null && $this->requestDAO->studentHasAllocation($studentID)) {
 
-            return $this->failure(
-                "You have already been allocated to a supervisor."
-            );
+            return $this->failure("You have already been allocated to a supervisor.");
         }
 
         /*
@@ -214,28 +178,20 @@ class RequestWorkflowManager {
         | Load Selected Supervisor
         |--------------------------------------------------------------------------
         */
-        $supervisor =
-            $this->supervisorProfileService
-                ->getDigitalBusinessCard($supervisorID);
+        $supervisor =$this->supervisorProfileService->getDigitalBusinessCard($supervisorID);
 
         if (!$supervisor) {
 
-            return $this->failure(
-                "Selected supervisor was not found."
-            );
+            return $this->failure("Selected supervisor was not found.");
         }
 
         if ($requestedProposal === null) {
 
-            $availability =
-                $this->availabilityService
-                ->canStudentApply($supervisorID);
+            $availability = $this->availabilityService->canStudentApply($supervisorID);
 
             if (!$availability["success"]) {
 
-                return $this->failure(
-                    $availability["message"]
-                );
+                return $this->failure($availability["message"]);
             }
         }
 
@@ -252,9 +208,7 @@ class RequestWorkflowManager {
             >= self::MAX_PENDING_REQUESTS
         ) {
 
-            return $this->failure(
-                "You may only have up to 3 active pending proposals."
-            );
+            return $this->failure("You may only have up to 3 active pending proposals.");
         }
 
         /*
@@ -262,18 +216,11 @@ class RequestWorkflowManager {
         | Store Proposal PDF
         |--------------------------------------------------------------------------
         */
-        $proposalResult =
-            $this->proposalStorageDAO
-                ->storeProposalPDF(
-                    $proposalFile,
-                    $studentID
-                );
+        $proposalResult = $this->proposalStorageDAO->storeProposalPDF($proposalFile, $studentID);
 
         if (!$proposalResult["success"]) {
 
-            return $this->failure(
-                $proposalResult["message"]
-            );
+            return $this->failure($proposalResult["message"]);
         }
 
         /*
@@ -301,9 +248,7 @@ class RequestWorkflowManager {
 
         if (!$created) {
 
-            return $this->failure(
-                "Proposal request could not be submitted."
-            );
+            return $this->failure("Proposal request could not be submitted.");
         }
 
         /*
@@ -311,9 +256,7 @@ class RequestWorkflowManager {
         | Proposal Submission Success
         |--------------------------------------------------------------------------
         */
-        return $this->success(
-            "Your proposal has been successfully submitted to the supervisor. They have 72 hours to respond."
-        );
+        return $this->success("Your proposal has been successfully submitted to the supervisor. They have 72 hours to respond.");
     }
 
     /*
@@ -323,10 +266,7 @@ class RequestWorkflowManager {
     */
     private function success($message) {
 
-        return [
-            "success" => true,
-            "message" => $message
-        ];
+        return ["success" => true, "message" => $message];
     }
 
     /*
@@ -336,10 +276,7 @@ class RequestWorkflowManager {
     */
     private function failure($message) {
 
-        return [
-            "success" => false,
-            "message" => $message
-        ];
+        return ["success" => false, "message" => $message];
     }
 }
 

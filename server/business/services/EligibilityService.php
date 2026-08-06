@@ -51,14 +51,11 @@ class EligibilityService {
     */
     public function __construct() {
 
-        $this->studentEligibilityDAO =
-            new StudentEligibilityDAO();
+        $this->studentEligibilityDAO = new StudentEligibilityDAO();
 
-        $this->userAccountManager =
-            new UserAccountManager();
+        $this->userAccountManager = new UserAccountManager();
 
-        $this->rules =
-            $this->loadEligibilityRules();
+        $this->rules = $this->loadEligibilityRules();
     }
 
     /*
@@ -68,20 +65,16 @@ class EligibilityService {
     | Retrieves filtered student eligibility data and formats each row for
     | dashboard display.
     */
-    public function getEligibilityDashboard(
-        $filters
-    ) {
+    public function getEligibilityDashboard($filters) {
 
         /*
         |--------------------------------------------------------------------------
         | Read Filter Inputs
         |--------------------------------------------------------------------------
         */
-        $searchName =
-            trim($filters["searchName"] ?? "");
+        $searchName = trim($filters["searchName"] ?? "");
 
-        $programme =
-            trim($filters["programme"] ?? "");
+        $programme = trim($filters["programme"] ?? "");
 
         $eligibilityStatus = $filters["eligibilityStatus"] ?? "";
 
@@ -100,13 +93,7 @@ class EligibilityService {
         | Fetch Filtered Student Records
         |--------------------------------------------------------------------------
         */
-        $students =
-            $this->studentEligibilityDAO
-                ->getStudentsForEligibility(
-                    $searchName,
-                    $programme,
-                    $eligibilityStatus
-                );
+        $students = $this->studentEligibilityDAO->getStudentsForEligibility($searchName, $programme, $eligibilityStatus);
 
         /*
         |--------------------------------------------------------------------------
@@ -115,19 +102,11 @@ class EligibilityService {
         */
         foreach ($students as $index => $student) {
 
-            $students[$index]["cgpa"] =
-                number_format(
-                    (float) $student["cgpa"],
-                    4
-                );
+            $students[$index]["cgpa"] = number_format((float) $student["cgpa"], 4);
 
-            $students[$index]["eligibilityStatus"] =
-                (bool) $student["eligibilityStatus"];
+            $students[$index]["eligibilityStatus"] = (bool) $student["eligibilityStatus"];
 
-            $students[$index]["eligibilityReason"] =
-                $this->getEligibilityReason(
-                    $student
-                );
+            $students[$index]["eligibilityReason"] = $this->getEligibilityReason( $student);
         }
 
         return $students;
@@ -141,9 +120,7 @@ class EligibilityService {
     */
     public function getProgrammeOptions() {
 
-        return
-            $this->studentEligibilityDAO
-                ->getStudentProgrammes();
+        return $this->studentEligibilityDAO->getStudentProgrammes();
     }
 
     /*
@@ -154,18 +131,13 @@ class EligibilityService {
     */
     public function getEligibilitySummary() {
 
-        $summary =
-            $this->studentEligibilityDAO
-                ->getEligibilitySummary();
+        $summary = $this->studentEligibilityDAO->getEligibilitySummary();
 
-        $totalStudents =
-            (int) ($summary["totalStudents"] ?? 0);
+        $totalStudents = (int) ($summary["totalStudents"] ?? 0);
 
-        $eligibleStudents =
-            (int) ($summary["eligibleStudents"] ?? 0);
+        $eligibleStudents = (int) ($summary["eligibleStudents"] ?? 0);
 
-        $ineligibleStudents =
-            (int) ($summary["ineligibleStudents"] ?? 0);
+        $ineligibleStudents = (int) ($summary["ineligibleStudents"] ?? 0);
 
         return [
             "totalStudents" => $totalStudents,
@@ -199,12 +171,7 @@ class EligibilityService {
     | Allows administrators to update CGPA, required next semester,
     | and blocked academic status rules.
     */
-    public function updateEligibilityRules(
-        $administratorRole,
-        $minimumCGPA,
-        $requiredNextSemester,
-        $blockedAcademicStatus
-    ) {
+    public function updateEligibilityRules($administratorRole, $minimumCGPA, $requiredNextSemester, $blockedAcademicStatus) {
 
         /*
         |--------------------------------------------------------------------------
@@ -213,9 +180,7 @@ class EligibilityService {
         */
         if ($administratorRole !== "Administrator") {
 
-            return $this->failure(
-                "Access denied"
-            );
+            return $this->failure("Access denied");
         }
 
         /*
@@ -223,39 +188,20 @@ class EligibilityService {
         | Normalize Rule Inputs
         |--------------------------------------------------------------------------
         */
-        $minimumCGPA =
-            trim(
-                (string) $minimumCGPA
-            );
+        $minimumCGPA = trim((string) $minimumCGPA);
 
-        $requiredNextSemester =
-            strtoupper(
-                trim(
-                    (string) $requiredNextSemester
-                )
-            );
+        $requiredNextSemester = strtoupper(trim((string) $requiredNextSemester));
 
-        $blockedAcademicStatus =
-            strtoupper(
-                trim(
-                    (string) $blockedAcademicStatus
-                )
-            );
+        $blockedAcademicStatus = strtoupper(trim((string) $blockedAcademicStatus));
 
         /*
         |--------------------------------------------------------------------------
         | Minimum CGPA Validation
         |--------------------------------------------------------------------------
         */
-        if (
-            !is_numeric($minimumCGPA) ||
-            (float) $minimumCGPA < 0 ||
-            (float) $minimumCGPA > 4
-        ) {
+        if (!is_numeric($minimumCGPA) || (float) $minimumCGPA < 0 || (float) $minimumCGPA > 4) {
 
-            return $this->failure(
-                "Minimum CGPA must be between 0.00 and 4.00"
-            );
+            return $this->failure("Minimum CGPA must be between 0.00 and 4.00");
         }
 
         /*
@@ -265,9 +211,7 @@ class EligibilityService {
         */
         if (!preg_match("/^Y[0-9]+S[1-3]$/", $requiredNextSemester)) {
 
-            return $this->failure(
-                "Required next semester must use format such as Y2S3"
-            );
+            return $this->failure("Required next semester must use format such as Y2S3");
         }
 
         /*
@@ -275,14 +219,9 @@ class EligibilityService {
         | Blocked Academic Status Validation
         |--------------------------------------------------------------------------
         */
-        if (
-            $blockedAcademicStatus === "" ||
-            strlen($blockedAcademicStatus) > 50
-        ) {
+        if ($blockedAcademicStatus === "" || strlen($blockedAcademicStatus) > 50) {
 
-            return $this->failure(
-                "Blocked academic status is required"
-            );
+            return $this->failure("Blocked academic status is required");
         }
 
         /*
@@ -300,9 +239,7 @@ class EligibilityService {
 
         if (!$updated) {
 
-            return $this->failure(
-                "Eligibility rules could not be updated"
-            );
+            return $this->failure("Eligibility rules could not be updated");
         }
 
         /*
@@ -310,12 +247,9 @@ class EligibilityService {
         | Reload Active Rules
         |--------------------------------------------------------------------------
         */
-        $this->rules =
-            $this->loadEligibilityRules();
+        $this->rules = $this->loadEligibilityRules();
 
-        return $this->success(
-            "Eligibility rules updated successfully. Run Eligibility Batch to apply the new rules."
-        );
+        return $this->success("Eligibility rules updated successfully. Run Eligibility Batch to apply the new rules.");
     }
 
     /*
@@ -324,9 +258,7 @@ class EligibilityService {
     |--------------------------------------------------------------------------
     | Recalculates eligibility status for all students based on active rules.
     */
-    public function runEligibilityBatch(
-        $administratorRole
-    ) {
+    public function runEligibilityBatch($administratorRole) {
 
         /*
         |--------------------------------------------------------------------------
@@ -335,9 +267,7 @@ class EligibilityService {
         */
         if ($administratorRole !== "Administrator") {
 
-            return $this->failure(
-                "Access denied"
-            );
+            return $this->failure("Access denied");
         }
 
         /*
@@ -345,15 +275,11 @@ class EligibilityService {
         | Fetch All Students For Batch Processing
         |--------------------------------------------------------------------------
         */
-        $students =
-            $this->studentEligibilityDAO
-                ->getAllStudentsForBatch();
+        $students = $this->studentEligibilityDAO->getAllStudentsForBatch();
 
         if (empty($students)) {
 
-            return $this->failure(
-                "No Record: No Student Record Found"
-            );
+            return $this->failure("No Record: No Student Record Found");
         }
 
         /*
@@ -361,14 +287,11 @@ class EligibilityService {
         | Initialize Batch Counters
         |--------------------------------------------------------------------------
         */
-        $eligibilityResults =
-            [];
+        $eligibilityResults = [];
 
-        $eligibleCount =
-            0;
+        $eligibleCount = 0;
 
-        $ineligibleCount =
-            0;
+        $ineligibleCount = 0;
 
         /*
         |--------------------------------------------------------------------------
@@ -377,10 +300,7 @@ class EligibilityService {
         */
         foreach ($students as $student) {
 
-            $isEligible =
-                $this->isStudentEligible(
-                    $student
-                );
+            $isEligible = $this->isStudentEligible($student);
 
             if ($isEligible) {
 
@@ -408,11 +328,9 @@ class EligibilityService {
                     "hashedPassword" => ""
                 ];
 
-            $accountPayload["eligibilityStatus"] =
-                $isEligible;
+            $accountPayload["eligibilityStatus"] = $isEligible;
 
-            $eligibilityResults[] =
-                $accountPayload;
+            $eligibilityResults[] = $accountPayload;
         }
 
         /*
@@ -420,17 +338,11 @@ class EligibilityService {
         | Persist Batch Eligibility Statuses
         |--------------------------------------------------------------------------
         */
-        $updated =
-            $this->studentEligibilityDAO
-                ->updateEligibilityStatuses(
-                    $eligibilityResults
-                );
+        $updated = $this->studentEligibilityDAO->updateEligibilityStatuses($eligibilityResults);
 
         if (!$updated) {
 
-            return $this->failure(
-                "Eligibility batch could not be completed"
-            );
+            return $this->failure("Eligibility batch could not be completed");
         }
 
         return $this->success(
@@ -449,10 +361,7 @@ class EligibilityService {
     | Validates uploaded CSV records, calculates eligibility, creates student
     | account payloads, and imports records into the database.
     */
-    public function importStudentEligibilityCSV(
-        $administratorRole,
-        $csvFilePath
-    ) {
+    public function importStudentEligibilityCSV($administratorRole, $csvFilePath) {
 
         /*
         |--------------------------------------------------------------------------
@@ -461,9 +370,7 @@ class EligibilityService {
         */
         if ($administratorRole !== "Administrator") {
 
-            return $this->failure(
-                "Access denied"
-            );
+            return $this->failure("Access denied");
         }
 
         /*
@@ -471,14 +378,9 @@ class EligibilityService {
         | CSV File Read Validation
         |--------------------------------------------------------------------------
         */
-        if (
-            $csvFilePath === "" ||
-            !is_readable($csvFilePath)
-        ) {
+        if ($csvFilePath === "" || !is_readable($csvFilePath)) {
 
-            return $this->failure(
-                "Uploaded CSV file could not be read"
-            );
+            return $this->failure("Uploaded CSV file could not be read");
         }
 
         /*
@@ -486,17 +388,11 @@ class EligibilityService {
         | Open CSV File
         |--------------------------------------------------------------------------
         */
-        $handle =
-            fopen(
-                $csvFilePath,
-                "r"
-            );
+        $handle = fopen($csvFilePath, "r");
 
         if (!$handle) {
 
-            return $this->failure(
-                "Unable to open uploaded CSV file"
-            );
+            return $this->failure("Unable to open uploaded CSV file");
         }
 
         /*
@@ -504,16 +400,13 @@ class EligibilityService {
         | Read CSV Header
         |--------------------------------------------------------------------------
         */
-        $header =
-            fgetcsv($handle);
+        $header = fgetcsv($handle);
 
         if (!$header) {
 
             fclose($handle);
 
-            return $this->failure(
-                "CSV file is empty"
-            );
+            return $this->failure("CSV file is empty");
         }
 
         /*
@@ -521,8 +414,7 @@ class EligibilityService {
         | Map CSV Header Columns
         |--------------------------------------------------------------------------
         */
-        $headerMap =
-            $this->mapCsvHeader($header);
+        $headerMap = $this->mapCsvHeader($header);
 
         $requiredColumns =
             [
@@ -547,9 +439,7 @@ class EligibilityService {
 
                 fclose($handle);
 
-                return $this->failure(
-                    "CSV missing required column: " . $column
-                );
+                return $this->failure("CSV missing required column: " . $column);
             }
         }
 
@@ -558,17 +448,13 @@ class EligibilityService {
         | Initialize CSV Import Counters
         |--------------------------------------------------------------------------
         */
-        $records =
-            [];
+        $records = [];
 
-        $eligibleCount =
-            0;
+        $eligibleCount = 0;
 
-        $ineligibleCount =
-            0;
+        $ineligibleCount = 0;
 
-        $rowNumber =
-            1;
+        $rowNumber = 1;
 
         /*
         |--------------------------------------------------------------------------
@@ -588,44 +474,27 @@ class EligibilityService {
 
                 fclose($handle);
 
-                return $this->failure(
-                    "CSV exceeds maximum supported row count"
-                );
+                return $this->failure("CSV exceeds maximum supported row count");
             }
 
-            $record =
-                $this->normaliseCsvStudentRecord(
-                    $row,
-                    $headerMap
-                );
+            $record = $this->normaliseCsvStudentRecord($row, $headerMap);
 
-            $validationError =
-                $this->validateCsvStudentRecord(
-                    $record,
-                    $rowNumber
-                );
+            $validationError = $this->validateCsvStudentRecord($record, $rowNumber);
 
             if ($validationError !== "") {
 
                 fclose($handle);
 
-                return $this->failure(
-                    $validationError
-                );
+                return $this->failure($validationError);
             }
 
-            $record["intakeBatch"] =
-                $this->deriveIntakeBatch(
-                    $record["studentID"]
-                );
+            $record["intakeBatch"] = $this->deriveIntakeBatch($record["studentID"]);
 
-            $record["eligibilityStatus"] =
-                false;
+            $record["eligibilityStatus"] = false;
 
             $ineligibleCount++;
 
-            $records[] =
-                $record;
+            $records[] = $record;
         }
 
         fclose($handle);
@@ -637,9 +506,7 @@ class EligibilityService {
         */
         if (empty($records)) {
 
-            return $this->failure(
-                "No student records found in CSV"
-            );
+            return $this->failure("No student records found in CSV");
         }
 
         /*
@@ -647,17 +514,11 @@ class EligibilityService {
         | Import Student Records
         |--------------------------------------------------------------------------
         */
-        $imported =
-            $this->studentEligibilityDAO
-                ->importStudentRecords(
-                    $records
-                );
+        $imported = $this->studentEligibilityDAO->importStudentRecords($records);
 
         if (!$imported) {
 
-            return $this->failure(
-                "Student eligibility CSV import could not be completed"
-            );
+            return $this->failure("Student eligibility CSV import could not be completed");
         }
 
         return $this->success(
@@ -673,9 +534,7 @@ class EligibilityService {
     |--------------------------------------------------------------------------
     | Returns true only when CGPA, next semester, and academic status rules pass.
     */
-    private function isStudentEligible(
-        $student
-    ) {
+    private function isStudentEligible($student) {
 
         return
             (float) $student["cgpa"] > (float) $this->rules["minimumCGPA"] &&
@@ -696,9 +555,7 @@ class EligibilityService {
     |--------------------------------------------------------------------------
     | Returns the reason why a student is eligible or ineligible.
     */
-    private function getEligibilityReason(
-        $student
-    ) {
+    private function getEligibilityReason($student) {
 
         if ((float) $student["cgpa"] <= (float) $this->rules["minimumCGPA"]) {
 
@@ -741,23 +598,13 @@ class EligibilityService {
     |--------------------------------------------------------------------------
     | Converts flexible CSV column names into standard internal field names.
     */
-    private function mapCsvHeader(
-        $header
-    ) {
+    private function mapCsvHeader($header) {
 
-        $map =
-            [];
+        $map = [];
 
         foreach ($header as $index => $columnName) {
 
-            $normalised =
-                strtolower(
-                    preg_replace(
-                        "/[^a-zA-Z0-9]/",
-                        "",
-                        trim($columnName)
-                    )
-                );
+            $normalised = strtolower(preg_replace("/[^a-zA-Z0-9]/", "", trim($columnName)));
 
             $aliases =
                 [
@@ -785,8 +632,7 @@ class EligibilityService {
 
             if (isset($aliases[$normalised])) {
 
-                $map[$aliases[$normalised]] =
-                    $index;
+                $map[$aliases[$normalised]] = $index;
             }
         }
 
@@ -799,35 +645,24 @@ class EligibilityService {
     |--------------------------------------------------------------------------
     | Cleans and standardizes raw CSV row values.
     */
-    private function normaliseCsvStudentRecord(
-        $row,
-        $headerMap
-    ) {
+    private function normaliseCsvStudentRecord($row, $headerMap) {
 
         return [
-            "studentID" =>
-                strtoupper(trim($row[$headerMap["studentID"]] ?? "")),
+            "studentID" => strtoupper(trim($row[$headerMap["studentID"]] ?? "")),
 
-            "universityEmail" =>
-                strtolower(trim($row[$headerMap["universityEmail"]] ?? "")),
+            "universityEmail" => strtolower(trim($row[$headerMap["universityEmail"]] ?? "")),
 
-            "icNumber" =>
-                trim($row[$headerMap["icNumber"]] ?? ""),
+            "icNumber" => trim($row[$headerMap["icNumber"]] ?? ""),
 
-            "fullName" =>
-                trim($row[$headerMap["fullName"]] ?? ""),
+            "fullName" => trim($row[$headerMap["fullName"]] ?? ""),
 
-            "programme" =>
-                trim($row[$headerMap["programme"]] ?? ""),
+            "programme" => trim($row[$headerMap["programme"]] ?? ""),
 
-            "cgpa" =>
-                trim($row[$headerMap["cgpa"]] ?? ""),
+            "cgpa" => trim($row[$headerMap["cgpa"]] ?? ""),
 
-            "currentSem" =>
-                strtoupper(trim($row[$headerMap["currentSem"]] ?? "")),
+            "currentSem" => strtoupper(trim($row[$headerMap["currentSem"]] ?? "")),
 
-            "academicStatus" =>
-                strtoupper(trim($row[$headerMap["academicStatus"]] ?? ""))
+            "academicStatus" => strtoupper(trim($row[$headerMap["academicStatus"]] ?? ""))
         ];
     }
 
@@ -837,10 +672,7 @@ class EligibilityService {
     |--------------------------------------------------------------------------
     | Ensures each CSV row has required values and valid academic data.
     */
-    private function validateCsvStudentRecord(
-        $record,
-        $rowNumber
-    ) {
+    private function validateCsvStudentRecord($record, $rowNumber) {
 
         foreach (
             [
@@ -857,39 +689,23 @@ class EligibilityService {
 
             if ($record[$field] === "") {
 
-                return
-                    "CSV row " .
-                    $rowNumber .
-                    " missing " .
-                    $field;
+                return "CSV row " . $rowNumber . " missing " . $field;
             }
         }
 
         if (!filter_var($record["universityEmail"], FILTER_VALIDATE_EMAIL)) {
 
-            return
-                "CSV row " .
-                $rowNumber .
-                " has invalid university email";
+            return "CSV row " . $rowNumber . " has invalid university email";
         }
 
         if (!is_numeric($record["cgpa"])) {
 
-            return
-                "CSV row " .
-                $rowNumber .
-                " has invalid CGPA";
+            return "CSV row " . $rowNumber . " has invalid CGPA";
         }
 
-        if (
-            (float) $record["cgpa"] < 0 ||
-            (float) $record["cgpa"] > 4
-        ) {
+        if ((float) $record["cgpa"] < 0 || (float) $record["cgpa"] > 4) {
 
-            return
-                "CSV row " .
-                $rowNumber .
-                " CGPA must be between 0 and 4";
+            return "CSV row " . $rowNumber . " CGPA must be between 0 and 4";
         }
 
         return "";
@@ -902,17 +718,14 @@ class EligibilityService {
     | Uses the factory-based user account manager to create a Student object,
     | then converts it into a database-ready import payload.
     */
-    private function createStudentAccountPayload(
-        $record
-    ) {
+    private function createStudentAccountPayload($record) {
 
         /*
         |--------------------------------------------------------------------------
         | Calculate Eligibility Status
         |--------------------------------------------------------------------------
         */
-        $record["eligibilityStatus"] =
-            $this->isStudentEligible($record);
+        $record["eligibilityStatus"] = $this->isStudentEligible($record);
 
         /*
         |--------------------------------------------------------------------------
@@ -941,37 +754,23 @@ class EligibilityService {
         | Build Database Import Payload
         |--------------------------------------------------------------------------
         */
-        $record["studentID"] =
-            $student->getUserID();
+        $record["studentID"] = $student->getUserID();
 
-        $record["fullName"] =
-            $student->getName();
+        $record["fullName"] = $student->getName();
 
-        $record["universityEmail"] =
-            $student->getUniversityEmail();
+        $record["universityEmail"] = $student->getUniversityEmail();
 
-        $record["programme"] =
-            $student->getProgramme();
+        $record["programme"] = $student->getProgramme();
 
-        $record["cgpa"] =
-            $student->getCgpa();
+        $record["cgpa"] = $student->getCgpa();
 
-        $record["academicStatus"] =
-            $student->getAcademicStatus();
+        $record["academicStatus"] = $student->getAcademicStatus();
 
-        $record["currentSem"] =
-            $student->getCurrentSem();
+        $record["currentSem"] = $student->getCurrentSem();
 
-        $record["hashedPassword"] =
-            password_hash(
-                $student->getPassword(),
-                PASSWORD_DEFAULT
-            );
+        $record["hashedPassword"] = password_hash($student->getPassword(), PASSWORD_DEFAULT);
 
-        $record["intakeBatch"] =
-            $this->deriveIntakeBatch(
-                $student->getUserID()
-            );
+        $record["intakeBatch"] = $this->deriveIntakeBatch($student->getUserID());
 
         return $record;
     }
@@ -982,9 +781,7 @@ class EligibilityService {
     |--------------------------------------------------------------------------
     | Extracts the intake year from the first two digits of the student ID.
     */
-    private function deriveIntakeBatch(
-        $studentID
-    ) {
+    private function deriveIntakeBatch($studentID) {
 
         if (preg_match("/^([0-9]{2})/", $studentID, $matches)) {
 
@@ -1000,26 +797,16 @@ class EligibilityService {
     |--------------------------------------------------------------------------
     | Converts current semester such as Y2S2 into the next semester Y2S3.
     */
-    private function calculateNextSemester(
-        $currentSem
-    ) {
+    private function calculateNextSemester($currentSem) {
 
-        if (
-            !preg_match(
-                "/^Y([0-9]+)S([1-3])$/",
-                $currentSem,
-                $matches
-            )
-        ) {
+        if (!preg_match("/^Y([0-9]+)S([1-3])$/", $currentSem, $matches)) {
 
             return "";
         }
 
-        $year =
-            (int) $matches[1];
+        $year = (int) $matches[1];
 
-        $semester =
-            (int) $matches[2];
+        $semester = (int) $matches[2];
 
         if ($semester < 3) {
 
@@ -1042,9 +829,7 @@ class EligibilityService {
     */
     private function loadEligibilityRules() {
 
-        $rules =
-            $this->studentEligibilityDAO
-                ->getEligibilityRules();
+        $rules = $this->studentEligibilityDAO->getEligibilityRules();
 
         if (!$rules) {
 
@@ -1073,9 +858,7 @@ class EligibilityService {
     |--------------------------------------------------------------------------
     | Returns true when every column in a CSV row is blank.
     */
-    private function isEmptyCsvRow(
-        $row
-    ) {
+    private function isEmptyCsvRow($row) {
 
         foreach ($row as $value) {
 
@@ -1093,14 +876,9 @@ class EligibilityService {
     | Success Response Helper
     |--------------------------------------------------------------------------
     */
-    private function success(
-        $message
-    ) {
+    private function success($message) {
 
-        return [
-            "success" => true,
-            "message" => $message
-        ];
+        return ["success" => true, "message" => $message];
     }
 
     /*
@@ -1108,14 +886,9 @@ class EligibilityService {
     | Failure Response Helper
     |--------------------------------------------------------------------------
     */
-    private function failure(
-        $message
-    ) {
+    private function failure($message) {
 
-        return [
-            "success" => false,
-            "message" => $message
-        ];
+        return ["success" => false, "message" => $message];
     }
 }
 

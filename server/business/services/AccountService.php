@@ -35,11 +35,9 @@ class AccountService {
     */
     public function __construct() {
 
-        $this->userDAO =
-            new UserDAO();
+        $this->userDAO = new UserDAO();
 
-        $this->imageStorageDAO =
-            new ImageStorageDAO();
+        $this->imageStorageDAO = new ImageStorageDAO();
     }
 
     /*
@@ -51,8 +49,7 @@ class AccountService {
     */
     public function getAccountProfile($userID) {
 
-        $user =
-            $this->userDAO->getUserByID($userID);
+        $user = $this->userDAO->getUserByID($userID);
 
         if (!$user) {
 
@@ -76,26 +73,18 @@ class AccountService {
     | Validates the current password, checks password strength, prevents
     | password reuse, hashes the new password, and updates the database.
     */
-    public function changePassword(
-        $userID,
-        $currentPassword,
-        $newPassword,
-        $confirmPassword
-    ) {
+    public function changePassword($userID, $currentPassword, $newPassword, $confirmPassword) {
 
         /*
         |--------------------------------------------------------------------------
         | Trim Password Inputs
         |--------------------------------------------------------------------------
         */
-        $currentPassword =
-            trim($currentPassword);
+        $currentPassword = trim($currentPassword);
 
-        $newPassword =
-            trim($newPassword);
+        $newPassword = trim($newPassword);
 
-        $confirmPassword =
-            trim($confirmPassword);
+        $confirmPassword = trim($confirmPassword);
 
         /*
         |--------------------------------------------------------------------------
@@ -108,9 +97,7 @@ class AccountService {
             $confirmPassword === ""
         ) {
 
-            return $this->failure(
-                "All password fields are required."
-            );
+            return $this->failure("All password fields are required.");
         }
 
         /*
@@ -120,9 +107,7 @@ class AccountService {
         */
         if ($newPassword !== $confirmPassword) {
 
-            return $this->failure(
-                "New password and confirm password do not match."
-            );
+            return $this->failure("New password and confirm password do not match.");
         }
 
         /*
@@ -148,13 +133,10 @@ class AccountService {
 
         if (!$user) {
 
-            return $this->failure(
-                "Account was not found."
-            );
+            return $this->failure("Account was not found.");
         }
 
-        $storedHash =
-            $user["password"];
+        $storedHash = $user["password"];
 
         /*
         |--------------------------------------------------------------------------
@@ -162,15 +144,11 @@ class AccountService {
         |--------------------------------------------------------------------------
         | Supports both hashed passwords and legacy plain-text passwords.
         */
-        $validCurrentPassword =
-            password_verify($currentPassword, $storedHash) ||
-            hash_equals($storedHash, $currentPassword);
+        $validCurrentPassword = password_verify($currentPassword, $storedHash) || hash_equals($storedHash, $currentPassword);
 
         if (!$validCurrentPassword) {
 
-            return $this->failure(
-                "Current password is incorrect."
-            );
+            return $this->failure("Current password is incorrect.");
         }
 
         /*
@@ -179,15 +157,12 @@ class AccountService {
         |--------------------------------------------------------------------------
         | Prevents the user from reusing the current password as the new one.
         */
-        $sameAsCurrentPassword =
-            password_verify($newPassword, $storedHash) || // Hash new password using same algorithm and compare them
-            hash_equals($storedHash, $newPassword); // prevent timing-attack
+        // Hash new password using same algorithm and compare them
+        $sameAsCurrentPassword = password_verify($newPassword, $storedHash) || hash_equals($storedHash, $newPassword); // prevent timing-attack
 
         if ($sameAsCurrentPassword) {
 
-            return $this->failure(
-                "New password must be different from your current password."
-            );
+            return $this->failure("New password must be different from your current password.");
         }
 
         /*
@@ -195,28 +170,18 @@ class AccountService {
         | Password Hashing
         |--------------------------------------------------------------------------
         */
-        $hashedPassword =
-            password_hash(
-                $newPassword,
-                PASSWORD_DEFAULT
-            );
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
         /*
         |--------------------------------------------------------------------------
         | Update Password Record
         |--------------------------------------------------------------------------
         */
-        $updated =
-            $this->userDAO->updatePassword(
-                $userID,
-                $hashedPassword
-            );
+        $updated = $this->userDAO->updatePassword($userID, $hashedPassword);
 
         if (!$updated) {
 
-            return $this->failure(
-                "Password could not be updated. Please try again."
-            );
+            return $this->failure("Password could not be updated. Please try again.");
         }
 
         /*
@@ -224,9 +189,7 @@ class AccountService {
         | Password Update Success
         |--------------------------------------------------------------------------
         */
-        return $this->success(
-            "Password updated successfully."
-        );
+        return $this->success("Password updated successfully.");
     }
 
     /*
@@ -243,14 +206,11 @@ class AccountService {
         | Load User Record
         |--------------------------------------------------------------------------
         */
-        $user =
-            $this->userDAO->getUserByID($userID);
+        $user = $this->userDAO->getUserByID($userID);
 
         if (!$user) {
 
-            return $this->failure(
-                "Account was not found."
-            );
+            return $this->failure("Account was not found.");
         }
 
         /*
@@ -258,17 +218,11 @@ class AccountService {
         | Store Uploaded Profile Photo
         |--------------------------------------------------------------------------
         */
-        $photoResult =
-            $this->imageStorageDAO->storeProfilePhoto(
-                $profilePhotoFile,
-                $userID
-            );
+        $photoResult = $this->imageStorageDAO->storeProfilePhoto($profilePhotoFile, $userID);
 
         if (!$photoResult["success"]) {
 
-            return $this->failure(
-                $photoResult["message"]
-            );
+            return $this->failure($photoResult["message"]);
         }
 
         /*
@@ -278,9 +232,7 @@ class AccountService {
         */
         if ($photoResult["path"] === null) {
 
-            return $this->failure(
-                "Please select a JPG or PNG profile photo."
-            );
+            return $this->failure("Please select a JPG or PNG profile photo.");
         }
 
         /*
@@ -288,17 +240,11 @@ class AccountService {
         | Update Profile Photo Path
         |--------------------------------------------------------------------------
         */
-        $updated =
-            $this->userDAO->updateProfilePhoto(
-                $userID,
-                $photoResult["path"]
-            );
+        $updated = $this->userDAO->updateProfilePhoto($userID, $photoResult["path"]);
 
         if (!$updated) {
 
-            return $this->failure(
-                "Profile photo could not be updated."
-            );
+            return $this->failure("Profile photo could not be updated.");
         }
 
         /*
@@ -306,18 +252,14 @@ class AccountService {
         | Delete Previous Profile Photo
         |--------------------------------------------------------------------------
         */
-        $this->imageStorageDAO->deleteStoredImage(
-            $user["profilePhotoPath"] ?? ""
-        );
+        $this->imageStorageDAO->deleteStoredImage($user["profilePhotoPath"] ?? "");
 
         /*
         |--------------------------------------------------------------------------
         | Profile Photo Update Success
         |--------------------------------------------------------------------------
         */
-        return $this->success(
-            "Profile photo updated successfully."
-        );
+        return $this->success("Profile photo updated successfully.");
     }
 
     /*
@@ -328,43 +270,28 @@ class AccountService {
     */
     public function removeProfilePhoto($userID) {
 
-        $user =
-            $this->userDAO->getUserByID($userID);
+        $user = $this->userDAO->getUserByID($userID);
 
         if (!$user) {
 
-            return $this->failure(
-                "Account was not found."
-            );
+            return $this->failure("Account was not found.");
         }
 
         if (empty($user["profilePhotoPath"])) {
 
-            return $this->failure(
-                "No profile photo is currently set."
-            );
+            return $this->failure("No profile photo is currently set.");
         }
 
-        $updated =
-            $this->userDAO->updateProfilePhoto(
-                $userID,
-                ""
-            );
+        $updated = $this->userDAO->updateProfilePhoto($userID, "");
 
         if (!$updated) {
 
-            return $this->failure(
-                "Profile photo could not be removed."
-            );
+            return $this->failure("Profile photo could not be removed.");
         }
 
-        $this->imageStorageDAO->deleteStoredImage(
-            $user["profilePhotoPath"]
-        );
+        $this->imageStorageDAO->deleteStoredImage($user["profilePhotoPath"]);
 
-        return $this->success(
-            "Profile photo removed successfully."
-        );
+        return $this->success("Profile photo removed successfully.");
     }
 
     /*
@@ -390,10 +317,7 @@ class AccountService {
     */
     private function success($message) {
 
-        return [
-            "success" => true,
-            "message" => $message
-        ];
+        return ["success" => true, "message" => $message];
     }
 
     /*
@@ -403,10 +327,7 @@ class AccountService {
     */
     private function failure($message) {
 
-        return [
-            "success" => false,
-            "message" => $message
-        ];
+        return ["success" => false, "message" => $message];
     }
 }
 

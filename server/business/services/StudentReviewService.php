@@ -25,8 +25,7 @@ class StudentReviewService {
 
         if ($context && !empty($context["supervisorID"])) {
 
-            $statistics = $this->reviewDAO
-                ->getSupervisorReviewStatistics($context["supervisorID"]);
+            $statistics = $this->reviewDAO->getSupervisorReviewStatistics($context["supervisorID"]);
         }
 
         return [
@@ -50,16 +49,12 @@ class StudentReviewService {
 
         if (!$this->isReviewPeriod($this->reviewDAO->getActiveSystemPhase())) {
 
-            return $this->failure(
-                "Submission failed. Reviews can only be submitted during the Review Period."
-            );
+            return $this->failure("Submission failed. Reviews can only be submitted during the Review Period.");
         }
 
         if (!$this->reviewDAO->allocationBelongsToStudent($allocationID, $studentID)) {
 
-            return $this->failure(
-                "Submission failed. You must have a completed allocation before submitting a review."
-            );
+            return $this->failure("Submission failed. You must have a completed allocation before submitting a review.");
         }
 
         // Dependency check: prevents duplicate reviews for the same allocation
@@ -87,14 +82,10 @@ class StudentReviewService {
 
         if (!$created) {
 
-            return $this->failure(
-                "Submission failed. Please try again."
-            );
+            return $this->failure("Submission failed. Please try again.");
         }
 
-        return $this->success(
-            "Your review has been successfully submitted. Thank you for your feedback."
-        );
+        return $this->success("Your review has been successfully submitted. Thank you for your feedback.");
     }
 
     public function getSanitizedReviewsForSupervisor($supervisorID) {
@@ -112,31 +103,22 @@ class StudentReviewService {
 
     public function getReviewAuditRecords($supervisorID = "") {
 
-        return
-            $this->reviewDAO
-                ->getReviewAuditRecords($supervisorID);
+        return $this->reviewDAO->getReviewAuditRecords($supervisorID);
     }
 
     private function isReviewPeriod($phase) {
 
-        return $phase &&
-            strtolower(trim((string) $phase["phaseName"])) === "review period";
+        return $phase && strtolower(trim((string) $phase["phaseName"])) === "review period";
     }
 
     private function success($message) {
 
-        return [
-            "success" => true,
-            "message" => $message
-        ];
+        return ["success" => true, "message" => $message];
     }
 
     private function failure($message) {
 
-        return [
-            "success" => false,
-            "message" => $message
-        ];
+        return ["success" => false, "message" => $message];
     }
 }
 

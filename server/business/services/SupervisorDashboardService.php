@@ -42,8 +42,7 @@ class SupervisorDashboardService {
     */
     public function __construct() {
 
-        $this->requestDAO =
-            new RequestDAO();
+        $this->requestDAO = new RequestDAO();
     }
 
     /*
@@ -52,80 +51,41 @@ class SupervisorDashboardService {
     |--------------------------------------------------------------------------
     | Compiles all supervisor dashboard metrics into a single response array.
     */
-    public function getDashboardData(
-        $supervisorID,
-        $allocationStatus = "",
-        $proposalStatus = "",
-        $recentApplicationPage = 1
-    ) {
+    public function getDashboardData($supervisorID, $allocationStatus = "", $proposalStatus = "", $recentApplicationPage = 1) {
 
         /*
         |--------------------------------------------------------------------------
         | Count Pending Requests
         |--------------------------------------------------------------------------
         */
-        $pendingRequests =
-            $this->requestDAO
-                ->countPendingRequestsBySupervisor(
-                    $supervisorID
-                );
+        $pendingRequests = $this->requestDAO->countPendingRequestsBySupervisor($supervisorID);
 
         /*
         |--------------------------------------------------------------------------
         | Count Active Supervisees
         |--------------------------------------------------------------------------
         */
-        $activeSupervisees =
-            $this->requestDAO
-                ->countActiveSupervisees(
-                    $supervisorID
-                );
+        $activeSupervisees = $this->requestDAO->countActiveSupervisees($supervisorID);
 
         /*
         |--------------------------------------------------------------------------
         | Get Supervisor Quota Limit
         |--------------------------------------------------------------------------
         */
-        $maxSuperviseesAllowed =
-            $this->requestDAO
-                ->getSupervisorQuotaLimit(
-                    $supervisorID
-                );
+        $maxSuperviseesAllowed = $this->requestDAO->getSupervisorQuotaLimit($supervisorID);
 
         /*
         |--------------------------------------------------------------------------
         | Get Recent Allocations
         |--------------------------------------------------------------------------
         */
-        $recentApplicationTotal =
-            $this->requestDAO
-                ->countRecentAllocationsBySupervisor(
-                    $supervisorID,
-                    $allocationStatus,
-                    $proposalStatus
-                );
+        $recentApplicationTotal = $this->requestDAO->countRecentAllocationsBySupervisor($supervisorID, $allocationStatus, $proposalStatus);
 
-        $recentApplicationTotalPages =
-            max(
-                1,
-                (int) ceil(
-                    $recentApplicationTotal /
-                    self::RECENT_APPLICATION_LIMIT
-                )
-            );
+        $recentApplicationTotalPages = max(1, (int) ceil($recentApplicationTotal / self::RECENT_APPLICATION_LIMIT));
 
-        $recentApplicationPage =
-            max(
-                1,
-                min(
-                    (int) $recentApplicationPage,
-                    $recentApplicationTotalPages
-                )
-            );
+        $recentApplicationPage = max(1, min( (int) $recentApplicationPage, $recentApplicationTotalPages));
 
-        $recentApplicationOffset =
-            ($recentApplicationPage - 1) *
-            self::RECENT_APPLICATION_LIMIT;
+        $recentApplicationOffset = ($recentApplicationPage - 1) * self::RECENT_APPLICATION_LIMIT;
 
         $recentApplications =
             $this->requestDAO
@@ -142,24 +102,14 @@ class SupervisorDashboardService {
         | Get Active System Phase
         |--------------------------------------------------------------------------
         */
-        $activePhase =
-            $this->requestDAO
-                ->getActiveSystemPhase();
+        $activePhase = $this->requestDAO->getActiveSystemPhase();
 
         /*
         |--------------------------------------------------------------------------
         | Calculate Quota Usage
         |--------------------------------------------------------------------------
         */
-        $quotaUsage =
-            $maxSuperviseesAllowed > 0
-                ? round(
-                    (
-                        $activeSupervisees /
-                        $maxSuperviseesAllowed
-                    ) * 100
-                )
-                : 0;
+        $quotaUsage = $maxSuperviseesAllowed > 0 ? round(($activeSupervisees / $maxSuperviseesAllowed) * 100) : 0;
 
         /*
         |--------------------------------------------------------------------------
@@ -167,38 +117,25 @@ class SupervisorDashboardService {
         |--------------------------------------------------------------------------
         */
         return [
-            "pendingRequests" =>
-                $pendingRequests,
+            "pendingRequests" => $pendingRequests,
 
-            "activeSupervisees" =>
-                $activeSupervisees,
+            "activeSupervisees" => $activeSupervisees,
 
-            "maxSuperviseesAllowed" =>
-                $maxSuperviseesAllowed,
+            "maxSuperviseesAllowed" => $maxSuperviseesAllowed,
 
-            "quotaUsage" =>
-                min(100, $quotaUsage),
+            "quotaUsage" => min(100, $quotaUsage),
 
-            "recentApplications" =>
-                $this->formatApplications($recentApplications),
+            "recentApplications" => $this->formatApplications($recentApplications),
 
-            "recentApplicationsTotal" =>
-                $recentApplicationTotal,
+            "recentApplicationsTotal" => $recentApplicationTotal,
 
-            "recentApplicationsPage" =>
-                $recentApplicationPage,
+            "recentApplicationsPage" => $recentApplicationPage,
 
-            "recentApplicationsPerPage" =>
-                self::RECENT_APPLICATION_LIMIT,
+            "recentApplicationsPerPage" => self::RECENT_APPLICATION_LIMIT,
 
-            "recentApplicationsTotalPages" =>
-                $recentApplicationTotalPages,
+            "recentApplicationsTotalPages" => $recentApplicationTotalPages,
 
-            "deadlineAlert" =>
-                $this->buildDeadlineAlert(
-                    $activePhase,
-                    $pendingRequests
-                )
+            "deadlineAlert" =>  $this->buildDeadlineAlert($activePhase, $pendingRequests)
         ];
     }
 
@@ -208,29 +145,17 @@ class SupervisorDashboardService {
     |--------------------------------------------------------------------------
     | Adds display-friendly fields for recent application cards.
     */
-    private function formatApplications(
-        $applications
-    ) {
+    private function formatApplications($applications) {
 
         foreach ($applications as $index => $application) {
 
-            $applications[$index]["researchFocus"] =
-                $application["projectTitle"];
+            $applications[$index]["researchFocus"] = $application["projectTitle"];
 
-            $applications[$index]["statusClass"] =
-                $this->getStatusClass(
-                    $application["decisionStatus"]
-                );
+            $applications[$index]["statusClass"] = $this->getStatusClass($application["decisionStatus"]);
 
-            $applications[$index]["proposalStatusText"] =
-                $this->getProposalStatusText(
-                    $application
-                );
+            $applications[$index]["proposalStatusText"] = $this->getProposalStatusText($application);
 
-            $applications[$index]["proposalStatusClass"] =
-                $this->getStatusClass(
-                    $applications[$index]["proposalStatusText"]
-                );
+            $applications[$index]["proposalStatusClass"] = $this->getStatusClass($applications[$index]["proposalStatusText"]);
 
             $applications[$index]["actionText"] =
                 empty($application["requestID"])
@@ -245,12 +170,9 @@ class SupervisorDashboardService {
         return $applications;
     }
 
-    private function getProposalStatusText(
-        $application
-    ) {
+    private function getProposalStatusText($application) {
 
-        $proposalStatus =
-            trim((string) ($application["proposalStatus"] ?? ""));
+        $proposalStatus = trim((string) ($application["proposalStatus"] ?? ""));
 
         if ($proposalStatus === "Proposal Requested") {
 
@@ -271,24 +193,16 @@ class SupervisorDashboardService {
     |--------------------------------------------------------------------------
     | Converts decision status into a CSS-friendly status class.
     */
-    private function getStatusClass(
-        $status
-    ) {
+    private function getStatusClass($status) {
 
-        $normalizedStatus =
-            strtolower(
-                trim($status)
-            );
+        $normalizedStatus = strtolower(trim($status));
 
         if ($normalizedStatus === "accepted") {
 
             return "accepted";
         }
 
-        if (
-            $normalizedStatus === "allocated" ||
-            $normalizedStatus === "auto-allocated"
-        ) {
+        if ($normalizedStatus === "allocated" || $normalizedStatus === "auto-allocated") {
 
             return "allocated";
         }
@@ -298,10 +212,7 @@ class SupervisorDashboardService {
             return "rejected";
         }
 
-        if (
-            $normalizedStatus === "requested" ||
-            $normalizedStatus === "not submitted"
-        ) {
+        if ($normalizedStatus === "requested" || $normalizedStatus === "not submitted") {
 
             return "pending";
         }
@@ -316,25 +227,16 @@ class SupervisorDashboardService {
     | Shows a red advisory alert only when there are pending requests and the
     | active phase deadline is within the configured advisory window.
     */
-    private function buildDeadlineAlert(
-        $activePhase,
-        $pendingRequests
-    ) {
+    private function buildDeadlineAlert($activePhase, $pendingRequests) {
 
         /*
         |--------------------------------------------------------------------------
         | Alert Eligibility Validation
         |--------------------------------------------------------------------------
         */
-        if (
-            !$activePhase ||
-            $pendingRequests <= 0
-        ) {
+        if (!$activePhase || $pendingRequests <= 0) {
 
-            return [
-                "show" => false,
-                "message" => ""
-            ];
+            return ["show" => false, "message" => ""];
         }
 
         /*
@@ -342,28 +244,18 @@ class SupervisorDashboardService {
         | Calculate Deadline Time Remaining
         |--------------------------------------------------------------------------
         */
-        $deadlineTimestamp =
-            strtotime(
-                $activePhase["endTimestamp"]
-            );
+        $deadlineTimestamp = strtotime($activePhase["endTimestamp"]);
 
-        $secondsRemaining =
-            $deadlineTimestamp - time();
+        $secondsRemaining = $deadlineTimestamp - time();
 
         /*
         |--------------------------------------------------------------------------
         | Advisory Window Validation
         |--------------------------------------------------------------------------
         */
-        if (
-            $secondsRemaining <= 0 ||
-            $secondsRemaining > self::ALERT_WINDOW_HOURS * 3600
-        ) {
+        if ($secondsRemaining <= 0 || $secondsRemaining > self::ALERT_WINDOW_HOURS * 3600) {
 
-            return [
-                "show" => false,
-                "message" => ""
-            ];
+            return ["show" => false, "message" => ""];
         }
 
         /*

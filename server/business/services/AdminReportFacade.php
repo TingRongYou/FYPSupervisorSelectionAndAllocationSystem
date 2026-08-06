@@ -42,17 +42,13 @@ class AdminReportFacade {
     */
     public function __construct() {
 
-        $this->reportDAO =
-            new AdminReportDAO();
+        $this->reportDAO = new AdminReportDAO();
 
-        $this->studentRepo =
-            new StudentRepository($this->reportDAO);
+        $this->studentRepo = new StudentRepository($this->reportDAO);
 
-        $this->supervisorRepo =
-            new SupervisorRepository($this->reportDAO);
+        $this->supervisorRepo = new SupervisorRepository($this->reportDAO);
 
-        $this->allocationRepo =
-            new AllocationRepository($this->reportDAO);
+        $this->allocationRepo = new AllocationRepository($this->reportDAO);
     }
 
     /*
@@ -71,27 +67,23 @@ class AdminReportFacade {
         | Keeps the facade as the single validation point before repositories fetch
         | cohort data from the Student/User/Allocation stores.
         */
-        $filters =
-            $this->normaliseCohortFilters($filters);
+        $filters = $this->normaliseCohortFilters($filters);
 
         /*
         |--------------------------------------------------------------------------
         | Fetch Filtered Student Records
         |--------------------------------------------------------------------------
         */
-        $students =
-            $this->studentRepo->fetchStudents($filters);
+        $students = $this->studentRepo->fetchStudents($filters);
 
-        $allStudents =
-            $this->studentRepo->fetchStudents([]);
+        $allStudents = $this->studentRepo->fetchStudents([]);
 
         /*
         |--------------------------------------------------------------------------
         | Calculate Cohort Totals
         |--------------------------------------------------------------------------
         */
-        $total =
-            count($students);
+        $total = count($students);
 
         $allocated =
             count(
@@ -105,8 +97,7 @@ class AdminReportFacade {
                 )
             );
 
-        $unassigned =
-            $total - $allocated;
+        $unassigned = $total - $allocated;
 
         /*
         |--------------------------------------------------------------------------
@@ -118,26 +109,19 @@ class AdminReportFacade {
 
             "totalStudents" => $total,
 
-            "systemTotalStudents" =>
-                count($allStudents),
+            "systemTotalStudents" => count($allStudents),
 
             "allocatedStudents" => $allocated,
 
             "unassignedStudents" => $unassigned,
 
-            "allocationProgress" =>
-                $total > 0
-                    ? round(($allocated / $total) * 100, 1)
-                    : 0,
+            "allocationProgress" => $total > 0 ? round(($allocated / $total) * 100, 1) : 0,
 
-            "programmeOptions" =>
-                $this->reportDAO->getProgrammeOptions(),
+            "programmeOptions" => $this->reportDAO->getProgrammeOptions(),
 
-            "batchOptions" =>
-                $this->reportDAO->getBatchOptions(),
+            "batchOptions" => $this->reportDAO->getBatchOptions(),
 
-            "specializationOptions" =>
-                $this->reportDAO->getSpecializationOptions(),
+            "specializationOptions" => $this->reportDAO->getSpecializationOptions(),
 
             "message" =>
                 $total === 0
@@ -154,16 +138,14 @@ class AdminReportFacade {
     */
     public function getAllocationSummary($programme = "") {
 
-        $programme =
-            trim((string) $programme);
+        $programme = trim((string) $programme);
 
         /*
         |--------------------------------------------------------------------------
         | Fetch Supervisor Records
         |--------------------------------------------------------------------------
         */
-        $supervisors =
-            $this->supervisorRepo->fetchSupervisors($programme);
+        $supervisors = $this->supervisorRepo->fetchSupervisors($programme);
 
         /*
         |--------------------------------------------------------------------------
@@ -181,20 +163,13 @@ class AdminReportFacade {
         */
         foreach ($supervisors as &$supervisor) {
 
-            $quota =
-                $this->supervisorRepo->getQuotaLimit($supervisor);
+            $quota = $this->supervisorRepo->getQuotaLimit($supervisor);
 
-            $current =
-                (int) ($supervisor["currentTotal"] ?? 0);
+            $current = (int) ($supervisor["currentTotal"] ?? 0);
 
-            $fillRate =
-                $this->allocationRepo->calculateFillRate(
-                    $current,
-                    $quota
-                );
+            $fillRate = $this->allocationRepo->calculateFillRate($current, $quota);
 
-            $supervisor["fillRate"] =
-                $fillRate;
+            $supervisor["fillRate"] = $fillRate;
 
             /*
             |--------------------------------------------------------------------------
@@ -206,11 +181,9 @@ class AdminReportFacade {
                     ? "Full Capacity"
                     : ($fillRate >= 80 ? "High Usage" : "Available");
 
-            $totalCapacity +=
-                $quota;
+            $totalCapacity += $quota;
 
-            $allocatedTotal +=
-                $current;
+            $allocatedTotal += $current;
 
             if ($quota > 0 && $current >= $quota) {
 
@@ -231,8 +204,7 @@ class AdminReportFacade {
         | Count Pending Requests
         |--------------------------------------------------------------------------
         */
-        $pendingRequests =
-            $this->reportDAO->countPendingRequests($programme);
+        $pendingRequests = $this->reportDAO->countPendingRequests($programme);
 
         /*
         |--------------------------------------------------------------------------
@@ -255,8 +227,7 @@ class AdminReportFacade {
 
             "pendingRequests" => $pendingRequests,
 
-            "programmeOptions" =>
-                $this->reportDAO->getProgrammeOptions(),
+            "programmeOptions" => $this->reportDAO->getProgrammeOptions(),
 
             "message" =>
                 empty($supervisors)
@@ -275,24 +246,16 @@ class AdminReportFacade {
 
     public function getAllocatedStudentProgrammeDistribution() {
 
-        return
-            $this->reportDAO
-            ->fetchAllocatedStudentProgrammeDistribution();
+        return $this->reportDAO->fetchAllocatedStudentProgrammeDistribution();
     }
 
-    private function normaliseCohortFilters(
-        $filters
-    ) {
+    private function normaliseCohortFilters($filters) {
 
-        $status =
-            strtolower(
-                trim((string) ($filters["status"] ?? ""))
-            );
+        $status = strtolower(trim((string) ($filters["status"] ?? "")));
 
         if (!in_array($status, ["assigned", "unassigned"], true)) {
 
-            $status =
-                "";
+            $status ="";
         }
 
         return [

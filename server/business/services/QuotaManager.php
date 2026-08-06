@@ -18,9 +18,7 @@ require_once __DIR__ . "/../../data/dao/SupervisorDAO.php";
 */
 interface QuotaValidationStrategy {
 
-    public function isValid(
-        $newQuotaLimit
-    );
+    public function isValid($newQuotaLimit);
 
     public function getFailureMessage();
 
@@ -35,12 +33,9 @@ interface QuotaValidationStrategy {
 */
 class FullTimeQuotaStrategy implements QuotaValidationStrategy {
 
-    public function isValid(
-        $newQuotaLimit
-    ) {
+    public function isValid($newQuotaLimit) {
 
-        return
-            $newQuotaLimit <= 30;
+        return $newQuotaLimit <= 30;
     }
 
     public function getFailureMessage() {
@@ -62,12 +57,9 @@ class FullTimeQuotaStrategy implements QuotaValidationStrategy {
 */
 class PartTimeQuotaStrategy implements QuotaValidationStrategy {
 
-    public function isValid(
-        $newQuotaLimit
-    ) {
+    public function isValid($newQuotaLimit) {
 
-        return
-            $newQuotaLimit <= 10;
+        return $newQuotaLimit <= 10;
     }
 
     public function getFailureMessage() {
@@ -89,12 +81,9 @@ class PartTimeQuotaStrategy implements QuotaValidationStrategy {
 */
 class ManagementRoleQuotaStrategy implements QuotaValidationStrategy {
 
-    public function isValid(
-        $newQuotaLimit
-    ) {
+    public function isValid($newQuotaLimit) {
 
-        return
-            $newQuotaLimit <= 15;
+        return $newQuotaLimit <= 15;
     }
 
     public function getFailureMessage() {
@@ -132,8 +121,7 @@ class QuotaManager {
     */
     public function __construct() {
 
-        $this->supervisorDAO =
-            new SupervisorDAO();
+        $this->supervisorDAO = new SupervisorDAO();
     }
 
     /*
@@ -143,36 +131,23 @@ class QuotaManager {
     | Retrieves supervisors and calculates quota usage, remaining slots,
     | percentage load, and quota status for display.
     */
-    public function getQuotaDashboard(
-        $filters
-    ) {
+    public function getQuotaDashboard($filters) {
 
         /*
         |--------------------------------------------------------------------------
         | Read Filter Inputs
         |--------------------------------------------------------------------------
         */
-        $searchName =
-            trim(
-                $filters["searchName"] ?? ""
-            );
+        $searchName = trim($filters["searchName"] ?? "");
 
-        $programme =
-            trim(
-                $filters["programme"] ?? ""
-            );
+        $programme = trim($filters["programme"] ?? "");
 
         /*
         |--------------------------------------------------------------------------
         | Fetch Supervisors For Management
         |--------------------------------------------------------------------------
         */
-        $supervisors =
-            $this->supervisorDAO
-                ->getSupervisorsForManagement(
-                    $searchName,
-                    $programme
-                );
+        $supervisors = $this->supervisorDAO->getSupervisorsForManagement($searchName, $programme);
 
         /*
         |--------------------------------------------------------------------------
@@ -181,14 +156,9 @@ class QuotaManager {
         */
         foreach ($supervisors as $index => $supervisor) {
 
-            $currentSupervisees =
-                (int) $supervisor["currentSupervisees"];
+            $currentSupervisees = (int) $supervisor["currentSupervisees"];
 
-            $tierQuotaLimit =
-                (int) (
-                    $supervisor["tierQuotaLimit"] ??
-                    $supervisor["maxSuperviseesAllowed"]
-                );
+            $tierQuotaLimit = (int) ($supervisor["tierQuotaLimit"] ?? $supervisor["maxSuperviseesAllowed"]);
 
             $assignedQuotaLimit =
                 isset($supervisor["assignedQuotaLimit"]) &&
@@ -201,44 +171,31 @@ class QuotaManager {
             | Resolve Category Quota Limit
             |--------------------------------------------------------------------------
             */
-            $strategy =
-                $this->resolveQuotaStrategy(
-                    $supervisor["employmentCategory"]
-                );
+            $strategy = $this->resolveQuotaStrategy($supervisor["employmentCategory"]);
 
-            $classificationLimit =
-                $strategy->getMaximumLimit();
+            $classificationLimit = $strategy->getMaximumLimit();
 
             /*
             |--------------------------------------------------------------------------
             | Assign Normalized Quota Values
             |--------------------------------------------------------------------------
             */
-            $supervisors[$index]["currentSupervisees"] =
-                $currentSupervisees;
+            $supervisors[$index]["currentSupervisees"] = $currentSupervisees;
 
-            $supervisors[$index]["maxSuperviseesAllowed"] =
-                $assignedQuotaLimit;
+            $supervisors[$index]["maxSuperviseesAllowed"] = $assignedQuotaLimit;
 
-            $supervisors[$index]["tierQuotaLimit"] =
-                $tierQuotaLimit;
+            $supervisors[$index]["tierQuotaLimit"] = $tierQuotaLimit;
 
-            $supervisors[$index]["classificationQuotaLimit"] =
-                $classificationLimit;
+            $supervisors[$index]["classificationQuotaLimit"] = $classificationLimit;
 
-            $supervisors[$index]["assignedQuotaLimit"] =
-                $assignedQuotaLimit;
+            $supervisors[$index]["assignedQuotaLimit"] = $assignedQuotaLimit;
 
             /*
             |--------------------------------------------------------------------------
             | Calculate Remaining Slots
             |--------------------------------------------------------------------------
             */
-            $supervisors[$index]["remainingSlots"] =
-                max(
-                    0,
-                    $assignedQuotaLimit - $currentSupervisees
-                );
+            $supervisors[$index]["remainingSlots"] = max(0, $assignedQuotaLimit - $currentSupervisees);
 
             /*
             |--------------------------------------------------------------------------
@@ -281,9 +238,7 @@ class QuotaManager {
     */
     public function getQuotaOptions() {
 
-        return
-            $this->supervisorDAO
-                ->getAllQuotaConfigurations();
+        return $this->supervisorDAO->getAllQuotaConfigurations();
     }
 
     /*
@@ -294,9 +249,7 @@ class QuotaManager {
     */
     public function getProgrammeOptions() {
 
-        return
-            $this->supervisorDAO
-                ->getSupervisorProgrammes();
+        return $this->supervisorDAO->getSupervisorProgrammes();
     }
 
     /*
@@ -306,12 +259,7 @@ class QuotaManager {
     | Validates administrator access, quota tier, supervisor workload,
     | employment category limit, and updates one supervisor quota.
     */
-    public function updateSupervisorQuota(
-        $administratorRole,
-        $supervisorID,
-        $quotaID,
-        $assignedQuotaLimit
-    ) {
+    public function updateSupervisorQuota($administratorRole, $supervisorID, $quotaID, $assignedQuotaLimit) {
 
         /*
         |--------------------------------------------------------------------------
@@ -320,9 +268,7 @@ class QuotaManager {
         */
         if ($administratorRole !== "Administrator") {
 
-            return $this->failure(
-                "Access denied"
-            );
+            return $this->failure("Access denied");
         }
 
         /*
@@ -330,29 +276,20 @@ class QuotaManager {
         | Normalize Inputs
         |--------------------------------------------------------------------------
         */
-        $supervisorID =
-            trim($supervisorID);
+        $supervisorID = trim($supervisorID);
 
-        $quotaID =
-            trim($quotaID);
+        $quotaID = trim($quotaID);
 
-        $assignedQuotaLimit =
-            trim($assignedQuotaLimit);
+        $assignedQuotaLimit = trim($assignedQuotaLimit);
 
         /*
         |--------------------------------------------------------------------------
         | Required Field Validation
         |--------------------------------------------------------------------------
         */
-        if (
-            $supervisorID === "" ||
-            $quotaID === "" ||
-            $assignedQuotaLimit === ""
-        ) {
+        if ($supervisorID === "" || $quotaID === "" || $assignedQuotaLimit === "") {
 
-            return $this->failure(
-                "Quota invalid: the supervisor quota limit is empty or invalid."
-            );
+            return $this->failure("Quota invalid: the supervisor quota limit is empty or invalid.");
         }
 
         /*
@@ -360,14 +297,9 @@ class QuotaManager {
         | Numeric Input Validation
         |--------------------------------------------------------------------------
         */
-        if (
-            !ctype_digit($quotaID) ||
-            !ctype_digit($assignedQuotaLimit)
-        ) {
+        if (!ctype_digit($quotaID) || !ctype_digit($assignedQuotaLimit)) {
 
-            return $this->failure(
-                "Quota invalid: the supervisor quota limit is empty or invalid."
-            );
+            return $this->failure("Quota invalid: the supervisor quota limit is empty or invalid.");
         }
 
         /*
@@ -375,17 +307,11 @@ class QuotaManager {
         | Load Supervisor Current Workload
         |--------------------------------------------------------------------------
         */
-        $supervisorLoad =
-            $this->supervisorDAO
-                ->getSupervisorLoad(
-                    $supervisorID
-                );
+        $supervisorLoad = $this->supervisorDAO->getSupervisorLoad($supervisorID);
 
         if (!$supervisorLoad) {
 
-            return $this->failure(
-                "Supervisor record was not found"
-            );
+            return $this->failure("Supervisor record was not found");
         }
 
         /*
@@ -393,24 +319,16 @@ class QuotaManager {
         | Load Selected Quota Tier
         |--------------------------------------------------------------------------
         */
-        $quota =
-            $this->supervisorDAO
-                ->getQuotaByID(
-                    (int) $quotaID
-                );
+        $quota = $this->supervisorDAO->getQuotaByID((int) $quotaID);
 
         if (!$quota) {
 
-            return $this->failure(
-                "Selected quota tier does not exist"
-            );
+            return $this->failure("Selected quota tier does not exist");
         }
 
-        $currentSupervisees =
-            (int) $supervisorLoad["currentSupervisees"];
+        $currentSupervisees = (int) $supervisorLoad["currentSupervisees"];
 
-        $assignedQuotaLimit =
-            (int) $assignedQuotaLimit;
+        $assignedQuotaLimit = (int) $assignedQuotaLimit;
 
         /*
         |--------------------------------------------------------------------------
@@ -419,9 +337,7 @@ class QuotaManager {
         */
         if ($assignedQuotaLimit < 0) {
 
-            return $this->failure(
-                "Assigned quota cannot be negative"
-            );
+            return $this->failure("Assigned quota cannot be negative");
         }
 
         /*
@@ -429,13 +345,9 @@ class QuotaManager {
         | Resolve Quota Validation Strategy
         |--------------------------------------------------------------------------
         */
-        $strategy =
-            $this->resolveQuotaStrategy(
-                $supervisorLoad["employmentCategory"]
-            );
+        $strategy = $this->resolveQuotaStrategy($supervisorLoad["employmentCategory"]);
 
-        $classificationLimit =
-            $strategy->getMaximumLimit();
+        $classificationLimit = $strategy->getMaximumLimit();
 
         /*
         |--------------------------------------------------------------------------
@@ -444,9 +356,7 @@ class QuotaManager {
         */
         if (!$strategy->isValid((int) $quota["maxSuperviseesAllowed"])) {
 
-            return $this->failure(
-                $strategy->getFailureMessage()
-            );
+            return $this->failure($strategy->getFailureMessage());
         }
 
         /*
@@ -456,9 +366,7 @@ class QuotaManager {
         */
         if ($assignedQuotaLimit > $classificationLimit) {
 
-            return $this->failure(
-                "Quota invalid: supervisor type quota limit is exceeded."
-            );
+            return $this->failure("Quota invalid: supervisor type quota limit is exceeded.");
         }
 
         /*
@@ -469,9 +377,7 @@ class QuotaManager {
         */
         if ($currentSupervisees > $assignedQuotaLimit) {
 
-            return $this->failure(
-                "Quota invalid: supervisor current student count exceeds the new quota limit."
-            );
+            return $this->failure("Quota invalid: supervisor current student count exceeds the new quota limit.");
         }
 
         /*
@@ -479,24 +385,14 @@ class QuotaManager {
         | Update Supervisor Quota
         |--------------------------------------------------------------------------
         */
-        $updated =
-            $this->supervisorDAO
-                ->updateSupervisorQuota(
-                    $supervisorID,
-                    (int) $quotaID,
-                    $assignedQuotaLimit
-                );
+        $updated = $this->supervisorDAO->updateSupervisorQuota($supervisorID, (int) $quotaID, $assignedQuotaLimit);
 
         if (!$updated) {
 
-            return $this->failure(
-                "Supervisor quota could not be updated"
-            );
+            return $this->failure("Supervisor quota could not be updated");
         }
 
-        return $this->success(
-            "Update Successful - Supervisor quota limit has been updated. The new base quota is now active."
-        );
+        return $this->success( "Update Successful - Supervisor quota limit has been updated. The new base quota is now active.");
     }
 
     /*
@@ -505,10 +401,7 @@ class QuotaManager {
     |--------------------------------------------------------------------------
     | Processes only changed rows and applies quota validation to each row.
     */
-    public function updateSupervisorQuotas(
-        $administratorRole,
-        $quotaRows
-    ) {
+    public function updateSupervisorQuotas($administratorRole, $quotaRows) {
 
         /*
         |--------------------------------------------------------------------------
@@ -517,9 +410,7 @@ class QuotaManager {
         */
         if ($administratorRole !== "Administrator") {
 
-            return $this->failure(
-                "Access denied"
-            );
+            return $this->failure("Access denied");
         }
 
         /*
@@ -527,18 +418,12 @@ class QuotaManager {
         | Submitted Quota Rows Validation
         |--------------------------------------------------------------------------
         */
-        if (
-            !is_array($quotaRows) ||
-            empty($quotaRows)
-        ) {
+        if (!is_array($quotaRows) || empty($quotaRows)) {
 
-            return $this->failure(
-                "No quota changes were submitted"
-            );
+            return $this->failure("No quota changes were submitted");
         }
 
-        $updatedCount =
-            0;
+        $updatedCount = 0;
 
         /*
         |--------------------------------------------------------------------------
@@ -547,9 +432,7 @@ class QuotaManager {
         */
         foreach ($quotaRows as $supervisorID => $row) {
 
-            $changed =
-                isset($row["changed"]) &&
-                (string) $row["changed"] === "1";
+            $changed = isset($row["changed"]) && (string) $row["changed"] === "1";
 
             if (!$changed) {
 
@@ -566,9 +449,7 @@ class QuotaManager {
 
             if (!$result["success"]) {
 
-                return $this->failure(
-                    $result["message"]
-                );
+                return $this->failure($result["message"]);
             }
 
             $updatedCount++;
@@ -581,14 +462,10 @@ class QuotaManager {
         */
         if ($updatedCount === 0) {
 
-            return $this->failure(
-                "No quota changes were made"
-            );
+            return $this->failure("No quota changes were made");
         }
 
-        return $this->success(
-            "Update Successful - Supervisor quota limit has been updated. The new base quota is now active."
-        );
+        return $this->success("Update Successful - Supervisor quota limit has been updated. The new base quota is now active.");
     }
 
     /*
@@ -598,24 +475,16 @@ class QuotaManager {
     | Selects the correct quota validation strategy based on employment category
     | or management role.
     */
-    private function resolveQuotaStrategy(
-        $employmentCategory
-    ) {
+    private function resolveQuotaStrategy($employmentCategory) {
 
-        $normalizedCategory =
-            strtolower(
-                trim($employmentCategory)
-            );
+        $normalizedCategory = strtolower(trim($employmentCategory));
 
         /*
         |--------------------------------------------------------------------------
         | Part-Time Lecturer Strategy
         |--------------------------------------------------------------------------
         */
-        if (
-            strpos($normalizedCategory, "part-time") !== false ||
-            strpos($normalizedCategory, "part time") !== false
-        ) {
+        if (strpos($normalizedCategory, "part-time") !== false || strpos($normalizedCategory, "part time") !== false) {
 
             return new PartTimeQuotaStrategy();
         }
@@ -657,14 +526,9 @@ class QuotaManager {
     | Success Response Helper
     |--------------------------------------------------------------------------
     */
-    private function success(
-        $message
-    ) {
+    private function success($message) {
 
-        return [
-            "success" => true,
-            "message" => $message
-        ];
+        return ["success" => true, "message" => $message];
     }
 
     /*
@@ -672,14 +536,9 @@ class QuotaManager {
     | Failure Response Helper
     |--------------------------------------------------------------------------
     */
-    private function failure(
-        $message
-    ) {
+    private function failure($message) {
 
-        return [
-            "success" => false,
-            "message" => $message
-        ];
+        return ["success" => false, "message" => $message];
     }
 }
 

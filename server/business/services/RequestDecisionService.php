@@ -15,64 +15,37 @@ class RequestDecisionService {
 
     public function __construct() {
 
-        $this->requestDAO =
-            new RequestDAO();
+        $this->requestDAO = new RequestDAO();
     }
 
-    public function processDecision(
-        $requestID,
-        $supervisorID,
-        $decisionStatus,
-        $supervisorComment
-    ) {
+    public function processDecision($requestID, $supervisorID, $decisionStatus, $supervisorComment) {
 
-        $requestID =
-            (int) $requestID;
+        $requestID = (int) $requestID;
 
-        $supervisorID =
-            trim((string) $supervisorID);
+        $supervisorID = trim((string) $supervisorID);
 
-        $decisionStatus =
-            trim((string) $decisionStatus);
+        $decisionStatus = trim((string) $decisionStatus);
 
-        $supervisorComment =
-            trim((string) $supervisorComment);
+        $supervisorComment = trim((string) $supervisorComment);
 
-        if (
-            $requestID <= 0 ||
-            !in_array($decisionStatus, ["Accepted", "Rejected"], true)
-        ) {
+        if ($requestID <= 0 || !in_array($decisionStatus, ["Accepted", "Rejected"], true)) {
 
-            return $this->failure(
-                "Invalid decision request."
-            );
+            return $this->failure("Invalid decision request.");
         }
 
         if ($supervisorComment === "") {
 
-            return $this->failure(
-                "Comment Required - Please provide a reason for rejection to help the student improve their next application."
-            );
+            return $this->failure("Comment Required - Please provide a reason for rejection to help the student improve their next application.");
         }
 
-        $request =
-            $this->requestDAO
-            ->getApplicationRequestForSupervisor(
-                $requestID,
-                $supervisorID
-            );
+        $request = $this->requestDAO->getApplicationRequestForSupervisor($requestID, $supervisorID);
 
         if (!$request) {
 
-            return $this->failure(
-                "The selected request was not found."
-            );
+            return $this->failure("The selected request was not found.");
         }
 
-        $state =
-            $this->stateFromStatus(
-                $request["decisionStatus"]
-            );
+        $state = $this->stateFromStatus($request["decisionStatus"]);
 
         $application =
             new FYPApplication(
@@ -134,10 +107,7 @@ class RequestDecisionService {
 
     private function failure($message) {
 
-        return [
-            "success" => false,
-            "message" => $message
-        ];
+        return ["success" => false, "message" => $message];
     }
 }
 

@@ -30,8 +30,7 @@ class TagManagementService {
 
     public function __construct() {
 
-        $this->tagDAO =
-            new TagDAO();
+        $this->tagDAO = new TagDAO();
     }
 
     /*
@@ -42,9 +41,7 @@ class TagManagementService {
 
     public function getAllTags() {
 
-        return
-            $this->tagDAO
-            ->getAllTags();
+        return $this->tagDAO->getAllTags();
     }
 
     /*
@@ -53,21 +50,11 @@ class TagManagementService {
     |--------------------------------------------------------------------------
     */
 
-    public function getSupervisorTagIDs(
-        $supervisorID
-    ) {
+    public function getSupervisorTagIDs($supervisorID) {
 
-        $tagIDs =
-            $this->tagDAO
-            ->getSupervisorTagIDs(
-                $supervisorID
-            );
+        $tagIDs = $this->tagDAO->getSupervisorTagIDs($supervisorID);
 
-        return
-            array_map(
-                "intval",
-                $tagIDs
-            );
+        return array_map("intval", $tagIDs);
     }
 
     /*
@@ -76,10 +63,7 @@ class TagManagementService {
     |--------------------------------------------------------------------------
     */
 
-    public function updateSupervisorTags(
-        $supervisorID,
-        $tagIDs
-    ) {
+    public function updateSupervisorTags($supervisorID, $tagIDs) {
 
         /*
         |--------------------------------------------------------------------------
@@ -98,17 +82,7 @@ class TagManagementService {
         |--------------------------------------------------------------------------
         */
 
-        $tagIDs =
-            array_values(
-
-                array_unique(
-
-                    array_map(
-                        "intval",
-                        $tagIDs
-                    )
-                )
-            );
+        $tagIDs = array_values(array_unique(array_map("intval", $tagIDs)));
 
         /*
         |--------------------------------------------------------------------------
@@ -116,15 +90,9 @@ class TagManagementService {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            count($tagIDs)
-            <
-            self::MINIMUM_TAG_SELECTION
-        ) {
+        if (count($tagIDs) < self::MINIMUM_TAG_SELECTION) {
 
-            return $this->failure(
-                "Input Required - Please select at least one area of interest to help students identify your expertise."
-            );
+            return $this->failure("Input Required - Please select at least one area of interest to help students identify your expertise.");
         }
 
         /*
@@ -133,15 +101,9 @@ class TagManagementService {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            count($tagIDs)
-            >
-            self::MAXIMUM_TAG_SELECTION
-        ) {
+        if (count($tagIDs) > self::MAXIMUM_TAG_SELECTION) {
 
-            return $this->failure(
-                "A maximum of 10 expertise tags can be selected"
-            );
+            return $this->failure("A maximum of 10 expertise tags can be selected");
         }
 
         /*
@@ -152,15 +114,9 @@ class TagManagementService {
 
         foreach ($tagIDs as $tagID) {
 
-            if (
-                !$this->isPositiveInteger(
-                    $tagID
-                )
-            ) {
+            if (!$this->isPositiveInteger($tagID)) {
 
-                return $this->failure(
-                    "Invalid expertise tag detected"
-                );
+                return $this->failure("Invalid expertise tag detected");
             }
         }
 
@@ -172,24 +128,16 @@ class TagManagementService {
 
         try {
 
-            $validTags =
-                $this->tagDAO
-                ->tagIDsExist(
-                    $tagIDs
-                );
+            $validTags = $this->tagDAO->tagIDsExist($tagIDs);
 
             if (!$validTags) {
 
-                return $this->failure(
-                    "One or more selected tags are invalid"
-                );
+                return $this->failure("One or more selected tags are invalid");
             }
 
         } catch (Exception $exception) {
 
-            return $this->failure(
-                "Unable to validate expertise tags"
-            );
+            return $this->failure("Unable to validate expertise tags");
         }
 
         /*
@@ -208,30 +156,19 @@ class TagManagementService {
             |--------------------------------------------------------------------------
             */
 
-            $updated =
-                $this->tagDAO
-                ->replaceSupervisorTags(
-                    $supervisorID,
-                    $tagIDs
-                );
+            $updated = $this->tagDAO->replaceSupervisorTags($supervisorID, $tagIDs);
 
             if (!$updated) {
 
-                return $this->failure(
-                    "Expertise tags could not be updated"
-                );
+                return $this->failure("Expertise tags could not be updated");
             }
 
         } catch (Exception $exception) {
 
-            return $this->failure(
-                "System error occurred while updating expertise tags"
-            );
+            return $this->failure("System error occurred while updating expertise tags");
         }
 
-        return $this->success(
-            "Expertise Updated - Your expertise tags have been successfully saved and will now appear on your Digital Business Card."
-        );
+        return $this->success("Expertise Updated - Your expertise tags have been successfully saved and will now appear on your Digital Business Card.");
     }
 
     /*
@@ -240,14 +177,9 @@ class TagManagementService {
     |--------------------------------------------------------------------------
     */
 
-    private function isPositiveInteger(
-        $value
-    ) {
+    private function isPositiveInteger($value) {
 
-        return
-            is_int($value)
-            &&
-            $value > 0;
+        return is_int($value) && $value > 0;
     }
 
     /*
@@ -256,16 +188,9 @@ class TagManagementService {
     |--------------------------------------------------------------------------
     */
 
-    private function success(
-        $message
-    ) {
+    private function success($message) {
 
-        return [
-
-            "success" => true,
-
-            "message" => $message
-        ];
+        return ["success" => true, "message" => $message];
     }
 
     /*
@@ -274,16 +199,9 @@ class TagManagementService {
     |--------------------------------------------------------------------------
     */
 
-    private function failure(
-        $message
-    ) {
+    private function failure($message) {
 
-        return [
-
-            "success" => false,
-
-            "message" => $message
-        ];
+        return ["success" => false, "message" => $message];
     }
 }
 

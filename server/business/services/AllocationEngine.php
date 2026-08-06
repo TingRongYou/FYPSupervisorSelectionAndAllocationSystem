@@ -18,10 +18,7 @@ require_once __DIR__ . "/AllocationWindowService.php";
 */
 interface AllocationStrategy {
 
-    public function allocate(
-        $students,
-        $supervisors
-    );
+    public function allocate($students, $supervisors);
 }
 
 /*
@@ -40,21 +37,16 @@ class AutoAllocationEngineStrategy implements AllocationStrategy {
     | Processes students one by one and assigns each student to the best
     | available supervisor based on score and remaining capacity.
     */
-    public function allocate(
-        $students,
-        $supervisors
-    ) {
+    public function allocate($students, $supervisors) {
 
         /*
         |--------------------------------------------------------------------------
         | Initialize Allocation Result Lists
         |--------------------------------------------------------------------------
         */
-        $allocations =
-            [];
+        $allocations = [];
 
-        $unassigned =
-            [];
+        $unassigned = [];
 
         /*
         |--------------------------------------------------------------------------
@@ -63,11 +55,9 @@ class AutoAllocationEngineStrategy implements AllocationStrategy {
         */
         foreach ($supervisors as $index => $supervisor) {
 
-            $supervisors[$index]["currentTotal"] =
-                (int) $supervisor["currentTotal"];
+            $supervisors[$index]["currentTotal"] = (int) $supervisor["currentTotal"];
 
-            $supervisors[$index]["maxSuperviseesAllowed"] =
-                (int) $supervisor["maxSuperviseesAllowed"];
+            $supervisors[$index]["maxSuperviseesAllowed"] = (int) $supervisor["maxSuperviseesAllowed"];
         }
 
         /*
@@ -77,11 +67,7 @@ class AutoAllocationEngineStrategy implements AllocationStrategy {
         */
         foreach ($students as $student) {
 
-            $selectedSupervisorIndex =
-                $this->findBestSupervisorIndex(
-                    $student,
-                    $supervisors
-                );
+            $selectedSupervisorIndex = $this->findBestSupervisorIndex($student, $supervisors);
 
             /*
             |--------------------------------------------------------------------------
@@ -90,8 +76,7 @@ class AutoAllocationEngineStrategy implements AllocationStrategy {
             */
             if ($selectedSupervisorIndex === null) {
 
-                $unassigned[] =
-                    $student;
+                $unassigned[] = $student;
 
                 continue;
             }
@@ -125,10 +110,7 @@ class AutoAllocationEngineStrategy implements AllocationStrategy {
         | Return Allocation Result
         |--------------------------------------------------------------------------
         */
-        return [
-            "allocations" => $allocations,
-            "unassigned" => $unassigned
-        ];
+        return ["allocations" => $allocations, "unassigned" => $unassigned];
     }
 
     /*
@@ -138,13 +120,9 @@ class AutoAllocationEngineStrategy implements AllocationStrategy {
     | Finds the most suitable supervisor for a student by comparing programme
     | match score and current workload.
     */
-    private function findBestSupervisorIndex(
-        $student,
-        $supervisors
-    ) {
+    private function findBestSupervisorIndex($student, $supervisors) {
 
-        $bestIndex =
-            null;
+        $bestIndex = null;
 
         foreach ($supervisors as $index => $supervisor) {
 
@@ -153,11 +131,7 @@ class AutoAllocationEngineStrategy implements AllocationStrategy {
             | Skip Full Supervisors
             |--------------------------------------------------------------------------
             */
-            if (
-                $supervisor["currentTotal"]
-                >=
-                $supervisor["maxSuperviseesAllowed"]
-            ) {
+            if ($supervisor["currentTotal"] >= $supervisor["maxSuperviseesAllowed"]) {
 
                 continue;
             }
@@ -169,8 +143,7 @@ class AutoAllocationEngineStrategy implements AllocationStrategy {
             */
             if ($bestIndex === null) {
 
-                $bestIndex =
-                    $index;
+                $bestIndex = $index;
 
                 continue;
             }
@@ -180,22 +153,13 @@ class AutoAllocationEngineStrategy implements AllocationStrategy {
             | Compare Candidate Score Against Current Best
             |--------------------------------------------------------------------------
             */
-            $candidateScore =
-                $this->scoreSupervisor(
-                    $student,
-                    $supervisor
-                );
+            $candidateScore = $this->scoreSupervisor($student, $supervisor);
 
-            $bestScore =
-                $this->scoreSupervisor(
-                    $student,
-                    $supervisors[$bestIndex]
-                );
+            $bestScore = $this->scoreSupervisor($student, $supervisors[$bestIndex]);
 
             if ($candidateScore > $bestScore) {
 
-                $bestIndex =
-                    $index;
+                $bestIndex = $index;
 
                 continue;
             }
@@ -212,8 +176,7 @@ class AutoAllocationEngineStrategy implements AllocationStrategy {
                 $supervisors[$bestIndex]["currentTotal"]
             ) {
 
-                $bestIndex =
-                    $index;
+                $bestIndex = $index;
             }
         }
 
@@ -227,27 +190,18 @@ class AutoAllocationEngineStrategy implements AllocationStrategy {
     | Gives higher score to supervisors from the same programme and with more
     | remaining supervision slots.
     */
-    private function scoreSupervisor(
-        $student,
-        $supervisor
-    ) {
+    private function scoreSupervisor($student, $supervisor) {
 
-        $score =
-            0;
+        $score = 0;
 
         /*
         |--------------------------------------------------------------------------
         | Programme Match Score
         |--------------------------------------------------------------------------
         */
-        if (
-            strtolower(trim($student["programme"]))
-            ===
-            strtolower(trim($supervisor["programme"]))
-        ) {
+        if (strtolower(trim($student["programme"])) === strtolower(trim($supervisor["programme"]))) {
 
-            $score +=
-                10;
+            $score += 10;
         }
 
         /*
@@ -255,12 +209,9 @@ class AutoAllocationEngineStrategy implements AllocationStrategy {
         | Remaining Slot Score
         |--------------------------------------------------------------------------
         */
-        $remainingSlots =
-            (int) $supervisor["maxSuperviseesAllowed"] -
-            (int) $supervisor["currentTotal"];
+        $remainingSlots = (int) $supervisor["maxSuperviseesAllowed"] - (int) $supervisor["currentTotal"];
 
-        $score +=
-            $remainingSlots;
+        $score += $remainingSlots;
 
         return $score;
     }
@@ -294,14 +245,11 @@ class AllocationEngine {
     */
     public function __construct() {
 
-        $this->allocationDAO =
-            new AllocationDAO();
+        $this->allocationDAO = new AllocationDAO();
 
-        $this->strategy =
-            new AutoAllocationEngineStrategy();
+        $this->strategy = new AutoAllocationEngineStrategy();
 
-        $this->allocationWindowService =
-            new AllocationWindowService();
+        $this->allocationWindowService = new AllocationWindowService();
     }
 
     /*
@@ -311,12 +259,9 @@ class AllocationEngine {
     | Allows the allocation manager context to switch strategies without
     | changing the controller or dashboard code.
     */
-    public function setStrategy(
-        AllocationStrategy $strategy
-    ) {
+    public function setStrategy(AllocationStrategy $strategy) {
 
-        $this->strategy =
-            $strategy;
+        $this->strategy = $strategy;
     }
 
     /*
@@ -332,26 +277,20 @@ class AllocationEngine {
         | Fetch Allocation Summary
         |--------------------------------------------------------------------------
         */
-        $summary =
-            $this->allocationDAO
-                ->getAllocationSummary();
+        $summary = $this->allocationDAO->getAllocationSummary();
 
         /*
         |--------------------------------------------------------------------------
         | Normalize Dashboard Metrics
         |--------------------------------------------------------------------------
         */
-        $eligibleStudents =
-            (int) ($summary["eligibleStudents"] ?? 0);
+        $eligibleStudents = (int) ($summary["eligibleStudents"] ?? 0);
 
-        $allocatedStudents =
-            (int) ($summary["allocatedStudents"] ?? 0);
+        $allocatedStudents = (int) ($summary["allocatedStudents"] ?? 0);
 
-        $unassignedStudents =
-            (int) ($summary["unassignedStudents"] ?? 0);
+        $unassignedStudents = (int) ($summary["unassignedStudents"] ?? 0);
 
-        $pendingRequests =
-            (int) ($summary["pendingRequests"] ?? 0);
+        $pendingRequests = (int) ($summary["pendingRequests"] ?? 0);
 
         /*
         |--------------------------------------------------------------------------
@@ -385,10 +324,7 @@ class AllocationEngine {
     | Validates administrator access, retrieves eligible students and available
     | supervisors, runs the allocation strategy, and commits the result.
     */
-    public function executeAutoAllocation(
-        $administratorRole,
-        $administratorID = null
-    ) {
+    public function executeAutoAllocation($administratorRole, $administratorID = null) {
 
         /*
         |--------------------------------------------------------------------------
@@ -397,19 +333,14 @@ class AllocationEngine {
         */
         if ($administratorRole !== "Administrator") {
 
-            return $this->failure(
-                "Access denied. Only administrators can run auto-allocation."
-            );
+            return $this->failure("Access denied. Only administrators can run auto-allocation.");
         }
 
-        $allocationWindow =
-            $this->allocationWindowService
-            ->getWindow();
+        $allocationWindow = $this->allocationWindowService->getWindow();
 
         if (!$allocationWindow["canRunAutoAllocation"]) {
 
-            $message =
-                "Time Integrity: Auto-allocation can only run after the final allocation date has passed.";
+            $message = "Time Integrity: Auto-allocation can only run after the final allocation date has passed.";
 
             $this->recordAutoAllocationLog(
                 $administratorID,
@@ -429,14 +360,11 @@ class AllocationEngine {
         | Fetch Eligible Unassigned Students
         |--------------------------------------------------------------------------
         */
-        $students =
-            $this->allocationDAO
-                ->getEligibleUnassignedStudents();
+        $students = $this->allocationDAO->getEligibleUnassignedStudents();
 
         if (empty($students)) {
 
-            $message =
-                "No unassigned eligible students found.";
+            $message = "No unassigned eligible students found.";
 
             $this->recordAutoAllocationLog(
                 $administratorID,
@@ -451,22 +379,18 @@ class AllocationEngine {
             return $this->failure($message);
         }
 
-        $eligibleCount =
-            count($students);
+        $eligibleCount = count($students);
 
         /*
         |--------------------------------------------------------------------------
         | Fetch Supervisors With Capacity
         |--------------------------------------------------------------------------
         */
-        $supervisors =
-            $this->allocationDAO
-                ->getSupervisorsWithCapacity();
+        $supervisors = $this->allocationDAO->getSupervisorsWithCapacity();
 
         if (empty($supervisors)) {
 
-            $message =
-                $this->shortageMessage($eligibleCount);
+            $message = $this->shortageMessage($eligibleCount);
 
             $this->recordAutoAllocationLog(
                 $administratorID,
@@ -486,16 +410,11 @@ class AllocationEngine {
         | Run Allocation Strategy
         |--------------------------------------------------------------------------
         */
-        $result =
-            $this->executeStrategy(
-                $students,
-                $supervisors
-            );
+        $result = $this->executeStrategy($students, $supervisors);
 
         if (empty($result["allocations"])) {
 
-            $message =
-                $this->shortageMessage($eligibleCount);
+            $message = $this->shortageMessage($eligibleCount);
 
             $this->recordAutoAllocationLog(
                 $administratorID,
@@ -515,16 +434,11 @@ class AllocationEngine {
         | Commit Allocation Records
         |--------------------------------------------------------------------------
         */
-        $committed =
-            $this->allocationDAO
-                ->commitAllocations(
-                    $result["allocations"]
-                );
+        $committed = $this->allocationDAO->commitAllocations($result["allocations"]);
 
         if (!$committed) {
 
-            $message =
-                "Auto-allocation failed during database commit.";
+            $message = "Auto-allocation failed during database commit.";
 
             $this->recordAutoAllocationLog(
                 $administratorID,
@@ -544,11 +458,9 @@ class AllocationEngine {
         | Auto Allocation Success
         |--------------------------------------------------------------------------
         */
-        $allocatedCount =
-            count($result["allocations"]);
+        $allocatedCount = count($result["allocations"]);
 
-        $unassignedCount =
-            count($result["unassigned"]);
+        $unassignedCount = count($result["unassigned"]);
 
         if ($unassignedCount > 0) {
 
@@ -569,10 +481,7 @@ class AllocationEngine {
                 $message
             );
 
-            $this->recordAutoAllocationNotifications(
-                $logID,
-                $result["allocations"]
-            );
+            $this->recordAutoAllocationNotifications($logID, $result["allocations"]);
 
             return $this->success($message);
         }
@@ -593,10 +502,7 @@ class AllocationEngine {
             $message
         );
 
-        $this->recordAutoAllocationNotifications(
-            $logID,
-            $result["allocations"]
-        );
+        $this->recordAutoAllocationNotifications($logID, $result["allocations"]);
 
         return $this->success($message);
     }
@@ -606,12 +512,9 @@ class AllocationEngine {
     | Recent Auto Allocation Logs
     |--------------------------------------------------------------------------
     */
-    public function getRecentAutoAllocationLogs(
-        $limit = 5
-    ) {
+    public function getRecentAutoAllocationLogs( $limit = 5) {
 
-        return $this->allocationDAO
-            ->getRecentAutoAllocationLogs($limit);
+        return $this->allocationDAO->getRecentAutoAllocationLogs($limit);
     }
 
     /*
@@ -619,16 +522,9 @@ class AllocationEngine {
     | Execute Selected Strategy
     |--------------------------------------------------------------------------
     */
-    private function executeStrategy(
-        $students,
-        $supervisors
-    ) {
+    private function executeStrategy($students, $supervisors) {
 
-        return $this->strategy
-            ->allocate(
-                $students,
-                $supervisors
-            );
+        return $this->strategy->allocate($students, $supervisors);
     }
 
     /*
@@ -636,9 +532,7 @@ class AllocationEngine {
     | Quota Shortage Message
     |--------------------------------------------------------------------------
     */
-    private function shortageMessage(
-        $unassignedCount
-    ) {
+    private function shortageMessage($unassignedCount) {
 
         return
             "Warning: Insufficient quota slots. " .
@@ -678,16 +572,9 @@ class AllocationEngine {
     | Record Auto Allocation Notifications
     |--------------------------------------------------------------------------
     */
-    private function recordAutoAllocationNotifications(
-        $logID,
-        $allocations
-    ) {
+    private function recordAutoAllocationNotifications($logID, $allocations) {
 
-        $this->allocationDAO
-            ->createAutoAllocationNotifications(
-                $logID,
-                $allocations
-            );
+        $this->allocationDAO->createAutoAllocationNotifications( $logID, $allocations);
     }
 
     /*
@@ -695,14 +582,9 @@ class AllocationEngine {
     | Success Response Helper
     |--------------------------------------------------------------------------
     */
-    private function success(
-        $message
-    ) {
+    private function success($message) {
 
-        return [
-            "success" => true,
-            "message" => $message
-        ];
+        return ["success" => true, "message" => $message];
     }
 
     /*
@@ -710,14 +592,9 @@ class AllocationEngine {
     | Failure Response Helper
     |--------------------------------------------------------------------------
     */
-    private function failure(
-        $message
-    ) {
+    private function failure($message) {
 
-        return [
-            "success" => false,
-            "message" => $message
-        ];
+        return ["success" => false, "message" => $message];
     }
 }
 

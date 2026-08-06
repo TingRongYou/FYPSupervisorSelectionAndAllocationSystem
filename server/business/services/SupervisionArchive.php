@@ -18,12 +18,9 @@ class SupervisionArchive {
     |--------------------------------------------------------------------------
     */
 
-    public function __construct(
-        $reportDAO
-    ) {
+    public function __construct($reportDAO) {
 
-        $this->reportDAO =
-            $reportDAO;
+        $this->reportDAO = $reportDAO;
     }
 
     /*
@@ -33,17 +30,9 @@ class SupervisionArchive {
     | Fetches students allocated to the current supervisor.
     */
 
-    public function getPastStudents(
-        $supervisorID,
-        $year = ""
-    ) {
+    public function getPastStudents($supervisorID, $year = "") {
 
-        return
-            $this->reportDAO
-            ->getSupervisionHistory(
-                $supervisorID,
-                $year
-            );
+        return $this->reportDAO->getSupervisionHistory($supervisorID, $year);
     }
 
     /*
@@ -53,9 +42,7 @@ class SupervisionArchive {
     | Orders history rows by newest allocation first, then student name A-Z.
     */
 
-    public function sortByYear(
-        $historyRows
-    ) {
+    public function sortByYear($historyRows) {
 
         usort(
             $historyRows,

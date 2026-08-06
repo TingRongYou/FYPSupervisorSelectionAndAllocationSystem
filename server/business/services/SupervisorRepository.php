@@ -21,8 +21,7 @@ class SupervisorRepository {
 
     public function __construct($reportDAO) {
 
-        $this->reportDAO =
-            $reportDAO;
+        $this->reportDAO = $reportDAO;
     }
 
     /*
@@ -34,8 +33,7 @@ class SupervisorRepository {
 
     public function fetchSupervisors($programme = "") {
 
-        return
-            $this->reportDAO->fetchSupervisors($programme);
+        return $this->reportDAO->fetchSupervisors($programme);
     }
 
     /*
@@ -47,8 +45,7 @@ class SupervisorRepository {
 
     public function getQuotaLimit($supervisor) {
 
-        return
-            (int) ($supervisor["maxSuperviseesAllowed"] ?? 0);
+        return (int) ($supervisor["maxSuperviseesAllowed"] ?? 0);
     }
 }
 

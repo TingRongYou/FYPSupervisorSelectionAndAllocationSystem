@@ -18,12 +18,9 @@ class StudentTrackingSystem {
     |--------------------------------------------------------------------------
     */
 
-    public function __construct(
-        $reportDAO
-    ) {
+    public function __construct($reportDAO) {
 
-        $this->reportDAO =
-            $reportDAO;
+        $this->reportDAO = $reportDAO;
     }
 
     /*
@@ -33,17 +30,9 @@ class StudentTrackingSystem {
     | Pulls allocation data grouped by student programme.
     */
 
-    public function fetchApplicantPrograms(
-        $supervisorID,
-        $year = ""
-    ) {
+    public function fetchApplicantPrograms($supervisorID, $year = "") {
 
-        return
-            $this->reportDAO
-            ->getApplicantProgrammes(
-                $supervisorID,
-                $year
-            );
+        return $this->reportDAO->getApplicantProgrammes($supervisorID,$year);
     }
 
     /*
@@ -53,16 +42,9 @@ class StudentTrackingSystem {
     | Keeps the method name aligned with the class diagram operation.
     */
 
-    public function countByMajor(
-        $supervisorID,
-        $year = ""
-    ) {
+    public function countByMajor($supervisorID, $year = "") {
 
-        return
-            $this->fetchApplicantPrograms(
-                $supervisorID,
-                $year
-            );
+        return $this->fetchApplicantPrograms($supervisorID, $year);
     }
 }
 

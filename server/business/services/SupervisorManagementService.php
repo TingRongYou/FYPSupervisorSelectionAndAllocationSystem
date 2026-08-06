@@ -22,11 +22,9 @@ class SupervisorManagementService {
 
     public function __construct() {
 
-        $this->supervisorDAO =
-            new SupervisorDAO();
+        $this->supervisorDAO = new SupervisorDAO();
 
-        $this->userDAO =
-            new UserDAO();
+        $this->userDAO = new UserDAO();
     }
 
     /*
@@ -35,37 +33,19 @@ class SupervisorManagementService {
     |--------------------------------------------------------------------------
     */
 
-    public function getSupervisorDirectory(
-        $filters
-    ) {
+    public function getSupervisorDirectory($filters) {
 
-        $searchName =
-            trim(
-                $filters["searchName"] ?? ""
-            );
+        $searchName = trim($filters["searchName"] ?? "");
 
-        $programme =
-            trim(
-                $filters["programme"] ?? ""
-            );
+        $programme = trim($filters["programme"] ?? "");
 
-        $supervisors =
-            $this->supervisorDAO
-            ->getSupervisorsForManagement(
-                $searchName,
-                $programme
-            );
+        $supervisors = $this->supervisorDAO->getSupervisorsForManagement($searchName,$programme);
 
         foreach ($supervisors as $index => $supervisor) {
 
-            $currentSupervisees =
-                (int) $supervisor["currentSupervisees"];
+            $currentSupervisees = (int) $supervisor["currentSupervisees"];
 
-            $tierQuotaLimit =
-                (int) (
-                    $supervisor["tierQuotaLimit"]
-                    ?? $supervisor["maxSuperviseesAllowed"]
-                );
+            $tierQuotaLimit = (int) ($supervisor["tierQuotaLimit"] ?? $supervisor["maxSuperviseesAllowed"]);
 
             $assignedQuotaLimit =
                 isset($supervisor["assignedQuotaLimit"])
@@ -74,20 +54,15 @@ class SupervisorManagementService {
                 ? (int) $supervisor["assignedQuotaLimit"]
                 : $tierQuotaLimit;
 
-            $supervisors[$index]["currentSupervisees"] =
-                $currentSupervisees;
+            $supervisors[$index]["currentSupervisees"] = $currentSupervisees;
 
-            $supervisors[$index]["activeStatus"] =
-                (bool) $supervisor["activeStatus"];
+            $supervisors[$index]["activeStatus"] = (bool) $supervisor["activeStatus"];
 
-            $supervisors[$index]["maxSuperviseesAllowed"] =
-                $assignedQuotaLimit;
+            $supervisors[$index]["maxSuperviseesAllowed"] = $assignedQuotaLimit;
 
-            $supervisors[$index]["tierQuotaLimit"] =
-                $tierQuotaLimit;
+            $supervisors[$index]["tierQuotaLimit"] = $tierQuotaLimit;
 
-            $supervisors[$index]["assignedQuotaLimit"] =
-                $assignedQuotaLimit;
+            $supervisors[$index]["assignedQuotaLimit"] = $assignedQuotaLimit;
 
             $supervisors[$index]["loadPercentage"] =
                 $assignedQuotaLimit > 0
@@ -131,9 +106,7 @@ class SupervisorManagementService {
 
     public function getQuotaOptions() {
 
-        return
-            $this->supervisorDAO
-            ->getAllQuotaConfigurations();
+        return $this->supervisorDAO->getAllQuotaConfigurations();
     }
 
     /*
@@ -144,9 +117,7 @@ class SupervisorManagementService {
 
     public function getProgrammeOptions() {
 
-        return
-            $this->supervisorDAO
-            ->getSupervisorProgrammes();
+        return $this->supervisorDAO->getSupervisorProgrammes();
     }
 
     /*
@@ -155,104 +126,61 @@ class SupervisorManagementService {
     |--------------------------------------------------------------------------
     */
 
-    public function classifySupervisorRole(
-        $administratorRole,
-        $supervisorID,
-        $employmentCategory,
-        $quotaID
-    ) {
+    public function classifySupervisorRole($administratorRole, $supervisorID, $employmentCategory, $quotaID) {
 
         if ($administratorRole !== "Administrator") {
 
-            return $this->failure(
-                "Access denied"
-            );
+            return $this->failure("Access denied");
         }
 
-        $supervisorID =
-            trim($supervisorID);
+        $supervisorID = trim($supervisorID);
 
-        $employmentCategory =
-            trim($employmentCategory);
+        $employmentCategory = trim($employmentCategory);
 
-        $quotaID =
-            trim($quotaID);
+        $quotaID = trim($quotaID);
 
-        if (
-            $supervisorID === ""
-            ||
-            $employmentCategory === ""
-            ||
-            $quotaID === ""
-        ) {
+        if ($supervisorID === "" ||$employmentCategory === "" || $quotaID === "") {
 
-            return $this->failure(
-                "Supervisor, classification, and quota are required"
-            );
+            return $this->failure( "Supervisor, classification, and quota are required");
         }
 
-        if (
-            strlen($employmentCategory)
-            >
-            self::MAX_EMPLOYMENT_CATEGORY_LENGTH
-        ) {
+        if (strlen($employmentCategory) > self::MAX_EMPLOYMENT_CATEGORY_LENGTH) {
 
-            return $this->failure(
-                "Classification cannot exceed 50 characters"
-            );
+            return $this->failure("Classification cannot exceed 50 characters");
         }
 
         if (!ctype_digit($quotaID)) {
 
-            return $this->failure(
-                "Invalid quota selection"
-            );
+            return $this->failure("Invalid quota selection");
         }
 
         if (!isset(self::CLASSIFICATION_QUOTA_RULES[$employmentCategory])) {
 
-            return $this->failure(
-                "Invalid supervisor classification"
-            );
+            return $this->failure("Invalid supervisor classification");
         }
 
-        $currentLoad =
-            $this->supervisorDAO
-            ->getSupervisorLoad(
-                $supervisorID
-            );
+        $currentLoad = $this->supervisorDAO->getSupervisorLoad($supervisorID);
 
         if (!$currentLoad) {
 
-            return $this->failure(
-                "Supervisor record was not found"
-            );
+            return $this->failure("Supervisor record was not found");
         }
 
-        $newQuota =
-            $this->getRequiredQuotaForClassification(
-                $employmentCategory
-            );
+        $newQuota = $this->getRequiredQuotaForClassification($employmentCategory);
 
         if (!$newQuota) {
 
-            return $this->failure(
-                "Default quota tier for selected classification was not found"
-            );
+            return $this->failure("Default quota tier for selected classification was not found");
         }
 
         if ((int) $quotaID !== (int) $newQuota["quotaID"]) {
 
-            return $this->failure(
-                "Selected quota tier does not match the supervisor classification"
-            );
+            return $this->failure("Selected quota tier does not match the supervisor classification");
         }
 
-        $currentSupervisees =
-            (int) $currentLoad["currentSupervisees"];
+        $currentSupervisees = (int) $currentLoad["currentSupervisees"];
 
-        $newQuotaLimit =
-            (int) $newQuota["maxSuperviseesAllowed"];
+        $newQuotaLimit = (int) $newQuota["maxSuperviseesAllowed"];
 
         $existingAssignedQuota =
             isset($currentLoad["assignedQuotaLimit"])
@@ -305,34 +233,20 @@ class SupervisorManagementService {
 
         if (!$updated) {
 
-            return $this->failure(
-                "Supervisor classification could not be updated"
-            );
+            return $this->failure("Supervisor classification could not be updated");
         }
 
-        return $this->success(
-            "Supervisor classification has been updated. The new base quota is now active."
-        );
+        return $this->success("Supervisor classification has been updated. The new base quota is now active.");
     }
 
-    private function success(
-        $message
-    ) {
+    private function success($message) {
 
-        return [
-            "success" => true,
-            "message" => $message
-        ];
+        return ["success" => true, "message" => $message];
     }
 
-    private function failure(
-        $message
-    ) {
+    private function failure($message) {
 
-        return [
-            "success" => false,
-            "message" => $message
-        ];
+        return ["success" => false, "message" => $message];
     }
 
     /*
@@ -341,34 +255,20 @@ class SupervisorManagementService {
     |--------------------------------------------------------------------------
     */
 
-    public function updateSupervisorAccount(
-        $administratorRole,
-        $supervisorID,
-        $fullName,
-        $universityEmail,
-        $activeStatus
-    ) {
+    public function updateSupervisorAccount($administratorRole, $supervisorID, $fullName, $universityEmail, $activeStatus) {
 
         if ($administratorRole !== "Administrator") {
 
-            return $this->failure(
-                "Access denied"
-            );
+            return $this->failure("Access denied");
         }
 
-        $supervisorID =
-            trim($supervisorID);
+        $supervisorID = trim($supervisorID);
 
-        $fullName =
-            trim($fullName);
+        $fullName = trim($fullName);
 
-        $universityEmail =
-            strtolower(
-                trim($universityEmail)
-            );
+        $universityEmail = strtolower( trim($universityEmail));
 
-        $activeStatus =
-            trim($activeStatus);
+        $activeStatus = trim($activeStatus);
 
         if (
             $supervisorID === ""
@@ -380,60 +280,36 @@ class SupervisorManagementService {
             $activeStatus === ""
         ) {
 
-            return $this->failure(
-                "Supervisor name, email, and account status are required"
-            );
+            return $this->failure("Supervisor name, email, and account status are required");
         }
 
         if (strlen($fullName) > 100) {
 
-            return $this->failure(
-                "Full name cannot exceed 100 characters"
-            );
+            return $this->failure("Full name cannot exceed 100 characters");
         }
 
         if (!filter_var($universityEmail, FILTER_VALIDATE_EMAIL)) {
 
-            return $this->failure(
-                "Invalid university email format"
-            );
+            return $this->failure("Invalid university email format");
         }
 
         if (!in_array($activeStatus, ["1", "0"], true)) {
 
-            return $this->failure(
-                "Invalid account status"
-            );
+            return $this->failure("Invalid account status");
         }
 
-        $supervisor =
-            $this->userDAO
-            ->getUserByID(
-                $supervisorID
-            );
+        $supervisor = $this->userDAO->getUserByID($supervisorID);
 
         if (!$supervisor || $supervisor["systemRole"] !== "Supervisor") {
 
-            return $this->failure(
-                "Supervisor record was not found"
-            );
+            return $this->failure("Supervisor record was not found");
         }
 
-        $existingEmailUser =
-            $this->userDAO
-            ->getUserByEmail(
-                $universityEmail
-            );
+        $existingEmailUser = $this->userDAO->getUserByEmail($universityEmail);
 
-        if (
-            $existingEmailUser
-            &&
-            $existingEmailUser["userID"] !== $supervisorID
-        ) {
+        if ( $existingEmailUser && $existingEmailUser["userID"] !== $supervisorID) {
 
-            return $this->failure(
-                "University email is already used by another account"
-            );
+            return $this->failure("University email is already used by another account");
         }
 
         $updated =
@@ -447,33 +323,19 @@ class SupervisorManagementService {
 
         if (!$updated) {
 
-            return $this->failure(
-                "Supervisor account particulars could not be updated"
-            );
+            return $this->failure("Supervisor account particulars could not be updated");
         }
 
-        return $this->success(
-            "Supervisor account particulars updated successfully"
-        );
+        return $this->success("Supervisor account particulars updated successfully");
     }
 
-    private function getRequiredQuotaForClassification(
-        $employmentCategory
-    ) {
+    private function getRequiredQuotaForClassification($employmentCategory) {
 
-        $requiredTierText =
-            self::CLASSIFICATION_QUOTA_RULES[$employmentCategory] ?? "";
+        $requiredTierText = self::CLASSIFICATION_QUOTA_RULES[$employmentCategory] ?? "";
 
         foreach ($this->getQuotaOptions() as $quota) {
 
-            if (
-                stripos(
-                    $quota["quotaTierName"],
-                    $requiredTierText
-                )
-                !==
-                false
-            ) {
+            if (stripos($quota["quotaTierName"], $requiredTierText) !== false) {
 
                 return $quota;
             }

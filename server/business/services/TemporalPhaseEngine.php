@@ -30,127 +30,90 @@ class TemporalPhaseEngine {
 
         $this->executeTimeoutAutomation();
 
-        $serverNow =
-            new DateTimeImmutable(
-                "now",
-                new DateTimeZone(self::SYSTEM_TIMEZONE)
-            );
+        $serverNow = new DateTimeImmutable("now",new DateTimeZone(self::SYSTEM_TIMEZONE));
 
-        $phases =
-            $this->getPhases();
+        $phases = $this->getPhases();
 
-        $activePhase =
-            null;
+        $activePhase = null;
 
-        $nextPhase =
-            null;
+        $nextPhase = null;
 
         foreach ($phases as $phase) {
 
-            $start =
-                $this->toDateTime($phase["startTimestamp"]);
+            $start = $this->toDateTime($phase["startTimestamp"]);
 
-            $end =
-                $this->toDateTime($phase["endTimestamp"]);
+            $end = $this->toDateTime($phase["endTimestamp"]);
 
             if ($serverNow >= $start && $serverNow <= $end) {
 
-                $activePhase =
-                    $phase;
+                $activePhase = $phase;
 
                 break;
             }
 
             if ($serverNow < $start && $nextPhase === null) {
 
-                $nextPhase =
-                    $phase;
+                $nextPhase = $phase;
             }
         }
 
-        $targetPhase =
-            $activePhase ?: $nextPhase;
+        $targetPhase = $activePhase ?: $nextPhase;
 
-        $remainingSeconds =
-            0;
+        $remainingSeconds = 0;
 
         if ($activePhase) {
             // Epoch subtraction using the server's immutable timestamp
-            $remainingSeconds =
-                max(0, $this->toDateTime($activePhase["endTimestamp"])->getTimestamp() - $serverNow->getTimestamp());
+            $remainingSeconds = max(0, $this->toDateTime($activePhase["endTimestamp"])->getTimestamp() - $serverNow->getTimestamp());
         } elseif ($nextPhase) {
 
-            $remainingSeconds =
-                max(0, $this->toDateTime($nextPhase["startTimestamp"])->getTimestamp() - $serverNow->getTimestamp());
+            $remainingSeconds = max(0, $this->toDateTime($nextPhase["startTimestamp"])->getTimestamp() - $serverNow->getTimestamp());
         }
 
-        $canSubmitProposal =
-            $activePhase
-            &&
-            strcasecmp($activePhase["phaseName"], "Submission Phase") === 0;
+        $canSubmitProposal = $activePhase && strcasecmp($activePhase["phaseName"], "Submission Phase") === 0;
 
         return [
-            "success" =>
-                true,
+            "success" => true,
 
-            "serverTime" =>
-                $serverNow->format("Y-m-d H:i:s"),
+            "serverTime" => $serverNow->format("Y-m-d H:i:s"),
 
-            "serverEpoch" =>
-                $serverNow->getTimestamp(),
+            "serverEpoch" => $serverNow->getTimestamp(),
 
-            "activePhase" =>
-                $activePhase,
+            "activePhase" => $activePhase,
 
-            "activePhaseName" =>
-                $activePhase["phaseName"] ?? "No Active Phase",
+            "activePhaseName" => $activePhase["phaseName"] ?? "No Active Phase",
 
-            "nextPhase" =>
-                $nextPhase,
+            "nextPhase" => $nextPhase,
 
-            "displayPhase" =>
-                $targetPhase,
+            "displayPhase" => $targetPhase,
 
-            "phaseStatus" =>
-                $this->getPhaseStatus($activePhase, $nextPhase),
+            "phaseStatus" => $this->getPhaseStatus($activePhase, $nextPhase),
 
-            "startTimestamp" =>
-                $targetPhase["startTimestamp"] ?? null,
+            "startTimestamp" => $targetPhase["startTimestamp"] ?? null,
 
-            "endTimestamp" =>
-                $targetPhase["endTimestamp"] ?? null,
+            "endTimestamp" => $targetPhase["endTimestamp"] ?? null,
 
-            "remainingSeconds" =>
-                $remainingSeconds,
+            "remainingSeconds" => $remainingSeconds,
 
-            "remainingText" =>
-                $this->formatRemaining($remainingSeconds),
+            "remainingText" => $this->formatRemaining($remainingSeconds),
 
-            "canSubmitProposal" =>
-                $canSubmitProposal,
+            "canSubmitProposal" => $canSubmitProposal,
 
-            "message" =>
-                $this->getMessage($activePhase, $nextPhase, $canSubmitProposal),
+            "message" => $this->getMessage($activePhase, $nextPhase, $canSubmitProposal),
 
-            "phases" =>
-                $this->decoratePhases($phases, $serverNow)
+            "phases" => $this->decoratePhases($phases, $serverNow)
         ];
     }
 
     public function isSubmissionPhaseActive() {
 
-        $payload =
-            $this->getPhasePayload();
+        $payload = $this->getPhasePayload();
 
-        return
-            (bool) $payload["canSubmitProposal"];
+        return (bool) $payload["canSubmitProposal"];
     }
 
     public function executeTimeoutAutomation() {
 
-        return
-            $this->requestDAO
-                ->expireTimedOutPendingRequests();
+        return $this->requestDAO->expireTimedOutPendingRequests();
     }
 
     private function getPhases() {
@@ -165,54 +128,44 @@ class TemporalPhaseEngine {
             ORDER BY startTimestamp ASC, phaseID ASC
         ";
 
-        $statement =
-            $this->conn->prepare($query);
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(PDO::FETCH_ASSOC);
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     private function decoratePhases($phases, $serverNow) {
 
-        $decorated =
-            [];
+        $decorated = [];
 
         foreach ($phases as $phase) {
 
-            $start =
-                $this->toDateTime($phase["startTimestamp"]);
+            $start = $this->toDateTime($phase["startTimestamp"]);
 
-            $end =
-                $this->toDateTime($phase["endTimestamp"]);
+            $end = $this->toDateTime($phase["endTimestamp"]);
 
             if ($serverNow < $start) {
 
-                $status =
-                    "Upcoming";
+                $status = "Upcoming";
 
             } elseif ($serverNow > $end) {
 
-                $status =
-                    "Completed";
+                $status = "Completed";
 
             } else {
 
-                $status =
-                    "Active";
+                $status = "Active";
             }
 
-            $phase["status"] =
-                $status;
+            $phase["status"] = $status;
 
             $phase["remainingText"] =
                 $status === "Active"
                     ? $this->formatRemaining(max(0, $end->getTimestamp() - $serverNow->getTimestamp()))
                     : "-";
 
-            $decorated[] =
-                $phase;
+            $decorated[] = $phase;
         }
 
         return $decorated;
@@ -268,11 +221,7 @@ class TemporalPhaseEngine {
 
     private function toDateTime($value) {
 
-        return
-            new DateTimeImmutable(
-                (string) $value,
-                new DateTimeZone(self::SYSTEM_TIMEZONE)
-            );
+        return new DateTimeImmutable((string) $value, new DateTimeZone(self::SYSTEM_TIMEZONE));
     }
 
     private function ensureSystemPhaseTable() {

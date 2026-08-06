@@ -39,11 +39,9 @@ class UserAccountManager {
     */
     public function __construct() {
 
-        $this->userDAO =
-            new UserDAO();
+        $this->userDAO = new UserDAO();
 
-        $this->supervisorDAO =
-            new SupervisorDAO();
+        $this->supervisorDAO = new SupervisorDAO();
     }
 
     /*
@@ -61,8 +59,7 @@ class UserAccountManager {
         */
         if ($roleType === "Supervisor") {
 
-            $factory =
-                new SupervisorFactory();
+            $factory = new SupervisorFactory();
 
             return $factory->createRole($data);
         }
@@ -74,8 +71,7 @@ class UserAccountManager {
         */
         if ($roleType === "Student") {
 
-            $factory =
-                new StudentFactory();
+            $factory = new StudentFactory();
 
             return $factory->createRole($data);
         }
@@ -102,9 +98,7 @@ class UserAccountManager {
         | Unsupported Role Handling
         |--------------------------------------------------------------------------
         */
-        throw new InvalidArgumentException(
-            "Unsupported user role"
-        );
+        throw new InvalidArgumentException("Unsupported user role");
     }
 
     /*

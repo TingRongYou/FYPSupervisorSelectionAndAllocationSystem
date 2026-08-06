@@ -24,11 +24,9 @@ class SupervisorDiscoveryService {
 
     public function __construct() {
 
-        $this->supervisorDAO =
-            new SupervisorDAO();
+        $this->supervisorDAO = new SupervisorDAO();
 
-        $this->tagDAO =
-            new TagDAO();
+        $this->tagDAO = new TagDAO();
     }
 
     /*
@@ -39,15 +37,12 @@ class SupervisorDiscoveryService {
 
     public function getProgrammes() {
 
-        return
-            $this->supervisorDAO
-            ->getSupervisorProgrammes();
+        return $this->supervisorDAO->getSupervisorProgrammes();
     }
 
     public function getResearchTags() {
 
-        return $this->tagDAO
-            ->getAllTags();
+        return $this->tagDAO->getAllTags();
     }
 
     /*
@@ -57,43 +52,27 @@ class SupervisorDiscoveryService {
     */
 
     // Manual discovery
-    public function discoverSupervisors(
-        $filters
-    ) {
+    public function discoverSupervisors($filters) {
 
-        $filters =
-            $this->normalizeFilters($filters); // Normalize data into standardized format engine expected
+        $filters = $this->normalizeFilters($filters); // Normalize data into standardized format engine expected
 
-        $processor =
-            new ManualSearchProcessor(); // Decide strategy to search supervisors
+        $processor = new ManualSearchProcessor(); // Decide strategy to search supervisors
 
-        return $processor
-            ->executeSearch($filters); // Trigger search process
+        return $processor ->executeSearch($filters); // Trigger search process
     }
 
-    public function getRecommendedMatches(
-        $studentID
-    ) {
+    public function getRecommendedMatches($studentID) {
 
-        $processor =
-            new RecommendationProcessor();
+        $processor = new RecommendationProcessor();
 
-        return $processor
-            ->executeSearch([
-                "studentID" => $studentID,
-                "quotaStatus" => "Available"
-            ]);
+        return $processor->executeSearch(["studentID" => $studentID, "quotaStatus" => "Available"]);
     }
 
     // Check if student has saved interest tags
-    public function hasSavedInterestTags(
-        $studentID
-    ) {
+    public function hasSavedInterestTags($studentID) {
 
-        return count( // If count > 0, then true, else false
-            $this->tagDAO
-            ->getStudentTagIDs($studentID)
-        ) > 0;
+        // If count > 0, then true, else false
+        return count($this->tagDAO->getStudentTagIDs($studentID)) > 0;
     }
 
     /*
@@ -102,20 +81,16 @@ class SupervisorDiscoveryService {
     |--------------------------------------------------------------------------
     */
 
-    private function normalizeFilters(
-        $filters
-    ) {
+    private function normalizeFilters($filters) {
 
-        $availability =
-            trim($filters["availability"] ?? "");
+        $availability = trim($filters["availability"] ?? "");
 
         if (!in_array($availability, ["", "Available", "Full"], true)) {
 
             $availability = "";
         }
 
-        $quotaStatus =
-            trim($filters["quotaStatus"] ?? "");
+        $quotaStatus = trim($filters["quotaStatus"] ?? "");
 
         if ($quotaStatus === "" && $availability !== "") {
 
@@ -127,24 +102,18 @@ class SupervisorDiscoveryService {
             $quotaStatus = "";
         }
 
-        $interestTagID =
-            trim($filters["interestTagID"] ?? "");
+        $interestTagID = trim($filters["interestTagID"] ?? "");
 
         return [
-            "searchName" =>
-                trim($filters["searchName"] ?? ""),
+            "searchName" => trim($filters["searchName"] ?? ""),
 
-            "programme" =>
-                trim($filters["programme"] ?? ""),
+            "programme" => trim($filters["programme"] ?? ""),
 
-            "interestTagID" =>
-                ctype_digit($interestTagID) ? (int) $interestTagID : 0,
+            "interestTagID" => ctype_digit($interestTagID) ? (int) $interestTagID : 0,
 
-            "availability" =>
-                $availability,
+            "availability" => $availability,
 
-            "quotaStatus" =>
-                $quotaStatus
+            "quotaStatus" => $quotaStatus
         ];
     }
 }

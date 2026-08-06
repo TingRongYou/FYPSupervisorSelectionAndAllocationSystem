@@ -4,22 +4,17 @@ require_once __DIR__ . "/../../data/database/database.php";
 
 class AllocationWindowService {
 
-    private const SYSTEM_TIMEZONE =
-        "Asia/Kuala_Lumpur";
+    private const SYSTEM_TIMEZONE = "Asia/Kuala_Lumpur";
 
     private $conn;
 
     public function __construct() {
 
-        date_default_timezone_set(
-            self::SYSTEM_TIMEZONE
-        );
+        date_default_timezone_set(self::SYSTEM_TIMEZONE);
 
-        $database =
-            new Database();
+        $database = new Database();
 
-        $this->conn =
-            $database->connect();
+        $this->conn = $database->connect();
 
         $this->ensureTable();
     }
@@ -37,15 +32,11 @@ class AllocationWindowService {
             LIMIT 1
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        $window =
-            $statement->fetch(PDO::FETCH_ASSOC);
+        $window = $statement->fetch(PDO::FETCH_ASSOC);
 
         if ($window) {
 
@@ -77,13 +68,11 @@ class AllocationWindowService {
             LIMIT 1
         ";
 
-        $statement =
-            $this->conn->prepare($query);
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        $period =
-            $statement->fetch(PDO::FETCH_ASSOC);
+        $period = $statement->fetch(PDO::FETCH_ASSOC);
 
         if ($period) {
 
@@ -100,17 +89,13 @@ class AllocationWindowService {
 
     public function updateWindow($initialAllocationDate, $finalAllocationDate, $reviewStartDate = "", $reviewEndDate = "") {
 
-        $initialAllocationDate =
-            $this->normalizeDateTime($initialAllocationDate);
+        $initialAllocationDate = $this->normalizeDateTime($initialAllocationDate);
 
-        $finalAllocationDate =
-            $this->normalizeDateTime($finalAllocationDate);
+        $finalAllocationDate = $this->normalizeDateTime($finalAllocationDate);
 
-        $reviewStartDate =
-            $this->normalizeDateTime($reviewStartDate);
+        $reviewStartDate = $this->normalizeDateTime($reviewStartDate);
 
-        $reviewEndDate =
-            $this->normalizeDateTime($reviewEndDate);
+        $reviewEndDate = $this->normalizeDateTime($reviewEndDate);
 
         if (
             $initialAllocationDate === "" ||
@@ -183,20 +168,11 @@ class AllocationWindowService {
                     updatedAt = NOW()
             ";
 
-            $statement =
-                $this->conn->prepare(
-                    $query
-                );
+            $statement = $this->conn->prepare($query);
 
-            $statement->bindParam(
-                ":initialAllocationDate",
-                $initialAllocationDate
-            );
+            $statement->bindParam(":initialAllocationDate", $initialAllocationDate);
 
-            $statement->bindParam(
-                ":finalAllocationDate",
-                $finalAllocationDate
-            );
+            $statement->bindParam( ":finalAllocationDate", $finalAllocationDate);
 
             $statement->execute();
 
@@ -262,29 +238,21 @@ class AllocationWindowService {
 
     public function isSelectionOpen() {
 
-        return
-            $this->getWindow()["status"] === "open";
+        return $this->getWindow()["status"] === "open";
     }
 
     public function hasFinalAllocationDateReached() {
 
-        return
-            $this->getWindow()["status"] === "closed";
+        return $this->getWindow()["status"] === "closed";
     }
 
     private function attachStatus($window) {
 
-        $initial =
-            $window["initialAllocationDate"] ?? null;
+        $initial = $window["initialAllocationDate"] ?? null;
 
-        $final =
-            $window["finalAllocationDate"] ?? null;
+        $final = $window["finalAllocationDate"] ?? null;
 
-        $now =
-            (new DateTimeImmutable(
-                "now",
-                new DateTimeZone(self::SYSTEM_TIMEZONE)
-            ))->getTimestamp();
+        $now = (new DateTimeImmutable("now", new DateTimeZone(self::SYSTEM_TIMEZONE)))->getTimestamp();
 
         if (empty($initial) || empty($final)) {
 
@@ -326,35 +294,23 @@ class AllocationWindowService {
 
     private function normalizeDateTime($value) {
 
-        $value =
-            trim((string) $value);
+        $value = trim((string) $value);
 
         if ($value === "") {
 
             return "";
         }
 
-        $dateTime =
-            new DateTimeImmutable(
-                $value,
-                new DateTimeZone(self::SYSTEM_TIMEZONE)
-            );
+        $dateTime = new DateTimeImmutable($value, new DateTimeZone(self::SYSTEM_TIMEZONE));
 
-        return $dateTime
-            ->setTimezone(new DateTimeZone(self::SYSTEM_TIMEZONE))
-            ->format("Y-m-d H:i:s");
+        return $dateTime->setTimezone(new DateTimeZone(self::SYSTEM_TIMEZONE))->format("Y-m-d H:i:s");
     }
 
     private function toTimestamp($value) {
 
-        $dateTime =
-            new DateTimeImmutable(
-                (string) $value,
-                new DateTimeZone(self::SYSTEM_TIMEZONE)
-            );
+        $dateTime = new DateTimeImmutable((string) $value, new DateTimeZone(self::SYSTEM_TIMEZONE));
 
-        return $dateTime
-            ->getTimestamp();
+        return $dateTime->getTimestamp();
     }
 
     private function ensureTable() {
@@ -369,8 +325,7 @@ class AllocationWindowService {
             )
         ";
 
-        $this->conn
-            ->exec($query);
+        $this->conn->exec($query);
     }
 
     private function ensureSystemPhaseTable() {
@@ -384,8 +339,7 @@ class AllocationWindowService {
             )
         ";
 
-        $this->conn
-            ->exec($query);
+        $this->conn->exec($query);
     }
 
     private function upsertPhase(
@@ -396,8 +350,7 @@ class AllocationWindowService {
         $endTimestamp
     ) {
 
-        $phaseStatement =
-            $this->conn->prepare($phaseQuery);
+        $phaseStatement = $this->conn->prepare($phaseQuery);
 
         $phaseStatement->execute([
             ":phaseID" =>
@@ -416,18 +369,12 @@ class AllocationWindowService {
 
     private function success($message) {
 
-        return [
-            "success" => true,
-            "message" => $message
-        ];
+        return ["success" => true, "message" => $message];
     }
 
     private function failure($message) {
 
-        return [
-            "success" => false,
-            "message" => $message
-        ];
+        return ["success" => false, "message" => $message];
     }
 }
 

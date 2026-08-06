@@ -20,8 +20,7 @@ class StudentRepository {
 
     public function __construct($reportDAO) {
 
-        $this->reportDAO =
-            $reportDAO;
+        $this->reportDAO = $reportDAO;
     }
 
     /*
@@ -33,8 +32,7 @@ class StudentRepository {
 
     public function fetchStudents($filters = []) {
 
-        return
-            $this->reportDAO->fetchStudents($filters);
+        return $this->reportDAO->fetchStudents($filters);
     }
 
     /*
@@ -46,11 +44,9 @@ class StudentRepository {
 
     public function filterByBatch($batch, $filters = []) {
 
-        $filters["batch"] =
-            $batch;
+        $filters["batch"] = $batch;
 
-        return
-            $this->fetchStudents($filters);
+        return $this->fetchStudents($filters);
     }
 }
 
