@@ -10,9 +10,7 @@ class ProjectShowcaseDecorator extends ProfileDecorator {
 
         parent::__construct($profile);
 
-        $this->pastProjects = is_array($pastProjects)
-            ? array_values($pastProjects)
-            : [];
+        $this->pastProjects = is_array($pastProjects) ? array_values($pastProjects) : [];
     }
 
     public function display() {

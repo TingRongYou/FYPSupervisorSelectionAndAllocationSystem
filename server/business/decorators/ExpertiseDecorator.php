@@ -10,9 +10,7 @@ class ExpertiseDecorator extends ProfileDecorator {
 
         parent::__construct($profile);
 
-        $this->areasOfInterest = is_array($areasOfInterest)
-            ? array_values($areasOfInterest)
-            : [];
+        $this->areasOfInterest = is_array($areasOfInterest) ? array_values($areasOfInterest) : [];
     }
 
     public function display() {
