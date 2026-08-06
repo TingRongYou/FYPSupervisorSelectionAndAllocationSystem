@@ -6,10 +6,7 @@ class PastProjectImageStorageDAO {
 
     private const MAX_IMAGE_SIZE = 5242880;
 
-    private const ALLOWED_IMAGE_TYPES = [
-        IMAGETYPE_JPEG,
-        IMAGETYPE_PNG
-    ];
+    private const ALLOWED_IMAGE_TYPES = [IMAGETYPE_JPEG, IMAGETYPE_PNG];
 
     private const INVALID_IMAGE_MESSAGE =
         "Invalid Image Format - The cover image must be JPG or PNG and cannot exceed 5.0 MB.";
@@ -46,8 +43,7 @@ class PastProjectImageStorageDAO {
             return $this->failure(self::INVALID_IMAGE_MESSAGE);
         }
 
-        $imageInfo =
-            getimagesize($uploadedFile["tmp_name"]);
+        $imageInfo = getimagesize($uploadedFile["tmp_name"]);
 
         if (
             $imageInfo === false ||
@@ -58,8 +54,7 @@ class PastProjectImageStorageDAO {
             return $this->failure(self::INVALID_IMAGE_MESSAGE);
         }
 
-        $imageDirectory =
-            $this->imageDirectory();
+        $imageDirectory = $this->imageDirectory();
 
         if (!is_dir($imageDirectory) && !mkdir($imageDirectory, 0755, true)) {
 
@@ -71,17 +66,13 @@ class PastProjectImageStorageDAO {
             return $this->failure("Past project image storage directory is not writable.");
         }
 
-        $extension =
-            (int) $imageInfo[2] === IMAGETYPE_PNG ? "png" : "jpg";
+        $extension = (int) $imageInfo[2] === IMAGETYPE_PNG ? "png" : "jpg";
 
-        $safeSupervisorID =
-            preg_replace("/[^A-Za-z0-9_-]/", "", $supervisorID);
+        $safeSupervisorID = preg_replace("/[^A-Za-z0-9_-]/", "", $supervisorID);
 
-        $fileName =
-            $safeSupervisorID . "_" . date("YmdHis") . "_" . bin2hex(random_bytes(4)) . "." . $extension;
+        $fileName = $safeSupervisorID . "_" . date("YmdHis") . "_" . bin2hex(random_bytes(4)) . "." . $extension;
 
-        $destination =
-            $imageDirectory . DIRECTORY_SEPARATOR . $fileName;
+        $destination = $imageDirectory . DIRECTORY_SEPARATOR . $fileName;
 
         if (!move_uploaded_file($uploadedFile["tmp_name"], $destination)) {
 
@@ -96,30 +87,25 @@ class PastProjectImageStorageDAO {
 
     public function deleteStoredImage($path) {
 
-        $path =
-            trim((string) $path);
+        $path = trim((string) $path);
 
         if ($path === "") {
 
             return;
         }
 
-        $fileName =
-            basename($path);
+        $fileName = basename($path);
 
-        $imageDirectory =
-            realpath($this->imageDirectory());
+        $imageDirectory = realpath($this->imageDirectory());
 
         if ($imageDirectory === false) {
 
             return;
         }
 
-        $fullPath =
-            $imageDirectory . DIRECTORY_SEPARATOR . $fileName;
+        $fullPath = $imageDirectory . DIRECTORY_SEPARATOR . $fileName;
 
-        $resolvedPath =
-            realpath($fullPath);
+        $resolvedPath = realpath($fullPath);
 
         if (
             $resolvedPath !== false &&
@@ -142,13 +128,11 @@ class PastProjectImageStorageDAO {
 
     private function imageDirectory() {
 
-        $storageDirectory =
-            realpath(__DIR__ . "/../../../storage");
+        $storageDirectory = realpath(__DIR__ . "/../../../storage");
 
         if ($storageDirectory === false) {
 
-            $storageDirectory =
-                __DIR__ . "/../../../storage";
+            $storageDirectory = __DIR__ . "/../../../storage";
         }
 
         return $storageDirectory . DIRECTORY_SEPARATOR . self::IMAGE_DIRECTORY_NAME;

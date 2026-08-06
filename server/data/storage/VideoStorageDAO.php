@@ -19,10 +19,7 @@ class VideoStorageDAO {
 
     private const WEB_STORAGE_ROOT = "../../storage";
 
-    private const ALLOWED_MIME_TYPES = [
-        "video/mp4",
-        "video/webm"
-    ];
+    private const ALLOWED_MIME_TYPES = ["video/mp4", "video/webm"];
 
     /*
     |--------------------------------------------------------------------------
@@ -37,9 +34,7 @@ class VideoStorageDAO {
         | Upload Presence Validation
         |--------------------------------------------------------------------------
         */
-        if (
-            !isset($uploadedFile["error"])
-        ) {
+        if (!isset($uploadedFile["error"])) {
 
             return [
                 "success" => false,
@@ -57,9 +52,7 @@ class VideoStorageDAO {
             return [
                 "success" => false,
                 "message" =>
-                    $this->uploadErrorMessage(
-                        (int) $uploadedFile["error"]
-                    )
+                    $this->uploadErrorMessage((int) $uploadedFile["error"])
             ];
         }
 
@@ -98,21 +91,11 @@ class VideoStorageDAO {
         |--------------------------------------------------------------------------
         | Ensures only MP4 and WebM video files are accepted.
         */
-        $finfo =
-            new finfo(FILEINFO_MIME_TYPE);
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
 
-        $mimeType =
-            $finfo->file(
-                $uploadedFile["tmp_name"]
-            );
+        $mimeType = $finfo->file($uploadedFile["tmp_name"]);
 
-        if (
-            !in_array(
-                $mimeType,
-                self::ALLOWED_MIME_TYPES,
-                true
-            )
-        ) {
+        if (!in_array($mimeType, self::ALLOWED_MIME_TYPES,true)) {
 
             return [
                 "success" => false,
@@ -151,15 +134,11 @@ class VideoStorageDAO {
         | Storage Directory Resolution
         |--------------------------------------------------------------------------
         */
-        $storageDirectory =
-            realpath(
-                __DIR__ . "/../../../storage"
-            );
+        $storageDirectory = realpath(__DIR__ . "/../../../storage");
 
         if ($storageDirectory === false) {
 
-            $storageDirectory =
-                __DIR__ . "/../../../storage";
+            $storageDirectory = __DIR__ . "/../../../storage";
         }
 
         $videoDirectory =
@@ -174,13 +153,7 @@ class VideoStorageDAO {
         */
         if (!is_dir($videoDirectory)) {
 
-            if (
-                !mkdir(
-                    $videoDirectory,
-                    0755,
-                    true
-                )
-            ) {
+            if (!mkdir($videoDirectory, 0755, true)) {
 
                 return [
                     "success" => false,
@@ -219,12 +192,7 @@ class VideoStorageDAO {
         | Move Uploaded Video
         |--------------------------------------------------------------------------
         */
-        if (
-            !move_uploaded_file(
-                $uploadedFile["tmp_name"],
-                $destination
-            )
-        ) {
+        if (!move_uploaded_file($uploadedFile["tmp_name"], $destination)) {
 
             return [
                 "success" => false,
@@ -257,11 +225,7 @@ class VideoStorageDAO {
         | Managed Path Validation
         |--------------------------------------------------------------------------
         */
-        if (
-            !$this->isManagedVideoPath(
-                $videoPath
-            )
-        ) {
+        if (!$this->isManagedVideoPath($videoPath)) {
 
             return;
         }
@@ -271,17 +235,14 @@ class VideoStorageDAO {
         | Resolve Absolute File Path
         |--------------------------------------------------------------------------
         */
-        $absolutePath =
-            realpath($this->managedVideoAbsolutePath($videoPath));
+        $absolutePath = realpath($this->managedVideoAbsolutePath($videoPath));
 
         /*
         |--------------------------------------------------------------------------
         | Delete Existing File
         |--------------------------------------------------------------------------
         */
-        if (
-            $absolutePath !== false &&
-            is_file($absolutePath)
+        if ($absolutePath !== false && is_file($absolutePath)
         ) {
 
             unlink($absolutePath);
@@ -329,10 +290,7 @@ class VideoStorageDAO {
         | File Size Related Upload Errors
         |--------------------------------------------------------------------------
         */
-        if (
-            $uploadErrorCode === UPLOAD_ERR_INI_SIZE ||
-            $uploadErrorCode === UPLOAD_ERR_FORM_SIZE
-        ) {
+        if ($uploadErrorCode === UPLOAD_ERR_INI_SIZE || $uploadErrorCode === UPLOAD_ERR_FORM_SIZE) {
 
             return "Invalid Format/Size - The uploaded file is not supported or exceeds the 50MB limit. Please provide a valid MP4 file or URL.";
         }
@@ -342,9 +300,7 @@ class VideoStorageDAO {
         | No File Selected Error
         |--------------------------------------------------------------------------
         */
-        if (
-            $uploadErrorCode === UPLOAD_ERR_NO_FILE
-        ) {
+        if ($uploadErrorCode === UPLOAD_ERR_NO_FILE) {
 
             return
                 "Invalid Format/Size - The uploaded file is not supported or exceeds the 50MB limit. Please provide a valid MP4 file or URL.";
@@ -355,9 +311,7 @@ class VideoStorageDAO {
         | Partial Upload Error
         |--------------------------------------------------------------------------
         */
-        if (
-            $uploadErrorCode === UPLOAD_ERR_PARTIAL
-        ) {
+        if ($uploadErrorCode === UPLOAD_ERR_PARTIAL) {
 
             return
                 "Video upload was incomplete. Please try again";

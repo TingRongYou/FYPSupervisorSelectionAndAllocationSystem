@@ -39,31 +39,25 @@ class PastProjectDocumentStorageDAO {
             return $this->failure(self::INVALID_FILE_MESSAGE);
         }
 
-        $finfo =
-            new finfo(FILEINFO_MIME_TYPE);
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
 
-        $mimeType =
-            $finfo->file($uploadedFile["tmp_name"]);
+        $mimeType = $finfo->file($uploadedFile["tmp_name"]);
 
-        $extension =
-            strtolower(pathinfo($uploadedFile["name"] ?? "", PATHINFO_EXTENSION));
+        $extension = strtolower(pathinfo($uploadedFile["name"] ?? "", PATHINFO_EXTENSION));
 
         if ($mimeType !== "application/pdf" || $extension !== "pdf") {
 
             return $this->failure(self::INVALID_FILE_MESSAGE);
         }
 
-        $storageDirectory =
-            realpath(__DIR__ . "/../../../storage");
+        $storageDirectory = realpath(__DIR__ . "/../../../storage");
 
         if ($storageDirectory === false) {
 
-            $storageDirectory =
-                __DIR__ . "/../../../storage";
+            $storageDirectory = __DIR__ . "/../../../storage";
         }
 
-        $projectDirectory =
-            $storageDirectory . DIRECTORY_SEPARATOR . "past_projects";
+        $projectDirectory = $storageDirectory . DIRECTORY_SEPARATOR . "past_projects";
 
         if (!is_dir($projectDirectory) && !mkdir($projectDirectory, 0755, true)) {
 
@@ -75,14 +69,11 @@ class PastProjectDocumentStorageDAO {
             return $this->failure("Past project storage directory is not writable.");
         }
 
-        $safeSupervisorID =
-            preg_replace("/[^A-Za-z0-9_-]/", "", $supervisorID);
+        $safeSupervisorID = preg_replace("/[^A-Za-z0-9_-]/", "", $supervisorID);
 
-        $fileName =
-            $safeSupervisorID . "_" . date("YmdHis") . "_" . bin2hex(random_bytes(4)) . ".pdf";
+        $fileName = $safeSupervisorID . "_" . date("YmdHis") . "_" . bin2hex(random_bytes(4)) . ".pdf";
 
-        $destination =
-            $projectDirectory . DIRECTORY_SEPARATOR . $fileName;
+        $destination = $projectDirectory . DIRECTORY_SEPARATOR . $fileName;
 
         if (!move_uploaded_file($uploadedFile["tmp_name"], $destination)) {
 
@@ -97,30 +88,25 @@ class PastProjectDocumentStorageDAO {
 
     public function deleteStoredPDF($path) {
 
-        $path =
-            trim((string) $path);
+        $path = trim((string) $path);
 
         if ($path === "") {
 
             return;
         }
 
-        $fileName =
-            basename($path);
+        $fileName = basename($path);
 
-        $projectDirectory =
-            realpath(__DIR__ . "/../../../storage/past_projects");
+        $projectDirectory = realpath(__DIR__ . "/../../../storage/past_projects");
 
         if ($projectDirectory === false) {
 
             return;
         }
 
-        $fullPath =
-            $projectDirectory . DIRECTORY_SEPARATOR . $fileName;
+        $fullPath = $projectDirectory . DIRECTORY_SEPARATOR . $fileName;
 
-        $resolvedPath =
-            realpath($fullPath);
+        $resolvedPath = realpath($fullPath);
 
         if (
             $resolvedPath !== false &&

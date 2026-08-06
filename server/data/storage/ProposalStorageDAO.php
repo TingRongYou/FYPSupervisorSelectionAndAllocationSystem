@@ -19,8 +19,7 @@ class ProposalStorageDAO {
 
     private const WEB_STORAGE_ROOT = "storage";
 
-    private const INVALID_FILE_MESSAGE =
-        "Upload failed. The document must be in PDF format and cannot exceed 5.0 MB in size.";
+    private const INVALID_FILE_MESSAGE = "Upload failed. The document must be in PDF format and cannot exceed 5.0 MB in size.";
 
     /*
     |--------------------------------------------------------------------------
@@ -107,21 +106,14 @@ class ProposalStorageDAO {
         | Storage Directory Resolution
         |--------------------------------------------------------------------------
         */
-        $storageDirectory =
-            realpath(
-                __DIR__ . "/../../../storage"
-            );
+        $storageDirectory = realpath(__DIR__ . "/../../../storage");
 
         if ($storageDirectory === false) {
 
-            $storageDirectory =
-                __DIR__ . "/../../../storage";
+            $storageDirectory = __DIR__ . "/../../../storage";
         }
 
-        $proposalDirectory =
-            $storageDirectory .
-            DIRECTORY_SEPARATOR .
-            "proposals";
+        $proposalDirectory = $storageDirectory . DIRECTORY_SEPARATOR . "proposals";
 
         /*
         |--------------------------------------------------------------------------

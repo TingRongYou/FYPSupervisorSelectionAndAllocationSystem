@@ -19,10 +19,7 @@ class ImageStorageDAO {
 
     private const WEB_STORAGE_ROOT = "../../storage";
 
-    private const ALLOWED_MIME_TYPES = [
-        "image/jpeg",
-        "image/png"
-    ];
+    private const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png"];
 
     /*
     |--------------------------------------------------------------------------
