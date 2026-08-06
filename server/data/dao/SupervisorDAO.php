@@ -20,11 +20,9 @@ class SupervisorDAO {
 
     public function __construct() {
 
-        $database =
-            new Database();
+        $database = new Database();
 
-        $this->conn =
-            $database->connect();
+        $this->conn = $database->connect();
 
         $this->ensureUserActivityStatusTable();
     }
@@ -35,9 +33,7 @@ class SupervisorDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function getQuotaByID(
-        $quotaID
-    ) {
+    public function getQuotaByID($quotaID) {
 
         $query = "
             SELECT
@@ -48,23 +44,13 @@ class SupervisorDAO {
             WHERE quotaID = :quotaID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":quotaID",
-            $quotaID,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":quotaID", $quotaID, PDO::PARAM_INT);
 
         $statement->execute();
 
-        return
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -73,13 +59,7 @@ class SupervisorDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function createSupervisorProfile(
-        $supervisorID,
-        $quotaID,
-        $assignedQuotaLimit,
-        $employmentCategory,
-        $programme
-    ) {
+    public function createSupervisorProfile($supervisorID, $quotaID, $assignedQuotaLimit, $employmentCategory,$programme) {
 
         $query = "
             INSERT INTO SUPERVISOR_PROFILE
@@ -100,40 +80,19 @@ class SupervisorDAO {
             )
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
-        $statement->bindParam(
-            ":quotaID",
-            $quotaID,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":quotaID", $quotaID, PDO::PARAM_INT);
 
-        $statement->bindParam(
-            ":assignedQuotaLimit",
-            $assignedQuotaLimit,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":assignedQuotaLimit", $assignedQuotaLimit, PDO::PARAM_INT);
 
-        $statement->bindParam(
-            ":employmentCategory",
-            $employmentCategory
-        );
+        $statement->bindParam(":employmentCategory", $employmentCategory);
 
-        $statement->bindParam(
-            ":programme",
-            $programme
-        );
+        $statement->bindParam(":programme", $programme);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     /*
@@ -162,17 +121,11 @@ class SupervisorDAO {
             ORDER BY programme ASC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -182,11 +135,7 @@ class SupervisorDAO {
     */
 
     // Get supervisor by filtering
-    public function getSupervisorsForDiscovery(
-        $searchName,
-        $programme,
-        $availability
-    ) {
+    public function getSupervisorsForDiscovery($searchName, $programme, $availability) {
 
         /*
         |--------------------------------------------------------------------------
@@ -366,10 +315,7 @@ class SupervisorDAO {
         |--------------------------------------------------------------------------
         */
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         /*
         |--------------------------------------------------------------------------
@@ -384,10 +330,7 @@ class SupervisorDAO {
                 . $searchName
                 . "%";
 
-            $statement->bindParam(
-                ":searchPattern",
-                $searchPattern
-            );
+            $statement->bindParam(":searchPattern", $searchPattern);
         }
 
         /*
@@ -398,10 +341,7 @@ class SupervisorDAO {
 
         if ($programme !== "") {
 
-            $statement->bindParam(
-                ":programme",
-                $programme
-            );
+            $statement->bindParam(":programme", $programme);
         }
 
         /*
@@ -412,10 +352,7 @@ class SupervisorDAO {
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -436,17 +373,11 @@ class SupervisorDAO {
                      quotaTierName ASC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -455,10 +386,7 @@ class SupervisorDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function getSupervisorsForManagement(
-        $searchName,
-        $programme
-    ) {
+    public function getSupervisorsForManagement($searchName, $programme) {
 
         $query = "
             SELECT
@@ -525,10 +453,7 @@ class SupervisorDAO {
             ORDER BY U.fullName ASC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         if ($searchName !== "") {
 
@@ -537,26 +462,17 @@ class SupervisorDAO {
                 . $searchName
                 . "%";
 
-            $statement->bindParam(
-                ":searchPattern",
-                $searchPattern
-            );
+            $statement->bindParam(":searchPattern", $searchPattern);
         }
 
         if ($programme !== "") {
 
-            $statement->bindParam(
-                ":programme",
-                $programme
-            );
+            $statement->bindParam(":programme", $programme);
         }
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -565,9 +481,7 @@ class SupervisorDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function getSupervisorLoad(
-        $supervisorID
-    ) {
+    public function getSupervisorLoad($supervisorID) {
 
         $query = "
             SELECT
@@ -599,22 +513,13 @@ class SupervisorDAO {
                 )
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         $statement->execute();
 
-        return
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -623,12 +528,7 @@ class SupervisorDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function updateSupervisorClassification(
-        $supervisorID,
-        $employmentCategory,
-        $quotaID,
-        $assignedQuotaLimit
-    ) {
+    public function updateSupervisorClassification($supervisorID, $employmentCategory, $quotaID, $assignedQuotaLimit) {
 
         $query = "
             UPDATE SUPERVISOR_PROFILE
@@ -639,35 +539,17 @@ class SupervisorDAO {
             WHERE supervisorID = :supervisorID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":employmentCategory",
-            $employmentCategory
-        );
+        $statement->bindParam(":employmentCategory", $employmentCategory);
 
-        $statement->bindParam(
-            ":quotaID",
-            $quotaID,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":quotaID", $quotaID,PDO::PARAM_INT);
 
-        $statement->bindParam(
-            ":assignedQuotaLimit",
-            $assignedQuotaLimit,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":assignedQuotaLimit", $assignedQuotaLimit,PDO::PARAM_INT);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam( ":supervisorID", $supervisorID);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     /*
@@ -676,11 +558,7 @@ class SupervisorDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function updateSupervisorQuota(
-        $supervisorID,
-        $quotaID,
-        $assignedQuotaLimit
-    ) {
+    public function updateSupervisorQuota($supervisorID, $quotaID, $assignedQuotaLimit) {
 
         $query = "
             UPDATE SUPERVISOR_PROFILE
@@ -690,30 +568,15 @@ class SupervisorDAO {
             WHERE supervisorID = :supervisorID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":quotaID",
-            $quotaID,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":quotaID", $quotaID, PDO::PARAM_INT);
 
-        $statement->bindParam(
-            ":assignedQuotaLimit",
-            $assignedQuotaLimit,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":assignedQuotaLimit", $assignedQuotaLimit, PDO::PARAM_INT);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     /*
@@ -722,9 +585,7 @@ class SupervisorDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function getSupervisorProfile(
-        $supervisorID
-    ) {
+    public function getSupervisorProfile($supervisorID) {
 
         $query = "
             SELECT
@@ -794,22 +655,13 @@ class SupervisorDAO {
                 QC.maxSuperviseesAllowed
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         $statement->execute();
 
-        return
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -818,12 +670,7 @@ class SupervisorDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function updateDigitalBusinessCard(
-        $supervisorID,
-        $programme,
-        $employmentCategory,
-        $introVideoLink
-    ) {
+    public function updateDigitalBusinessCard($supervisorID, $programme, $employmentCategory, $introVideoLink) {
 
         $query = "
             UPDATE SUPERVISOR_PROFILE
@@ -834,33 +681,17 @@ class SupervisorDAO {
             WHERE supervisorID = :supervisorID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":programme",
-            $programme
-        );
+        $statement->bindParam(":programme", $programme);
 
-        $statement->bindParam(
-            ":employmentCategory",
-            $employmentCategory
-        );
+        $statement->bindParam(":employmentCategory",$employmentCategory);
 
-        $statement->bindParam(
-            ":introVideoLink",
-            $introVideoLink
-        );
+        $statement->bindParam(":introVideoLink", $introVideoLink);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     /*
@@ -869,10 +700,7 @@ class SupervisorDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function updateIntroVideo(
-        $supervisorID,
-        $introVideoLink
-    ) {
+    public function updateIntroVideo($supervisorID, $introVideoLink) {
 
         $query = "
             UPDATE SUPERVISOR_PROFILE
@@ -881,23 +709,13 @@ class SupervisorDAO {
             WHERE supervisorID = :supervisorID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":introVideoLink",
-            $introVideoLink
-        );
+        $statement->bindParam(":introVideoLink", $introVideoLink);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     private function ensureUserActivityStatusTable() {
@@ -916,8 +734,7 @@ class SupervisorDAO {
             )
         ";
 
-        $this->conn
-            ->exec($query);
+        $this->conn->exec($query);
     }
 }
 

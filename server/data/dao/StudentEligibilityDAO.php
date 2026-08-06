@@ -8,11 +8,9 @@ class StudentEligibilityDAO {
 
     public function __construct() {
 
-        $database =
-            new Database();
+        $database = new Database();
 
-        $this->conn =
-            $database->connect();
+        $this->conn = $database->connect();
     }
 
     /*
@@ -21,11 +19,7 @@ class StudentEligibilityDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function getStudentsForEligibility(
-        $searchName,
-        $programme,
-        $eligibilityStatus
-    ) {
+    public function getStudentsForEligibility($searchName, $programme, $eligibilityStatus) {
 
         $query = "
             SELECT
@@ -73,10 +67,7 @@ class StudentEligibilityDAO {
             ORDER BY SP.fullName ASC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         if ($searchName !== "") {
 
@@ -113,10 +104,7 @@ class StudentEligibilityDAO {
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -135,17 +123,11 @@ class StudentEligibilityDAO {
             ORDER BY programme ASC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getEligibilityRules() {
@@ -160,24 +142,14 @@ class StudentEligibilityDAO {
             LIMIT 1
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function updateEligibilityRules(
-        $minimumCGPA,
-        $requiredNextSemester,
-        $blockedAcademicStatus
-    ) {
+    public function updateEligibilityRules($minimumCGPA, $requiredNextSemester, $blockedAcademicStatus) {
 
         $query = "
             INSERT INTO ELIGIBILITY_RULE_CONFIGURATION
@@ -203,28 +175,15 @@ class StudentEligibilityDAO {
                 updatedAt = NOW()
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":minimumCGPA",
-            $minimumCGPA
-        );
+        $statement->bindParam(":minimumCGPA", $minimumCGPA);
 
-        $statement->bindParam(
-            ":requiredNextSemester",
-            $requiredNextSemester
-        );
+        $statement->bindParam(":requiredNextSemester", $requiredNextSemester);
 
-        $statement->bindParam(
-            ":blockedAcademicStatus",
-            $blockedAcademicStatus
-        );
+        $statement->bindParam(":blockedAcademicStatus", $blockedAcademicStatus);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     /*
@@ -243,17 +202,11 @@ class StudentEligibilityDAO {
             FROM STUDENT_ELIGIBILITY_RECORD
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -278,17 +231,11 @@ class StudentEligibilityDAO {
             FROM STUDENT_ELIGIBILITY_RECORD
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -297,9 +244,7 @@ class StudentEligibilityDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function updateEligibilityStatuses(
-        $eligibilityResults
-    ) {
+    public function updateEligibilityStatuses($eligibilityResults) {
 
         try {
 
@@ -311,10 +256,7 @@ class StudentEligibilityDAO {
                 WHERE studentID = :studentID
             ";
 
-            $statement =
-                $this->conn->prepare(
-                    $query
-                );
+            $statement = $this->conn->prepare($query);
 
             $userQuery = "
                 INSERT INTO USER
@@ -341,10 +283,7 @@ class StudentEligibilityDAO {
                     activeStatus = VALUES(activeStatus)
             ";
 
-            $userStatement =
-                $this->conn->prepare(
-                    $userQuery
-                );
+            $userStatement = $this->conn->prepare($userQuery);
 
             $profileQuery = "
                 INSERT INTO STUDENT_PROFILE
@@ -376,109 +315,55 @@ class StudentEligibilityDAO {
                     eligibilityStatus = VALUES(eligibilityStatus)
             ";
 
-            $profileStatement =
-                $this->conn->prepare(
-                    $profileQuery
-                );
+            $profileStatement = $this->conn->prepare($profileQuery);
 
             foreach ($eligibilityResults as $result) {
 
-                $studentID =
-                    $result["studentID"];
+                $studentID = $result["studentID"];
 
-                $eligibilityStatus =
-                    $result["eligibilityStatus"]
-                    ? 1
-                    : 0;
+                $eligibilityStatus = $result["eligibilityStatus"] ? 1 : 0;
 
-                $statement->bindParam(
-                    ":studentID",
-                    $studentID
-                );
+                $statement->bindParam(":studentID", $studentID);
 
-                $statement->bindParam(
-                    ":eligibilityStatus",
-                    $eligibilityStatus,
-                    PDO::PARAM_INT
-                );
+                $statement->bindParam(":eligibilityStatus", $eligibilityStatus, PDO::PARAM_INT);
 
                 $statement->execute();
 
-                $activeStatus =
-                    $eligibilityStatus;
+                $activeStatus = $eligibilityStatus;
 
-                $userStatement->bindParam(
-                    ":userID",
-                    $studentID
-                );
+                $userStatement->bindParam(":userID", $studentID);
 
-                $userStatement->bindParam(
-                    ":fullName",
-                    $result["fullName"]
-                );
+                $userStatement->bindParam(":fullName", $result["fullName"]);
 
-                $userStatement->bindParam(
-                    ":universityEmail",
-                    $result["universityEmail"]
-                );
+                $userStatement->bindParam(":universityEmail", $result["universityEmail"]);
 
-                $userStatement->bindParam(
-                    ":activeStatus",
-                    $activeStatus,
-                    PDO::PARAM_INT
-                );
+                $userStatement->bindParam(":activeStatus", $activeStatus, PDO::PARAM_INT);
 
-                $userStatement->bindParam(
-                    ":password",
-                    $result["hashedPassword"]
-                );
+                $userStatement->bindParam(":password", $result["hashedPassword"]);
 
                 if ($eligibilityStatus === 1) {
 
                     $userStatement->execute();
 
-                    $profileStatement->bindParam(
-                        ":studentID",
-                        $studentID
-                    );
+                    $profileStatement->bindParam(":studentID", $studentID);
 
-                    $profileStatement->bindParam(
-                        ":programme",
-                        $result["programme"]
-                    );
+                    $profileStatement->bindParam(":programme", $result["programme"]);
 
-                    $profileStatement->bindParam(
-                        ":intakeBatch",
-                        $result["intakeBatch"]
-                    );
+                    $profileStatement->bindParam(":intakeBatch", $result["intakeBatch"]);
 
-                    $profileStatement->bindParam(
-                        ":currentSem",
-                        $result["currentSem"]
-                    );
+                    $profileStatement->bindParam( ":currentSem", $result["currentSem"]);
 
-                    $profileStatement->bindParam(
-                        ":academicStatus",
-                        $result["academicStatus"]
-                    );
+                    $profileStatement->bindParam(":academicStatus", $result["academicStatus"]);
 
-                    $profileStatement->bindParam(
-                        ":cgpa",
-                        $result["cgpa"]
-                    );
+                    $profileStatement->bindParam(":cgpa", $result["cgpa"]);
 
-                    $profileStatement->bindParam(
-                        ":eligibilityStatus",
-                        $eligibilityStatus,
-                        PDO::PARAM_INT
-                    );
+                    $profileStatement->bindParam(":eligibilityStatus", $eligibilityStatus, PDO::PARAM_INT);
 
                     $profileStatement->execute();
                 }
             }
 
-            return
-                $this->conn->commit();
+            return $this->conn->commit();
 
         } catch (Exception $exception) {
 
@@ -497,9 +382,7 @@ class StudentEligibilityDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function importStudentRecords(
-        $studentRecords
-    ) {
+    public function importStudentRecords($studentRecords) {
 
         try {
 
@@ -547,68 +430,31 @@ class StudentEligibilityDAO {
                     importedAt = NOW()
             ";
 
-            $eligibilityStatement =
-                $this->conn->prepare(
-                    $eligibilityQuery
-                );
+            $eligibilityStatement = $this->conn->prepare($eligibilityQuery);
 
             foreach ($studentRecords as $record) {
 
-                $eligibilityStatus =
-                    $record["eligibilityStatus"]
-                    ? 1
-                    : 0;
+                $eligibilityStatus = $record["eligibilityStatus"] ? 1 : 0;
 
-                $eligibilityStatement->bindParam(
-                    ":studentID",
-                    $record["studentID"]
-                );
+                $eligibilityStatement->bindParam(":studentID", $record["studentID"]);
 
-                $eligibilityStatement->bindParam(
-                    ":universityEmail",
-                    $record["universityEmail"]
-                );
+                $eligibilityStatement->bindParam(":universityEmail", $record["universityEmail"]);
 
-                $eligibilityStatement->bindParam(
-                    ":icNumber",
-                    $record["icNumber"]
-                );
+                $eligibilityStatement->bindParam(":icNumber", $record["icNumber"]);
 
-                $eligibilityStatement->bindParam(
-                    ":fullName",
-                    $record["fullName"]
-                );
+                $eligibilityStatement->bindParam(":fullName", $record["fullName"]);
 
-                $eligibilityStatement->bindParam(
-                    ":programme",
-                    $record["programme"]
-                );
+                $eligibilityStatement->bindParam(":programme", $record["programme"]);
 
-                $eligibilityStatement->bindParam(
-                    ":intakeBatch",
-                    $record["intakeBatch"]
-                );
+                $eligibilityStatement->bindParam(":intakeBatch",$record["intakeBatch"]);
 
-                $eligibilityStatement->bindParam(
-                    ":currentSem",
-                    $record["currentSem"]
-                );
+                $eligibilityStatement->bindParam(":currentSem", $record["currentSem"]);
 
-                $eligibilityStatement->bindParam(
-                    ":academicStatus",
-                    $record["academicStatus"]
-                );
+                $eligibilityStatement->bindParam(":academicStatus", $record["academicStatus"]);
 
-                $eligibilityStatement->bindParam(
-                    ":cgpa",
-                    $record["cgpa"]
-                );
+                $eligibilityStatement->bindParam(":cgpa", $record["cgpa"]);
 
-                $eligibilityStatement->bindParam(
-                    ":eligibilityStatus",
-                    $eligibilityStatus,
-                    PDO::PARAM_INT
-                );
+                $eligibilityStatement->bindParam(":eligibilityStatus", $eligibilityStatus, PDO::PARAM_INT);
 
                 $eligibilityStatement->execute();
             }

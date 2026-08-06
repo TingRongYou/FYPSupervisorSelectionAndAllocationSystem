@@ -20,11 +20,9 @@ class UserDAO {
 
     public function __construct() {
 
-        $database =
-            new Database();
+        $database = new Database();
 
-        $this->conn =
-            $database->connect();
+        $this->conn = $database->connect();
     }
 
     /*
@@ -33,9 +31,7 @@ class UserDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function getUserByEmail(
-        $email
-    ) {
+    public function getUserByEmail($email) {
 
         $query = "
 
@@ -56,22 +52,13 @@ class UserDAO {
             LIMIT 1
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":email",
-            $email
-        );
+        $statement->bindParam(":email", $email);
 
         $statement->execute();
 
-        return
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -80,9 +67,7 @@ class UserDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function getUserByID(
-        $userID
-    ) {
+    public function getUserByID($userID) {
 
         $query = "
 
@@ -103,22 +88,13 @@ class UserDAO {
             LIMIT 1
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":userID",
-            $userID
-        );
+        $statement->bindParam(":userID", $userID);
 
         $statement->execute();
 
-        return
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -127,13 +103,7 @@ class UserDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function createUser(
-        $userID,
-        $fullName,
-        $universityEmail,
-        $systemRole,
-        $password
-    ) {
+    public function createUser($userID, $fullName, $universityEmail, $systemRole, $password) {
 
         /*
         |--------------------------------------------------------------------------
@@ -141,11 +111,7 @@ class UserDAO {
         |--------------------------------------------------------------------------
         */
 
-        $hashedPassword =
-            password_hash(
-                $password,
-                PASSWORD_DEFAULT
-            );
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
         /*
         |--------------------------------------------------------------------------
@@ -175,10 +141,7 @@ class UserDAO {
             )
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         /*
         |--------------------------------------------------------------------------
@@ -186,30 +149,15 @@ class UserDAO {
         |--------------------------------------------------------------------------
         */
 
-        $statement->bindParam(
-            ":userID",
-            $userID
-        );
+        $statement->bindParam(":userID", $userID);
 
-        $statement->bindParam(
-            ":fullName",
-            $fullName
-        );
+        $statement->bindParam(":fullName", $fullName);
 
-        $statement->bindParam(
-            ":universityEmail",
-            $universityEmail
-        );
+        $statement->bindParam(":universityEmail", $universityEmail);
 
-        $statement->bindParam(
-            ":systemRole",
-            $systemRole
-        );
+        $statement->bindParam(":systemRole", $systemRole);
 
-        $statement->bindParam(
-            ":password",
-            $hashedPassword
-        );
+        $statement->bindParam(":password", $hashedPassword);
 
         /*
         |--------------------------------------------------------------------------
@@ -217,8 +165,7 @@ class UserDAO {
         |--------------------------------------------------------------------------
         */
 
-        $updated =
-            $statement->execute();
+        $updated = $statement->execute();
 
         if ($updated) {
 
@@ -228,26 +175,16 @@ class UserDAO {
                 WHERE studentID = :userID
             ";
 
-            $studentStatement =
-                $this->conn->prepare(
-                    $studentQuery
-                );
+            $studentStatement = $this->conn->prepare($studentQuery);
 
-            $studentStatement->bindParam(
-                ":profilePhotoPath",
-                $profilePhotoPath
-            );
+            $studentStatement->bindParam(":profilePhotoPath", $profilePhotoPath);
 
-            $studentStatement->bindParam(
-                ":userID",
-                $userID
-            );
+            $studentStatement->bindParam(":userID", $userID);
 
             $studentStatement->execute();
         }
 
-        return
-            $updated;
+        return $updated;
     }
 
     /*
@@ -256,9 +193,7 @@ class UserDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function deleteUserByID(
-        $userID
-    ) {
+    public function deleteUserByID($userID) {
 
         $query = "
 
@@ -267,18 +202,11 @@ class UserDAO {
             WHERE userID = :userID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":userID",
-            $userID
-        );
+        $statement->bindParam(":userID", $userID);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     /*
@@ -287,10 +215,7 @@ class UserDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function updateUserActiveStatus(
-        $userID,
-        $activeStatus
-    ) {
+    public function updateUserActiveStatus($userID, $activeStatus) {
 
         $query = "
 
@@ -301,24 +226,13 @@ class UserDAO {
             WHERE userID = :userID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindValue(
-            ":activeStatus",
-            (bool) $activeStatus,
-            PDO::PARAM_BOOL
-        );
+        $statement->bindValue(":activeStatus", (bool) $activeStatus, PDO::PARAM_BOOL);
 
-        $statement->bindParam(
-            ":userID",
-            $userID
-        );
+        $statement->bindParam(":userID", $userID);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     /*
@@ -327,12 +241,7 @@ class UserDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function updateAccountParticulars(
-        $userID,
-        $fullName,
-        $universityEmail,
-        $activeStatus
-    ) {
+    public function updateAccountParticulars($userID, $fullName, $universityEmail, $activeStatus) {
 
         $query = "
 
@@ -348,34 +257,17 @@ class UserDAO {
             AND systemRole = 'Supervisor'
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":fullName",
-            $fullName
-        );
+        $statement->bindParam(":fullName", $fullName);
 
-        $statement->bindParam(
-            ":universityEmail",
-            $universityEmail
-        );
+        $statement->bindParam(":universityEmail", $universityEmail);
 
-        $statement->bindValue(
-            ":activeStatus",
-            (bool) $activeStatus,
-            PDO::PARAM_BOOL
-        );
+        $statement->bindValue(":activeStatus", (bool) $activeStatus, PDO::PARAM_BOOL);
 
-        $statement->bindParam(
-            ":userID",
-            $userID
-        );
+        $statement->bindParam(":userID", $userID);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     /*
@@ -384,10 +276,7 @@ class UserDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function updatePassword(
-        $userID,
-        $hashedPassword
-    ) {
+    public function updatePassword($userID, $hashedPassword) {
 
         $query = "
 
@@ -398,23 +287,13 @@ class UserDAO {
             WHERE userID = :userID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":password",
-            $hashedPassword
-        );
+        $statement->bindParam(":password", $hashedPassword);
 
-        $statement->bindParam(
-            ":userID",
-            $userID
-        );
+        $statement->bindParam(":userID", $userID);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     /*
@@ -423,10 +302,7 @@ class UserDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function updateProfilePhoto(
-        $userID,
-        $profilePhotoPath
-    ) {
+    public function updateProfilePhoto($userID, $profilePhotoPath) {
 
         $query = "
 
@@ -437,23 +313,13 @@ class UserDAO {
             WHERE userID = :userID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":profilePhotoPath",
-            $profilePhotoPath
-        );
+        $statement->bindParam(":profilePhotoPath", $profilePhotoPath);
 
-        $statement->bindParam(
-            ":userID",
-            $userID
-        );
+        $statement->bindParam(":userID", $userID);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     /*
@@ -480,17 +346,11 @@ class UserDAO {
             ORDER BY fullName ASC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -499,9 +359,7 @@ class UserDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function emailExists(
-        $email
-    ) {
+    public function emailExists($email) {
 
         $query = "
 
@@ -512,25 +370,15 @@ class UserDAO {
             WHERE universityEmail = :email
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":email",
-            $email
-        );
+        $statement->bindParam(":email", $email);
 
         $statement->execute();
 
-        $result =
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
 
-        return
-            ((int) $result["total"]) > 0;
+        return ((int) $result["total"]) > 0;
     }
 
     /*
@@ -539,9 +387,7 @@ class UserDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function userIDExists(
-        $userID
-    ) {
+    public function userIDExists($userID) {
 
         $query = "
 
@@ -552,25 +398,15 @@ class UserDAO {
             WHERE userID = :userID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":userID",
-            $userID
-        );
+        $statement->bindParam(":userID", $userID);
 
         $statement->execute();
 
-        $result =
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
 
-        return
-            ((int) $result["total"]) > 0;
+        return ((int) $result["total"]) > 0;
     }
 }
 

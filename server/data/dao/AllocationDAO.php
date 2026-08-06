@@ -8,11 +8,9 @@ class AllocationDAO {
 
     public function __construct() {
 
-        $database =
-            new Database();
+        $database = new Database();
 
-        $this->conn =
-            $database->connect();
+        $this->conn = $database->connect();
 
         $this->ensureAutoAllocationLogTable();
         $this->ensureAutoAllocationNotificationTable();
@@ -44,17 +42,11 @@ class AllocationDAO {
                 SP.studentID ASC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -96,17 +88,11 @@ class AllocationDAO {
                 SP.supervisorID ASC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -136,17 +122,11 @@ class AllocationDAO {
                 ) AS pendingRequests
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -155,9 +135,7 @@ class AllocationDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function commitAllocations(
-        $allocations
-    ) {
+    public function commitAllocations($allocations) {
 
         try {
 
@@ -180,36 +158,21 @@ class AllocationDAO {
                 )
             ";
 
-            $statement =
-                $this->conn->prepare(
-                    $query
-                );
+            $statement = $this->conn->prepare($query);
 
             foreach ($allocations as $allocation) {
 
-                $studentID =
-                    $allocation["studentID"];
+                $studentID = $allocation["studentID"];
 
-                $supervisorID =
-                    $allocation["supervisorID"];
+                $supervisorID = $allocation["supervisorID"];
 
-                $allocationMethod =
-                    $allocation["allocationMethod"];
+                $allocationMethod = $allocation["allocationMethod"];
 
-                $statement->bindParam(
-                    ":studentID",
-                    $studentID
-                );
+                $statement->bindParam(":studentID", $studentID);
 
-                $statement->bindParam(
-                    ":supervisorID",
-                    $supervisorID
-                );
+                $statement->bindParam(":supervisorID", $supervisorID);
 
-                $statement->bindParam(
-                    ":allocationMethod",
-                    $allocationMethod
-                );
+                $statement->bindParam(":allocationMethod", $allocationMethod);
 
                 $statement->execute();
             }
@@ -269,55 +232,25 @@ class AllocationDAO {
             )
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindValue(
-            ":triggeredByAdminID",
-            $triggeredByAdminID
-        );
+        $statement->bindValue(":triggeredByAdminID", $triggeredByAdminID);
 
-        $statement->bindValue(
-            ":finalAllocationDate",
-            $finalAllocationDate
-        );
+        $statement->bindValue(":finalAllocationDate", $finalAllocationDate);
 
-        $statement->bindValue(
-            ":eligibleCount",
-            (int) $eligibleCount,
-            PDO::PARAM_INT
-        );
+        $statement->bindValue(":eligibleCount", (int) $eligibleCount, PDO::PARAM_INT);
 
-        $statement->bindValue(
-            ":matchedCount",
-            (int) $matchedCount,
-            PDO::PARAM_INT
-        );
+        $statement->bindValue(":matchedCount", (int) $matchedCount,PDO::PARAM_INT);
 
-        $statement->bindValue(
-            ":unassignedCount",
-            (int) $unassignedCount,
-            PDO::PARAM_INT
-        );
+        $statement->bindValue(":unassignedCount", (int) $unassignedCount, PDO::PARAM_INT);
 
-        $statement->bindValue(
-            ":logStatus",
-            $status
-        );
+        $statement->bindValue(":logStatus", $status);
 
-        $statement->bindValue(
-            ":resultMessage",
-            $message
-        );
+        $statement->bindValue(":resultMessage", $message);
 
-        $created =
-            $statement->execute();
+        $created = $statement->execute();
 
-        return $created
-            ? (int) $this->conn->lastInsertId()
-            : false;
+        return $created ? (int) $this->conn->lastInsertId() : false;
     }
 
     /*
@@ -326,10 +259,7 @@ class AllocationDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function createAutoAllocationNotifications(
-        $logID,
-        $allocations
-    ) {
+    public function createAutoAllocationNotifications($logID, $allocations) {
 
         if (empty($allocations) || empty($logID)) {
 
@@ -357,10 +287,7 @@ class AllocationDAO {
             )
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         foreach ($allocations as $allocation) {
 
@@ -424,21 +351,13 @@ class AllocationDAO {
             LIMIT :limit
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare( $query);
 
-        $statement->bindValue(
-            ":limit",
-            (int) $limit,
-            PDO::PARAM_INT
-        );
+        $statement->bindValue(":limit", (int) $limit, PDO::PARAM_INT);
 
         $statement->execute();
 
-        return $statement
-            ->fetchAll(PDO::FETCH_ASSOC);
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -468,8 +387,7 @@ class AllocationDAO {
             )
         ";
 
-        $this->conn
-            ->exec($query);
+        $this->conn->exec($query);
     }
 
     private function ensureAutoAllocationNotificationTable() {
@@ -495,8 +413,7 @@ class AllocationDAO {
             )
         ";
 
-        $this->conn
-            ->exec($query);
+        $this->conn->exec($query);
     }
 
     private function insertAutoAllocationNotification(
@@ -507,26 +424,13 @@ class AllocationDAO {
         $notificationMessage
     ) {
 
-        $statement->bindValue(
-            ":logID",
-            (int) $logID,
-            PDO::PARAM_INT
-        );
+        $statement->bindValue(":logID", (int) $logID, PDO::PARAM_INT);
 
-        $statement->bindValue(
-            ":recipientUserID",
-            $recipientUserID
-        );
+        $statement->bindValue( ":recipientUserID", $recipientUserID);
 
-        $statement->bindValue(
-            ":notificationType",
-            $notificationType
-        );
+        $statement->bindValue( ":notificationType", $notificationType);
 
-        $statement->bindValue(
-            ":notificationMessage",
-            $notificationMessage
-        );
+        $statement->bindValue( ":notificationMessage", $notificationMessage);
 
         $statement->execute();
     }

@@ -22,8 +22,7 @@ class PastProjectDAO {
 
         $database = new Database();
 
-        $this->conn =
-            $database->connect();
+        $this->conn = $database->connect();
 
         $this->ensurePastProjectColumns();
     }
@@ -34,9 +33,7 @@ class PastProjectDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function getProjectsBySupervisor(
-        $supervisorID
-    ) {
+    public function getProjectsBySupervisor($supervisorID) {
 
         $query = "
             SELECT
@@ -54,22 +51,13 @@ class PastProjectDAO {
                 projectTitle ASC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -78,9 +66,7 @@ class PastProjectDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function countActiveSuperviseesBySupervisor(
-        $supervisorID
-    ) {
+    public function countActiveSuperviseesBySupervisor($supervisorID) {
 
         $query = "
             SELECT COUNT(*) AS total
@@ -88,28 +74,15 @@ class PastProjectDAO {
             WHERE supervisorID = :supervisorID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         $statement->execute();
 
-        $result =
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
 
-        return
-            (int) (
-                $result["total"]
-                ?? 0
-            );
+        return (int) ($result["total"] ?? 0);
     }
 
     /*
@@ -118,10 +91,7 @@ class PastProjectDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function getProjectByID(
-        $projectID,
-        $supervisorID
-    ) {
+    public function getProjectByID($projectID, $supervisorID) {
 
         $query = "
             SELECT
@@ -138,28 +108,15 @@ class PastProjectDAO {
             AND supervisorID = :supervisorID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":projectID",
-            $projectID,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":projectID", $projectID, PDO::PARAM_INT);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         $statement->execute();
 
-        return
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -168,11 +125,7 @@ class PastProjectDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function projectExists(
-        $supervisorID,
-        $projectTitle,
-        $completionYear
-    ) {
+    public function projectExists($supervisorID, $projectTitle, $completionYear) {
 
         $query = "
             SELECT COUNT(*) AS total
@@ -182,36 +135,19 @@ class PastProjectDAO {
             AND completionYear = :completionYear
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam( ":supervisorID", $supervisorID);
 
-        $statement->bindParam(
-            ":projectTitle",
-            $projectTitle
-        );
+        $statement->bindParam(":projectTitle", $projectTitle);
 
-        $statement->bindParam(
-            ":completionYear",
-            $completionYear,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":completionYear", $completionYear, PDO::PARAM_INT);
 
         $statement->execute();
 
-        $result =
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
 
-        return
-            ((int) $result["total"]) > 0;
+        return ((int) $result["total"]) > 0;
     }
 
     /*
@@ -236,42 +172,21 @@ class PastProjectDAO {
             AND completionYear = :completionYear
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":projectID",
-            $projectID,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":projectID", $projectID, PDO::PARAM_INT);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
-        $statement->bindParam(
-            ":projectTitle",
-            $projectTitle
-        );
+        $statement->bindParam(":projectTitle", $projectTitle);
 
-        $statement->bindParam(
-            ":completionYear",
-            $completionYear,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":completionYear", $completionYear, PDO::PARAM_INT);
 
         $statement->execute();
 
-        $result =
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
 
-        return
-            ((int) $result["total"]) > 0;
+        return ((int) $result["total"]) > 0;
     }
 
     /*
@@ -313,49 +228,23 @@ class PastProjectDAO {
             )
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
-        $statement->bindParam(
-            ":projectTitle",
-            $projectTitle
-        );
+        $statement->bindParam(":projectTitle", $projectTitle);
 
-        $statement->bindParam(
-            ":completionYear",
-            $completionYear,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":completionYear", $completionYear, PDO::PARAM_INT);
 
-        $statement->bindParam(
-            ":alumniName",
-            $alumniName
-        );
+        $statement->bindParam(":alumniName", $alumniName);
 
-        $statement->bindParam(
-            ":projectDescription",
-            $projectDescription
-        );
+        $statement->bindParam(":projectDescription", $projectDescription);
 
-        $statement->bindParam(
-            ":projectPDFPath",
-            $projectPDFPath
-        );
+        $statement->bindParam(":projectPDFPath", $projectPDFPath);
 
-        $statement->bindParam(
-            ":projectImagePath",
-            $projectImagePath
-        );
+        $statement->bindParam(":projectImagePath", $projectImagePath);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     /*
@@ -388,55 +277,25 @@ class PastProjectDAO {
             AND supervisorID = :supervisorID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":projectTitle",
-            $projectTitle
-        );
+        $statement->bindParam(":projectTitle", $projectTitle);
 
-        $statement->bindParam(
-            ":completionYear",
-            $completionYear,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":completionYear", $completionYear, PDO::PARAM_INT);
 
-        $statement->bindParam(
-            ":alumniName",
-            $alumniName
-        );
+        $statement->bindParam(":alumniName", $alumniName);
 
-        $statement->bindParam(
-            ":projectDescription",
-            $projectDescription
-        );
+        $statement->bindParam(":projectDescription", $projectDescription);
 
-        $statement->bindParam(
-            ":projectPDFPath",
-            $projectPDFPath
-        );
+        $statement->bindParam(":projectPDFPath", $projectPDFPath);
 
-        $statement->bindParam(
-            ":projectImagePath",
-            $projectImagePath
-        );
+        $statement->bindParam(":projectImagePath", $projectImagePath);
 
-        $statement->bindParam(
-            ":projectID",
-            $projectID,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":projectID", $projectID, PDO::PARAM_INT);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     /*
@@ -445,10 +304,7 @@ class PastProjectDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function deleteProject(
-        $projectID,
-        $supervisorID
-    ) {
+    public function deleteProject($projectID, $supervisorID) {
 
         $query = "
             DELETE FROM PAST_PROJECT
@@ -456,49 +312,32 @@ class PastProjectDAO {
             AND supervisorID = :supervisorID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":projectID",
-            $projectID,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":projectID", $projectID, PDO::PARAM_INT);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID",$supervisorID);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     private function ensurePastProjectColumns() {
 
-        $columns =
-            $this->conn
-            ->query("SHOW COLUMNS FROM PAST_PROJECT")
-            ->fetchAll(PDO::FETCH_COLUMN);
+        $columns = $this->conn->query("SHOW COLUMNS FROM PAST_PROJECT")->fetchAll(PDO::FETCH_COLUMN);
 
         if (!in_array("projectDescription", $columns, true)) {
 
-            $this->conn
-                ->exec("ALTER TABLE PAST_PROJECT ADD projectDescription TEXT NULL AFTER alumniName");
+            $this->conn->exec("ALTER TABLE PAST_PROJECT ADD projectDescription TEXT NULL AFTER alumniName");
         }
 
         if (!in_array("projectPDFPath", $columns, true)) {
 
-            $this->conn
-                ->exec("ALTER TABLE PAST_PROJECT ADD projectPDFPath VARCHAR(255) NULL AFTER projectDescription");
+            $this->conn->exec("ALTER TABLE PAST_PROJECT ADD projectPDFPath VARCHAR(255) NULL AFTER projectDescription");
         }
 
         if (!in_array("projectImagePath", $columns, true)) {
 
-            $this->conn
-                ->exec("ALTER TABLE PAST_PROJECT ADD projectImagePath VARCHAR(255) NULL AFTER projectPDFPath");
+            $this->conn->exec("ALTER TABLE PAST_PROJECT ADD projectImagePath VARCHAR(255) NULL AFTER projectPDFPath");
         }
     }
 }

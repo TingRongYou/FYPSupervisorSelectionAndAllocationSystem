@@ -20,11 +20,9 @@ class TagDAO {
 
     public function __construct() {
 
-        $database =
-            new Database();
+        $database = new Database();
 
-        $this->conn =
-            $database->connect();
+        $this->conn = $database->connect();
     }
 
     /*
@@ -48,17 +46,11 @@ class TagDAO {
             ORDER BY tagName ASC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -67,9 +59,7 @@ class TagDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function getSupervisorTagIDs(
-        $supervisorID
-    ) {
+    public function getSupervisorTagIDs($supervisorID) {
 
         $query = "
 
@@ -84,27 +74,17 @@ class TagDAO {
             ORDER BY tagID ASC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_COLUMN
-            );
+        return $statement->fetchAll(PDO::FETCH_COLUMN);
     }
 
-public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECTION table based on studentID
-        $studentID
-    ) {
+    // Get student tag IDs from STUDENT_TAG_SELECTION table based on studentID
+    public function getStudentTagIDs($studentID) {
 
         $query = "
 
@@ -119,36 +99,23 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
             ORDER BY tagID ASC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":studentID",
-            $studentID
-        );
+        $statement->bindParam(":studentID", $studentID);
 
         $statement->execute();
 
-        return $statement
-            ->fetchAll(PDO::FETCH_COLUMN);
+        return $statement->fetchAll(PDO::FETCH_COLUMN);
     }
 
-    public function getSupervisorTagMap(
-        $supervisorIDs
-    ) {
+    public function getSupervisorTagMap($supervisorIDs) {
 
         if (empty($supervisorIDs)) {
 
             return [];
         }
 
-        $placeholders =
-            implode(
-                ",",
-                array_fill(0, count($supervisorIDs), "?")
-            );
+        $placeholders = implode(",", array_fill(0, count($supervisorIDs), "?"));
 
         $query = "
             SELECT
@@ -162,42 +129,32 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
             ORDER BY RT.tagName ASC
         ";
 
-        $statement =
-            $this->conn->prepare($query);
+        $statement = $this->conn->prepare($query);
 
         foreach ($supervisorIDs as $index => $supervisorID) {
 
-            $statement->bindValue(
-                $index + 1,
-                $supervisorID
-            );
+            $statement->bindValue($index + 1, $supervisorID);
         }
 
         $statement->execute();
 
-        $rows =
-            $statement->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-        $tagMap =
-            [];
+        $tagMap = [];
 
         foreach ($rows as $row) {
 
-            $supervisorID =
-                $row["supervisorID"];
+            $supervisorID = $row["supervisorID"];
 
             if (!isset($tagMap[$supervisorID])) {
 
-                $tagMap[$supervisorID] =
-                    [];
+                $tagMap[$supervisorID] = [];
             }
 
             $tagMap[$supervisorID][] = [
-                "tagID" =>
-                    (int) $row["tagID"],
+                "tagID" => (int) $row["tagID"],
 
-                "tagName" =>
-                    $row["tagName"]
+                "tagName" => $row["tagName"]
             ];
         }
 
@@ -210,9 +167,7 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
     |--------------------------------------------------------------------------
     */
 
-    public function tagIDsExist(
-        $tagIDs
-    ) {
+    public function tagIDsExist($tagIDs) {
 
         /*
         |--------------------------------------------------------------------------
@@ -231,15 +186,7 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
         |--------------------------------------------------------------------------
         */
 
-        $placeholders =
-            implode(
-                ",",
-                array_fill(
-                    0,
-                    count($tagIDs),
-                    "?"
-                )
-            );
+        $placeholders =implode(",", array_fill(0, count($tagIDs), "?"));
 
         /*
         |--------------------------------------------------------------------------
@@ -256,10 +203,7 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
             WHERE tagID IN ({$placeholders})
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         /*
         |--------------------------------------------------------------------------
@@ -267,19 +211,9 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
         |--------------------------------------------------------------------------
         */
 
-        foreach (
-            $tagIDs
-            as $index => $tagID
-        ) {
+        foreach ($tagIDs as $index => $tagID) {
 
-            $statement->bindValue(
-
-                $index + 1,
-
-                (int) $tagID,
-
-                PDO::PARAM_INT
-            );
+            $statement->bindValue($index + 1, (int) $tagID, PDO::PARAM_INT);
         }
 
         /*
@@ -290,9 +224,7 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
 
         $statement->execute();
 
-        $total =
-            (int)
-            $statement->fetchColumn();
+        $total = (int) $statement->fetchColumn();
 
         /*
         |--------------------------------------------------------------------------
@@ -300,8 +232,7 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
         |--------------------------------------------------------------------------
         */
 
-        return
-            $total === count($tagIDs);
+        return $total === count($tagIDs);
     }
 
     /*
@@ -310,10 +241,7 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
     |--------------------------------------------------------------------------
     */
 
-    public function replaceSupervisorTags(
-        $supervisorID,
-        $tagIDs
-    ) {
+    public function replaceSupervisorTags($supervisorID, $tagIDs) {
 
         try {
 
@@ -338,15 +266,9 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
                 WHERE supervisorID = :supervisorID
             ";
 
-            $deleteStatement =
-                $this->conn->prepare(
-                    $deleteQuery
-                );
+            $deleteStatement = $this->conn->prepare($deleteQuery);
 
-            $deleteStatement->bindParam(
-                ":supervisorID",
-                $supervisorID
-            );
+            $deleteStatement->bindParam(":supervisorID", $supervisorID);
 
             $deleteStatement->execute();
 
@@ -370,26 +292,13 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
                 )
             ";
 
-            $insertStatement =
-                $this->conn->prepare(
-                    $insertQuery
-                );
+            $insertStatement = $this->conn->prepare($insertQuery);
 
-            foreach (
-                $tagIDs
-                as $tagID
-            ) {
+            foreach ($tagIDs as $tagID) {
 
-                $insertStatement->bindValue(
-                    ":supervisorID",
-                    $supervisorID
-                );
+                $insertStatement->bindValue(":supervisorID", $supervisorID);
 
-                $insertStatement->bindValue(
-                    ":tagID",
-                    (int) $tagID,
-                    PDO::PARAM_INT
-                );
+                $insertStatement->bindValue(":tagID", (int) $tagID, PDO::PARAM_INT);
 
                 $insertStatement->execute();
             }
@@ -428,9 +337,7 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
     |--------------------------------------------------------------------------
     */
 
-    public function getTagNamesByIDs(
-        $tagIDs
-    ) {
+    public function getTagNamesByIDs($tagIDs) {
 
         /*
         |--------------------------------------------------------------------------
@@ -449,15 +356,7 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
         |--------------------------------------------------------------------------
         */
 
-        $placeholders =
-            implode(
-                ",",
-                array_fill(
-                    0,
-                    count($tagIDs),
-                    "?"
-                )
-            );
+        $placeholders =implode(",", array_fill(0, count($tagIDs), "?"));
 
         /*
         |--------------------------------------------------------------------------
@@ -480,10 +379,7 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
             ORDER BY tagName ASC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         /*
         |--------------------------------------------------------------------------
@@ -491,19 +387,9 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
         |--------------------------------------------------------------------------
         */
 
-        foreach (
-            $tagIDs
-            as $index => $tagID
-        ) {
+        foreach ($tagIDs as $index => $tagID) {
 
-            $statement->bindValue(
-
-                $index + 1,
-
-                (int) $tagID,
-
-                PDO::PARAM_INT
-            );
+            $statement->bindValue($index + 1, (int) $tagID, PDO::PARAM_INT);
         }
 
         /*
@@ -514,10 +400,7 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -526,9 +409,7 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
     |--------------------------------------------------------------------------
     */
 
-    public function supervisorHasTags(
-        $supervisorID
-    ) {
+    public function supervisorHasTags($supervisorID) {
 
         $query = "
 
@@ -539,25 +420,15 @@ public function getStudentTagIDs( // Get student tag IDs from STUDENT_TAG_SELECT
             WHERE supervisorID = :supervisorID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID",$supervisorID);
 
         $statement->execute();
 
-        $result =
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
 
-        return
-            ((int) $result["total"]) > 0;
+        return ((int) $result["total"]) > 0;
     }
 }
 

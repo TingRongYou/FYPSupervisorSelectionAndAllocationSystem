@@ -14,11 +14,9 @@ class AdminReportDAO {
 
     public function __construct() {
 
-        $database =
-            new Database();
+        $database = new Database();
 
-        $this->conn =
-            $database->connect();
+        $this->conn = $database->connect();
     }
 
     /*
@@ -38,13 +36,11 @@ class AdminReportDAO {
             ORDER BY programme ASC
         ";
 
-        $statement =
-            $this->conn->prepare($query);
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(PDO::FETCH_ASSOC);
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getBatchOptions() {
@@ -57,13 +53,11 @@ class AdminReportDAO {
             ORDER BY intakeBatch DESC
         ";
 
-        $statement =
-            $this->conn->prepare($query);
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        $options =
-            $statement->fetchAll(PDO::FETCH_ASSOC);
+        $options = $statement->fetchAll(PDO::FETCH_ASSOC);
 
         return
             $this->mergeOptionRows(
@@ -83,13 +77,11 @@ class AdminReportDAO {
             ORDER BY RT.tagName ASC
         ";
 
-        $statement =
-            $this->conn->prepare($query);
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(PDO::FETCH_ASSOC);
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -194,8 +186,7 @@ class AdminReportDAO {
                 U.fullName ASC
         ";
 
-        $statement =
-            $this->conn->prepare($query);
+        $statement = $this->conn->prepare($query);
 
         foreach ($params as $key => $value) {
             $statement->bindValue($key, $value);
@@ -203,8 +194,7 @@ class AdminReportDAO {
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(PDO::FETCH_ASSOC);
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -260,8 +250,7 @@ class AdminReportDAO {
                 U.fullName ASC
         ";
 
-        $statement =
-            $this->conn->prepare($query);
+        $statement = $this->conn->prepare($query);
 
         if ($programme !== "") {
             $statement->bindValue(":programme", $programme);
@@ -297,71 +286,56 @@ class AdminReportDAO {
                 programme ASC
         ";
 
-        $statement =
-            $this->conn->prepare($query);
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(PDO::FETCH_ASSOC);
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     private function mergeOptionRows($rows, $key, $defaults) {
 
-        $seen =
-            [];
+        $seen = [];
 
-        $merged =
-            [];
+        $merged = [];
 
         foreach ($rows as $row) {
 
-            $value =
-                trim((string) ($row[$key] ?? ""));
+            $value = trim((string) ($row[$key] ?? ""));
 
             if ($value === "" || isset($seen[strtolower($value)])) {
 
                 continue;
             }
 
-            $seen[strtolower($value)] =
-                true;
+            $seen[strtolower($value)] = true;
 
-            $merged[] =
-                [$key => $value];
+            $merged[] = [$key => $value];
         }
 
         foreach ($defaults as $value) {
 
-            $value =
-                trim((string) $value);
+            $value = trim((string) $value);
 
             if ($value === "" || isset($seen[strtolower($value)])) {
 
                 continue;
             }
 
-            $seen[strtolower($value)] =
-                true;
+            $seen[strtolower($value)] = true;
 
-            $merged[] =
-                [$key => $value];
+            $merged[] = [$key => $value];
         }
 
         usort(
             $merged,
             function ($left, $right) use ($key) {
 
-                return
-                    strcasecmp(
-                        $left[$key],
-                        $right[$key]
-                    );
+                return strcasecmp($left[$key], $right[$key]);
             }
         );
 
-        return
-            $merged;
+        return $merged;
     }
 
     private function defaultBatchOptions() {

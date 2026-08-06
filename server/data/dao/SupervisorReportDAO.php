@@ -23,11 +23,9 @@ class SupervisorReportDAO {
 
     public function __construct() {
 
-        $database =
-            new Database();
+        $database = new Database();
 
-        $this->conn =
-            $database->connect();
+        $this->conn = $database->connect();
     }
 
     /*
@@ -49,15 +47,11 @@ class SupervisorReportDAO {
             LIMIT 1
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        $startTimestamp =
-            $statement->fetchColumn();
+        $startTimestamp = $statement->fetchColumn();
 
         if ($startTimestamp) {
 
@@ -69,16 +63,11 @@ class SupervisorReportDAO {
             FROM SYSTEM_PHASE_TIMELINE
         ";
 
-        $fallbackStatement =
-            $this->conn->prepare(
-                $fallbackQuery
-            );
+        $fallbackStatement = $this->conn->prepare($fallbackQuery);
 
         $fallbackStatement->execute();
 
-        return
-            $fallbackStatement->fetchColumn()
-            ?: "";
+        return $fallbackStatement->fetchColumn() ?: "";
     }
 
     /*
@@ -89,14 +78,9 @@ class SupervisorReportDAO {
     | available filter years/expertise tag matches.
     */
 
-    public function getApplicantProgrammes(
-        $supervisorID,
-        $year
-    ) {
+    public function getApplicantProgrammes($supervisorID, $year) {
 
-        $conditions = [
-            "AR.supervisorID = :supervisorID"
-        ];
+        $conditions = ["AR.supervisorID = :supervisorID"];
 
         if ($year !== "") {
 
@@ -116,31 +100,18 @@ class SupervisorReportDAO {
                 SP.programme ASC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         if ($year !== "") {
 
-            $statement->bindValue(
-                ":year",
-                (int) $year,
-                PDO::PARAM_INT
-            );
+            $statement->bindValue(":year", (int) $year, PDO::PARAM_INT);
         }
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -149,9 +120,7 @@ class SupervisorReportDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function getApplicantYears(
-        $supervisorID
-    ) {
+    public function getApplicantYears($supervisorID) {
 
         $query = "
             SELECT DISTINCT YEAR(allocationDate) AS applicationYear
@@ -160,22 +129,13 @@ class SupervisorReportDAO {
             ORDER BY applicationYear DESC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_COLUMN
-            );
+        return $statement->fetchAll(PDO::FETCH_COLUMN);
     }
 
     /*
@@ -184,15 +144,9 @@ class SupervisorReportDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function getMatchedExpertiseTags(
-        $supervisorID,
-        $year = ""
-    ) {
+    public function getMatchedExpertiseTags($supervisorID, $year = "") {
 
-        $applicationJoinFilter =
-            $year !== ""
-            ? "AND YEAR(AR.allocationDate) = :year"
-            : "";
+        $applicationJoinFilter = $year !== "" ? "AND YEAR(AR.allocationDate) = :year" : "";
 
         $query = "
             SELECT
@@ -214,31 +168,18 @@ class SupervisorReportDAO {
             LIMIT 6
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID",$supervisorID);
 
         if ($year !== "") {
 
-            $statement->bindValue(
-                ":year",
-                (int) $year,
-                PDO::PARAM_INT
-            );
+            $statement->bindValue(":year", (int) $year,PDO::PARAM_INT);
         }
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -249,9 +190,7 @@ class SupervisorReportDAO {
     | card without exposing other supervisors' profile data.
     */
 
-    public function getPrimaryExpertiseTag(
-        $supervisorID
-    ) {
+    public function getPrimaryExpertiseTag($supervisorID) {
 
         $query = "
             SELECT RT.tagName
@@ -263,25 +202,15 @@ class SupervisorReportDAO {
             LIMIT 1
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         $statement->execute();
 
-        $tagName =
-            $statement->fetchColumn();
+        $tagName = $statement->fetchColumn();
 
-        return
-            $tagName
-            ? $tagName
-            : "No expertise tag selected";
+        return $tagName ? $tagName : "No expertise tag selected";
     }
 
     /*
@@ -293,14 +222,9 @@ class SupervisorReportDAO {
     | authoritative supervision history.
     */
 
-    public function getSupervisionHistory(
-        $supervisorID,
-        $year
-    ) {
+    public function getSupervisionHistory($supervisorID, $year) {
 
-        $conditions = [
-            "AR.supervisorID = :supervisorID"
-        ];
+        $conditions = ["AR.supervisorID = :supervisorID"];
 
         if ($year !== "") {
 
@@ -344,31 +268,18 @@ class SupervisorReportDAO {
                 AR.allocationID DESC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         if ($year !== "") {
 
-            $statement->bindValue(
-                ":completionYear",
-                (int) $year,
-                PDO::PARAM_INT
-            );
+            $statement->bindValue(":completionYear", (int) $year, PDO::PARAM_INT);
         }
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -377,9 +288,7 @@ class SupervisorReportDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function getHistoryYears(
-        $supervisorID
-    ) {
+    public function getHistoryYears($supervisorID) {
 
         $query = "
             SELECT DISTINCT YEAR(allocationDate) AS completionYear
@@ -388,22 +297,13 @@ class SupervisorReportDAO {
             ORDER BY completionYear DESC
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_COLUMN
-            );
+        return $statement->fetchAll(PDO::FETCH_COLUMN);
     }
 
     /*
@@ -414,9 +314,7 @@ class SupervisorReportDAO {
     | allocation counts.
     */
 
-    public function getSlotUtilization(
-        $supervisorID
-    ) {
+    public function getSlotUtilization($supervisorID) {
 
         $query = "
             SELECT
@@ -443,22 +341,13 @@ class SupervisorReportDAO {
             LIMIT 1
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         $statement->execute();
 
-        return
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -501,15 +390,11 @@ class SupervisorReportDAO {
             ) SupervisorFillRates
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            (float) $statement->fetchColumn();
+        return (float) $statement->fetchColumn();
     }
 
     /*
@@ -519,12 +404,9 @@ class SupervisorReportDAO {
     | Counts this supervisor's recent allocation activity by weekday.
     */
 
-    public function getWeeklyAllocationTrend(
-        $supervisorID
-    ) {
+    public function getWeeklyAllocationTrend( $supervisorID) {
 
-        $periodStart =
-            $this->getSelectionPeriodStartTimestamp();
+        $periodStart = $this->getSelectionPeriodStartTimestamp();
 
         $query = "
             SELECT
@@ -536,27 +418,15 @@ class SupervisorReportDAO {
             GROUP BY DAYOFWEEK(allocationDate)
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
-        $statement->bindValue(
-            ":periodStart",
-            $periodStart !== "" ? $periodStart : date("Y-m-d 00:00:00", strtotime("-6 days"))
-        );
+        $statement->bindValue(":periodStart", $periodStart !== "" ? $periodStart : date("Y-m-d 00:00:00", strtotime("-6 days")));
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -569,8 +439,7 @@ class SupervisorReportDAO {
 
     public function getDepartmentWeeklyAverageTrend() {
 
-        $periodStart =
-            $this->getSelectionPeriodStartTimestamp();
+        $periodStart = $this->getSelectionPeriodStartTimestamp();
 
         $query = "
             SELECT
@@ -614,22 +483,13 @@ class SupervisorReportDAO {
             GROUP BY Weekdays.weekdayNumber
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindValue(
-            ":periodStart",
-            $periodStart !== "" ? $periodStart : date("Y-m-d 00:00:00", strtotime("-6 days"))
-        );
+        $statement->bindValue(":periodStart", $periodStart !== "" ? $periodStart : date("Y-m-d 00:00:00", strtotime("-6 days")));
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
 }

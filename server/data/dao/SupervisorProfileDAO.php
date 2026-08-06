@@ -20,11 +20,9 @@ class SupervisorProfileDAO {
 
     public function __construct() {
 
-        $database =
-            new Database();
+        $database = new Database();
 
-        $this->conn =
-            $database->connect();
+        $this->conn = $database->connect();
 
         $this->ensureUserActivityStatusTable();
     }
@@ -35,9 +33,7 @@ class SupervisorProfileDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function getSupervisorProfile(
-        $supervisorID
-    ) {
+    public function getSupervisorProfile($supervisorID) {
 
         $query = "
 
@@ -143,22 +139,13 @@ class SupervisorProfileDAO {
                 QC.maxSuperviseesAllowed
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         $statement->execute();
 
-        return
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
     /*
@@ -167,14 +154,7 @@ class SupervisorProfileDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function updateDigitalBusinessCard(
-        $supervisorID,
-        $programme,
-        $employmentCategory,
-        $activeTime,
-        $introVideoLink,
-        $supervisorBio
-    ) {
+    public function updateDigitalBusinessCard($supervisorID, $programme, $employmentCategory, $activeTime, $introVideoLink, $supervisorBio) {
 
         $query = "
 
@@ -195,43 +175,21 @@ class SupervisorProfileDAO {
             WHERE supervisorID = :supervisorID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":programme",
-            $programme
-        );
+        $statement->bindParam(":programme", $programme);
 
-        $statement->bindParam(
-            ":employmentCategory",
-            $employmentCategory
-        );
+        $statement->bindParam(":employmentCategory", $employmentCategory);
 
-        $statement->bindParam(
-            ":activeTime",
-            $activeTime
-        );
+        $statement->bindParam(":activeTime", $activeTime);
 
-        $statement->bindParam(
-            ":introVideoLink",
-            $introVideoLink
-        );
+        $statement->bindParam(":introVideoLink", $introVideoLink);
 
-        $statement->bindParam(
-            ":supervisorBio",
-            $supervisorBio
-        );
+        $statement->bindParam(":supervisorBio", $supervisorBio);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     /*
@@ -240,12 +198,7 @@ class SupervisorProfileDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function updateIntroVideo(
-        $supervisorID,
-        $introVideoLink,
-        $introVideoDescription,
-        $introVideoStatus = "published"
-    ) {
+    public function updateIntroVideo($supervisorID, $introVideoLink, $introVideoDescription, $introVideoStatus = "published") {
 
         $query = "
 
@@ -261,33 +214,17 @@ class SupervisorProfileDAO {
             WHERE supervisorID = :supervisorID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":introVideoLink",
-            $introVideoLink
-        );
+        $statement->bindParam(":introVideoLink", $introVideoLink);
 
-        $statement->bindParam(
-            ":introVideoDescription",
-            $introVideoDescription
-        );
+        $statement->bindParam(":introVideoDescription", $introVideoDescription);
 
-        $statement->bindParam(
-            ":introVideoStatus",
-            $introVideoStatus
-        );
+        $statement->bindParam(":introVideoStatus", $introVideoStatus);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     /*
@@ -296,9 +233,7 @@ class SupervisorProfileDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function supervisorProfileExists(
-        $supervisorID
-    ) {
+    public function supervisorProfileExists($supervisorID) {
 
         $query = "
 
@@ -309,25 +244,15 @@ class SupervisorProfileDAO {
             WHERE supervisorID = :supervisorID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         $statement->execute();
 
-        $result =
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
 
-        return
-            ((int) $result["total"]) > 0;
+        return ((int) $result["total"]) > 0;
     }
 
     /*
@@ -336,9 +261,7 @@ class SupervisorProfileDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function getSupervisorQuotaSummary(
-        $supervisorID
-    ) {
+    public function getSupervisorQuotaSummary($supervisorID) {
 
         $query = "
 
@@ -378,22 +301,13 @@ class SupervisorProfileDAO {
                 QC.maxSuperviseesAllowed
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         $statement->execute();
 
-        return
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
     private function ensureUserActivityStatusTable() {
@@ -412,8 +326,7 @@ class SupervisorProfileDAO {
             )
         ";
 
-        $this->conn
-            ->exec($query);
+        $this->conn->exec($query);
     }
 }
 

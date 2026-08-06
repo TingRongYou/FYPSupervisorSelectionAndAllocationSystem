@@ -8,11 +8,9 @@ class RequestDAO {
 
     public function __construct() {
 
-        $database =
-            new Database();
+        $database = new Database();
 
-        $this->conn =
-            $database->connect();
+        $this->conn = $database->connect();
     }
 
     /*
@@ -21,9 +19,7 @@ class RequestDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function countPendingRequestsBySupervisor(
-        $supervisorID
-    ) {
+    public function countPendingRequestsBySupervisor($supervisorID) {
 
         $query = "
             SELECT COUNT(*)
@@ -37,20 +33,13 @@ class RequestDAO {
             AND ALR.allocationID IS NULL
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         $statement->execute();
 
-        return
-            (int) $statement->fetchColumn();
+        return (int) $statement->fetchColumn();
     }
 
     /*
@@ -59,9 +48,7 @@ class RequestDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function countActiveSupervisees(
-        $supervisorID
-    ) {
+    public function countActiveSupervisees($supervisorID) {
 
         $query = "
             SELECT COUNT(*)
@@ -69,20 +56,13 @@ class RequestDAO {
             WHERE supervisorID = :supervisorID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         $statement->execute();
 
-        return
-            (int) $statement->fetchColumn();
+        return (int) $statement->fetchColumn();
     }
 
     /*
@@ -91,9 +71,7 @@ class RequestDAO {
     |--------------------------------------------------------------------------
     */
 
-    public function getSupervisorQuotaLimit(
-        $supervisorID
-    ) {
+    public function getSupervisorQuotaLimit($supervisorID) {
 
         $query = "
             SELECT
@@ -107,20 +85,13 @@ class RequestDAO {
             WHERE SP.supervisorID = :supervisorID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
         $statement->execute();
 
-        return
-            (int) $statement->fetchColumn();
+        return (int) $statement->fetchColumn();
     }
 
     /*
@@ -141,9 +112,7 @@ class RequestDAO {
     ) {
 
         $having = [];
-        $params = [
-            ":supervisorID" => $supervisorID
-        ];
+        $params = [":supervisorID" => $supervisorID];
 
         if ($allocationStatus !== "") {
 
@@ -197,46 +166,26 @@ class RequestDAO {
             OFFSET :offset
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         foreach ($params as $key => $value) {
 
             $statement->bindValue($key, $value);
         }
 
-        $statement->bindParam(
-            ":limit",
-            $limit,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":limit", $limit, PDO::PARAM_INT);
 
-        $statement->bindValue(
-            ":offset",
-            (int) $offset,
-            PDO::PARAM_INT
-        );
+        $statement->bindValue(":offset", (int) $offset, PDO::PARAM_INT);
 
         $statement->execute();
 
-        return
-            $statement->fetchAll(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function countRecentAllocationsBySupervisor(
-        $supervisorID,
-        $allocationStatus = "",
-        $proposalStatus = ""
-    ) {
+    public function countRecentAllocationsBySupervisor($supervisorID, $allocationStatus = "", $proposalStatus = "") {
 
         $having = [];
-        $params = [
-            ":supervisorID" => $supervisorID
-        ];
+        $params = [":supervisorID" => $supervisorID];
 
         if ($allocationStatus !== "") {
 
@@ -281,10 +230,7 @@ class RequestDAO {
             ) recentAllocations
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         foreach ($params as $key => $value) {
 
@@ -293,27 +239,14 @@ class RequestDAO {
 
         $statement->execute();
 
-        return
-            (int) $statement->fetchColumn();
+        return (int) $statement->fetchColumn();
     }
 
-    public function getApplicationsBySupervisor(
-        $supervisorID,
-        $status,
-        $search,
-        $programme,
-        $limit,
-        $offset
-    ) {
+    public function getApplicationsBySupervisor($supervisorID, $status, $search, $programme, $limit, $offset) {
 
-        $conditions = [
-            "ARQ.supervisorID = :supervisorID",
-            "ALR.allocationID IS NULL"
-        ];
+        $conditions = ["ARQ.supervisorID = :supervisorID", "ALR.allocationID IS NULL"];
 
-        $params = [
-            ":supervisorID" => $supervisorID
-        ];
+        $params = [":supervisorID" => $supervisorID];
 
         if ($status !== "") {
 
@@ -374,21 +307,11 @@ class RequestDAO {
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function countApplicationsBySupervisor(
-        $supervisorID,
-        $status,
-        $search,
-        $programme
-    ) {
+    public function countApplicationsBySupervisor($supervisorID, $status, $search, $programme) {
 
-        $conditions = [
-            "ARQ.supervisorID = :supervisorID",
-            "ALR.allocationID IS NULL"
-        ];
+        $conditions = ["ARQ.supervisorID = :supervisorID", "ALR.allocationID IS NULL"];
 
-        $params = [
-            ":supervisorID" => $supervisorID
-        ];
+        $params = [":supervisorID" => $supervisorID];
 
         if ($status !== "") {
 
@@ -437,9 +360,7 @@ class RequestDAO {
         return (int) $statement->fetchColumn();
     }
 
-    public function getStudentProgrammesForSupervisor(
-        $supervisorID
-    ) {
+    public function getStudentProgrammesForSupervisor($supervisorID) {
 
         $query = "
             SELECT DISTINCT SP.programme
@@ -457,10 +378,7 @@ class RequestDAO {
         return $statement->fetchAll(PDO::FETCH_COLUMN);
     }
 
-    public function getApplicationRequestForSupervisor(
-        $requestID,
-        $supervisorID
-    ) {
+    public function getApplicationRequestForSupervisor($requestID, $supervisorID) {
 
         $query = "
             SELECT
@@ -518,12 +436,7 @@ class RequestDAO {
         return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function updateRequestDecision(
-        $requestID,
-        $supervisorID,
-        $decisionStatus,
-        $supervisorComment
-    ) {
+    public function updateRequestDecision($requestID, $supervisorID, $decisionStatus, $supervisorComment) {
 
         $query = "
             UPDATE APPLICATION_REQUEST
@@ -542,12 +455,7 @@ class RequestDAO {
         return $statement->execute() && $statement->rowCount() > 0;
     }
 
-    public function processSupervisorDecision(
-        $requestID,
-        $supervisorID,
-        $decisionStatus,
-        $supervisorComment
-    ) {
+    public function processSupervisorDecision($requestID, $supervisorID, $decisionStatus, $supervisorComment) {
 
         $supervisorComment =
             trim((string) $supervisorComment);
@@ -597,8 +505,7 @@ class RequestDAO {
                 ];
             }
 
-            $hasExistingSupervisorAllocation =
-                !empty($request["existingSupervisorAllocationID"]);
+            $hasExistingSupervisorAllocation = !empty($request["existingSupervisorAllocationID"]);
 
             if ($request["decisionStatus"] !== "Pending") {
 
@@ -621,8 +528,7 @@ class RequestDAO {
                 $allocationStatement = $this->conn->prepare($allocationQuery);
                 $allocationStatement->bindParam(":studentID", $request["studentID"]);
                 $allocationStatement->execute();
-                $allocatedSupervisorIDs =
-                    $allocationStatement->fetchAll(PDO::FETCH_COLUMN);
+                $allocatedSupervisorIDs = $allocationStatement->fetchAll(PDO::FETCH_COLUMN);
 
                 if (
                     !empty($allocatedSupervisorIDs) &&
@@ -796,9 +702,7 @@ class RequestDAO {
     }
 
     // Automatically reject after 72 hours
-    public function expireTimedOutRequestsByStudent(
-        $studentID
-    ) {
+    public function expireTimedOutRequestsByStudent($studentID) {
 
         $query = "
             UPDATE APPLICATION_REQUEST
@@ -825,17 +729,13 @@ class RequestDAO {
             AND ttlExpirationTimestamp <= NOW()
         ";
 
-        $statement =
-            $this->conn->prepare($query);
+        $statement = $this->conn->prepare($query);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     // Get student application statuses
-    public function getApplicationsByStudent(
-        $studentID
-    ) {
+    public function getApplicationsByStudent($studentID) {
 
         $query = "
             SELECT
@@ -871,10 +771,7 @@ class RequestDAO {
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getApplicationRequestForStudent(
-        $requestID,
-        $studentID
-    ) {
+    public function getApplicationRequestForStudent($requestID, $studentID) {
 
         $query = "
             SELECT
@@ -904,11 +801,7 @@ class RequestDAO {
         return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function getSuperviseesBySupervisor(
-        $supervisorID,
-        $limit,
-        $offset
-    ) {
+    public function getSuperviseesBySupervisor($supervisorID, $limit, $offset) {
 
         $query = "
             SELECT
@@ -945,10 +838,7 @@ class RequestDAO {
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function requestProposalForAllocation(
-        $allocationID,
-        $supervisorID
-    ) {
+    public function requestProposalForAllocation($allocationID, $supervisorID) {
 
         $query = "
             SELECT
@@ -1039,10 +929,7 @@ class RequestDAO {
         ];
     }
 
-    public function getProposalRequestForStudent(
-        $requestID,
-        $studentID
-    ) {
+    public function getProposalRequestForStudent($requestID, $studentID) {
 
         $query = "
             SELECT
@@ -1073,13 +960,7 @@ class RequestDAO {
         return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function completeRequestedProposal(
-        $requestID,
-        $studentID,
-        $supervisorID,
-        $projectTitle,
-        $proposalPDFPath
-    ) {
+    public function completeRequestedProposal($requestID, $studentID, $supervisorID, $projectTitle, $proposalPDFPath) {
 
         $query = "
             UPDATE APPLICATION_REQUEST
@@ -1106,17 +987,12 @@ class RequestDAO {
         return $statement->rowCount() === 1;
     }
 
-    public function countSuperviseesBySupervisor(
-        $supervisorID
-    ) {
+    public function countSuperviseesBySupervisor($supervisorID) {
 
         return $this->countActiveSupervisees($supervisorID);
     }
 
-    public function getRecentApplicationsByStudent(
-        $studentID,
-        $limit
-    ) {
+    public function getRecentApplicationsByStudent($studentID, $limit) {
 
         $query = "
             SELECT
@@ -1143,33 +1019,22 @@ class RequestDAO {
             LIMIT :limit
         ";
 
-        $statement =
-            $this->conn->prepare( // Sends SQL template to database instead of running query immediately, prevent SQL injection
-                $query
-            );
+        // Sends SQL template to database instead of running query immediately, prevent SQL injection
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam( // Safely insert actual value ($studentID) into placeholder value, protect malicious code to be pass into input field
-            ":studentID",
-            $studentID
-        );
+        // Safely insert actual value ($studentID) into placeholder value, protect malicious code to be pass into input field
+        $statement->bindParam( ":studentID", $studentID);
 
-        $statement->bindParam(
-            ":limit",
-            $limit,
-            PDO::PARAM_INT
-        );
+        $statement->bindParam(":limit", $limit, PDO::PARAM_INT);
 
         $statement->execute(); // Run final query with injected variables
 
-        return
-            $statement->fetchAll( // Gathers all matching rows from the database and returns them as associative array
-                PDO::FETCH_ASSOC // Associative array is an array where keys are column names ("supervisorName => Dr.Smith", ...)
-            );
+        // Gathers all matching rows from the database and returns them as associative array
+        // Associative array is an array where keys are column names ("supervisorName => Dr.Smith", ...)
+        return $statement->fetchAll( PDO::FETCH_ASSOC );
     }
 
-    public function getAllocationByStudent(
-        $studentID
-    ) {
+    public function getAllocationByStudent($studentID) {
 
         $query = "
             SELECT
@@ -1188,27 +1053,16 @@ class RequestDAO {
             LIMIT 1
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":studentID",
-            $studentID
-        );
+        $statement->bindParam(":studentID", $studentID);
 
         $statement->execute();
 
-        return
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function studentHasActiveRequest(
-        $studentID
-    ) {
+    public function studentHasActiveRequest($studentID) {
 
         $query = "
             SELECT COUNT(*)
@@ -1217,25 +1071,16 @@ class RequestDAO {
             AND decisionStatus IN ('Pending', 'Proposal Requested')
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":studentID",
-            $studentID
-        );
+        $statement->bindParam(":studentID", $studentID);
 
         $statement->execute();
 
-        return
-            ((int) $statement->fetchColumn()) > 0;
+        return ((int) $statement->fetchColumn()) > 0;
     }
 
-    public function studentHasAllocation(
-        $studentID
-    ) {
+    public function studentHasAllocation($studentID) {
 
         $query = "
             SELECT COUNT(*)
@@ -1243,25 +1088,16 @@ class RequestDAO {
             WHERE studentID = :studentID
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":studentID",
-            $studentID
-        );
+        $statement->bindParam(":studentID", $studentID);
 
         $statement->execute();
 
-        return
-            ((int) $statement->fetchColumn()) > 0;
+        return ((int) $statement->fetchColumn()) > 0;
     }
 
-    public function isStudentEligibleForFYP(
-        $studentID
-    ) {
+    public function isStudentEligibleForFYP($studentID) {
 
         $query = "
             SELECT eligibilityStatus
@@ -1270,28 +1106,16 @@ class RequestDAO {
             LIMIT 1
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":studentID",
-            $studentID
-        );
+        $statement->bindParam(":studentID", $studentID);
 
         $statement->execute();
 
-        return
-            (bool) $statement->fetchColumn();
+        return (bool) $statement->fetchColumn();
     }
 
-    public function createApplicationRequest(
-        $studentID,
-        $supervisorID,
-        $projectTitle,
-        $proposalPDFPath
-    ) {
+    public function createApplicationRequest($studentID, $supervisorID, $projectTitle, $proposalPDFPath) {
 
         $query = "
             INSERT INTO APPLICATION_REQUEST
@@ -1316,33 +1140,17 @@ class RequestDAO {
             )
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
-        $statement->bindParam(
-            ":studentID",
-            $studentID
-        );
+        $statement->bindParam(":studentID", $studentID);
 
-        $statement->bindParam(
-            ":supervisorID",
-            $supervisorID
-        );
+        $statement->bindParam(":supervisorID", $supervisorID);
 
-        $statement->bindParam(
-            ":projectTitle",
-            $projectTitle
-        );
+        $statement->bindParam(":projectTitle", $projectTitle);
 
-        $statement->bindParam(
-            ":proposalPDFPath",
-            $proposalPDFPath
-        );
+        $statement->bindParam(":proposalPDFPath", $proposalPDFPath);
 
-        return
-            $statement->execute();
+        return $statement->execute();
     }
 
     /*
@@ -1365,17 +1173,11 @@ class RequestDAO {
             LIMIT 1
         ";
 
-        $statement =
-            $this->conn->prepare(
-                $query
-            );
+        $statement = $this->conn->prepare($query);
 
         $statement->execute();
 
-        return
-            $statement->fetch(
-                PDO::FETCH_ASSOC
-            );
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 }
 
