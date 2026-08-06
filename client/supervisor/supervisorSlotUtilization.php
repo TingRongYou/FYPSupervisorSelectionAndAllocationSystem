@@ -12,34 +12,15 @@ SessionManager::requireRole("Supervisor");
 
 // Report Facade
 // Coordinates quota, allocation, and weekly trend data through the facade layer.
-$reportFacade =
-    new SupervisorReportFacade();
+$reportFacade = new SupervisorReportFacade();
 
-$utilization =
-    $reportFacade
-    ->getUtilizationStats(
-        $_SESSION["userID"]
-    );
+$utilization = $reportFacade->getUtilizationStats($_SESSION["userID"]);
 
 // Benchmark Widths
 // Clamps percentage bars so visual progress never exceeds the track.
-$fillWidth =
-    min(
-        100,
-        max(0, $utilization["fillRate"])
-    );
-
-$departmentWidth =
-    min(
-        100,
-        max(0, $utilization["departmentAverage"])
-    );
-
-$maxTrendValue =
-    max(
-        1,
-        (float) ($utilization["maxTrendValue"] ?? 1)
-    );
+$fillWidth = min(100, max(0, $utilization["fillRate"]));
+$departmentWidth =min(100, max(0, $utilization["departmentAverage"]));
+$maxTrendValue =max(1, (float) ($utilization["maxTrendValue"] ?? 1));
 
 ?>
 

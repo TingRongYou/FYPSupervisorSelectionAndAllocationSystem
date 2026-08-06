@@ -8,7 +8,6 @@ SessionManager::startSession();
 SessionManager::requireRole("Supervisor");
 
 if (empty($_SESSION["csrf_token"])) {
-
     $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
 }
 
@@ -25,11 +24,9 @@ $start = $totalSupervisees === 0 ? 0 : $offset + 1;
 $end = min($offset + count($supervisees), $totalSupervisees);
 
 function formatResearchTitle($title) {
-
     $title = trim((string) $title);
 
     if (strlen($title) <= 42) {
-
         return $title;
     }
 

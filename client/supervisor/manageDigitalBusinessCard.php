@@ -9,7 +9,6 @@ SessionManager::startSession();
 SessionManager::requireRole("Supervisor");
 
 if (empty($_SESSION["csrf_token"])) {
-
     $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
 }
 
@@ -22,9 +21,7 @@ $allTags = $tagService->getAllTags();
 $selectedTags = [];
 
 foreach ($allTags as $tag) {
-
     if (in_array((int) $tag["tagID"], $selectedTagIDs, true)) {
-
         $selectedTags[] = $tag["tagName"];
     }
 }
@@ -34,7 +31,6 @@ $defaultBio = "";
 $activeTime = "";
 
 if ($profile) {
-
     $defaultBio =
         $profile["supervisorBio"]
         ??
@@ -44,9 +40,7 @@ if ($profile) {
             . ", I guide students through applied research and final year project development at TAR UMT."
         );
 
-    $activeTime =
-        $profile["activeTime"]
-        ?? "Consultation by appointment";
+    $activeTime = $profile["activeTime"] ?? "Consultation by appointment";
 
     $completedItems = 0;
     $completionItems = [
@@ -61,17 +55,12 @@ if ($profile) {
     ];
 
     foreach ($completionItems as $itemCompleted) {
-
         if ($itemCompleted) {
-
             $completedItems++;
         }
     }
 
-    $completion =
-        (int) round(
-            ($completedItems / count($completionItems)) * 100
-        );
+    $completion = (int) round(($completedItems / count($completionItems)) * 100);
 }
 
 ?>

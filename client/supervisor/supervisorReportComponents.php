@@ -10,9 +10,7 @@ function reportStyles() {
 function reportExportMenu($reportType, $filters = []) {
     // Export Request Parameters
     // Keeps the selected report type and filters attached to CSV, Excel, and PDF exports.
-    $queryParts = [
-        "reportType" => $reportType
-    ];
+    $queryParts = ["reportType" => $reportType];
 
     foreach ($filters as $key => $value) {
         if ((string) $value !== "") {

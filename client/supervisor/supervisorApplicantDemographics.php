@@ -40,10 +40,7 @@ foreach ($report["programmes"] as $index => $programme) {
     $cursor += $degrees;
 }
 
-$donutBackground =
-    empty($segments)
-    ? "#edf2f7"
-    : "conic-gradient(" . implode(", ", $segments) . ")";
+$donutBackground = empty($segments) ? "#edf2f7" : "conic-gradient(" . implode(", ", $segments) . ")";
 ?>
 <!DOCTYPE html>
 <html lang="en">

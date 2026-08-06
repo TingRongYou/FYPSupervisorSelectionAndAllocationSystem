@@ -12,29 +12,14 @@ SessionManager::requireRole("Supervisor");
 
 // Report Filters
 // Reads the optional year and semester filters from the request.
-$year =
-    trim(
-        $_GET["year"] ?? ""
-    );
-
-$semester =
-    trim(
-        $_GET["semester"] ?? ""
-    );
-
-$historyPage =
-    max(
-        1,
-        (int) ($_GET["historyPage"] ?? 1)
-    );
-
-$historyPerPage =
-    3;
+$year = trim($_GET["year"] ?? "");
+$semester = trim($_GET["semester"] ?? "");
+$historyPage = max(1, (int) ($_GET["historyPage"] ?? 1));
+$historyPerPage = 3;
 
 // Report Facade
 // Fetches history through the supervisor report facade instead of querying pages directly.
-$reportFacade =
-    new SupervisorReportFacade();
+$reportFacade = new SupervisorReportFacade();
 
 $history =
     $reportFacade
@@ -44,83 +29,43 @@ $history =
         $semester
     );
 
-$year =
-    $history["selectedYear"];
-
-$semester =
-    $history["selectedSemester"];
-
-$historyTotal =
-    (int) ($history["total"] ?? count($history["records"]));
-
-$historyTotalPages =
-    max(
-        1,
-        (int) ceil($historyTotal / $historyPerPage)
-    );
-
-$historyPage =
-    min(
-        $historyPage,
-        $historyTotalPages
-    );
-
-$historyOffset =
-    ($historyPage - 1) *
-    $historyPerPage;
-
+$year = $history["selectedYear"];
+$semester = $history["selectedSemester"];
+$historyTotal = (int) ($history["total"] ?? count($history["records"]));
+$historyTotalPages = max(1, (int) ceil($historyTotal / $historyPerPage));
+$historyPage = min($historyPage, $historyTotalPages);
+$historyOffset = ($historyPage - 1) * $historyPerPage;
 $visibleHistoryRecords =
     array_slice(
         $history["records"],
         $historyOffset,
         $historyPerPage
     );
+$historyStart = $historyTotal === 0 ? 0 : $historyOffset + 1;
 
-$historyStart =
-    $historyTotal === 0
-        ? 0
-        : $historyOffset + 1;
+$historyEnd = min($historyTotal, $historyOffset + count($visibleHistoryRecords));
 
-$historyEnd =
-    min(
-        $historyTotal,
-        $historyOffset + count($visibleHistoryRecords)
-    );
-
-function historySemesterLabel(
-    $currentSem
-) {
-
+function historySemesterLabel($currentSem) {
     if (preg_match('/S\s*([0-9]+)/i', (string) $currentSem, $matches)) {
-
         return "Semester " . $matches[1];
     }
 
     if (preg_match('/([0-9])\s*$/', (string) $currentSem, $matches)) {
-
         return "Semester " . $matches[1];
     }
 
     return $currentSem !== "" ? $currentSem : "Not recorded";
 }
 
-function historyPageUrl(
-    $page,
-    $year,
-    $semester
-) {
+function historyPageUrl($page, $year, $semester) {
 
-    $query = [
-        "historyPage" => max(1, (int) $page)
-    ];
+    $query = ["historyPage" => max(1, (int) $page)];
 
     if ($year !== "") {
-
         $query["year"] = $year;
     }
 
     if ($semester !== "") {
-
         $query["semester"] = $semester;
     }
 

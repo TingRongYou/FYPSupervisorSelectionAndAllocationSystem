@@ -26,11 +26,7 @@ $tagCount = count($selectedTagIDs);
 $strength = $tagCount >= 7 ? "High" : ($tagCount >= 4 ? "Medium" : "Low");
 
 function researchTagCode($tagName) {
-
-    $normalisedName =
-        strtolower(
-            trim((string) $tagName)
-        );
+    $normalisedName = strtolower(trim((string) $tagName));
 
     $tagCodes = [
         "artificial intelligence" => "AI",
@@ -40,18 +36,12 @@ function researchTagCode($tagName) {
     ];
 
     if (isset($tagCodes[$normalisedName])) {
-
         return $tagCodes[$normalisedName];
     }
 
-    $words =
-        preg_split(
-            "/\s+/",
-            preg_replace("/[^A-Za-z0-9\s]/", " ", $normalisedName)
-        );
+    $words = preg_split("/\s+/", preg_replace("/[^A-Za-z0-9\s]/", " ", $normalisedName));
 
     if (count($words) >= 2) {
-
         return
             strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
     }

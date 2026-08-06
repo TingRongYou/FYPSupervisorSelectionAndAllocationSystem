@@ -8,7 +8,6 @@ SessionManager::startSession();
 SessionManager::requireRole("Supervisor");
 
 if (empty($_SESSION["csrf_token"])) {
-
     $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
 }
 
@@ -21,7 +20,6 @@ $projectPage = max(1, (int) ($_GET["projectPage"] ?? 1));
 $projectsPerPage = 3;
 
 if (isset($_GET["editProjectID"])) {
-
     $editingProject = $pastProjectService->getProjectByID($_GET["editProjectID"], $_SESSION["userID"]);
     $showProjectForm = $editingProject !== null;
 }
@@ -36,23 +34,18 @@ $projectStart = $projectCount === 0 ? 0 : $projectOffset + 1;
 $projectEnd = min($projectOffset + count($visibleProjects), $projectCount);
 
 function projectPdfUrl($path) {
-
-    $fileName =
-        basename((string) $path);
+    $fileName = basename((string) $path);
 
     return "../../storage/past_projects/" . rawurlencode($fileName);
 }
 
 function projectImageUrl($path) {
-
-    $fileName =
-        basename((string) $path);
+    $fileName = basename((string) $path);
 
     return "../../storage/past_project_images/" . rawurlencode($fileName);
 }
 
 function projectPageUrl($page) {
-
     return "managePastProjects.php?projectPage=" . max(1, (int) $page);
 }
 

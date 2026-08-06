@@ -12,38 +12,22 @@ SessionManager::startSession();
 |--------------------------------------------------------------------------
 */
 
-SessionManager::requireRole(
-    "Supervisor"
-);
+SessionManager::requireRole("Supervisor");
 
-$dashboardService =
-    new SupervisorDashboardService();
+$dashboardService = new SupervisorDashboardService();
 
-$allocationStatusFilter =
-    trim($_GET["allocationStatus"] ?? "");
+$allocationStatusFilter = trim($_GET["allocationStatus"] ?? "");
+$proposalStatusFilter = trim($_GET["proposalStatus"] ?? "");
+$allocationPage = max(1, (int) ($_GET["allocationPage"] ?? 1));
 
-$proposalStatusFilter =
-    trim($_GET["proposalStatus"] ?? "");
-
-$allocationPage =
-    max(
-        1,
-        (int) ($_GET["allocationPage"] ?? 1)
-    );
-
-$allowedAllocationFilters =
-    ["", "Auto-Allocated", "Accepted", "Allocated"];
-
-$allowedProposalFilters =
-    ["", "Pending", "Accepted", "Rejected", "Proposal Requested", "Not Submitted"];
+$allowedAllocationFilters = ["", "Auto-Allocated", "Accepted", "Allocated"];
+$allowedProposalFilters = ["", "Pending", "Accepted", "Rejected", "Proposal Requested", "Not Submitted"];
 
 if (!in_array($allocationStatusFilter, $allowedAllocationFilters, true)) {
-
     $allocationStatusFilter = "";
 }
 
 if (!in_array($proposalStatusFilter, $allowedProposalFilters, true)) {
-
     $proposalStatusFilter = "";
 }
 
@@ -57,18 +41,13 @@ $dashboard =
     );
 
 function allocationPageUrl($page, $allocationStatusFilter, $proposalStatusFilter) {
-
-    $query = [
-        "allocationPage" => max(1, (int) $page)
-    ];
+    $query = ["allocationPage" => max(1, (int) $page)];
 
     if ($allocationStatusFilter !== "") {
-
         $query["allocationStatus"] = $allocationStatusFilter;
     }
 
     if ($proposalStatusFilter !== "") {
-
         $query["proposalStatus"] = $proposalStatusFilter;
     }
 

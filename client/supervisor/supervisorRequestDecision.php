@@ -8,30 +8,20 @@ SessionManager::startSession();
 SessionManager::requireRole("Supervisor");
 
 if (empty($_SESSION["csrf_token"])) {
-
     $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
 }
 
 $requestID = (int) ($_GET["requestID"] ?? 0);
-$sidebarActivePage = ($_GET["source"] ?? "") === "supervision"
-    ? "supervision"
-    : "decision-action";
+$sidebarActivePage = ($_GET["source"] ?? "") === "supervision" ? "supervision" : "decision-action";
 $requestDAO = new RequestDAO();
 $request = $requestID > 0
     ? $requestDAO->getApplicationRequestForSupervisor($requestID, $_SESSION["userID"])
     : null;
-$isExistingSupervisionProposal =
-    $request && !empty($request["allocationID"]);
-
-$matchedTags =
-    $request && !empty($request["matchedTagNames"])
-        ? explode("||", $request["matchedTagNames"])
-        : [];
+$isExistingSupervisionProposal = $request && !empty($request["allocationID"]);
+$matchedTags = $request && !empty($request["matchedTagNames"]) ? explode("||", $request["matchedTagNames"]) : [];
 
 function formatDateText($date) {
-
     if (!$date) {
-
         return "-";
     }
 
@@ -39,16 +29,13 @@ function formatDateText($date) {
 }
 
 function statusClass($status) {
-
     $normalized = strtolower(trim($status));
 
     if ($normalized === "accepted") {
-
         return "accepted";
     }
 
     if ($normalized === "rejected") {
-
         return "rejected";
     }
 

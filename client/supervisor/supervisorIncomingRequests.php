@@ -17,7 +17,6 @@ $perPage = 10;
 $offset = ($page - 1) * $perPage;
 
 if (!in_array($status, ["Pending", "Accepted", "Rejected", ""], true)) {
-
     $status = "Pending";
 }
 
@@ -29,16 +28,13 @@ $start = $totalApplications === 0 ? 0 : $offset + 1;
 $end = min($offset + count($applications), $totalApplications);
 
 function statusClass($status) {
-
     $normalized = strtolower(trim($status));
 
     if ($normalized === "accepted") {
-
         return "accepted";
     }
 
     if ($normalized === "rejected") {
-
         return "rejected";
     }
 
@@ -48,7 +44,6 @@ function statusClass($status) {
 function formatMonthYear($date) {
 
     if (!$date) {
-
         return "-";
     }
 

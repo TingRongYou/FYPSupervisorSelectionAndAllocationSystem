@@ -8,16 +8,12 @@ require_once __DIR__ . "/supervisorReportComponents.php";
 SessionManager::startSession();
 SessionManager::requireRole("Supervisor");
 
-$reviewService =
-    new StudentReviewService();
+$reviewService = new StudentReviewService();
 
-$reviews =
-    $reviewService->getSanitizedReviewsForSupervisor($_SESSION["userID"]);
+$reviews = $reviewService->getSanitizedReviewsForSupervisor($_SESSION["userID"]);
 
 function stars($rating) {
-
-    $rating =
-        max(1, min(5, (int) $rating));
+    $rating = max(1, min(5, (int) $rating));
 
     return str_repeat("*", $rating) . str_repeat("-", 5 - $rating);
 }
