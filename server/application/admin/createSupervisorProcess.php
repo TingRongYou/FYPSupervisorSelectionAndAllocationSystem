@@ -12,7 +12,6 @@ SessionManager::startSession();
 */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
     header("Location: ../../../client/admin/createSupervisorForm.php?status=error&message=Invalid request method");
     exit();
 }
@@ -24,7 +23,6 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 */
 
 if (!SessionManager::isLoggedIn()) {
-
     header("Location: ../../../client/auth/login.html");
     exit();
 }
@@ -45,7 +43,6 @@ SessionManager::requireRole("Administrator");
 */
 
 if (!SessionManager::validateCsrfToken($_POST["csrf_token"] ?? "")) {
-
     header("Location: ../../../client/admin/supervisorsManagement.php?status=error&message=Invalid CSRF token");
     exit();
 }
@@ -56,12 +53,10 @@ if (!SessionManager::validateCsrfToken($_POST["csrf_token"] ?? "")) {
 |--------------------------------------------------------------------------
 */
 
-$userManagementService =
-    new UserManagementService();
+$userManagementService = new UserManagementService();
 
 $result =
     $userManagementService->createSupervisorAccount(
-
         $_SESSION["systemRole"],
 
         $_POST["supervisorID"] ?? "",
@@ -85,30 +80,15 @@ $result =
 |--------------------------------------------------------------------------
 */
 
-$status =
-    $result["success"]
-    ? "success"
-    : "error";
+$status = $result["success"] ? "success" : "error";
 
-$message =
-    urlencode(
-        $result["message"]
-    );
+$message = urlencode($result["message"]);
 
-$returnTo =
-    $_POST["returnTo"] ?? "";
+$returnTo = $_POST["returnTo"] ?? "";
 
-$redirectPage =
-    $returnTo === "supervisorsManagement"
-    ? "admin/supervisorsManagement.php"
-    : "admin/createSupervisorForm.php";
+$redirectPage = $returnTo === "supervisorsManagement" ? "admin/supervisorsManagement.php" : "admin/createSupervisorForm.php";
 
-$sourceQuery =
-    $returnTo === "supervisorsManagement"
-    &&
-    !$result["success"]
-    ? "&source=createSupervisor"
-    : "";
+$sourceQuery = $returnTo === "supervisorsManagement" && !$result["success"] ? "&source=createSupervisor" : "";
 
 /*
 |--------------------------------------------------------------------------
@@ -117,10 +97,7 @@ $sourceQuery =
 */
 
 if ($result["success"]) {
-
-    header(
-        "Location: ../../../client/{$redirectPage}?status={$status}&message={$message}"
-    );
+    header("Location: ../../../client/{$redirectPage}?status={$status}&message={$message}");
 
     exit();
 }
@@ -131,9 +108,7 @@ if ($result["success"]) {
 |--------------------------------------------------------------------------
 */
 
-header(
-    "Location: ../../../client/{$redirectPage}?status={$status}&message={$message}{$sourceQuery}"
-);
+header("Location: ../../../client/{$redirectPage}?status={$status}&message={$message}{$sourceQuery}");
 
 exit();
 

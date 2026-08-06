@@ -20,10 +20,7 @@ SessionManager::startSession();
 */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
-    header(
-        "Location: ../../../client/admin/quotaManagement.php?status=error&message=Invalid request method"
-    );
+    header("Location: ../../../client/admin/quotaManagement.php?status=error&message=Invalid request method");
 
     exit();
 }
@@ -35,9 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 | Only administrators are allowed to update supervisor accounts.
 */
 
-SessionManager::requireRole(
-    "Administrator"
-);
+SessionManager::requireRole("Administrator");
 
 /*
 |--------------------------------------------------------------------------
@@ -55,9 +50,7 @@ if (
     )
 ) {
 
-    header(
-        "Location: ../../../client/admin/quotaManagement.php?status=error&message=Invalid CSRF token"
-    );
+    header("Location: ../../../client/admin/quotaManagement.php?status=error&message=Invalid CSRF token");
 
     exit();
 }
@@ -68,8 +61,7 @@ if (
 |--------------------------------------------------------------------------
 | Create quota manager object to handle quota update logic.
 */
-$quotaManager =
-    new QuotaManager();
+$quotaManager = new QuotaManager();
 
 /*
 |--------------------------------------------------------------------------
@@ -80,7 +72,6 @@ $quotaManager =
 */
 
 if (isset($_POST["quotaRows"])) {
-
     $result =
         $quotaManager
         ->updateSupervisorQuotas(
@@ -89,7 +80,6 @@ if (isset($_POST["quotaRows"])) {
         );
 
 } else {
-
     $result =
         $quotaManager
         ->updateSupervisorQuota(
@@ -107,15 +97,9 @@ if (isset($_POST["quotaRows"])) {
 | Convert service response into success or error status.
 */
 
-$status =
-    $result["success"]
-    ? "success"
-    : "error";
+$status = $result["success"] ? "success" : "error";
 
-$message =
-    urlencode(
-        $result["message"]
-    );
+$message = urlencode($result["message"]);
 
 /*
 |--------------------------------------------------------------------------
@@ -124,9 +108,7 @@ $message =
 | Redirect administrator back to quota management page with result message.
 */
 
-header(
-    "Location: ../../../client/admin/quotaManagement.php?status={$status}&message={$message}"
-);
+header("Location: ../../../client/admin/quotaManagement.php?status={$status}&message={$message}");
 
 exit();
 

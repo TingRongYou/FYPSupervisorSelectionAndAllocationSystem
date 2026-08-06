@@ -7,7 +7,6 @@ SessionManager::startSession();
 SessionManager::requireRole("Administrator");
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
     header("Location: ../../../client/admin/adminDashboard.php?status=error&message=Invalid request method");
     exit();
 }
@@ -22,8 +21,7 @@ if (
     exit();
 }
 
-$allocationWindowService =
-    new AllocationWindowService();
+$allocationWindowService = new AllocationWindowService();
 
 $result =
     $allocationWindowService
@@ -34,11 +32,9 @@ $result =
         $_POST["reviewEndDate"] ?? ""
     );
 
-$status =
-    $result["success"] ? "success" : "error";
+$status = $result["success"] ? "success" : "error";
 
-$message =
-    urlencode($result["message"]);
+$message = urlencode($result["message"]);
 
 header("Location: ../../../client/admin/adminDashboard.php?status={$status}&message={$message}");
 exit();

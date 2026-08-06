@@ -20,10 +20,7 @@ SessionManager::startSession();
 */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
-    header(
-        "Location: ../../../client/admin/studentEligibility.php?status=error&message=Invalid request method"
-    );
+    header("Location: ../../../client/admin/studentEligibility.php?status=error&message=Invalid request method");
 
     exit();
 }
@@ -35,9 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 | Only administrators are allowed to update supervisor accounts.
 */
 
-SessionManager::requireRole(
-    "Administrator"
-);
+SessionManager::requireRole("Administrator");
 
 /*
 |--------------------------------------------------------------------------
@@ -47,10 +42,7 @@ SessionManager::requireRole(
 */
 
 if (!SessionManager::validateCsrfToken($_POST["csrf_token"] ?? "")) {
-
-    header(
-        "Location: ../../../client/admin/studentEligibility.php?status=error&message=Invalid CSRF token"
-    );
+    header("Location: ../../../client/admin/studentEligibility.php?status=error&message=Invalid CSRF token");
 
     exit();
 }
@@ -62,21 +54,13 @@ if (!SessionManager::validateCsrfToken($_POST["csrf_token"] ?? "")) {
 | Confirms the selected CSV reached PHP without an upload error.
 */
 
-if (
-    !isset($_FILES["studentCSV"])
-    ||
-    $_FILES["studentCSV"]["error"] !== UPLOAD_ERR_OK
-) {
-
-    header(
-        "Location: ../../../client/admin/studentEligibility.php?status=error&message=Please upload a valid CSV file"
-    );
+if (!isset($_FILES["studentCSV"]) || $_FILES["studentCSV"]["error"] !== UPLOAD_ERR_OK) {
+    header("Location: ../../../client/admin/studentEligibility.php?status=error&message=Please upload a valid CSV file");
 
     exit();
 }
 
-$fileName =
-    $_FILES["studentCSV"]["name"];
+$fileName = $_FILES["studentCSV"]["name"];
 
 /*
 |--------------------------------------------------------------------------
@@ -85,28 +69,16 @@ $fileName =
 | Keeps the upload endpoint limited to CSV eligibility imports.
 */
 
-$extension =
-    strtolower(
-        pathinfo(
-            $fileName,
-            PATHINFO_EXTENSION
-        )
-    );
+$extension = strtolower(pathinfo($fileName,PATHINFO_EXTENSION));
 
 if ($extension !== "csv") {
-
-    header(
-        "Location: ../../../client/admin/studentEligibility.php?status=error&message=Only CSV files are allowed"
-    );
+    header("Location: ../../../client/admin/studentEligibility.php?status=error&message=Only CSV files are allowed");
 
     exit();
 }
 
 if ((int) $_FILES["studentCSV"]["size"] > 5242880) {
-
-    header(
-        "Location: ../../../client/admin/studentEligibility.php?status=error&message=CSV file cannot exceed 5MB"
-    );
+    header("Location: ../../../client/admin/studentEligibility.php?status=error&message=CSV file cannot exceed 5MB");
 
     exit();
 }
@@ -118,46 +90,24 @@ if ((int) $_FILES["studentCSV"]["size"] > 5242880) {
 | Imports records only; the eligibility batch is run separately from the main button.
 */
 
-$eligibilityService =
-    new EligibilityService();
+$eligibilityService = new EligibilityService();
 
-$result =
-    $eligibilityService
-    ->importStudentEligibilityCSV(
-        $_SESSION["systemRole"],
-        $_FILES["studentCSV"]["tmp_name"]
-    );
+$result = $eligibilityService->importStudentEligibilityCSV($_SESSION["systemRole"], $_FILES["studentCSV"]["tmp_name"]);
 
-$status =
-    $result["success"]
-    ? "success"
-    : "error";
+$status = $result["success"] ? "success" : "error";
 
 if ($result["success"]) {
+    $_SESSION["eligibility_csv_uploaded"] = true;
 
-    $_SESSION["eligibility_csv_uploaded"] =
-        true;
-
-    $_SESSION["eligibility_csv_file_name"] =
-        $fileName;
+    $_SESSION["eligibility_csv_file_name"] = $fileName;
 
 } else {
-
-    unset(
-        $_SESSION["eligibility_csv_uploaded"],
-        $_SESSION["eligibility_csv_file_name"]
-    );
+    unset($_SESSION["eligibility_csv_uploaded"], $_SESSION["eligibility_csv_file_name"]);
 }
 
-$message =
-    urlencode(
-        $result["message"]
-    );
+$message = urlencode($result["message"]);
 
-$uploadedFile =
-    urlencode(
-        $fileName
-    );
+$uploadedFile = urlencode($fileName);
 
 /*
 |--------------------------------------------------------------------------
@@ -166,9 +116,7 @@ $uploadedFile =
 | Returns to the eligibility screen while preserving the selected file name for display.
 */
 
-header(
-    "Location: ../../../client/admin/studentEligibility.php?status={$status}&message={$message}&uploadedFile={$uploadedFile}"
-);
+header("Location: ../../../client/admin/studentEligibility.php?status={$status}&message={$message}&uploadedFile={$uploadedFile}");
 
 exit();
 

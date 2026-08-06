@@ -20,10 +20,7 @@ SessionManager::startSession();
 */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
-    header(
-        "Location: ../../../client/admin/supervisorsManagement.php?status=error&message=Invalid request method"
-    );
+    header("Location: ../../../client/admin/supervisorsManagement.php?status=error&message=Invalid request method");
 
     exit();
 }
@@ -34,9 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 | Only administrators are allowed to update supervisor accounts.
 */
 
-SessionManager::requireRole(
-    "Administrator"
-);
+SessionManager::requireRole("Administrator");
 
 /*
 |--------------------------------------------------------------------------
@@ -46,10 +41,7 @@ SessionManager::requireRole(
 */
 
 if (!SessionManager::validateCsrfToken($_POST["csrf_token"] ?? "")) {
-
-    header(
-        "Location: ../../../client/admin/supervisorsManagement.php?status=error&message=Invalid CSRF token"
-    );
+    header("Location: ../../../client/admin/supervisorsManagement.php?status=error&message=Invalid CSRF token");
 
     exit();
 }
@@ -61,8 +53,7 @@ if (!SessionManager::validateCsrfToken($_POST["csrf_token"] ?? "")) {
 | Update supervisor information such as name, email,
 | and account active status.
 */
-$supervisorManagementService =
-    new SupervisorManagementService();
+$supervisorManagementService = new SupervisorManagementService();
 
 /*
 |--------------------------------------------------------------------------
@@ -81,15 +72,9 @@ $result =
         $_POST["activeStatus"] ?? ""
     );
 
-$status =
-    $result["success"]
-    ? "success"
-    : "error";
+$status = $result["success"] ? "success" : "error";
 
-$message =
-    urlencode(
-        $result["message"]
-    );
+$message = urlencode($result["message"]);
 
 /*
 |--------------------------------------------------------------------------
@@ -98,9 +83,7 @@ $message =
 | Redirect administrator back with update result message.
 */
 
-header(
-    "Location: ../../../client/admin/supervisorsManagement.php?status={$status}&message={$message}"
-);
+header("Location: ../../../client/admin/supervisorsManagement.php?status={$status}&message={$message}");
 
 exit();
 

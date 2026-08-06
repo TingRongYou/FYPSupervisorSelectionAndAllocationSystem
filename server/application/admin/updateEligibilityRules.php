@@ -20,10 +20,7 @@ SessionManager::startSession();
 */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
-    header(
-        "Location: ../../../client/admin/studentEligibility.php?status=error&message=Invalid request method"
-    );
+    header("Location: ../../../client/admin/studentEligibility.php?status=error&message=Invalid request method");
 
     exit();
 }
@@ -34,9 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 | Only administrators are allowed to edit eligibility rules.
 */
 
-SessionManager::requireRole(
-    "Administrator"
-);
+SessionManager::requireRole("Administrator");
 
 /*
 |--------------------------------------------------------------------------
@@ -46,10 +41,7 @@ SessionManager::requireRole(
 */
 
 if (!SessionManager::validateCsrfToken($_POST["csrf_token"] ?? "")) {
-
-    header(
-        "Location: ../../../client/admin/studentEligibility.php?status=error&message=Invalid CSRF token"
-    );
+    header("Location: ../../../client/admin/studentEligibility.php?status=error&message=Invalid CSRF token");
 
     exit();
 }
@@ -62,8 +54,7 @@ if (!SessionManager::validateCsrfToken($_POST["csrf_token"] ?? "")) {
 | and blocked academic status.
 */
 
-$eligibilityService =
-    new EligibilityService();
+$eligibilityService = new EligibilityService();
 
 $result =
     $eligibilityService
@@ -81,15 +72,9 @@ $result =
 | Convert service response into success or error status.
 */
 
-$status =
-    $result["success"]
-    ? "success"
-    : "error";
+$status = $result["success"] ? "success" : "error";
 
-$message =
-    urlencode(
-        $result["message"]
-    );
+$message = urlencode($result["message"]);
 
 /*
 |--------------------------------------------------------------------------
@@ -98,9 +83,7 @@ $message =
 | Redirect administrator back to eligibility page with result message.
 */
 
-header(
-    "Location: ../../../client/admin/studentEligibility.php?status={$status}&message={$message}"
-);
+header("Location: ../../../client/admin/studentEligibility.php?status={$status}&message={$message}");
 
 exit();
 

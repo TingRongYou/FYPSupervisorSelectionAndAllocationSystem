@@ -14,24 +14,18 @@ SessionManager::requireRole("Administrator");
 */
 
 function e($value) {
-
-    return
-        htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
+    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
 function exportFilename($reportType, $extension) {
-
-    return
-        "admin_" . $reportType . "_report_" . date("Ymd_His") . "." . $extension;
+    return "admin_" . $reportType . "_report_" . date("Ymd_His") . "." . $extension;
 }
 
 function sendCsv($filename, $headers, $rows) {
-
     header("Content-Type: text/csv; charset=utf-8");
     header("Content-Disposition: attachment; filename=\"{$filename}\"");
 
-    $output =
-        fopen("php://output", "w");
+    $output = fopen("php://output", "w");
 
     fputcsv($output, $headers);
 
@@ -44,7 +38,6 @@ function sendCsv($filename, $headers, $rows) {
 }
 
 function sendExcel($filename, $title, $headers, $rows) {
-
     header("Content-Type: application/vnd.ms-excel; charset=utf-8");
     header("Content-Disposition: attachment; filename=\"{$filename}\"");
 
@@ -135,28 +128,18 @@ function renderPrintPage($title, $summaryHtml, $tableHeaders, $tableRows) {
     exit;
 }
 
-$reportType =
-    trim($_GET["reportType"] ?? "");
+$reportType = trim($_GET["reportType"] ?? "");
 
-$format =
-    strtolower(
-        trim($_GET["format"] ?? "pdf")
-    );
+$format = strtolower(trim($_GET["format"] ?? "pdf"));
 
-if (
-    !in_array($reportType, ["cohort", "allocation"], true)
-    ||
-    !in_array($format, ["pdf", "csv", "xls"], true)
-) {
-
+if (!in_array($reportType, ["cohort", "allocation"], true) || !in_array($format, ["pdf", "csv", "xls"], true)) {
     http_response_code(400);
     echo "Invalid admin report request.";
     exit;
 }
 
 // The export endpoint reuses the same facade as the on-screen report pages.
-$facade =
-    new AdminReportFacade();
+$facade = new AdminReportFacade();
 
 /*
 |--------------------------------------------------------------------------
@@ -166,7 +149,6 @@ $facade =
 */
 
 if ($reportType === "cohort") {
-
     $filters = [
         "programme" => trim($_GET["programme"] ?? ""),
         "specialization" => trim($_GET["specialization"] ?? ""),
@@ -175,12 +157,10 @@ if ($reportType === "cohort") {
     ];
 
     if (!in_array($filters["status"], ["assigned", "unassigned", ""], true)) {
-
         $filters["status"] = "";
     }
 
-    $report =
-        $facade->getCohortOverview($filters);
+    $report = $facade->getCohortOverview($filters);
 
     $headers = [
         "studentID",
@@ -238,12 +218,9 @@ if ($reportType === "cohort") {
 */
 
 if ($reportType === "allocation") {
+    $programme = trim($_GET["programme"] ?? "");
 
-    $programme =
-        trim($_GET["programme"] ?? "");
-
-    $report =
-        $facade->getAllocationSummary($programme);
+    $report = $facade->getAllocationSummary($programme);
 
     $headers = [
         "supervisorID",

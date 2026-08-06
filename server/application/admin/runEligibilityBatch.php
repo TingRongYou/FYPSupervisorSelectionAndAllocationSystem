@@ -20,7 +20,6 @@ SessionManager::startSession();
 */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-
     header(
         "Location: ../../../client/admin/studentEligibility.php?status=error&message=Invalid request method"
     );
@@ -35,9 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 | Only administrators are allowed to run the eligibility batch.
 */
 
-SessionManager::requireRole(
-    "Administrator"
-);
+SessionManager::requireRole("Administrator");
 
 /*
 |--------------------------------------------------------------------------
@@ -47,10 +44,7 @@ SessionManager::requireRole(
 */
 
 if (!SessionManager::validateCsrfToken($_POST["csrf_token"] ?? "")) {
-
-    header(
-        "Location: ../../../client/admin/studentEligibility.php?status=error&message=Invalid CSRF token"
-    );
+    header("Location: ../../../client/admin/studentEligibility.php?status=error&message=Invalid CSRF token");
 
     exit();
 }
@@ -64,10 +58,7 @@ if (!SessionManager::validateCsrfToken($_POST["csrf_token"] ?? "")) {
 */
 
 if (empty($_SESSION["eligibility_csv_uploaded"])) {
-
-    header(
-        "Location: ../../../client/admin/studentEligibility.php?status=error&message=Please upload a CSV file before running the eligibility batch"
-    );
+    header("Location: ../../../client/admin/studentEligibility.php?status=error&message=Please upload a CSV file before running the eligibility batch");
 
     exit();
 }
@@ -79,14 +70,9 @@ if (empty($_SESSION["eligibility_csv_uploaded"])) {
 | Run eligibility rules and create accounts for eligible students.
 */
 
-$eligibilityService =
-    new EligibilityService();
+$eligibilityService = new EligibilityService();
 
-$result =
-    $eligibilityService
-    ->runEligibilityBatch(
-        $_SESSION["systemRole"]
-    );
+$result = $eligibilityService->runEligibilityBatch($_SESSION["systemRole"]);
 
 /*
 |--------------------------------------------------------------------------
@@ -95,15 +81,9 @@ $result =
 | Convert service result into success or error status.
 */
 
-$status =
-    $result["success"]
-    ? "success"
-    : "error";
+$status = $result["success"] ? "success" : "error";
 
-$message =
-    urlencode(
-        $result["message"]
-    );
+$message = urlencode($result["message"]);
 
 /*
 |--------------------------------------------------------------------------
@@ -112,9 +92,7 @@ $message =
 | Redirect administrator back with result message.
 */
 
-header(
-    "Location: ../../../client/admin/studentEligibility.php?status={$status}&message={$message}"
-);
+header("Location: ../../../client/admin/studentEligibility.php?status={$status}&message={$message}");
 
 exit();
 
