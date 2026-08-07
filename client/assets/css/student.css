@@ -1519,48 +1519,6 @@ button.selector {
     object-fit: cover;
 }
 
-.avatar-upload {
-    text-align: center;
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    min-height: 38px;
-    width: 100%;
-    max-width: 240px;
-    border-radius: 8px;
-    background: #eaf3ff;
-    color: #003f8f;
-    padding: 0 14px;
-    font-weight: 900;
-    cursor: pointer;
-    font-size: 13px;
-    transition: background .18s, color .18s, box-shadow .18s, transform .18s;
-}
-
-.avatar-upload:hover {
-    background: #0d5be8;
-    color: #fff;
-    box-shadow: 0 10px 18px rgba(13, 91, 232, .18);
-    transform: translateY(-1px);
-}
-
-.avatar-upload input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    width: 1px;
-    height: 1px;
-}
-
-.file-name {
-    display: block;
-    color: #0d5be8;
-    font-size: 13px;
-    font-weight: 900;
-    margin-top: 8px;
-    word-break: break-word;
-}
-
 .identity-name {
     margin: 0 0 5px;
     color: #172033;
@@ -1574,6 +1532,57 @@ button.selector {
     color: #71859a;
     font-size: 14px;
     font-weight: 800;
+}
+
+/* --- Interactive Photo Upload --- */
+.avatar.interactive-photo {
+    cursor: pointer;
+    position: relative;
+    transition: transform .2s, box-shadow .2s;
+}
+
+.avatar.interactive-photo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 34px rgba(11, 79, 138, .22);
+}
+
+.photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(11, 55, 96, 0.85);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    opacity: 0;
+    transition: opacity .2s ease;
+    padding: 10px;
+}
+
+.avatar.interactive-photo:hover .photo-overlay {
+    opacity: 1;
+}
+
+.overlay-title {
+    font-size: 14px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.overlay-note {
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #cbd8e6;
+}
+
+/* Locks the avatar upload interaction in view mode */
+.view-mode .avatar.interactive-photo {
+    pointer-events: none;
 }
 
 /* --- Readonly Block --- */
@@ -1950,14 +1959,6 @@ button.selector {
     border-color: #dbe6f0; /* Keeps standard border */
     opacity: 1; /* Overrides default browser dimming */
     pointer-events: none; /* Completely disables hover, click, and focus interactions */
-}
-
-/* Locks the avatar upload button without changing its color */
-.view-mode .avatar-upload {
-    pointer-events: none;
-    background: #eaf3ff;
-    color: #003f8f;
-    border: none;
 }
 
 /* Locks the tags without fading out the unselected ones */

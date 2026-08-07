@@ -120,20 +120,29 @@ function statusMessage() { // Build a successe or error HTML banner
 
                     <aside class="side-panel">
                         <section class="avatar-wrap">
-                            <div class="avatar" id="avatarPreview">
-                                <?php if (!empty($profile["profilePhotoPath"])): ?> <!-- If have profile photo, display it-->
-                                    <img src="<?php echo e($profile["profilePhotoPath"]); ?>" alt="Profile photo">
-                                <?php else: ?>
-                                    <?php echo e(initials($profile["fullName"])); ?> <!-- Else, display the abbreviated name -->
-                                <?php endif; ?>
-                            </div>
-                            <p class="identity-name"><?php echo e($profile["fullName"]); ?></p> <!-- Display full name -->
-                            <p class="identity-id"><?php echo e($profile["studentID"]); ?></p> <!-- Display student ID -->
-                            <label class="avatar-upload" for="avatarFile">
-                                Choose Avatar
-                                <input id="avatarFile" name="avatarFile" type="file" accept="image/jpeg,image/png" disabled>
+                            <!-- The avatar is interactive upload button -->
+                            <label class="avatar interactive-photo" for="avatarFile">
+                                <div id="avatarPreview" style="width: 100%; height: 100%; display: grid; place-items: center;">
+                                    <?php if (!empty($profile["profilePhotoPath"])): ?>
+                                        <img src="<?php echo e($profile["profilePhotoPath"]); ?>" alt="Profile photo" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <?php else: ?>
+                                        <?php echo e(initials($profile["fullName"])); ?>
+                                    <?php endif; ?>
+                                </div>
+                                
+                                <div class="photo-overlay">
+                                    <span class="overlay-title">Upload</span>
+                                    <span class="overlay-note">JPG or PNG<br>Max 2.0MB</span>
+                                </div>
+                                
+                                <input id="avatarFile" name="avatarFile" type="file" accept="image/jpeg,image/png" disabled style="display: none;">
                             </label>
-                            <span class="file-name" id="avatarFileName">JPG or PNG, max 2.0MB.</span>
+                            
+                            <p class="identity-name"><?php echo e($profile["fullName"]); ?></p>
+                            <p class="identity-id"><?php echo e($profile["studentID"]); ?></p>
+                            
+                            <!-- Hidden element ensures existing student.js preview logic doesn't break -->
+                            <span id="avatarFileName" style="display: none;"></span>
                         </section>
 
                         <section class="readonly-block"> <!-- Display academic record (read-only)-->
