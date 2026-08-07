@@ -95,10 +95,14 @@ $embedUrl = $videoLink !== "" && !$isUploadedVideo ? videoEmbedUrl($videoLink) :
                 <?php if (!$profile): ?>
                     <section class="empty">Supervisor profile was not found.</section>
                 <?php else: ?>
+
+                    <div class="breadcrumb">
+                        <a href="studentDiscovery.php">DISCOVERY</a> &gt; SUPERVISOR PROFILE
+                    </div>
+
                     <section class="profile-hero">
-                        <div>
-                            <h1 class="profile-name"><?php echo e($profile["fullName"]); ?></h1>
-                            <div class="photo-frame">
+                        <div class="hero-avatar-stack">
+                            <div class="photo-frame <?php echo $isOnline ? "" : "offline"; ?>">
                                 <div class="portrait">
                                     <?php if (!empty($profile["profilePhotoPath"])): ?>
                                         <img src="<?php echo e($profile["profilePhotoPath"]); ?>" alt="">
@@ -107,11 +111,17 @@ $embedUrl = $videoLink !== "" && !$isUploadedVideo ? videoEmbedUrl($videoLink) :
                                     <?php endif; ?>
                                 </div>
                             </div>
+                            
+                            <div class="quota-pill <?php echo $quotaStatus === "Available" ? "" : "full"; ?>">
+                                <?php echo e($quotaLabel); ?> - <?php echo e($quotaNumbers); ?>
+                            </div>
                         </div>
-                        <div class="status-stack">
-                            <div class="status-pill <?php echo $isOnline ? "" : "offline"; ?>"><?php echo e($profile["status"]); ?></div>
-                            <div class="quota-pill <?php echo $quotaStatus === "Available" ? "" : "full"; ?>"><?php echo e($quotaLabel); ?> - <?php echo e($quotaNumbers); ?></div>
-                            <div class="availability-note"><?php echo e($profile["message"] ?? ""); ?></div>
+                        
+                        <div class="hero-info">
+                            <h1 class="profile-name"><?php echo e($profile["fullName"]); ?></h1>
+                            <?php if (trim($profile["message"] ?? "") !== ""): ?>
+                                <div class="availability-note"><?php echo e($profile["message"]); ?></div>
+                            <?php endif; ?>
                         </div>
                     </section>
 
@@ -122,10 +132,6 @@ $embedUrl = $videoLink !== "" && !$isUploadedVideo ? videoEmbedUrl($videoLink) :
                         <div class="detail-list">
                             <div class="detail-item"><span class="detail-icon">@</span><?php echo e($profile["universityEmail"]); ?></div>
                             <div class="detail-item"><span class="detail-icon">T</span><?php echo e($activeTime); ?></div>
-                        </div>
-                        <div class="verified">
-                            <div class="verified-icons"><span>m</span><span>i</span><span>&lt;</span></div>
-                            Verified Academic
                         </div>
                     </section>
 

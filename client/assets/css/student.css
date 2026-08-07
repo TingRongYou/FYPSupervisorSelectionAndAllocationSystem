@@ -1111,6 +1111,12 @@ button.selector {
     transform: translateY(-1px);
 }
 
+/* Disable hover effects and interactions for disabled buttons */
+.button.disabled {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
 .button.secondary {
     background: #fff;
     color: #526a7f;
@@ -2691,39 +2697,63 @@ button.selector {
     margin: 0 auto;
 }
 
-.profile-hero {
-    display: grid;
-    grid-template-columns: 360px 1fr;
-    gap: 70px;
-    align-items: end;
-    margin-bottom: 38px;
+/* ==========================================================================
+   6. SUPERVISOR PROFILE (studentSupervisorProfile.php)
+   ========================================================================== */
+
+.profile-shell {
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
 }
 
-.profile-name {
-    margin: 0 0 18px;
-    color: #003f8f;
-    font-size: 34px;
-    line-height: 1.1;
+.profile-hero {
+    display: flex;
+    gap: 36px;
+    align-items: flex-start; /* Changed from center */
+    margin-bottom: 38px;
+    background: #fff;
+    padding: 34px;
+    border-radius: 16px;
+    border: 1px solid #e3edf6;
+    box-shadow: 0 16px 34px rgba(11, 79, 138, .08);
 }
 
 .photo-frame {
-    width: 360px;
-    height: 250px;
-    border: 1px solid #cfdbea;
-    background: #fff;
-    box-shadow: 0 16px 34px rgba(11, 79, 138, .08);
-    padding: 14px;
-    display: grid;
-    place-items: center;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    box-shadow: 0 12px 28px rgba(11, 79, 138, .12);
+    padding: 0;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.photo-frame::after {
+    content: "";
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    background: #22c55e; /* Default Online Green */
+}
+
+.photo-frame.offline::after {
+    background: #94a3b8; /* Overrides to Offline Grey */
 }
 
 .portrait {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #5c1748, #0e7f79);
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #eaf3ff, #f8fbff);
     display: grid;
     place-items: center;
-    overflow: hidden;
 }
 
 .portrait img {
@@ -2734,48 +2764,80 @@ button.selector {
 }
 
 .initials {
-    width: 150px;
-    height: 150px;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, .9);
+    width: 100%;
+    height: 100%;
+    background: #eaf3ff;
     color: #0b3760;
     display: grid;
     place-items: center;
-    font-size: 48px;
+    font-size: 54px;
     font-weight: 900;
 }
 
-.status-stack {
-    display: grid;
-    gap: 16px;
-    width: 240px;
-    margin-bottom: 28px;
+.hero-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 8px; /* Nudges the text down to align with the actual image inside the border */
 }
 
-.status-pill, .quota-pill {
-    min-height: 46px;
-    border-radius: 8px;
-    background: #178f56;
+.profile-name {
+    margin: 0;
+    color: #003f8f;
+    font-size: 32px;
+    line-height: 1.1;
+}
+
+.hero-info .status-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Align the photo and pill vertically */
+.hero-avatar-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+}
+
+/* Style the pill to match the circular avatar */
+.profile-hero .quota-pill {
+    min-height: 28px;
+    border-radius: 999px; /* Reverting to the pill shape, which looks great centered under a circle */
+    background: #118549; 
     color: #fff;
-    display: grid;
-    place-items: center;
-    font-size: 18px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: .5px;
+    letter-spacing: .8px;
+    margin: 0;
+    white-space: nowrap;
 }
 
-.status-pill.offline { background: #64748b; color: #fff;}
-.quota-pill.full { background: #c02d2d; }
+.profile-hero .quota-pill.full { 
+    background: #c02d2d; 
+}
+
+.profile-hero .status-pill.offline { background: #64748b; color: #fff; }
+.profile-hero .quota-pill.full { background: #c02d2d; }
 
 .availability-note {
     color: #526a7f;
     line-height: 1.5;
     font-size: 14px;
+    max-width: 600px;
 }
 
 .info-card {
-    width: 860px;
+    width: 100%;
     max-width: 100%;
     background: #fff;
     border: 1px solid #e3edf6;
@@ -2801,7 +2863,6 @@ button.selector {
 .bio {
     color: #526a7f;
     line-height: 1.55;
-    max-width: 650px;
     margin-bottom: 26px;
     font-size: 16px;
 }
@@ -2832,7 +2893,7 @@ button.selector {
 }
 
 .profile-section {
-    width: 860px;
+    width: 100%;
     max-width: 100%;
     margin-top: 22px;
     background: #fff;
@@ -2993,7 +3054,7 @@ button.selector {
 }
 
 .actions {
-    width: 860px;
+    width: 100%;
     margin-top: 18px;
     display: flex;
     justify-content: center;
