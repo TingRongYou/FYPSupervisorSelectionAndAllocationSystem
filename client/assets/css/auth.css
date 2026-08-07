@@ -11,7 +11,6 @@
 body {
     min-height: 100vh;
     margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
     color: #25364a;
     background: linear-gradient(rgba(207, 231, 246, .18), rgba(207, 231, 246, .05)),
                 url("../img/login_background.jpg");

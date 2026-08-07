@@ -2,7 +2,7 @@
 | Shared Foundational Styles & Resets
 |--------------------------------------------------------------------------
 */
-html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background: #f4f8fc; color: #1d2b3a; }
+html, body { margin: 0; padding: 0; font-family: 'Open Sans', Arial, Helvetica, sans-serif; background: #f4f8fc; color: #1d2b3a; }
 * { box-sizing: border-box; }
 
 /* |--------------------------------------------------------------------------
