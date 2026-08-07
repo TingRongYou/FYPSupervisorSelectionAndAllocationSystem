@@ -35,25 +35,20 @@ function videoEmbedUrl($url) {
 
 $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Introductory Video | SSAS</title>
-    <link rel="stylesheet" href="../assets/css/shared.css">
-    <link rel="stylesheet" href="../assets/css/supervisor.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/supervisor.css"); ?>">
-    <link rel="icon" type="image/png" href="../assets/img/tarumt_logo_only.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <?php 
+    require_once __DIR__ . "/../shared/_head.php";
+    echo renderSsasHead("Introductory Video", "supervisor"); 
+    ?>
     <script>
         window.ssasVideoConfig = {
             existingUploadedVideo: <?php echo $isUploadedVideo ? "true" : "false"; ?>,
             existingExternalVideo: <?php echo $hasExternalVideo ? "true" : "false"; ?>
         };
     </script>
-    <script src="../assets/js/supervisor.js" defer></script>
 </head>
 <body>
     <?php echo supervisorTopbar(); ?>

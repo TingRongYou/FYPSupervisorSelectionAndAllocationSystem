@@ -164,12 +164,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password - SSAS</title>
-    <link rel="stylesheet" href="../assets/css/auth.css">
-    <link rel="icon" type="image/png" href="../assets/img/tarumt_logo_only.png">
-    <script src="../assets/js/auth.js" defer></script>
+    <?php 
+    require_once __DIR__ . "/../shared/_head.php";
+    echo renderSsasHead("Forgot Password", "auth"); 
+    ?>
 </head>
 <body>
     <main class="page">
@@ -205,7 +203,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </form>
                 <?php endif; ?>
             </div>
-            <a class="back" href="login.html">Back to Login</a>
+            <a class="back" href="login.php">Back to Login</a>
         </section>
     </main>
 </body>

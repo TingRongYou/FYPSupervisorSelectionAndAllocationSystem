@@ -198,7 +198,7 @@ class SessionManager {
             .
             $basePath
             .
-            "/client/auth/login.html?status="
+            "/client/auth/login.php?status="
             .
             urlencode($status)
             .

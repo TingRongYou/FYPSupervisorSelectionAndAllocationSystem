@@ -29,9 +29,10 @@ function e($value) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Supervisor Account</title>
+    <?php 
+    require_once __DIR__ . "/../shared/_head.php"; 
+    echo renderSsasHead("Create Supervisor Account", "admin"); 
+    ?>
 </head>
 <body>
     <h1>Create Supervisor Account</h1>

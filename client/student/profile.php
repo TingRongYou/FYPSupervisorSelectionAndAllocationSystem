@@ -18,7 +18,7 @@ $profileFacade = new StudentProfileFacade();
 $payload = $profileFacade->getProfilePayload($_SESSION["userID"]);
 
 if (!$payload) {
-    header("Location: ../auth/login.html?status=error&message=Student profile was not found"); // Redirect browser elsewhere and stop the scripts immediately
+    header("Location: ../auth/login.php?status=error&message=Student profile was not found"); // Redirect browser elsewhere and stop the scripts immediately
     exit();
 }
 
@@ -88,16 +88,10 @@ function statusMessage() { // Build a successe or error HTML banner
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Profile | SSAS</title>
-    <link rel="stylesheet" href="../assets/css/shared.css"> <!-- Pull css and js file -->
-    <link rel="stylesheet" href="../assets/css/student.css">
-    <link rel="icon" type="image/png" href="../assets/img/tarumt_logo_only.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
-    <script src="../assets/js/student.js" defer></script>
+    <?php 
+    require_once __DIR__ . "/../shared/_head.php";
+    echo renderSsasHead("Student Profile", "student"); 
+    ?>
 </head>
 <body>
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>

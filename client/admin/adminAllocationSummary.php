@@ -80,19 +80,12 @@ function allocationRosterPageUrl($page, $programme) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Allocation Summary | SSAS</title>
-    <link rel="stylesheet" href="../assets/css/shared.css">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=<?php echo filemtime(__DIR__ . "/../assets/css/admin.css"); ?>">
-    <link rel="icon" type="image/png" href="../assets/img/tarumt_logo_only.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
-    <script src="../assets/js/admin.js" defer></script>
+    <?php 
+    require_once __DIR__ . "/../shared/_head.php";
+    echo renderSsasHead("Allocation Summary", "admin"); 
+    ?>
 </head>
-<body>
-    <?php echo ssasTopbar("TAR UMT SSAS"); ?>
+<body>cho ssasTopbar("TAR UMT SSAS"); ?>
 
     <!-- Page shell: shared topbar, report sidebar, and main report content. -->
     <div class="content-shell">

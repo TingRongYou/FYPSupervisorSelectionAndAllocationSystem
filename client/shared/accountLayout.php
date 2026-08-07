@@ -216,7 +216,7 @@ if (!function_exists("ssasDashboardUrlForRole")) {
             return "../../client/student/studentDashboard.php";
         }
 
-        return "../../client/auth/login.html";
+        return "../../client/auth/login.php";
     }
 }
 

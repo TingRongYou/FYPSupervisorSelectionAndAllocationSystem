@@ -159,7 +159,7 @@ if (!$validToken) {
         | Redirect user back to login page after password reset.
         */
 
-        header("Location: login.html?message=" . urlencode("Password changed successfully. Please login.") . "&type=success");
+        header("Location: login.php?message=" . urlencode("Password changed successfully. Please login.") . "&type=success");
 
         // Stop script execution
         exit;
@@ -170,11 +170,10 @@ if (!$validToken) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Change Password - SSAS</title>
-    <link rel="stylesheet" href="../assets/css/auth.css">
-    <link rel="icon" type="image/png" href="../assets/img/tarumt_logo_only.png">
+    <?php 
+    require_once __DIR__ . "/../shared/_head.php";
+    echo renderSsasHead("Change Password", "auth"); 
+    ?>
 </head>
 <body>
     <main class="page">
@@ -203,7 +202,7 @@ if (!$validToken) {
                 <?php endif; ?>
             </div>
             <?php if (!$validToken): ?>
-                <a class="back" href="login.html">Back to Login</a>
+                <a class="back" href="login.php">Back to Login</a>
             <?php endif; ?>
         </section>
     </main>

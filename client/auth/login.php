@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?php 
+    require_once __DIR__ . "/../shared/_head.php";
+    echo renderSsasHead("SSAS Student Intranet", "auth"); 
+    ?>
+    <!-- Keeping the specific cache-control for the auth page -->
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
-    <title>SSAS Student Intranet</title>
-    <link rel="stylesheet" href="../assets/css/auth.css">
-    <link rel="icon" type="image/png" href="../assets/img/tarumt_logo_only.png">
-    <script src="../assets/js/auth.js" defer></script>
 </head>
 <body>
     <main class="page">

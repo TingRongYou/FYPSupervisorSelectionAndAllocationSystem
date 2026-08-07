@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 */
 
 if (!SessionManager::isLoggedIn()) {
-    header("Location: ../../../client/auth/login.html");
+    header("Location: ../../../client/auth/login.php");
     exit();
 }
 

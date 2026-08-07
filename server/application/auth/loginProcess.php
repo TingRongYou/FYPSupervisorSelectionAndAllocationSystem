@@ -18,7 +18,7 @@ SessionManager::startSession();
 */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    header("Location: ../../../client/auth/login.html?status=error&message=Invalid request method");
+    header("Location: ../../../client/auth/login.php?status=error&message=Invalid request method");
     exit();
 }
 
@@ -39,7 +39,7 @@ $password = trim($_POST["password"] ?? "");
 */
 
 if ($email === "" || $password === "") {
-    header("Location: ../../../client/auth/login.html?status=error&message=Email and password are required");
+    header("Location: ../../../client/auth/login.php?status=error&message=Email and password are required");
     exit();
 }
 
@@ -60,7 +60,7 @@ $isLoggedIn = $authManager->login($email,$password);
 */
 
 if (!$isLoggedIn) {
-    header("Location: ../../../client/auth/login.html?status=error&message=Invalid email or password");
+    header("Location: ../../../client/auth/login.php?status=error&message=Invalid email or password");
     exit();
 }
 
@@ -113,7 +113,7 @@ if ($systemRole === "Student") {
 
 SessionManager::destroySession();
 
-header("Location: ../../../client/auth/login.html?status=error&message=Invalid system role");
+header("Location: ../../../client/auth/login.php?status=error&message=Invalid system role");
 exit();
 
 ?>
