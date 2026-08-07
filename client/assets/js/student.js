@@ -27,15 +27,19 @@ document.addEventListener("DOMContentLoaded", function() {
         const remaining = new Date(phaseEnd.replace(" ", "T")).getTime() - (Date.now() + serverOffset);
         
         if (remaining <= 0) { 
-            timer.textContent = "00:00:00"; 
+            timer.textContent = "00d: 00h: 00m: 00s"; 
             return; 
         }
         
-        const h = Math.floor(remaining / 3600000);
-        const m = Math.floor((remaining % 3600000) / 60000);
+        // Calculate total days and modulo the hours
+        const d = Math.floor(remaining / 86400000); // 1000 * 60 * 60 * 24 = 86400000 ms
+        const h = Math.floor((remaining % 86400000) / 3600000); // 1000 * 60 * 60 = 3600000 ms
+        const m = Math.floor((remaining % 3600000) / 60000); // 1000 * 60 = 60000 ms
         const s = Math.floor((remaining % 60000) / 1000); // 1000 ms = 1 s
         
+        // Format with leading zeros
         timer.textContent =
+            String(d).padStart(2, "0") + "d: " + 
             String(h).padStart(2, "0") + "h: " + 
             String(m).padStart(2, "0") + "m: " +
             String(s).padStart(2, "0") + "s";

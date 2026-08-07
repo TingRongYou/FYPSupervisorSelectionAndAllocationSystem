@@ -231,8 +231,8 @@ function selected($left, $right) {
                                     <h2 class="supervisor-name"><?php echo e($supervisor["fullName"]); ?></h2>
                                     <div class="meta"><?php echo e($supervisor["employmentCategory"]); ?>, <?php echo e($supervisor["programme"]); ?></div>
                                     <div class="tag-list">
-                                        <span class="tag"><?php echo e($supervisor["programme"]); ?></span>
-                                        <span class="tag"><?php echo e($supervisor["employmentCategory"]); ?></span>
+                                        <span class="tag structural"><?php echo e($supervisor["programme"]); ?></span>
+                                        <span class="tag structural"><?php echo e($supervisor["employmentCategory"]); ?></span>
                                         <?php foreach (array_slice($supervisor["tagNames"] ?? [], 0, 3) as $tagName): ?>
                                             <span class="tag"><?php echo e($tagName); ?></span>
                                         <?php endforeach; ?>
