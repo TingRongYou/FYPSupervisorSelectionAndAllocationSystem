@@ -31,6 +31,35 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    const photoInput = document.getElementById('profilePhotoInput');
+    const photoForm = document.getElementById('avatarUploadForm');
+    
+    if (photoInput && photoForm) {
+        photoInput.addEventListener('change', function() {
+            const file = this.files[0];
+            
+            if (file) {
+                // Frontend Validation
+                if (!['image/jpeg', 'image/png'].includes(file.type)) {
+                    alert("Please select a valid JPG or PNG image.");
+                    this.value = "";
+                    return;
+                }
+                // 2MB (2097152 bytes)
+                if (file.size > 2097152) { 
+                    alert("File is too large. Maximum size is 2.0MB.");
+                    this.value = "";
+                    return;
+                }
+                
+                // If valid, submit the form automatically
+                photoForm.submit();
+            }
+        });
+    }
+});
+
 /*
 |--------------------------------------------------------------------------
 | Portal Sidebar Subnav Toggle

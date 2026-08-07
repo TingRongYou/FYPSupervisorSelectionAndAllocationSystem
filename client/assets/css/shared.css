@@ -14,7 +14,6 @@ html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; b
 .brand-logo { width: 20px; height: 20px; object-fit: contain; border-radius: 0; background: transparent; display: block; margin-right: 5px; }
 .topbar-right { display: flex; align-items: stretch; align-self: stretch; margin-right: -16px; }
 .topbar-clock { display: flex; align-items: center; gap: 6px; padding: 0 14px; color: rgba(255,255,255,.86); font-size: 12px; white-space: nowrap; }
-.topbar-clock:before { content: ""; width: 12px; height: 12px; border: 2px solid rgba(255,255,255,.72); border-radius: 50%; display: inline-block; }
 
 /* |--------------------------------------------------------------------------
 | Account Dropdown Menu
@@ -36,14 +35,27 @@ html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; b
 .account-dropdown a:last-child { border-bottom: 0; }
 .account-dropdown .logout-link { padding-top: 16px; padding-bottom: 16px; border-top: 1px solid #dfe5ea; }
 
-/* Icons */
-.menu-icon { width: 16px; height: 16px; display: inline-grid; place-items: center; color: #222; position: relative; flex: 0 0 16px; }
-.menu-icon:before { content: ""; display: block; border: 2px solid currentColor; }
-.profile-menu-icon:before { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 9px 0 -2px currentColor; }
-.password-menu-icon:before { width: 8px; height: 8px; border-radius: 50%; }
-.password-menu-icon:after { content: ""; width: 8px; height: 2px; background: currentColor; position: absolute; right: 0; bottom: 1px; box-shadow: 4px 0 0 currentColor; }
-.logout-menu-icon:before { width: 10px; height: 10px; border-radius: 50%; border-top-color: transparent; }
-.logout-menu-icon:after { content: ""; width: 2px; height: 8px; background: currentColor; position: absolute; top: 0; }
+/* SVG Icons */
+.menu-icon { 
+    width: 16px; 
+    height: 16px; 
+    color: #6b7f91; 
+    flex: 0 0 16px; 
+    transition: color .2s; 
+}
+
+.account-dropdown a:hover .menu-icon { 
+    color: #0b66d8; 
+}
+
+.account-dropdown .logout-link:hover { 
+    background: #ffe3e3; 
+    color: #d62828; 
+}
+
+.account-dropdown .logout-link:hover .menu-icon { 
+    color: #d62828; 
+}
 
 /* |--------------------------------------------------------------------------
 | Shared Portal Shell (Sidebar Layout)
@@ -211,7 +223,6 @@ html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; b
    GLOBAL PROFILE PAGE (client/shared/profile.php)
    ========================================================================== */
 
-.page { padding: 0; }
 .breadcrumb { color: #6b7f91; font-size: 13px; margin-bottom: 24px; }
 .title { color: #2a74c9; font-size: 28px; font-weight: 300; margin: 0 0 18px; }
 
@@ -233,20 +244,54 @@ html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; b
 /* Photo Upload */
 .photo-form { margin-top: 18px; display: grid; gap: 10px; }
 .photo-form input[type="file"] { position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px; }
-.photo-picker { display: grid; gap: 8px; border: 1px dashed #b8cfe8; background: #f7fbff; padding: 13px; cursor: pointer; color: #315e8c; transition: border-color .2s, background .2s, box-shadow .2s, transform .2s; }
-.photo-picker:hover, .photo-picker:focus-within { border-color: #0d5be8; background: #eef6ff; box-shadow: 0 8px 18px rgba(13,91,232,.12); transform: translateY(-1px); }
-.photo-picker strong { display: inline-flex; justify-content: center; align-items: center; min-height: 34px; border-radius: 6px; background: #0d5be8; color: #fff; font-size: 13px; transition: background .2s, box-shadow .2s; }
-.photo-picker:hover strong { background: #0947c2; box-shadow: 0 6px 14px rgba(13,91,232,.18); }
-.photo-picker span { color: #526a7f; font-size: 12px; word-break: break-word; }
-.photo-actions { display: flex; gap: 8px; justify-content: center; }
-.save-photo,
-.remove-photo { border: 0; border-radius: 7px; padding: 10px 16px; cursor: pointer; font-weight: 800; transition: background .2s, color .2s, border-color .2s, box-shadow .2s, transform .2s; }
-.save-photo { background: #0d5be8; color: #fff; box-shadow: 0 6px 14px rgba(13,91,232,.16); }
-.save-photo:hover, .save-photo:focus-visible { background: #0947c2; box-shadow: 0 9px 18px rgba(13,91,232,.24); transform: translateY(-1px); outline: none; }
-.photo-remove-form { margin-top: 2px; }
-.remove-photo { background: #ffe3e3; color: #d62828; box-shadow: none; min-width: 170px; }
-.remove-photo:hover, .remove-photo:focus-visible { background: #ffd1d1; color: #b91c1c; box-shadow: 0 8px 16px rgba(214,40,40,.12); transform: translateY(-1px); outline: none; }
-.photo-note { color: #6b7f91; font-size: 12px; line-height: 1.4; }
+/* --- Interactive Photo Upload --- */
+.photo.interactive-photo {
+    cursor: pointer;
+    position: relative;
+    transition: transform .2s, box-shadow .2s;
+}
+
+.photo.interactive-photo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(11,79,138,.18);
+}
+
+.photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(11, 55, 96, 0.85); /* Slightly darker so the smaller text is readable */
+    color: #fff;
+    display: flex;
+    flex-direction: column; /* Stacks the items vertically */
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    opacity: 0;
+    transition: opacity .2s ease;
+    padding: 10px;
+}
+
+.photo.interactive-photo:hover .photo-overlay {
+    opacity: 1;
+}
+
+.overlay-title {
+    font-size: 14px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.overlay-note {
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #cbd8e6; /* A soft light-blue to contrast with the bold white title */
+}
+
+/* Ensure the ID band spacing is neat */
+.id-band { margin-top: -6px; margin-bottom: 12px; }.photo-note { color: #6b7f91; font-size: 12px; line-height: 1.4; }
 
 /* Details */
 .name { color: #3c82d7; font-size: 22px; font-weight: 800; margin-bottom: 14px; word-break: break-word; }
@@ -302,6 +347,31 @@ html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; b
 .save:hover { background: #0947c2; }
 .reset { background: #a9b8c3; }
 .reset:hover { background: #8a9caf; }
+
+/* |--------------------------------------------------------------------------
+| Status Messages (Success / Error Banners)
+|--------------------------------------------------------------------------
+*/
+.message {
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.4;
+}
+
+.message.success {
+    background: #ecfdf3;
+    color: #166534;
+    border: 1px solid #9edbb5;
+}
+
+.message.error {
+    background: #fdeaea;
+    color: #a52d2d;
+    border: 1px solid #f0b8b8;
+}
 
 /* |--------------------------------------------------------------------------
 | Dynamic Star Rating Component

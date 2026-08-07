@@ -30,60 +30,6 @@ body {
     padding: 28px 34px 40px;
 }
 
-.topbar {
-    height: 64px;
-    background: #0b95c5;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 28px;
-    box-shadow: 0 4px 14px rgba(11, 79, 138, .16);
-}
-
-.topbar-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 800;
-}
-
-.crest {
-    width: 30px;
-    height: 30px;
-    border-radius: 6px;
-    display: grid;
-    place-items: center;
-    background: #ffffff;
-    color: #0b4f8a;
-    font-weight: 800;
-}
-
-.topbar-user {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-align: right;
-    font-size: 12px;
-    line-height: 1.4;
-}
-
-.topbar-user strong {
-    display: block;
-    font-size: 14px;
-}
-
-.avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: #ffffff;
-    color: #0b4f8a;
-    display: grid;
-    place-items: center;
-    font-weight: 800;
-}
-
 .sidebar {
     width: 280px;
     flex: 0 0 280px;

@@ -7,7 +7,7 @@ if (!function_exists("studentSidebar")) {
         $items = [
             ["dashboard", "Dashboard", "studentDashboard.php"],
             ["discovery", "Supervisor Discovery", "studentDiscovery.php"],
-            ["profile", "Student Profile", "profile.php"],
+            ["student-profile", "Student Profile", "profile.php"],
             ["application-status", "Application Status", "studentApplicationStatus.php"],
             ["review", "Supervisor Review", "studentReview.php"],
             ["timeline", "Timeline & Milestones", "studentTimeline.php"]

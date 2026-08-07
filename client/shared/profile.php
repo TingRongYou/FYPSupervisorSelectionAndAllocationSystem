@@ -67,7 +67,6 @@ SessionManager::setProfilePhotoPath(
         <?php echo ssasPortalSidebar("profile"); ?>
         <main class="portal-main page">
             <?php echo ssasStatusMessage(); ?>
-            <div class="breadcrumb">Home &gt; My Account &gt; Profile</div>
             <h1 class="title">Profile <span style="font-size:16px;color:#6b7f91;">&gt; My SSAS Account Info</span></h1>
 
             <nav class="tabs">
@@ -79,33 +78,28 @@ SessionManager::setProfilePhotoPath(
                 <div class="profile-grid">
                     <aside class="identity">
                         <div class="name"><?php echo ssasEscape($profile["fullName"]); ?></div>
-                        <div class="photo" id="profilePhotoPreview">
-                            <?php if (!empty($profile["profilePhotoPath"])): ?>
-                                <img src="<?php echo ssasEscape($profile["profilePhotoPath"]); ?>" alt="Profile photo">
-                            <?php else: ?>
-                                <?php echo ssasEscape(ssasInitials($profile["fullName"])); ?>
-                            <?php endif; ?>
-                        </div>
-                        <div class="id-band"><?php echo ssasEscape($profile["userID"]); ?></div>
-                        <form class="photo-form" action="../../server/application/auth/updateProfilePhotoProcess.php" method="POST" enctype="multipart/form-data">
+                        
+                        <form id="avatarUploadForm" action="../../server/application/auth/updateProfilePhotoProcess.php" method="POST" enctype="multipart/form-data">
                             <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($_SESSION["csrf_token"]); ?>">
-                            <input type="hidden" name="MAX_FILE_SIZE" value="5242880">
-                            <label class="photo-picker" for="profilePhotoInput">
-                                <strong>Choose Profile Photo</strong>
-                                <span id="profilePhotoName">No file selected</span>
+                            <input type="hidden" name="MAX_FILE_SIZE" value="2097152"> 
+                            
+                            <label class="photo interactive-photo" for="profilePhotoInput" style="margin-bottom: 16px;">
+                                <?php if (!empty($profile["profilePhotoPath"])): ?>
+                                    <img src="<?php echo ssasEscape($profile["profilePhotoPath"]); ?>" alt="Profile photo">
+                                <?php else: ?>
+                                    <?php echo ssasEscape(ssasInitials($profile["fullName"])); ?>
+                                <?php endif; ?>
+                                
+                                <div class="photo-overlay">
+                                    <span class="overlay-title">Upload</span>
+                                    <span class="overlay-note">JPG or PNG<br>Max 2.0MB</span>
+                                </div>
                             </label>
-                            <input type="file" id="profilePhotoInput" name="profilePhoto" accept="image/jpeg,image/png" required>
-                            <div class="photo-note">JPG or PNG only. Maximum 5MB.</div>
-                            <div class="photo-actions">
-                                <button class="save-photo" type="submit">Save Photo</button>
-                            </div>
+                            
+                            <input type="file" id="profilePhotoInput" name="profilePhoto" accept="image/jpeg,image/png" required style="display: none;">
                         </form>
-                        <?php if (!empty($profile["profilePhotoPath"])): ?>
-                            <form class="photo-remove-form" action="../../server/application/auth/removeProfilePhotoProcess.php" method="POST">
-                                <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($_SESSION["csrf_token"]); ?>">
-                                <button class="remove-photo" type="submit">Remove Photo</button>
-                            </form>
-                        <?php endif; ?>
+
+                        <div class="id-band" style="margin-top: 0; margin-bottom: 12px;"><?php echo ssasEscape($profile["userID"]); ?></div>
                     </aside>
                     <section class="info-section">
                         <h2>SSAS Account Particulars</h2>

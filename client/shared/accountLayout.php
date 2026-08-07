@@ -114,11 +114,19 @@ if (!function_exists("ssasAccountMenu")) {
                         <strong>" . ssasEscape($name) . "</strong>
                     </span>
                     <span class=\"account-caret\" aria-hidden=\"true\"></span>
-                </button>
                 <nav class=\"account-dropdown\" aria-label=\"Account menu\">
-                    <a href=\"../../client/shared/profile.php\"><span class=\"menu-icon profile-menu-icon\"></span> Profile</a>
-                    <a href=\"../../client/shared/setPassword.php\"><span class=\"menu-icon password-menu-icon\"></span> Set Password</a>
-                    <a class=\"logout-link\" href=\"../../server/application/auth/logout.php\"><span class=\"menu-icon logout-menu-icon\"></span> Logout</a>
+                    <a href=\"../../client/shared/profile.php\">
+                        <svg class=\"menu-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2\"/><circle cx=\"12\" cy=\"7\" r=\"4\"/></svg> 
+                        Profile
+                    </a>
+                    <a href=\"../../client/shared/setPassword.php\">
+                        <svg class=\"menu-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\" ry=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/></svg> 
+                        Set Password
+                    </a>
+                    <a class=\"logout-link\" href=\"../../server/application/auth/logout.php\">
+                        <svg class=\"menu-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18.36 6.64a9 9 0 1 1-12.73 0\"/><line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"12\"/></svg> 
+                        Logout
+                    </a>
                 </nav>
             </div>
         ";
@@ -156,7 +164,10 @@ if (!function_exists("ssasTopbar")) {
                     </a>
                 </div>
                 <div class=\"topbar-right\">
-                    <div class=\"topbar-clock\">" . ssasEscape($dateTime) . " MYT</div>
+                    <div class=\"topbar-clock\">
+                        <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><polyline points=\"12 6 12 12 16 14\"/></svg>
+                        " . ssasEscape($dateTime) . " MYT
+                    </div>
                     " . ssasAccountMenu() . "
                 </div>
             </header>
@@ -297,7 +308,7 @@ if (!function_exists("ssasPortalSidebar")) {
                 ["dashboard", "Dashboard", "../../client/student/studentDashboard.php", "", false],
                 ["discovery", "Supervisor Discovery", "../../client/student/studentDiscovery.php", "", false],
                 // Points to the read-only profile:
-                ["profile", "Student Profile", "../../client/shared/profile.php", "", false], 
+                ["student-profile", "Student Profile", "../../client/student/profile.php", "", false], 
                 ["application-status", "Application Status", "../../client/student/studentApplicationStatus.php", "", false],
                 ["review", "Supervisor Review", "../../client/student/studentReview.php", "", false],
                 ["timeline", "Timeline & Milestones", "../../client/student/studentTimeline.php", "", false]

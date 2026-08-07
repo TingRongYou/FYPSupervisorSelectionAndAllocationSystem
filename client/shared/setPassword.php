@@ -54,7 +54,6 @@ function eyeIcon(): string {
     <div class="portal-shell">
         <?php echo ssasPortalSidebar("set-password"); ?>
         <main class="portal-main page">
-            <div class="breadcrumb">Home &gt; My Account &gt; Set Password</div>
             <h1 class="title">Set Password <span style="font-size:16px; color:#6b7f91;">&gt; Change Password</span></h1>
 
             <nav class="tabs">

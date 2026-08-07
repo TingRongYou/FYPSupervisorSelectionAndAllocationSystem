@@ -285,7 +285,7 @@ function requestClass($status) {
                                         <div>
                                             <p class="request-name"><?php echo e($request["supervisorName"]); ?></p>
                                             <p class="request-expertise">
-                                                Expertise: <?php echo e($request["projectTitle"] ?? "—"); ?>
+                                                Project Title: <?php echo e($request["projectTitle"] ?? "—"); ?>
                                             </p>
                                             <div class="request-meta-row">
                                                 <span class="request-meta-item">

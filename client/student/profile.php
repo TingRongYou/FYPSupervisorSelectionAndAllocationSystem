@@ -99,7 +99,7 @@ function statusMessage() { // Build a successe or error HTML banner
 <body>
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="layout">
-        <?php echo studentSidebar("profile"); ?>
+        <?php echo studentSidebar("student-profile"); ?>
         <main class="main">
             <div class="profile-shell">
                 <?php echo statusMessage(); ?>
