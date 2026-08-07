@@ -1,6 +1,7 @@
 <?php
 
 require_once "../../server/application/auth/SessionManager.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 
 
 /*
@@ -19,11 +20,6 @@ if (!SessionManager::isLoggedIn()) {
 SessionManager::requireRole("Administrator");
 
 $csrfToken = SessionManager::getCsrfToken();
-
-function e($value) {
-    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -38,7 +34,7 @@ function e($value) {
     <h1>Create Supervisor Account</h1>
 
     <form action="../../server/application/admin/createSupervisorProcess.php" method="POST">
-        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
+        <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($csrfToken); ?>">
 
         <label for="supervisorID">Supervisor ID</label><br>
         <input type="text" id="supervisorID" name="supervisorID" required><br><br>

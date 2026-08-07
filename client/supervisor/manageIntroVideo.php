@@ -2,7 +2,7 @@
 
 require_once __DIR__ . "/../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/SupervisorProfileService.php";
-require_once __DIR__ . "/supervisorLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 
 SessionManager::startSession();
 SessionManager::requireRole("Supervisor");
@@ -51,12 +51,12 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
     </script>
 </head>
 <body>
-    <?php echo supervisorTopbar(); ?>
+    <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="content-shell">
-        <?php echo supervisorSidebar("intro-video"); ?>
+        <?php echo ssasPortalSidebar("intro-video"); ?>
         <main class="main">
             <div class="intro-shell">
-                <?php echo statusMessage(); ?>
+                <?php echo ssasStatusMessage(); ?>
 
                 <section class="card hero intro-hero">
                     <div>
@@ -66,11 +66,11 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
                     <div class="hero-stat">
                         <div>
                             <div class="metric-label" style="color: #b9d2ff;">Video Setup</div>
-                            <div class="stat-value"><?php echo e($videoScore); ?>/2</div>
+                            <div class="stat-value"><?php echo ssasEscape($videoScore); ?>/2</div>
                         </div>
                         <div>
                             <div class="metric-label" style="color: #b9d2ff;">Status</div>
-                            <div class="status-value"><?php echo e($displayStatus); ?></div>
+                            <div class="status-value"><?php echo ssasEscape($displayStatus); ?></div>
                         </div>
                     </div>
                 </section>
@@ -81,15 +81,15 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
                     id="videoForm"
                     enctype="multipart/form-data">
 
-                    <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
-                    <input type="hidden" name="existingIntroVideoLink" value="<?php echo e($videoLink); ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($_SESSION["csrf_token"]); ?>">
+                    <input type="hidden" name="existingIntroVideoLink" value="<?php echo ssasEscape($videoLink); ?>">
 
                     <section>
                         <div class="video-preview">
                             <?php if ($hasVideo && $isUploadedVideo): ?>
-                                <video controls src="<?php echo e($videoLink); ?>"></video>
+                                <video controls src="<?php echo ssasEscape($videoLink); ?>"></video>
                             <?php elseif ($hasVideo && $embedUrl !== ""): ?>
-                                <iframe src="<?php echo e($embedUrl); ?>" title="Introductory video" allowfullscreen></iframe>
+                                <iframe src="<?php echo ssasEscape($embedUrl); ?>" title="Introductory video" allowfullscreen></iframe>
                             <?php else: ?>
                                 <div class="play-btn" aria-label="Preview"></div>
                                 <span class="preview-label">Preview Mode</span>
@@ -107,10 +107,10 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
                                 name="introVideoDescription"
                                 maxlength="500"
                                 placeholder="Briefly describe what students will learn from your video..."
-                            ><?php echo e($videoDescription); ?></textarea>
+                            ><?php echo ssasEscape($videoDescription); ?></textarea>
                             <div class="description-meta">
                                 <span>Tip: keep descriptions concise and highlight your core research areas.</span>
-                                <span><span id="descriptionCount"><?php echo e(strlen($videoDescription)); ?></span> / 500 characters</span>
+                                <span><span id="descriptionCount"><?php echo ssasEscape(strlen($videoDescription)); ?></span> / 500 characters</span>
                             </div>
                         </section>
                     </section>
@@ -119,19 +119,19 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
                         <div class="sidebar-card">
                             <span class="card-label">Content Source</span>
                             <div class="toggle">
-                                <label id="uploadTab" class="<?php echo $isUploadedVideo ? "active" : ""; ?>">
+                                <label id="uploadTab" class="<?php echo ssasEscape($isUploadedVideo ? "active" : ""); ?>">
                                     <input type="radio" name="contentSource" value="upload"
-                                        <?php echo $isUploadedVideo ? "checked" : ""; ?>>
+                                        <?php echo ssasEscape($isUploadedVideo ? "checked" : ""); ?>>
                                     Upload File
                                 </label>
-                                <label id="externalTab" class="<?php echo !$isUploadedVideo ? "active" : ""; ?>">
+                                <label id="externalTab" class="<?php echo ssasEscape(!$isUploadedVideo ? "active" : ""); ?>">
                                     <input type="radio" name="contentSource" value="external"
-                                        <?php echo !$isUploadedVideo ? "checked" : ""; ?>>
+                                        <?php echo ssasEscape(!$isUploadedVideo ? "checked" : ""); ?>>
                                     External Link
                                 </label>
                             </div>
 
-                            <div class="drop-zone" id="uploadPanel" style="display: <?php echo $isUploadedVideo ? 'block' : 'none'; ?>">
+                            <div class="drop-zone" id="uploadPanel" style="display: <?php echo ssasEscape($isUploadedVideo ? 'block' : 'none'); ?>">
                                 <div class="upload-icon" aria-hidden="true">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="#0d5be8"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -147,15 +147,15 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
                                 <input type="file" id="introVideoFile" name="introVideoFile" accept="video/mp4,video/webm">
                             </div>
 
-                            <div class="url-section" id="externalPanel" style="display: <?php echo !$isUploadedVideo ? 'block' : 'none'; ?>">
+                            <div class="url-section" id="externalPanel" style="display: <?php echo ssasEscape(!$isUploadedVideo ? 'block' : 'none'); ?>">
                                 <span class="url-label">Or Paste A URL</span>
-                                <div class="saved-link-pill" id="savedLinkPill" style="display: <?php echo $hasExternalVideo ? 'flex' : 'none'; ?>;">External link saved</div>
-                                <div class="url-wrap <?php echo $hasExternalVideo ? "saved" : ""; ?>" id="urlWrap">
+                                <div class="saved-link-pill" id="savedLinkPill" style="display: <?php echo ssasEscape($hasExternalVideo ? 'flex' : 'none'); ?>;">External link saved</div>
+                                <div class="url-wrap <?php echo ssasEscape($hasExternalVideo ? "saved" : ""); ?>" id="urlWrap">
                                     <span class="url-icon">URL</span>
                                     <input type="url"
                                         id="introVideoLink"
                                         name="introVideoLink"
-                                        value="<?php echo $isUploadedVideo ? "" : e($videoLink); ?>"
+                                        value="<?php echo ssasEscape($isUploadedVideo ? "" : $videoLink); ?>"
                                         placeholder="YouTube or Vimeo link"
                                         pattern="https?:\/\/(www\.)?(youtube\.com|youtu\.be|vimeo\.com)\/.+">
                                 </div>
@@ -164,9 +164,9 @@ $embedUrl = $hasVideo && !$isUploadedVideo ? videoEmbedUrl($videoLink) : "";
 
                         <div class="sidebar-card">
                             <div class="status-header">
-                                <span class="status-dot <?php echo $isPublished ? "published" : "draft"; ?>"></span>
-                                <span class="status-label <?php echo $isPublished ? "published" : "draft"; ?>">
-                                    Status: <?php echo $isPublished ? "Published" : "Draft"; ?>
+                                <span class="status-dot <?php echo ssasEscape($isPublished ? "published" : "draft"); ?>"></span>
+                                <span class="status-label <?php echo ssasEscape($isPublished ? "published" : "draft"); ?>">
+                                    Status: <?php echo ssasEscape($isPublished ? "Published" : "Draft"); ?>
                                 </span>
                             </div>
                             <p class="status-card-text">

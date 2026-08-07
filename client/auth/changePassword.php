@@ -21,12 +21,6 @@ $user = null;
 
 require_once "../../server/data/database/database.php";
 
-if (!function_exists("e")) {
-    function e($value) {
-        return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
-    }
-}
-
 $database = new Database();
 $pdo = $database->connect();
 
@@ -185,14 +179,14 @@ if (!$validToken) {
                 <h2>Create New Password</h2>
 
                 <?php if ($message !== ""): ?>
-                    <div class="message <?php echo e($status); ?>">
-                        <?php echo e($message); ?>
+                    <div class="message <?php echo ssasEscape($status); ?>">
+                        <?php echo ssasEscape($message); ?>
                     </div>
                 <?php endif; ?>
 
                 <?php if ($validToken): ?>
                     <form method="POST">
-                        <input type="hidden" name="token" value="<?php echo e($token); ?>">
+                        <input type="hidden" name="token" value="<?php echo ssasEscape($token); ?>">
                         <input type="password" name="newPassword" placeholder="New password (min. 8 characters)" required>
                         <input type="password" name="confirmPassword" placeholder="Confirm new password" required>
                         <div class="button-row">

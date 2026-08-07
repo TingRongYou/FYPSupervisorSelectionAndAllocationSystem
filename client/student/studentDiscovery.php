@@ -3,7 +3,7 @@
 require_once __DIR__ . "/../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/SupervisorDiscoveryService.php";
 require_once __DIR__ . "/../../server/data/dao/TagDAO.php";
-require_once __DIR__ . "/studentLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 
 SessionManager::startSession();
 SessionManager::requireRole("Student");
@@ -23,18 +23,6 @@ $supervisors = $discoveryService->discoverSupervisors($_GET); // Get all supervi
 $recommendedMatches = $discoveryService->getRecommendedMatches($_SESSION["userID"]); // Get recommended supervisors
 $hasSavedInterestTags = $discoveryService->hasSavedInterestTags($_SESSION["userID"]); // Check if student has saved interest tags
 
-function e($value) {
-    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
-}
-
-function initials($name) {
-    $parts = preg_split("/\s+/", trim((string) $name));
-    $first = strtoupper(substr($parts[0] ?? "S", 0, 1));
-    $second = strtoupper(substr($parts[1] ?? "", 0, 1));
-
-    return $first . $second;
-}
-
 function selected($left, $right) {
     return (string) $left === (string) $right ? "selected" : ""; // $left is the current tag selected, $right is the new tag selected
     // If they match, return "selected", else return empty string
@@ -53,7 +41,7 @@ function selected($left, $right) {
 <body>
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="layout">
-        <?php echo studentSidebar("discovery"); ?>
+        <?php echo ssasPortalSidebar("discovery"); ?>
         <main class="main">
             <div class="discovery-shell">
                 <section class="page-header student-hero">
@@ -105,42 +93,42 @@ function selected($left, $right) {
                                     <div class="supervisor-top">
                                         <div class="avatar <?php echo $isOffline ? "offline" : ""; ?>">
                                             <?php if (!empty($match["profilePhotoPath"])): ?>
-                                                <img src="<?php echo e($match["profilePhotoPath"]); ?>" alt="">
+                                                <img src="<?php echo ssasEscape($match["profilePhotoPath"]); ?>" alt="">
                                             <?php else: ?>
-                                                <?php echo e(initials($match["fullName"])); ?>
+                                                <?php echo ssasEscape(ssasInitials($match["fullName"])); ?>
                                             <?php endif; ?>
                                         </div>
                                         <div class="top-right">
-                                            <span class="status-pill <?php echo e($statusClass); ?>"><?php echo e($match["status"]); ?></span>
+                                            <span class="status-pill <?php echo ssasEscape($statusClass); ?>"><?php echo ssasEscape($match["status"]); ?></span>
                                             <div class="quota">
-                                                <?php echo e($availabilityLabel); ?>
-                                                <strong><?php echo e($quotaUsed); ?> / <?php echo e($quotaMax); ?></strong>
+                                                <?php echo ssasEscape($availabilityLabel); ?>
+                                                <strong><?php echo ssasEscape($quotaUsed); ?> / <?php echo ssasEscape($quotaMax); ?></strong>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="name-row">
-                                        <h2 class="supervisor-name"><?php echo e($match["fullName"]); ?></h2>
+                                        <h2 class="supervisor-name"><?php echo ssasEscape($match["fullName"]); ?></h2>
                                         <?php if ($matchCount > 0): ?>
                                             <span class="match-score"><?php echo $matchCount; ?> Match<?php echo $matchCount === 1 ? '' : 'es'; ?></span>
                                         <?php endif; ?>
                                     </div>
 
                                     <div class="specialty">
-                                        Specialization: <?php echo e($match["programme"]); ?>, <?php echo e($match["employmentCategory"]); ?>
+                                        Specialization: <?php echo ssasEscape($match["programme"]); ?>, <?php echo ssasEscape($match["employmentCategory"]); ?>
                                     </div>
 
                                     <div class="tag-list">
-                                        <span class="tag structural"><?php echo e($match["programme"]); ?></span>
-                                        <span class="tag structural"><?php echo e($match["employmentCategory"]); ?></span>
+                                        <span class="tag structural"><?php echo ssasEscape($match["programme"]); ?></span>
+                                        <span class="tag structural"><?php echo ssasEscape($match["employmentCategory"]); ?></span>
                                         
                                         <?php foreach ($matchedTags as $tagName): ?>
-                                            <span class="tag"><?php echo e($tagName); ?></span>
+                                            <span class="tag"><?php echo ssasEscape($tagName); ?></span>
                                         <?php endforeach; ?>
                                     </div>
 
                                     <?php if (!$canApply): ?>
-                                        <span class="btn-apply disabled"><?php echo e($match["buttonLabel"] ?? "Application Closed"); ?></span>
+                                        <span class="btn-apply disabled"><?php echo ssasEscape($match["buttonLabel"] ?? "Application Closed"); ?></span>
                                     <?php else: ?>
                                         <a class="btn-apply" href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($match["userID"]); ?>">
                                             Apply for Supervision
@@ -155,7 +143,7 @@ function selected($left, $right) {
                 <form method="GET" action="studentDiscovery.php">
                     <section class="search-panel">
                         <label for="searchName">Search</label>
-                        <input type="text" id="searchName" name="searchName" value="<?php echo e($searchName); ?>" placeholder="Search by supervisor name">
+                        <input type="text" id="searchName" name="searchName" value="<?php echo ssasEscape($searchName); ?>" placeholder="Search by supervisor name">
                     </section>
 
                     <section class="filter-panel">
@@ -164,8 +152,8 @@ function selected($left, $right) {
                             <select id="programme" name="programme">
                                 <option value="">All Programmes</option>
                                 <?php foreach ($programmes as $programme): ?>
-                                    <option value="<?php echo e($programme["programme"]); ?>" <?php echo selected($selectedProgramme, $programme["programme"]); ?>>
-                                        <?php echo e($programme["programme"]); ?>
+                                    <option value="<?php echo ssasEscape($programme["programme"]); ?>" <?php echo selected($selectedProgramme, $programme["programme"]); ?>>
+                                        <?php echo ssasEscape($programme["programme"]); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -175,15 +163,15 @@ function selected($left, $right) {
                             <select id="interestTagID" name="interestTagID">
                                 <option value="">Any Interest</option>
                                 <?php foreach ($researchTags as $tag): ?>
-                                    <option value="<?php echo e($tag["tagID"]); ?>" <?php echo selected($selectedInterestTagID, $tag["tagID"]); ?>>
-                                        <?php echo e($tag["tagName"]); ?>
+                                    <option value="<?php echo ssasEscape($tag["tagID"]); ?>" <?php echo selected($selectedInterestTagID, $tag["tagID"]); ?>>
+                                        <?php echo ssasEscape($tag["tagName"]); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         <div>
                             <label>Availability Status</label>
-                            <input type="hidden" id="availabilityInput" name="availability" value="<?php echo e($selectedAvailability); ?>">
+                            <input type="hidden" id="availabilityInput" name="availability" value="<?php echo ssasEscape($selectedAvailability); ?>">
                             <div class="availability-tabs">
                             <button class="tab availability-tab <?php echo $selectedAvailability === "" ? "active" : ""; ?>" type="button" data-value="">All</button>
                             <button class="tab availability-tab <?php echo $selectedAvailability === "Available" ? "active" : ""; ?>" type="button" data-value="Available">Available</button>
@@ -213,25 +201,25 @@ function selected($left, $right) {
                             <article class="card discovery-card">
                                 <div class="card-visual">
                                     <div class="badge-stack">
-                                        <span class="status-badge <?php echo e($badgeClass); ?>"><?php echo e($supervisor["status"]); ?></span>
-                                        <span class="quota-badge <?php echo e($quotaClass); ?>"><?php echo e($availabilityLabel); ?>: <?php echo e($used); ?> / <?php echo e($max); ?></span>
+                                        <span class="status-badge <?php echo ssasEscape($badgeClass); ?>"><?php echo ssasEscape($supervisor["status"]); ?></span>
+                                        <span class="quota-badge <?php echo ssasEscape($quotaClass); ?>"><?php echo ssasEscape($availabilityLabel); ?>: <?php echo ssasEscape($used); ?> / <?php echo ssasEscape($max); ?></span>
                                     </div>
                                     <div class="portrait">
                                         <?php if (!empty($supervisor["profilePhotoPath"])): ?>
-                                            <img src="<?php echo e($supervisor["profilePhotoPath"]); ?>" alt="">
+                                            <img src="<?php echo ssasEscape($supervisor["profilePhotoPath"]); ?>" alt="">
                                         <?php else: ?>
-                                            <?php echo e(initials($supervisor["fullName"])); ?>
+                                            <?php echo ssasEscape(ssasInitials($supervisor["fullName"])); ?>
                                         <?php endif; ?>
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <h2 class="supervisor-name"><?php echo e($supervisor["fullName"]); ?></h2>
-                                    <div class="meta"><?php echo e($supervisor["employmentCategory"]); ?>, <?php echo e($supervisor["programme"]); ?></div>
+                                    <h2 class="supervisor-name"><?php echo ssasEscape($supervisor["fullName"]); ?></h2>
+                                    <div class="meta"><?php echo ssasEscape($supervisor["employmentCategory"]); ?>, <?php echo ssasEscape($supervisor["programme"]); ?></div>
                                     <div class="tag-list">
-                                        <span class="tag structural"><?php echo e($supervisor["programme"]); ?></span>
-                                        <span class="tag structural"><?php echo e($supervisor["employmentCategory"]); ?></span>
+                                        <span class="tag structural"><?php echo ssasEscape($supervisor["programme"]); ?></span>
+                                        <span class="tag structural"><?php echo ssasEscape($supervisor["employmentCategory"]); ?></span>
                                         <?php foreach (array_slice($supervisor["tagNames"] ?? [], 0, 3) as $tagName): ?>
-                                            <span class="tag"><?php echo e($tagName); ?></span>
+                                            <span class="tag"><?php echo ssasEscape($tagName); ?></span>
                                         <?php endforeach; ?>
                                         <?php if (!empty($supervisor["activeTime"])): ?>
                                             <span class="tag">Active</span>
@@ -239,8 +227,8 @@ function selected($left, $right) {
                                     </div>
                                     <div class="card-footer">
                                         <div class="mini-avatars">
-                                            <span class="mini-dot"><?php echo e(substr($supervisor["programme"], 0, 3)); ?></span>
-                                            <span class="mini-dot">+<?php echo e(max(0, $max - $used)); ?></span>
+                                            <span class="mini-dot"><?php echo ssasEscape(substr($supervisor["programme"], 0, 3)); ?></span>
+                                            <span class="mini-dot">+<?php echo ssasEscape(max(0, $max - $used)); ?></span>
                                         </div>
                                         <a class="button apply-button" href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($supervisor["userID"]); ?>">View Profile</a>
                                     </div>

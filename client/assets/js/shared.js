@@ -66,24 +66,24 @@ document.addEventListener('DOMContentLoaded', function() {
 |--------------------------------------------------------------------------
 | Handles the opening and closing of dropdown menus in the shared sidebar.
 */
-function togglePortalSubnav(element) {
-    // Find the subnav menu that comes immediately after the clicked link
-    const subnav = element.nextElementSibling;
+function togglePortalSubnav(button) {
+    const targetId = button.getAttribute('data-subnav-target');
+    if (!targetId) return;
+
+    const subnav = document.getElementById(targetId);
+    if (!subnav) return;
+
+    const isClosed = subnav.style.display === "none" || subnav.style.display === "";
     
-    if (subnav && subnav.classList.contains('portal-subnav')) {
-        // Check if it is currently hidden
-        const isClosed = subnav.style.display === 'none' || window.getComputedStyle(subnav).display === 'none';
-        
-        // Toggle the display
-        subnav.style.display = isClosed ? 'block' : 'none';
-        
-        // Rotate the chevron arrow smoothly
-        const chevron = element.querySelector('.portal-nav-chevron');
-        if (chevron) {
-            chevron.style.transform = isClosed ? 'rotate(-180deg)' : 'rotate(0deg)';
-            chevron.style.transition = 'transform 0.2s ease';
-            chevron.style.display = 'inline-block'; 
-        }
+    // Toggle display
+    subnav.style.display = isClosed ? "block" : "none";
+    
+    // Toggle accessibility and chevron animation
+    button.setAttribute('aria-expanded', isClosed ? "true" : "false");
+    
+    const chevron = button.querySelector('.portal-nav-chevron');
+    if (chevron) {
+        chevron.style.transform = isClosed ? "rotate(0deg)" : "rotate(-180deg)";
     }
 }
 

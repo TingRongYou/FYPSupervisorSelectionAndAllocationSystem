@@ -2,7 +2,7 @@
 
 require_once "../../server/application/auth/SessionManager.php";
 require_once "../../server/business/services/SupervisorDashboardService.php";
-require_once __DIR__ . "/supervisorLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 
 SessionManager::startSession();
 
@@ -65,26 +65,26 @@ function allocationPageUrl($page, $allocationStatusFilter, $proposalStatusFilter
     ?>
 </head>
 <body>
-    <?php echo supervisorTopbar(); ?>
+    <?php echo ssasTopbar("TAR UMT SSAS"); ?>
 
     <div class="content-shell">
-        <?php echo supervisorSidebar("dashboard"); ?>
+        <?php echo ssasPortalSidebar("dashboard"); ?>
 
         <main class="main">
             <?php if ($dashboard["deadlineAlert"]["show"]): ?>
                 <section class="alert">
                     <div>
                         <strong>!</strong>
-                        <?php echo e($dashboard["deadlineAlert"]["message"]); ?>
+                        <?php echo ssasEscape($dashboard["deadlineAlert"]["message"]); ?>
                     </div>
                     <span>x</span>
                 </section>
             <?php endif; ?>
 
             <section class="hero-card">
-                <h1>Welcome back, <?php echo e($_SESSION["fullName"]); ?>.</h1>
+                <h1>Welcome back, <?php echo ssasEscape($_SESSION["fullName"]); ?>.</h1>
                 <p>
-                    You have <?php echo e($dashboard["pendingRequests"]); ?> new applications requiring your immediate attention.
+                    You have <?php echo ssasEscape($dashboard["pendingRequests"]); ?> new applications requiring your immediate attention.
                     <br>
                     Your current supervision load is healthy.
                 </p>
@@ -92,23 +92,23 @@ function allocationPageUrl($page, $allocationStatusFilter, $proposalStatusFilter
                 <div class="metric-grid">
                     <div class="metric">
                         <div class="metric-label">Incoming Requests</div>
-                        <div class="metric-value"><?php echo e($dashboard["pendingRequests"]); ?></div>
+                        <div class="metric-value"><?php echo ssasEscape($dashboard["pendingRequests"]); ?></div>
                     </div>
 
                     <div class="metric">
                         <div class="metric-label">Active Supervisees</div>
                         <div class="metric-value">
-                            <?php echo e($dashboard["activeSupervisees"]); ?>
-                            <span style="font-size: 15px; color: #b9d2ff;">/ <?php echo e($dashboard["maxSuperviseesAllowed"]); ?></span>
+                            <?php echo ssasEscape($dashboard["activeSupervisees"]); ?>
+                            <span style="font-size: 15px; color: #b9d2ff;">/ <?php echo ssasEscape($dashboard["maxSuperviseesAllowed"]); ?></span>
                         </div>
                     </div>
 
                     <div class="metric">
                         <div class="metric-label">Quota Usage</div>
                         <div class="metric-value">
-                            <?php echo e($dashboard["quotaUsage"]); ?>%
+                            <?php echo ssasEscape($dashboard["quotaUsage"]); ?>%
                             <span class="quota-line">
-                                <span style="width: <?php echo e($dashboard["quotaUsage"]); ?>%;"></span>
+                                <span style="width: <?php echo ssasEscape($dashboard["quotaUsage"]); ?>%;"></span>
                             </span>
                         </div>
                     </div>
@@ -126,15 +126,15 @@ function allocationPageUrl($page, $allocationStatusFilter, $proposalStatusFilter
                         <input type="hidden" name="allocationPage" value="1">
                         <select name="allocationStatus" aria-label="Allocation status">
                             <?php foreach ($allowedAllocationFilters as $option): ?>
-                                <option value="<?php echo e($option); ?>" <?php echo $allocationStatusFilter === $option ? "selected" : ""; ?>>
-                                    <?php echo $option === "" ? "All Allocations" : e($option); ?>
+                                <option value="<?php echo ssasEscape($option); ?>" <?php echo $allocationStatusFilter === $option ? "selected" : ""; ?>>
+                                    <?php echo $option === "" ? "All Allocations" : ssasEscape($option); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
                         <select name="proposalStatus" aria-label="Proposal status">
                             <?php foreach ($allowedProposalFilters as $option): ?>
-                                <option value="<?php echo e($option); ?>" <?php echo $proposalStatusFilter === $option ? "selected" : ""; ?>>
-                                    <?php echo $option === "" ? "All Proposals" : e($option); ?>
+                                <option value="<?php echo ssasEscape($option); ?>" <?php echo $proposalStatusFilter === $option ? "selected" : ""; ?>>
+                                    <?php echo $option === "" ? "All Proposals" : ssasEscape($option); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -166,45 +166,45 @@ function allocationPageUrl($page, $allocationStatusFilter, $proposalStatusFilter
                                             <div class="student-cell">
                                                 <div class="student-avatar">
                                                     <?php if (!empty($application["profilePhotoPath"])): ?>
-                                                        <img src="<?php echo e($application["profilePhotoPath"]); ?>" alt="">
+                                                        <img src="<?php echo ssasEscape($application["profilePhotoPath"]); ?>" alt="">
                                                     <?php else: ?>
-                                                        <?php echo e(supervisorInitials($application["fullName"])); ?>
+                                                        <?php echo ssasEscape(ssasInitials($application["fullName"])); ?>
                                                     <?php endif; ?>
                                                 </div>
                                                 <div>
                                                     <div class="student-name">
-                                                        <?php echo e($application["fullName"]); ?>
+                                                        <?php echo ssasEscape($application["fullName"]); ?>
                                                     </div>
                                                     <div class="muted">
-                                                        <?php echo e($application["studentID"]); ?>
+                                                        <?php echo ssasEscape($application["studentID"]); ?>
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td><?php echo e($application["programme"]); ?></td>
+                                        <td><?php echo ssasEscape($application["programme"]); ?></td>
                                         <td>
                                             <span class="focus-tag">
-                                                <?php echo e($application["researchFocus"]); ?>
+                                                <?php echo ssasEscape($application["researchFocus"]); ?>
                                             </span>
                                         </td>
                                         <td>
-                                            <span class="status <?php echo e($application["statusClass"]); ?>">
-                                                <?php echo e($application["decisionStatus"]); ?>
+                                            <span class="status <?php echo ssasEscape($application["statusClass"]); ?>">
+                                                <?php echo ssasEscape($application["decisionStatus"]); ?>
                                             </span>
                                         </td>
                                         <td>
-                                            <span class="status <?php echo e($application["proposalStatusClass"]); ?>">
-                                                <?php echo e($application["proposalStatusText"]); ?>
+                                            <span class="status <?php echo ssasEscape($application["proposalStatusClass"]); ?>">
+                                                <?php echo ssasEscape($application["proposalStatusText"]); ?>
                                             </span>
                                         </td>
                                         <td>
                                             <?php if (!empty($application["requestID"])): ?>
-                                                <a class="action-button" href="supervisorRequestDecision.php?requestID=<?php echo e($application["requestID"]); ?>">
-                                                    <?php echo e($application["actionText"]); ?>
+                                                <a class="action-button" href="supervisorRequestDecision.php?requestID=<?php echo ssasEscape($application["requestID"]); ?>">
+                                                    <?php echo ssasEscape($application["actionText"]); ?>
                                                 </a>
                                             <?php else: ?>
                                                 <a class="action-button" href="supervisorMySupervisees.php">
-                                                    <?php echo e($application["actionText"]); ?>
+                                                    <?php echo ssasEscape($application["actionText"]); ?>
                                                 </a>
                                             <?php endif; ?>
                                         </td>
@@ -240,21 +240,21 @@ function allocationPageUrl($page, $allocationStatusFilter, $proposalStatusFilter
                                         $recentPage * $recentPerPage
                                     );
                             ?>
-                            Showing <?php echo e($recentStart); ?>-<?php echo e($recentEnd); ?> of <?php echo e($recentTotal); ?> recent allocations
+                            Showing <?php echo ssasEscape($recentStart); ?>-<?php echo ssasEscape($recentEnd); ?> of <?php echo ssasEscape($recentTotal); ?> recent allocations
                         </span>
                         <div class="table-pager" aria-label="Recent allocations pagination">
                             <?php if ($recentPage > 1): ?>
-                                <a class="table-page-button" href="<?php echo e(allocationPageUrl($recentPage - 1, $allocationStatusFilter, $proposalStatusFilter)); ?>" aria-label="Previous allocations page">&lt;</a>
+                                <a class="table-page-button" href="<?php echo ssasEscape(allocationPageUrl($recentPage - 1, $allocationStatusFilter, $proposalStatusFilter)); ?>" aria-label="Previous allocations page">&lt;</a>
                             <?php else: ?>
                                 <span class="table-page-button disabled" aria-hidden="true">&lt;</span>
                             <?php endif; ?>
 
                             <span class="table-page-count">
-                                Page <?php echo e($recentPage); ?> of <?php echo e($recentTotalPages); ?>
+                                Page <?php echo ssasEscape($recentPage); ?> of <?php echo ssasEscape($recentTotalPages); ?>
                             </span>
 
                             <?php if ($recentPage < $recentTotalPages): ?>
-                                <a class="table-page-button" href="<?php echo e(allocationPageUrl($recentPage + 1, $allocationStatusFilter, $proposalStatusFilter)); ?>" aria-label="Next allocations page">&gt;</a>
+                                <a class="table-page-button" href="<?php echo ssasEscape(allocationPageUrl($recentPage + 1, $allocationStatusFilter, $proposalStatusFilter)); ?>" aria-label="Next allocations page">&gt;</a>
                             <?php else: ?>
                                 <span class="table-page-button disabled" aria-hidden="true">&gt;</span>
                             <?php endif; ?>

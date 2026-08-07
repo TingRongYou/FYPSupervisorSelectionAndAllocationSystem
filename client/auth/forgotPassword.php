@@ -19,12 +19,6 @@ $resetLink = "";
 
 require_once "../../server/data/database/database.php";
 
-if (!function_exists("e")) {
-    function e($value) {
-        return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
-    }
-}
-
 $database = new Database();
 $pdo = $database->connect();
 
@@ -179,8 +173,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <h2>Reset Your Password</h2>
 
                 <?php if ($message !== ""): ?>
-                    <div class="message <?php echo e($status); ?>">
-                        <?php echo e($message); ?>
+                    <div class="message <?php echo ssasEscape($status); ?>">
+                        <?php echo ssasEscape($message); ?>
                     </div>
                 <?php endif; ?>
 
@@ -188,14 +182,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <div class="local-reset">
                         <strong>Local reset link</strong>
                         SMTP is disabled in this local setup. Use this link to reset the account password. The link expires in 1 hour.
-                        <a href="<?php echo e($resetLink); ?>">Open Password Reset Page</a>
+                        <a href="<?php echo ssasEscape($resetLink); ?>">Open Password Reset Page</a>
                     </div>
                 <?php endif; ?>
 
                 <?php if ($resetLink === ""): ?>
                     <form method="POST" data-email-validation>
                         <div class="field">
-                            <input type="email" name="email" placeholder="Enter your university email" value="<?php echo e($_POST['email'] ?? ''); ?>" required>
+                            <input type="email" name="email" placeholder="Enter your university email" value="<?php echo ssasEscape($_POST['email'] ?? ''); ?>" required>
                         </div>
                         <div class="button-row">
                             <button type="submit">Send Reset Link</button>

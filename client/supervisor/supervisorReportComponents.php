@@ -22,7 +22,7 @@ function reportExportMenu($reportType, $filters = []) {
 
     return "
         <form class=\"export-menu\" method=\"GET\" action=\"../../server/application/supervisor/exportSupervisorReport.php\" onsubmit=\"return prepareReportExport(this);\">
-            <input type=\"hidden\" name=\"reportType\" value=\"" . e($reportType) . "\">
+            <input type=\"hidden\" name=\"reportType\" value=\"" . ssasEscape($reportType) . "\">
             " . reportHiddenInputs($filters) . "
             <select name=\"format\" aria-label=\"Export format\">
                 <option value=\"pdf\">PDF</option>
@@ -47,7 +47,7 @@ function reportHiddenInputs($filters) {
     $html = "";
 
     foreach ($filters as $key => $value) {
-        $html .= "<input type=\"hidden\" name=\"" . e($key) . "\" value=\"" . e($value) . "\">";
+        $html .= "<input type=\"hidden\" name=\"" . ssasEscape($key) . "\" value=\"" . ssasEscape($value) . "\">";
     }
 
     return $html;

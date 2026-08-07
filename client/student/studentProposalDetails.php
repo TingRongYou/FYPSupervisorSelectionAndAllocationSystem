@@ -2,7 +2,7 @@
 
 require_once "../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/data/dao/RequestDAO.php";
-require_once __DIR__ . "/studentLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 
 SessionManager::startSession();
 SessionManager::requireRole("Student");
@@ -12,10 +12,6 @@ $requestID = (int) ($_GET["requestID"] ?? 0);
 $requestDAO = new RequestDAO();
 
 $request = $requestID > 0 ? $requestDAO->getApplicationRequestForStudent($requestID, $_SESSION["userID"]) : null;
-
-function e($value) {
-    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
-}
 
 function proposalStatusClass($status) {
     $status = strtolower(trim((string) $status));
@@ -46,7 +42,7 @@ function proposalStatusClass($status) {
 <body>
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="layout">
-        <?php echo studentSidebar("application-status"); ?>
+        <?php echo ssasPortalSidebar("application-status"); ?>
         <main class="main">
             <div class="details-shell">
                 <div class="breadcrumb"><a href="studentApplicationStatus.php">Application Status</a> &gt; Proposal Details</div>
@@ -58,19 +54,19 @@ function proposalStatusClass($status) {
                         <header class="details-header">
                             <div>
                                 <p class="eyebrow">Project Proposal</p>
-                                <h1><?php echo e($request["projectTitle"]); ?></h1>
+                                <h1><?php echo ssasEscape($request["projectTitle"]); ?></h1>
                             </div>
                         </header>
 
                         <section class="decision-panel">
                             <div class="decision-heading">
                                 <h2 class="decision-label">Supervisor Decision</h2>
-                                <span class="status <?php echo e(proposalStatusClass($request["decisionStatus"])); ?>">
-                                    <?php echo e($request["decisionStatus"]); ?>
+                                <span class="status <?php echo ssasEscape(proposalStatusClass($request["decisionStatus"])); ?>">
+                                    <?php echo ssasEscape($request["decisionStatus"]); ?>
                                 </span>
                             </div>
                             <span class="comment-label">Supervisor Comment</span>
-                            <div class="comment"><?php echo e(trim((string) $request["supervisorComment"]) !== "" ? $request["supervisorComment"] : "No supervisor comment has been recorded."); ?></div>
+                            <div class="comment"><?php echo ssasEscape(trim((string) $request["supervisorComment"]) !== "" ? $request["supervisorComment"] : "No supervisor comment has been recorded."); ?></div>
                         </section>
 
                         <?php if (trim((string) $request["proposalPDFPath"]) !== ""): ?>
@@ -78,10 +74,10 @@ function proposalStatusClass($status) {
                             <div class="pdf-viewer">
                                 <div class="pdf-toolbar">
                                     <div class="pdf-title">Proposal Document</div>
-                                    <a class="pdf-action" href="<?php echo e($proposalUrl); ?>" target="_blank">Open in New Tab</a>
+                                    <a class="pdf-action" href="<?php echo ssasEscape($proposalUrl); ?>" target="_blank">Open in New Tab</a>
                                 </div>
                                 <!-- iframe is used to display a webpage in a webpage -->
-                                <iframe class="pdf-frame" src="<?php echo e($proposalUrl); ?>" title="Proposal Document"></iframe>
+                                <iframe class="pdf-frame" src="<?php echo ssasEscape($proposalUrl); ?>" title="Proposal Document"></iframe>
                             </div>
                         <?php else: ?>
                             <section class="empty-state">No proposal PDF has been submitted for this request.</section>

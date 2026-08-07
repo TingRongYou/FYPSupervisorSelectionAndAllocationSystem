@@ -2,7 +2,7 @@
 
 require_once __DIR__ . "/../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/StudentReviewService.php";
-require_once __DIR__ . "/supervisorLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 require_once __DIR__ . "/supervisorReportComponents.php";
 
 SessionManager::startSession();
@@ -28,9 +28,9 @@ function stars($rating) {
     ?>
 </head>
 <body>
-    <?php echo supervisorTopbar(); ?>
+    <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="content-shell">
-        <?php echo supervisorSidebar("student-reviews"); ?>
+        <?php echo ssasPortalSidebar("student-reviews"); ?>
         <main class="main">
             <div class="report-shell">
                 <header class="report-head report-hero">
@@ -47,7 +47,7 @@ function stars($rating) {
                     <section class="review-summary">
                         <div>
                             <span>Total Reviews</span>
-                            <strong><?php echo e(count($reviews)); ?></strong>
+                            <strong><?php echo ssasEscape(count($reviews)); ?></strong>
                         </div>
                         <div>
                             <span>Privacy</span>
@@ -59,20 +59,20 @@ function stars($rating) {
                             <article class="report-card review-card">
                                 <div class="review-top">
                                     <div class="review-person">
-                                        <span class="student-chip"><?php echo e(reportInitials($review["authorName"])); ?></span>
+                                        <span class="student-chip"><?php echo ssasEscape(reportInitials($review["authorName"])); ?></span>
                                         <div>
-                                            <p class="review-author"><?php echo e($review["authorName"]); ?></p>
+                                            <p class="review-author"><?php echo ssasEscape($review["authorName"]); ?></p>
                                             <p class="review-id">
-                                                <?php echo $review["authorID"] !== "" ? "Student ID: " . e($review["authorID"]) : "Identity hidden by anonymous mode"; ?>
+                                                <?php echo ssasEscape($review["authorID"] !== "" ? "Student ID: " . $review["authorID"] : "Identity hidden by anonymous mode"); ?>
                                             </p>
                                         </div>
                                     </div>
-                                    <div class="stars" aria-label="<?php echo e((int) $review["starRating"]); ?> out of 5">
-                                        <?php echo e(stars($review["starRating"])); ?>
+                                    <div class="stars" aria-label="<?php echo ssasEscape((int) $review["starRating"]); ?> out of 5">
+                                        <?php echo ssasEscape(stars($review["starRating"])); ?>
                                     </div>
                                 </div>
                                 <p class="review-text">
-                                    <?php echo e(trim((string) $review["textFeedback"]) !== "" ? $review["textFeedback"] : "No written feedback was provided."); ?>
+                                    <?php echo ssasEscape(trim((string) $review["textFeedback"]) !== "" ? $review["textFeedback"] : "No written feedback was provided."); ?>
                                 </p>
                                 <?php if (!empty($review["isAnonymous"])): ?>
                                     <div class="privacy-note">Anonymous review: student identity is visible only to authorised administrators for audit purposes.</div>

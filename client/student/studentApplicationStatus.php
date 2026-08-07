@@ -2,7 +2,7 @@
 
 require_once "../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/data/dao/RequestDAO.php";
-require_once __DIR__ . "/studentLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 
 SessionManager::startSession();
 SessionManager::requireRole("Student");
@@ -11,10 +11,6 @@ $studentID = $_SESSION["userID"];
 $requestDAO = new RequestDAO();
 $requestDAO->expireTimedOutRequestsByStudent($studentID); // Automatically reject after 72 hours
 $applications = $requestDAO->getApplicationsByStudent($studentID); // Get student application details
-
-function e($value) {
-    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
-}
 
 // Translate database input to function output (CSS)
 function statusClass($status) {
@@ -86,16 +82,6 @@ function countdownText($expiresAt) {
         "m";
 }
 
-function statusMessage() {
-    if (!isset($_GET["status"], $_GET["message"])) {
-        return "";
-    }
-
-    $class = $_GET["status"] === "success" ? "success" : "error";
-
-    return "<div class=\"message {$class}\">" . e($_GET["message"]) . "</div>";
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -109,10 +95,10 @@ function statusMessage() {
 <body>
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="layout">
-        <?php echo studentSidebar("application-status"); ?>
+        <?php echo ssasPortalSidebar("application-status"); ?>
         <main class="main">
             <div class="status-shell">
-                <?php echo statusMessage(); ?>
+                <?php echo ssasStatusMessage(); ?>
                 <section class="page-header student-hero">
                     <div>
                         <p class="eyebrow">Request & Proposal</p>
@@ -181,32 +167,32 @@ function statusMessage() {
                             ?>
                             <article class="status-row">
                                 <div>
-                                    <p class="project-title"><?php echo e($application["projectTitle"]); ?></p>
-                                    <p class="project-sub">Request ID: <?php echo e($application["requestID"]); ?></p>
+                                    <p class="project-title"><?php echo ssasEscape($application["projectTitle"]); ?></p>
+                                    <p class="project-sub">Request ID: <?php echo ssasEscape($application["requestID"]); ?></p>
                                 </div>
                                 <div>
-                                    <p class="project-title"><?php echo e($application["supervisorName"]); ?></p>
-                                    <p class="project-sub"><?php echo e($application["employmentCategory"]); ?>, <?php echo e($application["programme"]); ?></p>
+                                    <p class="project-title"><?php echo ssasEscape($application["supervisorName"]); ?></p>
+                                    <p class="project-sub"><?php echo ssasEscape($application["employmentCategory"]); ?>, <?php echo ssasEscape($application["programme"]); ?></p>
                                 </div>
-                                <span class="muted"><?php echo e(formatDateText($application["applicationDate"])); ?></span>
-                                <span><span class="badge <?php echo e($class); ?>"><?php echo e(statusLabel($application["decisionStatus"])); ?></span></span>
+                                <span class="muted"><?php echo ssasEscape(formatDateText($application["applicationDate"])); ?></span>
+                                <span><span class="badge <?php echo ssasEscape($class); ?>"><?php echo ssasEscape(statusLabel($application["decisionStatus"])); ?></span></span>
                                 <div>
                                     <?php if ($isPending): ?>
-                                        <span class="countdown" data-expiry="<?php echo e($expiryMs); ?>">
-                                            <?php echo e(countdownText($application["ttlExpirationTimestamp"])); ?>
+                                        <span class="countdown" data-expiry="<?php echo ssasEscape($expiryMs); ?>">
+                                            <?php echo ssasEscape(countdownText($application["ttlExpirationTimestamp"])); ?>
                                         </span>
                                     <?php else: ?>
-                                        <span class="comment"><?php echo e($application["supervisorComment"] ?: "No supervisor comment recorded."); ?></span>
+                                        <span class="comment"><?php echo ssasEscape($application["supervisorComment"] ?: "No supervisor comment recorded."); ?></span>
                                     <?php endif; ?>
                                 </div>
                                     <!-- Dynamic action button based on proposal status-->
                                 <div>
                                     <div class="action-stack">
                                     <?php if (trim((string) $application["proposalPDFPath"]) !== ""): ?> <!-- If there is a proposal path, then view PDF-->
-                                        <a class="row-action secondary" href="studentProposalDetails.php?requestID=<?php echo e($application["requestID"]); ?>">View Details</a>
+                                        <a class="row-action secondary" href="studentProposalDetails.php?requestID=<?php echo ssasEscape($application["requestID"]); ?>">View Details</a>
                                     <?php endif; ?>
                                     <?php if ($isProposalRequested || $canResubmitRejectedProposal): ?> <!-- Submit or resubmit button-->
-                                        <a class="row-action" href="submitProposalForm.php?supervisorID=<?php echo urlencode($application["supervisorID"]); ?>&requestID=<?php echo e($application["requestID"]); ?>">
+                                        <a class="row-action" href="submitProposalForm.php?supervisorID=<?php echo urlencode($application["supervisorID"]); ?>&requestID=<?php echo ssasEscape($application["requestID"]); ?>">
                                             <?php echo $canResubmitRejectedProposal ? "Resubmit Proposal" : "Submit Proposal"; ?>
                                         </a>
                                     <?php endif; ?>

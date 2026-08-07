@@ -71,23 +71,6 @@ $academicStatusOptions = [
     "EP" => "EP"
 ];
 
-function e($value) {
-    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
-}
-
-function statusMessage() {
-    if (!isset($_GET["status"], $_GET["message"])) return "";
-    $class = $_GET["status"] === "success" ? "success" : "error";
-    return '<div class="message ' . $class . '">' . e($_GET["message"]) . '</div>';
-}
-
-function studentInitials($name) {
-    $parts  = preg_split("/\s+/", trim((string) $name));
-    $first  = strtoupper(substr($parts[0] ?? "S", 0, 1));
-    $second = strtoupper(substr($parts[1] ?? "",  0, 1));
-    return $first . $second;
-}
-
 function selected($a, $b) {
     return (string) $a === (string) $b ? "selected" : "";
 }
@@ -117,33 +100,10 @@ function filterUrl($status) {
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
 
     <div class="content-shell">
-        <aside class="sidebar">
-            <div class="role-card">
-                <div class="role-icon">A</div>
-                <div>
-                    <p class="role-title">SSAS Admin</p>
-                    <p class="role-subtitle">Management Portal</p>
-                </div>
-            </div>
-
-            <a class="nav-link" href="adminDashboard.php">Dashboard</a>
-            <a class="nav-link" href="supervisorsManagement.php">Supervisors Management</a>
-            <a class="nav-link active" href="studentEligibility.php">Students Eligibility</a>
-            <a class="nav-link" href="quotaManagement.php">Quota Management</a>
-            <a class="nav-link" href="autoAllocation.php">Allocations</a>
-            <a class="nav-link" href="adminSupervisorReviews.php">Supervisor Reviews Audit</a>
-            <button class="nav-link has-submenu" type="button" aria-expanded="false" aria-controls="admin-report-tree" onclick="toggleAdminReports(this)">
-                <span>Reports</span>
-                <span class="submenu-caret" aria-hidden="true">v</span>
-            </button>
-            <div class="report-tree" id="admin-report-tree">
-                <a class="report-child" href="adminCohortOverview.php">Cohort Overview</a>
-                <a class="report-child" href="adminAllocationSummary.php">Allocation Summary</a>
-            </div>
-        </aside>
+        <?php echo ssasPortalSidebar("eligibility"); ?>
 
         <main class="main eligibility-main">
-            <?php echo statusMessage(); ?>
+            <?php echo ssasStatusMessage(); ?>
 
             <div class="page-grid">
                 <div class="left-stack">
@@ -154,7 +114,7 @@ function filterUrl($status) {
                         </div>
                         <div class="hero-actions">
                             <form action="../../server/application/admin/runEligibilityBatch.php" method="POST">
-                                <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
+                                <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($csrfToken); ?>">
                                 <button class="btn btn-light" type="submit" <?php echo $hasUploadedEligibilityCSV ? "" : "disabled"; ?>>
                                     Run Eligibility Batch
                                 </button>
@@ -163,11 +123,11 @@ function filterUrl($status) {
                         <div class="hero-metrics">
                             <div class="metric">
                                 <div class="metric-label">Total Checked</div>
-                                <div class="metric-value"><?php echo e(number_format($totalStudents)); ?></div>
+                                <div class="metric-value"><?php echo ssasEscape(number_format($totalStudents)); ?></div>
                             </div>
                             <div class="metric eligible-metric">
                                 <div class="metric-label">Eligible Students</div>
-                                <div class="metric-value"><?php echo e(number_format($eligibleStudents)); ?></div>
+                                <div class="metric-value"><?php echo ssasEscape(number_format($eligibleStudents)); ?></div>
                             </div>
                         </div>
                     </article>
@@ -183,21 +143,21 @@ function filterUrl($status) {
                                 <div class="criteria-icon">C</div>
                                 <div>
                                     <p class="criteria-label">Minimum CGPA</p>
-                                    <p class="criteria-value">Greater than <?php echo e(number_format((float) $rules["minimumCGPA"], 2)); ?></p>
+                                    <p class="criteria-value">Greater than <?php echo ssasEscape(number_format((float) $rules["minimumCGPA"], 2)); ?></p>
                                 </div>
                             </div>
                             <div class="criteria-card">
                                 <div class="criteria-icon">S</div>
                                 <div>
                                     <p class="criteria-label">Current Semester</p>
-                                    <p class="criteria-value">Next sem <?php echo e($rules["requiredNextSemester"]); ?></p>
+                                    <p class="criteria-value">Next sem <?php echo ssasEscape($rules["requiredNextSemester"]); ?></p>
                                 </div>
                             </div>
                             <div class="criteria-card">
                                 <div class="criteria-icon">F</div>
                                 <div>
                                     <p class="criteria-label">Academic Status</p>
-                                    <p class="criteria-value">Not equal to <?php echo e($rules["blockedAcademicStatus"]); ?></p>
+                                    <p class="criteria-value">Not equal to <?php echo ssasEscape($rules["blockedAcademicStatus"]); ?></p>
                                 </div>
                             </div>
                         </div>
@@ -218,17 +178,17 @@ function filterUrl($status) {
                             </div>
                             <div class="upload-actions">
                                 <form class="upload-control" action="../../server/application/admin/uploadStudentEligibilityCSV.php" method="POST" enctype="multipart/form-data">
-                                    <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
+                                    <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($csrfToken); ?>">
                                     <span class="file-name <?php echo $hasUploadedFileName ? "has-file" : ""; ?>" id="fileName">
                                         <span class="file-state"><?php echo $hasUploadedFileName ? "Uploaded CSV" : "CSV file"; ?></span>
-                                        <span class="file-title"><?php echo e($hasUploadedFileName ? $uploadedFileName : "No file uploaded"); ?></span>
+                                        <span class="file-title"><?php echo ssasEscape($hasUploadedFileName ? $uploadedFileName : "No file uploaded"); ?></span>
                                     </span>
                                     <input type="file" id="studentCSV" name="studentCSV" accept=".csv,text/csv" required>
                                     <button class="btn btn-secondary btn-upload" id="uploadButton" type="button">Upload CSV</button>
                                 </form>
                                 <?php if ($hasUploadedFileName): ?>
                                     <form class="remove-upload-form" action="../../server/application/admin/removeStudentEligibilityCSV.php" method="POST">
-                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($csrfToken); ?>">
                                         <button class="btn btn-danger-soft" type="submit">Remove</button>
                                     </form>
                                 <?php endif; ?>
@@ -237,17 +197,17 @@ function filterUrl($status) {
 
                         <div class="rules-editor" id="rulesEditor">
                             <form class="rules-form" action="../../server/application/admin/updateEligibilityRules.php" method="POST">
-                                <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
+                                <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($csrfToken); ?>">
                                 <div>
                                     <label for="minimumCGPA">Minimum CGPA</label>
-                                    <input type="number" id="minimumCGPA" name="minimumCGPA" min="0" max="4" step="0.01" value="<?php echo e(number_format((float) $rules["minimumCGPA"], 2)); ?>" required>
+                                    <input type="number" id="minimumCGPA" name="minimumCGPA" min="0" max="4" step="0.01" value="<?php echo ssasEscape(number_format((float) $rules["minimumCGPA"], 2)); ?>" required>
                                 </div>
                                 <div>
                                     <label for="requiredNextSemester">Required Next Semester</label>
                                     <select id="requiredNextSemester" name="requiredNextSemester" required>
                                         <?php foreach ($semesterOptions as $semesterOption): ?>
-                                            <option value="<?php echo e($semesterOption); ?>" <?php echo selected($rules["requiredNextSemester"], $semesterOption); ?>>
-                                                <?php echo e($semesterOption); ?>
+                                            <option value="<?php echo ssasEscape($semesterOption); ?>" <?php echo selected($rules["requiredNextSemester"], $semesterOption); ?>>
+                                                <?php echo ssasEscape($semesterOption); ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -256,8 +216,8 @@ function filterUrl($status) {
                                     <label for="blockedAcademicStatus">Blocked Status</label>
                                     <select id="blockedAcademicStatus" name="blockedAcademicStatus" required>
                                         <?php foreach ($academicStatusOptions as $statusValue => $statusLabel): ?>
-                                            <option value="<?php echo e($statusValue); ?>" <?php echo selected($rules["blockedAcademicStatus"], $statusValue); ?>>
-                                                <?php echo e($statusLabel); ?>
+                                            <option value="<?php echo ssasEscape($statusValue); ?>" <?php echo selected($rules["blockedAcademicStatus"], $statusValue); ?>>
+                                                <?php echo ssasEscape($statusLabel); ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -274,14 +234,14 @@ function filterUrl($status) {
                         <div class="results-header">
                             <h2>Batch Processing Results</h2>
                             <div class="filter-group" role="group" aria-label="Filter by eligibility status">
-                                <a href="<?php echo e(filterUrl('all')); ?>" class="filter-pill <?php echo $filterStatus === 'all' ? 'active' : ''; ?>">
-                                    All <span class="pill-count"><?php echo e(count($students)); ?></span>
+                                <a href="<?php echo ssasEscape(filterUrl('all')); ?>" class="filter-pill <?php echo $filterStatus === 'all' ? 'active' : ''; ?>">
+                                    All <span class="pill-count"><?php echo ssasEscape(count($students)); ?></span>
                                 </a>
-                                <a href="<?php echo e(filterUrl('eligible')); ?>" class="filter-pill eligible-pill <?php echo $filterStatus === 'eligible' ? 'active' : ''; ?>">
-                                    Eligible <span class="pill-count"><?php echo e($eligibleStudents); ?></span>
+                                <a href="<?php echo ssasEscape(filterUrl('eligible')); ?>" class="filter-pill eligible-pill <?php echo $filterStatus === 'eligible' ? 'active' : ''; ?>">
+                                    Eligible <span class="pill-count"><?php echo ssasEscape($eligibleStudents); ?></span>
                                 </a>
-                                <a href="<?php echo e(filterUrl('ineligible')); ?>" class="filter-pill ineligible-pill <?php echo $filterStatus === 'ineligible' ? 'active' : ''; ?>">
-                                    Ineligible <span class="pill-count"><?php echo e($ineligibleStudents); ?></span>
+                                <a href="<?php echo ssasEscape(filterUrl('ineligible')); ?>" class="filter-pill ineligible-pill <?php echo $filterStatus === 'ineligible' ? 'active' : ''; ?>">
+                                    Ineligible <span class="pill-count"><?php echo ssasEscape($ineligibleStudents); ?></span>
                                 </a>
                             </div>
                         </div>
@@ -300,20 +260,20 @@ function filterUrl($status) {
                                 <article class="student-row">
                                     <div class="student-cell">
                                         <div class="student-avatar">
-                                            <?php echo e(studentInitials($student["fullName"])); ?>
+                                            <?php echo ssasEscape(ssasInitials($student["fullName"])); ?>
                                         </div>
                                         <div style="min-width:0;">
-                                            <p class="student-name"><?php echo e($student["fullName"]); ?></p>
-                                            <p class="muted"><?php echo e($student["universityEmail"]); ?></p>
+                                            <p class="student-name"><?php echo ssasEscape($student["fullName"]); ?></p>
+                                            <p class="muted"><?php echo ssasEscape($student["universityEmail"]); ?></p>
                                         </div>
                                     </div>
-                                    <div class="cell-text"><?php echo e($student["userID"]); ?></div>
-                                    <div class="cell-text"><?php echo e($student["programme"]); ?></div>
+                                    <div class="cell-text"><?php echo ssasEscape($student["userID"]); ?></div>
+                                    <div class="cell-text"><?php echo ssasEscape($student["programme"]); ?></div>
                                     <div>
                                         <?php if ((bool) $student["eligibilityStatus"]): ?>
-                                            <span class="badge eligible" title="<?php echo e($student["eligibilityReason"]); ?>">Eligible</span>
+                                            <span class="badge eligible" title="<?php echo ssasEscape($student["eligibilityReason"]); ?>">Eligible</span>
                                         <?php else: ?>
-                                            <span class="badge ineligible" title="<?php echo e($student["eligibilityReason"]); ?>">Ineligible</span>
+                                            <span class="badge ineligible" title="<?php echo ssasEscape($student["eligibilityReason"]); ?>">Ineligible</span>
                                         <?php endif; ?>
                                     </div>
                                 </article>
@@ -322,22 +282,22 @@ function filterUrl($status) {
 
                         <div class="results-footer">
                             <span>
-                                Showing <?php echo e($firstVisibleEntry); ?>–<?php echo e($lastVisibleEntry); ?> of <?php echo e(number_format($totalFiltered)); ?> entries
+                                Showing <?php echo ssasEscape($firstVisibleEntry); ?>–<?php echo ssasEscape($lastVisibleEntry); ?> of <?php echo ssasEscape(number_format($totalFiltered)); ?> entries
                                 <?php if ($filterStatus !== 'all'): ?>
                                     &nbsp;<span style="color:#0d5be8; font-weight:700;">(filtered)</span>
                                 <?php endif; ?>
                             </span>
                             <nav class="table-pager" aria-label="Student eligibility pagination">
                                 <?php if ($currentPage > 1): ?>
-                                    <a class="table-page-button" href="<?php echo e(pageUrl($currentPage - 1, $filterStatus)); ?>" aria-label="Previous eligibility page">&lt;</a>
+                                    <a class="table-page-button" href="<?php echo ssasEscape(pageUrl($currentPage - 1, $filterStatus)); ?>" aria-label="Previous eligibility page">&lt;</a>
                                 <?php else: ?>
                                     <span class="table-page-button disabled" aria-hidden="true">&lt;</span>
                                 <?php endif; ?>
 
-                                <span class="table-page-count">Page <?php echo e($currentPage); ?> of <?php echo e($totalPages); ?></span>
+                                <span class="table-page-count">Page <?php echo ssasEscape($currentPage); ?> of <?php echo ssasEscape($totalPages); ?></span>
 
                                 <?php if ($currentPage < $totalPages): ?>
-                                    <a class="table-page-button" href="<?php echo e(pageUrl($currentPage + 1, $filterStatus)); ?>" aria-label="Next eligibility page">&gt;</a>
+                                    <a class="table-page-button" href="<?php echo ssasEscape(pageUrl($currentPage + 1, $filterStatus)); ?>" aria-label="Next eligibility page">&gt;</a>
                                 <?php else: ?>
                                     <span class="table-page-button disabled" aria-hidden="true">&gt;</span>
                                 <?php endif; ?>
@@ -368,7 +328,7 @@ function filterUrl($status) {
                                 stroke-dashoffset="<?php echo $offset; ?>"/>
                         </svg>
                         <div class="ring-label">
-                            <strong><?php echo e($eligibleRate); ?>%</strong>
+                            <strong><?php echo ssasEscape($eligibleRate); ?>%</strong>
                             <span>Eligibility Rate</span>
                         </div>
                     </div>
@@ -377,19 +337,19 @@ function filterUrl($status) {
                         <div class="bar-row">
                             <div class="bar-info">
                                 <span class="bar-label"><span class="dot blue"></span> Eligible Students</span>
-                                <span class="bar-count eligible-count"><?php echo e(number_format($eligibleStudents)); ?></span>
+                                <span class="bar-count eligible-count"><?php echo ssasEscape(number_format($eligibleStudents)); ?></span>
                             </div>
                             <div class="bar-track">
-                                <span class="summary-fill eligible" style="width: <?php echo e($eligibleRate); ?>%;"></span>
+                                <span class="summary-fill eligible" style="width: <?php echo ssasEscape($eligibleRate); ?>%;"></span>
                             </div>
                         </div>
                         <div class="bar-row">
                             <div class="bar-info">
                                 <span class="bar-label"><span class="dot red"></span> Ineligible Students</span>
-                                <span class="bar-count"><?php echo e(number_format($ineligibleStudents)); ?></span>
+                                <span class="bar-count"><?php echo ssasEscape(number_format($ineligibleStudents)); ?></span>
                             </div>
                             <div class="bar-track">
-                                <span class="summary-fill ineligible" style="width: <?php echo e(max(0, 100 - $eligibleRate)); ?>%;"></span>
+                                <span class="summary-fill ineligible" style="width: <?php echo ssasEscape(max(0, 100 - $eligibleRate)); ?>%;"></span>
                             </div>
                         </div>
                     </div>

@@ -2,7 +2,7 @@
 
 require_once "../../server/application/auth/SessionManager.php";
 require_once "../../server/data/dao/RequestDAO.php";
-require_once __DIR__ . "/supervisorLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 
 SessionManager::startSession();
 SessionManager::requireRole("Supervisor");
@@ -61,11 +61,11 @@ function formatMonthYear($date) {
     ?>
 </head>
 <body>
-    <?php echo supervisorTopbar(); ?>
+    <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="content-shell">
-        <?php echo supervisorSidebar("incoming-requests"); ?>
+        <?php echo ssasPortalSidebar("incoming-requests"); ?>
         <main class="main">
-            <?php echo statusMessage(); ?>
+            <?php echo ssasStatusMessage(); ?>
             <section class="page-head incoming-hero">
                 <div>
                     <div class="eyebrow">Requests & Decisions</div>
@@ -74,7 +74,7 @@ function formatMonthYear($date) {
                 </div>
                 <div class="hero-stat">
                     <div class="stat-label">Displayed</div>
-                    <div class="stat-value"><?php echo e($totalApplications); ?></div>
+                    <div class="stat-value"><?php echo ssasEscape($totalApplications); ?></div>
                 </div>
             </section>
 
@@ -82,14 +82,14 @@ function formatMonthYear($date) {
                 <div class="search-row">
                     <div>
                         <label for="search">Search</label>
-                        <input id="search" name="search" value="<?php echo e($search); ?>" placeholder="Search by student name or ID">
+                        <input id="search" name="search" value="<?php echo ssasEscape($search); ?>" placeholder="Search by student name or ID">
                     </div>
                     <div>
                         <label for="status">Status</label>
                         <select id="status" name="status" onchange="this.form.submit()">
                             <?php foreach (["Pending", "Accepted", "Rejected", ""] as $option): ?>
-                                <option value="<?php echo e($option); ?>" <?php echo $status === $option ? "selected" : ""; ?>>
-                                    <?php echo $option === "" ? "All Statuses" : e($option); ?>
+                                <option value="<?php echo ssasEscape($option); ?>" <?php echo $status === $option ? "selected" : ""; ?>>
+                                    <?php echo ssasEscape($option === "" ? "All Statuses" : $option); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -99,8 +99,8 @@ function formatMonthYear($date) {
                         <select id="programme" name="programme" onchange="this.form.submit()">
                             <option value="">All Faculties</option>
                             <?php foreach ($programmes as $programmeOption): ?>
-                                <option value="<?php echo e($programmeOption); ?>" <?php echo $programme === $programmeOption ? "selected" : ""; ?>>
-                                    <?php echo e($programmeOption); ?>
+                                <option value="<?php echo ssasEscape($programmeOption); ?>" <?php echo $programme === $programmeOption ? "selected" : ""; ?>>
+                                    <?php echo ssasEscape($programmeOption); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -108,7 +108,7 @@ function formatMonthYear($date) {
                     <button class="button" type="submit">Apply Filters</button>
                 </div>
                 <div class="request-filter-summary">
-                    <span class="count-label">Displaying <?php echo e($start); ?>-<?php echo e($end); ?> of <?php echo e($totalApplications); ?> entries</span>
+                    <span class="count-label">Displaying <?php echo ssasEscape($start); ?>-<?php echo ssasEscape($end); ?> of <?php echo ssasEscape($totalApplications); ?> entries</span>
                 </div>
             </form>
 
@@ -116,8 +116,8 @@ function formatMonthYear($date) {
                 <?php if (empty($applications)): ?>
                     <div class="empty-state incoming-empty-state">
                         <span class="empty-icon">0</span>
-                        <h2><?php echo $status === "Pending" && $search === "" && $programme === "" ? "No Pending Requests" : "No Matching Requests"; ?></h2>
-                        <p><?php echo $status === "Pending" && $search === "" && $programme === "" ? "You currently have no pending student requests to review." : "Try changing the search, programme, or status filter."; ?></p>
+                        <h2><?php echo ssasEscape($status === "Pending" && $search === "" && $programme === "" ? "No Pending Requests" : "No Matching Requests"); ?></h2>
+                        <p><?php echo ssasEscape($status === "Pending" && $search === "" && $programme === "" ? "You currently have no pending student requests to review." : "Try changing the search, programme, or status filter."); ?></p>
                     </div>
                 <?php else: ?>
                     <table>
@@ -136,28 +136,28 @@ function formatMonthYear($date) {
                                 <tr>
                                     <td>
                                         <div class="student-cell">
-                                            <div class="avatar"><?php echo e(supervisorInitials($application["fullName"])); ?></div>
-                                            <div class="student-name"><?php echo e($application["fullName"]); ?></div>
+                                            <div class="avatar"><?php echo ssasEscape(ssasInitials($application["fullName"])); ?></div>
+                                            <div class="student-name"><?php echo ssasEscape($application["fullName"]); ?></div>
                                         </div>
                                     </td>
-                                    <td><?php echo e($application["studentID"]); ?></td>
-                                    <td><?php echo e($application["programme"]); ?></td>
-                                    <td><?php echo e(formatMonthYear($application["applicationDate"])); ?></td>
-                                    <td><span class="status <?php echo e(statusClass($application["decisionStatus"])); ?>"><?php echo e($application["decisionStatus"]); ?></span></td>
-                                    <td><a class="link-action" href="supervisorRequestDecision.php?requestID=<?php echo e($application["requestID"]); ?>">View Proposal</a></td>
+                                    <td><?php echo ssasEscape($application["studentID"]); ?></td>
+                                    <td><?php echo ssasEscape($application["programme"]); ?></td>
+                                    <td><?php echo ssasEscape(formatMonthYear($application["applicationDate"])); ?></td>
+                                    <td><span class="status <?php echo ssasEscape(statusClass($application["decisionStatus"])); ?>"><?php echo ssasEscape($application["decisionStatus"]); ?></span></td>
+                                    <td><a class="link-action" href="supervisorRequestDecision.php?requestID=<?php echo ssasEscape($application["requestID"]); ?>">View Proposal</a></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
                     <div class="footer-row">
-                        <span>Showing <?php echo e($start); ?> to <?php echo e($end); ?> of <?php echo e($totalApplications); ?> entries</span>
+                        <span>Showing <?php echo ssasEscape($start); ?> to <?php echo ssasEscape($end); ?> of <?php echo ssasEscape($totalApplications); ?> entries</span>
                         <div class="pager">
                             <?php if ($page > 1): ?>
-                                <a href="?<?php echo e(http_build_query(array_merge($_GET, ["page" => $page - 1]))); ?>">&lt;</a>
+                                <a href="?<?php echo ssasEscape(http_build_query(array_merge($_GET, ["page" => $page - 1]))); ?>">&lt;</a>
                             <?php endif; ?>
-                            <span class="active"><?php echo e($page); ?></span>
+                            <span class="active"><?php echo ssasEscape($page); ?></span>
                             <?php if ($page < $totalPages): ?>
-                                <a href="?<?php echo e(http_build_query(array_merge($_GET, ["page" => $page + 1]))); ?>">&gt;</a>
+                                <a href="?<?php echo ssasEscape(http_build_query(array_merge($_GET, ["page" => $page + 1]))); ?>">&gt;</a>
                             <?php endif; ?>
                         </div>
                     </div>

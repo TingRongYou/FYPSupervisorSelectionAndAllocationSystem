@@ -426,36 +426,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
-/* ==========================================================================
-   5. SIDEBAR DROPDOWN TOGGLES
-   ========================================================================== */
-window.toggleSupervisorSubnav = function(element) {
-    const targetID = element.dataset.subnavTarget;
-    const subnav = targetID
-        ? document.getElementById(targetID)
-        : element.nextElementSibling;
-
-    if (!subnav || !subnav.classList.contains("subnav")) {
-        return;
-    }
-
-    const isClosed =
-        subnav.hidden ||
-        subnav.style.display === "none" ||
-        window.getComputedStyle(subnav).display === "none";
-
-    subnav.hidden = false;
-    subnav.style.display = isClosed ? "block" : "none";
-    element.classList.toggle("active", isClosed);
-    element.setAttribute("aria-expanded", isClosed ? "true" : "false");
-
-    const chevron = element.querySelector(".nav-chevron");
-    if (chevron) {
-        chevron.style.transform = isClosed ? "rotate(-180deg)" : "rotate(0deg)";
-        chevron.style.transition = "transform 0.2s ease";
-    }
-};
-
 document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll(".sidebar .nav-parent[data-subnav-target]").forEach(function(parent) {
         parent.addEventListener("click", function() {

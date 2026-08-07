@@ -219,6 +219,28 @@ html, body { margin: 0; padding: 0; font-family: 'Open Sans', Arial, Helvetica, 
 }
 .portal-main { flex: 1; padding: 26px 28px 42px; max-width: 100%; }
 
+/* Shared Card Component */
+.card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Shared Summary Strip Layout */
+.summary-strip {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.summary-strip .updated {
+    margin-left: auto; /* This pushes the timestamp all the way to the right! */
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
 /* ==========================================================================
    GLOBAL PROFILE PAGE (client/shared/profile.php)
    ========================================================================== */

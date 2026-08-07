@@ -2,16 +2,12 @@
 
 require_once "../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/TemporalPhaseEngine.php";
-require_once __DIR__ . "/studentLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 
 SessionManager::startSession();
 SessionManager::requireRole("Student");
 
 $timeline = TemporalPhaseEngine::getInstance()->getPhasePayload();
-
-function e($value) {
-    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
-}
 
 function phaseClass($status) {
     $status = strtolower((string) $status);
@@ -51,7 +47,7 @@ function formatDateTimeText($value) {
 <body>
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="layout">
-        <?php echo studentSidebar("timeline"); ?>
+        <?php echo ssasPortalSidebar("timeline"); ?>
         <main class="main">
             <div class="page-shell">
                 <section class="page-header student-hero">
@@ -61,22 +57,22 @@ function formatDateTimeText($value) {
                         <p class="subtitle">Monitor the active academic phase and proposal submission lock using the central SSAS server clock.</p>
                     </div>
                     <span class="server-pill" id="serverClock">
-                        Server Time: <?php echo e($timeline["serverTime"]); ?>
+                        Server Time: <?php echo ssasEscape($timeline["serverTime"]); ?>
                     </span>
                 </section>
 
                 <section class="hero">
                     <div class="hero-grid">
                         <div>
-                            <p class="phase-label" id="phaseStatus"><?php echo e($timeline["phaseStatus"]); ?></p>
-                            <h2 class="phase-title" id="phaseTitle"><?php echo e($timeline["activePhaseName"]); ?></h2>
-                            <p class="phase-message" id="phaseMessage"><?php echo e($timeline["message"]); ?></p>
+                            <p class="phase-label" id="phaseStatus"><?php echo ssasEscape($timeline["phaseStatus"]); ?></p>
+                            <h2 class="phase-title" id="phaseTitle"><?php echo ssasEscape($timeline["activePhaseName"]); ?></h2>
+                            <p class="phase-message" id="phaseMessage"><?php echo ssasEscape($timeline["message"]); ?></p>
                         </div>
                         <div class="countdown-box">
                             <p class="countdown-label">Remaining Time</p>
-                            <div class="countdown-value" id="countdownValue"><?php echo e($timeline["remainingText"]); ?></div>
+                            <div class="countdown-value" id="countdownValue"><?php echo ssasEscape($timeline["remainingText"]); ?></div>
                             <div class="countdown-caption" id="countdownCaption">
-                                <?php echo e($timeline["endTimestamp"] ? "Ends " . formatDateTimeText($timeline["endTimestamp"]) : "No active deadline"); ?>
+                                <?php echo ssasEscape($timeline["endTimestamp"] ? "Ends " . formatDateTimeText($timeline["endTimestamp"]) : "No active deadline"); ?>
                             </div>
                         </div>
                     </div>
@@ -91,11 +87,11 @@ function formatDateTimeText($value) {
                     </article>
                     <article class="info-card">
                         <p class="info-label">Current Phase Start</p>
-                        <p class="info-value" id="phaseStart"><?php echo e(formatDateTimeText($timeline["startTimestamp"])); ?></p>
+                        <p class="info-value" id="phaseStart"><?php echo ssasEscape(formatDateTimeText($timeline["startTimestamp"])); ?></p>
                     </article>
                     <article class="info-card">
                         <p class="info-label">Current Phase End</p>
-                        <p class="info-value" id="phaseEnd"><?php echo e(formatDateTimeText($timeline["endTimestamp"])); ?></p>
+                        <p class="info-value" id="phaseEnd"><?php echo ssasEscape(formatDateTimeText($timeline["endTimestamp"])); ?></p>
                     </article>
                 </section>
 
@@ -111,10 +107,10 @@ function formatDateTimeText($value) {
                         <?php else: ?>
                             <?php foreach ($timeline["phases"] as $phase): ?>
                                 <div class="phase-row">
-                                    <div class="phase-name"><?php echo e($phase["phaseName"]); ?></div>
-                                    <div class="date-text">Start: <?php echo e(formatDateTimeText($phase["startTimestamp"])); ?></div>
-                                    <div class="date-text">End: <?php echo e(formatDateTimeText($phase["endTimestamp"])); ?></div>
-                                    <span class="phase-badge <?php echo e(phaseClass($phase["status"])); ?>"><?php echo e($phase["status"]); ?></span>
+                                    <div class="phase-name"><?php echo ssasEscape($phase["phaseName"]); ?></div>
+                                    <div class="date-text">Start: <?php echo ssasEscape(formatDateTimeText($phase["startTimestamp"])); ?></div>
+                                    <div class="date-text">End: <?php echo ssasEscape(formatDateTimeText($phase["endTimestamp"])); ?></div>
+                                    <span class="phase-badge <?php echo ssasEscape(phaseClass($phase["status"])); ?>"><?php echo ssasEscape($phase["status"]); ?></span>
                                 </div>
                             <?php endforeach; ?>
                         <?php endif; ?>

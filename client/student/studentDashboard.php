@@ -5,7 +5,7 @@ require_once __DIR__ . "/../../server/business/services/SupervisorDiscoveryServi
 require_once __DIR__ . "/../../server/business/services/TemporalPhaseEngine.php";
 require_once __DIR__ . "/../../server/data/dao/RequestDAO.php";
 require_once __DIR__ . "/../../server/data/dao/TagDAO.php";
-require_once __DIR__ . "/studentLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 
 SessionManager::startSession();
 SessionManager::requireLogin();
@@ -42,15 +42,6 @@ $phaseEnd         = !empty($timeline["activePhase"]) ? ($timeline["endTimestamp"
 $phaseLabel       = !empty($timeline["activePhase"]) ? ($timeline["activePhaseName"] ?? "No Active Phase") : (!empty($timeline["nextPhase"]["phaseName"]) ? "Next: " . $timeline["nextPhase"]["phaseName"] : "No Active Phase");
 $serverEpoch      = $timeline["serverEpoch"] ?? time();
 
-function e($value) {
-    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
-}
-function initials($name) {
-    $parts  = preg_split("/\s+/", trim((string) $name));
-    $first  = strtoupper(substr($parts[0] ?? "S", 0, 1));
-    $second = strtoupper(substr($parts[1] ?? "",  0, 1));
-    return $first . $second;
-}
 function requestClass($status) {
     $n = strtolower(trim((string) $status));
     if ($n === "approved" || $n === "accepted") return "approved";
@@ -70,15 +61,15 @@ function requestClass($status) {
     ?>
     <script>
         window.ssasDashboardConfig = {
-            phaseEnd: "<?php echo e($phaseEnd); ?>",
-            serverEpoch: "<?php echo e($serverEpoch); ?>"
+            phaseEnd: "<?php echo ssasEscape($phaseEnd); ?>",
+            serverEpoch: "<?php echo ssasEscape($serverEpoch); ?>"
         };
     </script>
 </head>
 <body>
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="layout">
-        <?php echo studentSidebar("dashboard"); ?>
+        <?php echo ssasPortalSidebar("dashboard"); ?>
         <main class="main">
             <div class="dashboard-shell">
 
@@ -101,9 +92,9 @@ function requestClass($status) {
                     <section class="proposal-notice">
                         <div>
                             <strong>Proposal Requested</strong>
-                            <?php echo e($firstProposalRequest["supervisorName"]); ?> has requested your project proposal after allocation.
+                            <?php echo ssasEscape($firstProposalRequest["supervisorName"]); ?> has requested your project proposal after allocation.
                         </div>
-                        <a href="submitProposalForm.php?supervisorID=<?php echo urlencode($firstProposalRequest["supervisorID"]); ?>&requestID=<?php echo e($firstProposalRequest["requestID"]); ?>">
+                        <a href="submitProposalForm.php?supervisorID=<?php echo urlencode($firstProposalRequest["supervisorID"]); ?>&requestID=<?php echo ssasEscape($firstProposalRequest["requestID"]); ?>">
                             Submit Proposal
                         </a>
                     </section>
@@ -160,16 +151,16 @@ function requestClass($status) {
                                             <div class="supervisor-top">
                                                 <div class="avatar <?php echo $isOffline ? "offline" : ""; ?>">
                                                     <?php if (!empty($supervisor["profilePhotoPath"])): ?>
-                                                        <img src="<?php echo e($supervisor["profilePhotoPath"]); ?>" alt="">
+                                                        <img src="<?php echo ssasEscape($supervisor["profilePhotoPath"]); ?>" alt="">
                                                     <?php else: ?>
-                                                        <?php echo e(initials($supervisor["fullName"])); ?>
+                                                        <?php echo ssasEscape(ssasInitials($supervisor["fullName"])); ?>
                                                     <?php endif; ?>
                                                 </div>
                                                 <div class="top-right">
-                                                    <span class="status-pill <?php echo e($statusClass); ?>"><?php echo e($supervisor["status"]); ?></span>
+                                                    <span class="status-pill <?php echo ssasEscape($statusClass); ?>"><?php echo ssasEscape($supervisor["status"]); ?></span>
                                                     <div class="quota">
-                                                        <?php echo e($availabilityLabel); ?>
-                                                        <strong><?php echo e($quotaUsed); ?> / <?php echo e($quotaMax); ?></strong>
+                                                        <?php echo ssasEscape($availabilityLabel); ?>
+                                                        <strong><?php echo ssasEscape($quotaUsed); ?> / <?php echo ssasEscape($quotaMax); ?></strong>
                                                     </div>
                                                 </div>
                                             </div>
@@ -177,27 +168,27 @@ function requestClass($status) {
                                             <?php $matchCount = count($matchedTags); ?>
 
                                                 <div class="name-row">
-                                                    <h2 class="supervisor-name"><?php echo e($supervisor["fullName"]); ?></h2>
+                                                    <h2 class="supervisor-name"><?php echo ssasEscape($supervisor["fullName"]); ?></h2>
                                                     <?php if ($matchCount > 0): ?>
                                                         <span class="match-score"><?php echo $matchCount; ?> Match<?php echo $matchCount === 1 ? '' : 'es'; ?></span>
                                                     <?php endif; ?>
                                                 </div>
 
                                                 <div class="specialty">
-                                                    Specialization: <?php echo e($supervisor["programme"]); ?>, <?php echo e($supervisor["employmentCategory"]); ?>
+                                                    Specialization: <?php echo ssasEscape($supervisor["programme"]); ?>, <?php echo ssasEscape($supervisor["employmentCategory"]); ?>
                                                 </div>
 
                                                 <div class="tag-list">
-                                                    <span class="tag structural"><?php echo e($supervisor["programme"]); ?></span>
-                                                    <span class="tag structural"><?php echo e($supervisor["employmentCategory"]); ?></span>
-                                                    
+                                                    <span class="tag structural"><?php echo ssasEscape($supervisor["programme"]); ?></span>
+                                                    <span class="tag structural"><?php echo ssasEscape($supervisor["employmentCategory"]); ?></span>
+
                                                     <?php foreach ($matchedTags as $tagName): ?>
-                                                        <span class="tag"><?php echo e($tagName); ?></span>
+                                                        <span class="tag"><?php echo ssasEscape($tagName); ?></span>
                                                     <?php endforeach; ?>
                                                 </div>
 
                                             <?php if (!$canApply): ?>
-                                                <span class="btn-apply disabled"><?php echo e($supervisor["buttonLabel"] ?? "Application Closed"); ?></span>
+                                                <span class="btn-apply disabled"><?php echo ssasEscape($supervisor["buttonLabel"] ?? "Application Closed"); ?></span>
                                             <?php else: ?>
                                                 <a class="btn-apply" href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($supervisor["userID"]); ?>">
                                                     Apply for Supervision
@@ -225,7 +216,7 @@ function requestClass($status) {
                                 </div>
                                 <span class="stat-label">Status</span>
                             </div>
-                            <div class="stat-value"><?php echo e($allocationStatus); ?></div>
+                            <div class="stat-value"><?php echo ssasEscape($allocationStatus); ?></div>
                             <div class="stat-caption">Allocation Status</div>
                         </article>
 
@@ -238,15 +229,15 @@ function requestClass($status) {
                                 </div>
                                 <span class="stat-label">Real-Time</span>
                             </div>
-                            <div class="stat-value"><?php echo e($pendingRequests); ?></div>
+                            <div class="stat-value"><?php echo ssasEscape($pendingRequests); ?></div>
                             <div class="stat-caption">Active Requests</div>
                         </article>
 
                         <article class="timer-card">
-                            <p class="timer-phase"><?php echo e($phaseLabel); ?></p>
+                            <p class="timer-phase"><?php echo ssasEscape($phaseLabel); ?></p>
                             <div class="timer-value" id="phaseTimer">--:--:--</div>
                             <div class="timer-date">
-                                <?php echo $phaseEnd !== "" ? e(strtoupper(date("d M Y", strtotime($phaseEnd)))) : "No active phase"; ?>
+                                <?php echo $phaseEnd !== "" ? ssasEscape(strtoupper(date("d M Y", strtotime($phaseEnd)))) : "No active phase"; ?>
                             </div>
                         </article>
                     </section>
@@ -274,15 +265,15 @@ function requestClass($status) {
                                     <article class="request-item">
                                         <div class="request-avatar <?php echo (!empty($request['isOnline']) && $request['isOnline'] == 1) ? '' : 'offline'; ?>">
                                             <?php if (!empty($request["supervisorPhotoPath"])): ?>
-                                                <img src="<?php echo e($request["supervisorPhotoPath"]); ?>" alt="<?php echo e($request["supervisorName"]); ?>">
+                                                <img src="<?php echo ssasEscape($request["supervisorPhotoPath"]); ?>" alt="<?php echo ssasEscape($request["supervisorName"]); ?>">
                                             <?php else: ?>
-                                                <?php echo e(initials($request["supervisorName"])); ?>
+                                                <?php echo ssasEscape(ssasInitials($request["supervisorName"])); ?>
                                             <?php endif; ?>
                                         </div>
                                         <div>
-                                            <p class="request-name"><?php echo e($request["supervisorName"]); ?></p>
+                                            <p class="request-name"><?php echo ssasEscape($request["supervisorName"]); ?></p>
                                             <p class="request-expertise">
-                                                Project Title: <?php echo e($request["projectTitle"] ?? "—"); ?>
+                                                Project Title: <?php echo ssasEscape($request["projectTitle"] ?? "—"); ?>
                                             </p>
                                             <div class="request-meta-row">
                                                 <span class="request-meta-item">
@@ -292,23 +283,23 @@ function requestClass($status) {
                                                         <line x1="8"  y1="2" x2="8"  y2="6"/>
                                                         <line x1="3"  y1="10" x2="21" y2="10"/>
                                                     </svg>
-                                                    <?php echo e(date("d M Y", strtotime($request["applicationDate"]))); ?>
+                                                    <?php echo ssasEscape(date("d M Y", strtotime($request["applicationDate"]))); ?>
                                                 </span>
                                                 <span class="request-meta-item">
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                                         <polyline points="14 2 14 8 20 8"/>
                                                     </svg>
-                                                    <?php echo e($request["projectTitle"] ?? "Proposal"); ?>
+                                                    <?php echo ssasEscape($request["projectTitle"] ?? "Proposal"); ?>
                                                 </span>
                                             </div>
                                         </div>
                                         <div class="request-right">
-                                            <span class="request-status <?php echo e($statusCls); ?>">
-                                                <?php echo e($request["decisionStatus"]); ?>
+                                            <span class="request-status <?php echo ssasEscape($statusCls); ?>">
+                                                <?php echo ssasEscape($request["decisionStatus"]); ?>
                                             </span>
                                             <?php if ($request["decisionStatus"] === "Proposal Requested"): ?>
-                                                <a class="details-link" href="submitProposalForm.php?supervisorID=<?php echo urlencode($request["supervisorID"]); ?>&requestID=<?php echo e($request["requestID"]); ?>">Submit Proposal -></a>
+                                                <a class="details-link" href="submitProposalForm.php?supervisorID=<?php echo urlencode($request["supervisorID"]); ?>&requestID=<?php echo ssasEscape($request["requestID"]); ?>">Submit Proposal -></a>
                                             <?php else: ?>
                                                 <a class="details-link" href="studentApplicationStatus.php">Details -></a>
                                             <?php endif; ?>
@@ -336,15 +327,15 @@ function requestClass($status) {
                                 <a class="mini-item" href="studentSupervisorProfile.php?supervisorID=<?php echo urlencode($supervisor["userID"]); ?>">
                                     <span class="mini-avatar <?php echo (isset($supervisor['status']) && $supervisor['status'] === 'Online') ? '' : 'offline'; ?>">
                                         <?php if (!empty($supervisor["profilePhotoPath"])): ?>
-                                            <img src="<?php echo e($supervisor["profilePhotoPath"]); ?>" alt="<?php echo e($supervisor["fullName"]); ?>">
+                                            <img src="<?php echo ssasEscape($supervisor["profilePhotoPath"]); ?>" alt="<?php echo ssasEscape($supervisor["fullName"]); ?>">
                                         <?php else: ?>
-                                            <?php echo e(initials($supervisor["fullName"])); ?>
+                                            <?php echo ssasEscape(ssasInitials($supervisor["fullName"])); ?>
                                         <?php endif; ?>
                                     </span>
                                     <span>
-                                        <span class="mini-name"><?php echo e($supervisor["fullName"]); ?></span>
-                                        <span class="mini-status <?php echo e($miniStatusClass); ?>">
-                                            <?php echo e($supervisor["status"]); ?>
+                                        <span class="mini-name"><?php echo ssasEscape($supervisor["fullName"]); ?></span>
+                                        <span class="mini-status <?php echo ssasEscape($miniStatusClass); ?>">
+                                            <?php echo ssasEscape($supervisor["status"]); ?>
                                         </span>
                                     </span>
                                     <span class="mini-chevron">›</span>

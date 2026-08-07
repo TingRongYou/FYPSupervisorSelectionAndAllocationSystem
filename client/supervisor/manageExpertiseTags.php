@@ -2,7 +2,7 @@
 
 require_once __DIR__ . "/../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/TagManagementService.php";
-require_once __DIR__ . "/supervisorLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 
 SessionManager::startSession();
 SessionManager::requireRole("Supervisor");
@@ -60,13 +60,13 @@ function researchTagCode($tagName) {
     ?>
 </head>
 <body>
-    <?php echo supervisorTopbar(); ?>
+    <?php echo ssasTopbar("TAR UMT SSAS"); ?>
 
     <div class="content-shell">
-        <?php echo supervisorSidebar("expertise-tags"); ?>
+        <?php echo ssasPortalSidebar("expertise-tags"); ?>
 
         <main class="main">
-            <?php echo statusMessage(); ?>
+            <?php echo ssasStatusMessage(); ?>
 
             <section class="hero-card hero">
                 <div class="hero-content">
@@ -77,24 +77,24 @@ function researchTagCode($tagName) {
                 <div class="hero-stat">
                     <div class="hero-metric">
                         <div class="metric-label">Tag Utilization</div>
-                        <div class="stat-value"><?php echo e($tagCount); ?>/10</div>
+                        <div class="stat-value"><?php echo ssasEscape($tagCount); ?>/10</div>
                     </div>
 
                     <div class="hero-metric">
                         <div class="metric-label">Strength</div>
-                        <div class="strength-value"><?php echo e($strength); ?></div>
+                        <div class="strength-value"><?php echo ssasEscape($strength); ?></div>
                     </div>
                 </div>
             </section>
 
             <form class="tags-layout" action="../../server/application/supervisor/updateSupervisorTags.php" method="POST" id="tagForm">
-                <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($_SESSION["csrf_token"]); ?>">
 
                 <section class="card tag-card">
                     <div class="card-heading">
                         <h2 class="card-title">Selected Interests</h2>
                         <span class="active-badge" id="activeTagCount">
-                            <?php echo e($tagCount); ?> tags active
+                            <?php echo ssasEscape($tagCount); ?> tags active
                         </span>
                     </div>
 
@@ -103,8 +103,8 @@ function researchTagCode($tagName) {
                             <span class="selected-pill">No expertise selected</span>
                         <?php else: ?>
                             <?php foreach ($selectedTags as $tag): ?>
-                                <button class="selected-pill selected-tag" type="button" data-tag-id="<?php echo e((int) $tag["tagID"]); ?>">
-                                    <?php echo e($tag["tagName"]); ?>
+                                <button class="selected-pill selected-tag" type="button" data-tag-id="<?php echo ssasEscape((int) $tag["tagID"]); ?>">
+                                    <?php echo ssasEscape($tag["tagName"]); ?>
                                 </button>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -124,16 +124,16 @@ function researchTagCode($tagName) {
                                 <label class="tag-option">
                                     <span class="tag-name">
                                         <span class="tag-code">
-                                            <?php echo e(researchTagCode($tag["tagName"])); ?>
+                                            <?php echo ssasEscape(researchTagCode($tag["tagName"])); ?>
                                         </span>
-                                        <?php echo e($tag["tagName"]); ?>
+                                        <?php echo ssasEscape($tag["tagName"]); ?>
                                     </span>
 
                                     <input
                                         type="checkbox"
                                         name="tagIDs[]"
-                                        value="<?php echo e($tagID); ?>"
-                                        data-tag-name="<?php echo e($tag["tagName"]); ?>"
+                                        value="<?php echo ssasEscape($tagID); ?>"
+                                        data-tag-name="<?php echo ssasEscape($tag["tagName"]); ?>"
                                         <?php echo in_array($tagID, $selectedTagIDs, true) ? "checked" : ""; ?>
                                     >
                                 </label>
@@ -145,14 +145,14 @@ function researchTagCode($tagName) {
                 <aside class="side-stack">
                     <section class="card insight-card">
                         <div class="metric-label" style="color: #8a9caf;">Expertise Strength</div>
-                        <div class="score"><?php echo e($strength); ?></div>
+                        <div class="score"><?php echo ssasEscape($strength); ?></div>
                         <div class="visibility">Visibility Score</div>
 
                         <p style="color:#6b7f91; line-height:1.6; margin-top:10px;">
-                            Your tags currently cover <?php echo e($tagCount * 10); ?>% of relevant research queries in the department.
+                            Your tags currently cover <?php echo ssasEscape($tagCount * 10); ?>% of relevant research queries in the department.
                         </p>
 
-                        <div class="bars strength-<?php echo e(strtolower($strength)); ?>">
+                        <div class="bars strength-<?php echo ssasEscape(strtolower($strength)); ?>">
                             <span style="height:26px;"></span>
                             <span></span>
                             <span></span>

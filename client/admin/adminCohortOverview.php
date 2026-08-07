@@ -93,7 +93,7 @@ function rosterPageUrl($page, $filters) {
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
 
     <div class="content-shell">
-        <?php echo adminReportSidebar("cohort"); ?>
+        <?php echo ssasPortalSidebar("report-cohort"); ?>
 
         <main class="main cohort-overview-main">
             <div class="report-shell">
@@ -117,8 +117,8 @@ function rosterPageUrl($page, $filters) {
                             <select name="programme">
                                 <option value="">All Programmes</option>
                                 <?php foreach ($report["programmeOptions"] as $option): ?>
-                                    <option value="<?php echo e($option["programme"]); ?>" <?php echo selected($filters["programme"], $option["programme"]); ?>>
-                                        <?php echo e($option["programme"]); ?>
+                                    <option value="<?php echo ssasEscape($option["programme"]); ?>" <?php echo selected($filters["programme"], $option["programme"]); ?>>
+                                        <?php echo ssasEscape($option["programme"]); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -128,8 +128,8 @@ function rosterPageUrl($page, $filters) {
                             <select name="batch">
                                 <option value="">All Batches</option>
                                 <?php foreach ($report["batchOptions"] as $option): ?>
-                                    <option value="<?php echo e($option["intakeBatch"]); ?>" <?php echo selected($filters["batch"], $option["intakeBatch"]); ?>>
-                                        <?php echo e($option["intakeBatch"]); ?>
+                                    <option value="<?php echo ssasEscape($option["intakeBatch"]); ?>" <?php echo selected($filters["batch"], $option["intakeBatch"]); ?>>
+                                        <?php echo ssasEscape($option["intakeBatch"]); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -149,18 +149,18 @@ function rosterPageUrl($page, $filters) {
                 <section class="hero-grid">
                     <div class="cohort-card active-cohort-card">
                         <h2>Active Cohort</h2>
-                        <p><?php echo e(cohortLabel($filters["batch"], "All Batches")); ?> - <?php echo e(cohortLabel($filters["programme"], "All Programmes")); ?></p>
+                        <p><?php echo ssasEscape(cohortLabel($filters["batch"], "All Batches")); ?> - <?php echo ssasEscape(cohortLabel($filters["programme"], "All Programmes")); ?></p>
                         <div class="metric-row">
                             <div>
-                                <div class="metric-value"><?php echo e($report["totalStudents"]); ?></div>
+                                <div class="metric-value"><?php echo ssasEscape($report["totalStudents"]); ?></div>
                                 <div class="metric-label">Filtered Students</div>
                             </div>
                             <div>
-                                <div class="metric-value"><?php echo e($report["allocatedStudents"]); ?></div>
+                                <div class="metric-value"><?php echo ssasEscape($report["allocatedStudents"]); ?></div>
                                 <div class="metric-label">Allocated</div>
                             </div>
                             <div>
-                                <div class="metric-value text-danger-light"><?php echo e($report["unassignedStudents"]); ?></div>
+                                <div class="metric-value text-danger-light"><?php echo ssasEscape($report["unassignedStudents"]); ?></div>
                                 <div class="metric-label">Unassigned</div>
                             </div>
                         </div>
@@ -168,9 +168,9 @@ function rosterPageUrl($page, $filters) {
 
                     <div class="progress-card">
                         <div class="progress-label">Allocation Progress</div>
-                        <div class="progress-value"><?php echo e($report["allocationProgress"]); ?>%</div>
-                        <div class="meter"><span style="width: <?php echo e(min($report["allocationProgress"], 100)); ?>%;"></span></div>
-                        <p class="note">Filtered <?php echo e($report["totalStudents"]); ?> of <?php echo e($report["systemTotalStudents"]); ?> active student record(s) in real time.</p>
+                        <div class="progress-value"><?php echo ssasEscape($report["allocationProgress"]); ?>%</div>
+                        <div class="meter"><span style="width: <?php echo ssasEscape(min($report["allocationProgress"], 100)); ?>%;"></span></div>
+                        <p class="note">Filtered <?php echo ssasEscape($report["totalStudents"]); ?> of <?php echo ssasEscape($report["systemTotalStudents"]); ?> active student record(s) in real time.</p>
                     </div>
                 </section>
 
@@ -183,7 +183,7 @@ function rosterPageUrl($page, $filters) {
                     </div>
 
                     <?php if ($report["message"] !== ""): ?>
-                        <div class="empty-message"><?php echo e($report["message"]); ?></div>
+                        <div class="empty-message"><?php echo ssasEscape($report["message"]); ?></div>
                     <?php else: ?>
                         <div class="table-scroll">
                             <table class="report-table">
@@ -204,20 +204,20 @@ function rosterPageUrl($page, $filters) {
                                                 <div class="person-cell">
                                                     <div class="avatar">
                                                         <?php if (!empty($student["profilePhotoPath"])): ?>
-                                                            <img src="<?php echo e($student["profilePhotoPath"]); ?>" alt="">
+                                                            <img src="<?php echo ssasEscape($student["profilePhotoPath"]); ?>" alt="">
                                                         <?php else: ?>
-                                                            <?php echo e(adminReportInitials($student["fullName"])); ?>
+                                                            <?php echo ssasEscape(ssasInitials($student["fullName"])); ?>
                                                         <?php endif; ?>
                                                     </div>
                                                     <div>
-                                                        <p class="name"><?php echo e($student["fullName"]); ?></p>
-                                                        <p class="meta"><?php echo e($student["programme"]); ?> | <?php echo e($student["currentSem"]); ?></p>
+                                                        <p class="name"><?php echo ssasEscape($student["fullName"]); ?></p>
+                                                        <p class="meta"><?php echo ssasEscape($student["programme"]); ?> | <?php echo ssasEscape($student["currentSem"]); ?></p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td><?php echo e($student["studentID"]); ?></td>
-                                            <td><?php echo e($student["specializations"] ?: "No specialization"); ?></td>
-                                            <td><?php echo e($assigned ? $student["supervisorName"] : "Not Assigned"); ?></td>
+                                            <td><?php echo ssasEscape($student["studentID"]); ?></td>
+                                            <td><?php echo ssasEscape($student["specializations"] ?: "No specialization"); ?></td>
+                                            <td><?php echo ssasEscape($assigned ? $student["supervisorName"] : "Not Assigned"); ?></td>
                                             <td>
                                                 <span class="status-pill <?php echo $assigned ? "blue" : "red"; ?>">
                                                     <?php echo $assigned ? "Assigned" : "Unassigned"; ?>
@@ -229,18 +229,18 @@ function rosterPageUrl($page, $filters) {
                             </table>
                         </div>
                         <div class="pagination-note">
-                            <span>Showing <?php echo e($studentStart); ?>-<?php echo e($studentEnd); ?> of <?php echo e($studentTotal); ?> results</span>
+                            <span>Showing <?php echo ssasEscape($studentStart); ?>-<?php echo ssasEscape($studentEnd); ?> of <?php echo ssasEscape($studentTotal); ?> results</span>
                             <div class="table-pager" aria-label="Student roster pagination">
                                 <?php if ($rosterPage > 1): ?>
-                                    <a class="table-page-button" href="<?php echo e(rosterPageUrl($rosterPage - 1, $filters)); ?>" aria-label="Previous student roster page">&lt;</a>
+                                    <a class="table-page-button" href="<?php echo ssasEscape(rosterPageUrl($rosterPage - 1, $filters)); ?>" aria-label="Previous student roster page">&lt;</a>
                                 <?php else: ?>
                                     <span class="table-page-button disabled" aria-hidden="true">&lt;</span>
                                 <?php endif; ?>
 
-                                <span class="table-page-count">Page <?php echo e($rosterPage); ?> of <?php echo e($studentTotalPages); ?></span>
+                                <span class="table-page-count">Page <?php echo ssasEscape($rosterPage); ?> of <?php echo ssasEscape($studentTotalPages); ?></span>
 
                                 <?php if ($rosterPage < $studentTotalPages): ?>
-                                    <a class="table-page-button" href="<?php echo e(rosterPageUrl($rosterPage + 1, $filters)); ?>" aria-label="Next student roster page">&gt;</a>
+                                    <a class="table-page-button" href="<?php echo ssasEscape(rosterPageUrl($rosterPage + 1, $filters)); ?>" aria-label="Next student roster page">&gt;</a>
                                 <?php else: ?>
                                     <span class="table-page-button disabled" aria-hidden="true">&gt;</span>
                                 <?php endif; ?>

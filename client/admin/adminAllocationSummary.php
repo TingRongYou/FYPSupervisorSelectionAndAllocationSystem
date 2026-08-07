@@ -85,11 +85,12 @@ function allocationRosterPageUrl($page, $programme) {
     echo renderSsasHead("Allocation Summary", "admin"); 
     ?>
 </head>
-<body>cho ssasTopbar("TAR UMT SSAS"); ?>
+<body>
+    <?php echo ssasTopbar("TAR UMT SSAS"); ?>
 
     <!-- Page shell: shared topbar, report sidebar, and main report content. -->
     <div class="content-shell">
-        <?php echo adminReportSidebar("allocation"); ?>
+        <?php echo ssasPortalSidebar("report-allocation"); ?>
 
         <main class="main allocation-summary-main">
             <div class="report-shell">
@@ -109,18 +110,18 @@ function allocationRosterPageUrl($page, $programme) {
                 <section class="capacity-grid">
                     <div class="summary-card primary">
                         <div class="progress-label">Slot Utilization</div>
-                        <div class="summary-number"><?php echo e($report["slotUtilization"]); ?>%</div>
-                        <p class="note">Allocated Slots: <?php echo e($report["allocatedTotal"]); ?><br>Total Capacity: <?php echo e($report["totalCapacity"]); ?></p>
-                        <div class="meter"><span style="width: <?php echo e(min($report["slotUtilization"], 100)); ?>%;"></span></div>
+                        <div class="summary-number"><?php echo ssasEscape($report["slotUtilization"]); ?>%</div>
+                        <p class="note">Allocated Slots: <?php echo ssasEscape($report["allocatedTotal"]); ?><br>Total Capacity: <?php echo ssasEscape($report["totalCapacity"]); ?></p>
+                        <div class="meter"><span style="width: <?php echo ssasEscape(min($report["slotUtilization"], 100)); ?>%;"></span></div>
                     </div>
                     <div class="summary-card">
                         <div class="progress-label">Supervisors at Capacity</div>
-                        <div class="progress-value"><?php echo e($report["atCapacity"]); ?></div>
+                        <div class="progress-value"><?php echo ssasEscape($report["atCapacity"]); ?></div>
                         <p class="note">Highlighted where current allocations reach 100% of quota.</p>
                     </div>
                     <div class="summary-card">
                         <div class="progress-label">Pending Requests</div>
-                        <div class="progress-value"><?php echo e($report["pendingRequests"]); ?></div>
+                        <div class="progress-value"><?php echo ssasEscape($report["pendingRequests"]); ?></div>
                         <p class="note">Requests still waiting for supervisor decision.</p>
                     </div>
                 </section>
@@ -139,8 +140,8 @@ function allocationRosterPageUrl($page, $programme) {
                                 <select name="programme">
                                     <option value="">All Programmes</option>
                                     <?php foreach ($report["programmeOptions"] as $option): ?>
-                                        <option value="<?php echo e($option["programme"]); ?>" <?php echo selected($programme, $option["programme"]); ?>>
-                                            <?php echo e($option["programme"]); ?>
+                                        <option value="<?php echo ssasEscape($option["programme"]); ?>" <?php echo selected($programme, $option["programme"]); ?>>
+                                            <?php echo ssasEscape($option["programme"]); ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
@@ -150,7 +151,7 @@ function allocationRosterPageUrl($page, $programme) {
                     </div>
 
                     <?php if ($report["message"] !== ""): ?>
-                        <div class="empty-message"><?php echo e($report["message"]); ?></div>
+                        <div class="empty-message"><?php echo ssasEscape($report["message"]); ?></div>
                     <?php else: ?>
                         <div class="roster-list allocation-roster-list">
                             <?php foreach ($visibleSupervisors as $supervisor): ?>
@@ -158,54 +159,54 @@ function allocationRosterPageUrl($page, $programme) {
                                     $statusClass = capacityClass($supervisor["capacityStatus"]);
                                     $fillRate = (float) $supervisor["fillRate"];
                                 ?>
-                                <article class="roster-item <?php echo e($statusClass); ?>">
+                                <article class="roster-item <?php echo ssasEscape($statusClass); ?>">
                                     <div class="person-cell">
                                         <div class="avatar">
                                             <?php if (!empty($supervisor["profilePhotoPath"])): ?>
-                                                <img src="<?php echo e($supervisor["profilePhotoPath"]); ?>" alt="">
+                                                <img src="<?php echo ssasEscape($supervisor["profilePhotoPath"]); ?>" alt="">
                                             <?php else: ?>
-                                                <?php echo e(adminReportInitials($supervisor["fullName"])); ?>
+                                                <?php echo ssasEscape(ssasInitials($supervisor["fullName"])); ?>
                                             <?php endif; ?>
                                         </div>
                                         <div>
-                                            <p class="name"><?php echo e($supervisor["fullName"]); ?></p>
-                                            <p class="meta"><?php echo e($supervisor["programme"]); ?></p>
+                                            <p class="name"><?php echo ssasEscape($supervisor["fullName"]); ?></p>
+                                            <p class="meta"><?php echo ssasEscape($supervisor["programme"]); ?></p>
                                         </div>
                                     </div>
 
                                     <div>
-                                        <div class="load-label <?php echo e($statusClass); ?>">
-                                            <span><?php echo e($supervisor["capacityStatus"]); ?></span>
-                                            <span><?php echo e($supervisor["currentTotal"]); ?> / <?php echo e($supervisor["maxSuperviseesAllowed"]); ?></span>
+                                        <div class="load-label <?php echo ssasEscape($statusClass); ?>">
+                                            <span><?php echo ssasEscape($supervisor["capacityStatus"]); ?></span>
+                                            <span><?php echo ssasEscape($supervisor["currentTotal"]); ?> / <?php echo ssasEscape($supervisor["maxSuperviseesAllowed"]); ?></span>
                                         </div>
                                         <div class="meter">
-                                            <span style="width: <?php echo e(min($fillRate, 100)); ?>%; background: <?php echo $statusClass === "full" ? "#dc2626" : ($statusClass === "high" ? "#b45309" : "#0d5be8"); ?>;"></span>
+                                            <span style="width: <?php echo ssasEscape(min($fillRate, 100)); ?>%; background: <?php echo $statusClass === "full" ? "#dc2626" : ($statusClass === "high" ? "#b45309" : "#0d5be8"); ?>;"></span>
                                         </div>
                                     </div>
 
                                     <div class="last-active">
-                                        Last Active<br><?php echo e(adminLastActiveLabel($supervisor["lastAllocationDate"])); ?>
+                                        Last Active<br><?php echo ssasEscape(adminLastActiveLabel($supervisor["lastAllocationDate"])); ?>
                                     </div>
 
-                                    <div class="roster-status-chip <?php echo e($statusClass); ?>">
-                                        <?php echo e($supervisor["capacityStatus"]); ?>
+                                    <div class="roster-status-chip <?php echo ssasEscape($statusClass); ?>">
+                                        <?php echo ssasEscape($supervisor["capacityStatus"]); ?>
                                     </div>
                                 </article>
                             <?php endforeach; ?>
                         </div>
                         <div class="pagination-note">
-                            <span>Showing <?php echo e($supervisorStart); ?>-<?php echo e($supervisorEnd); ?> of <?php echo e($supervisorTotal); ?> supervisors</span>
+                            <span>Showing <?php echo ssasEscape($supervisorStart); ?>-<?php echo ssasEscape($supervisorEnd); ?> of <?php echo ssasEscape($supervisorTotal); ?> supervisors</span>
                             <div class="table-pager" aria-label="Supervisor capacity roster pagination">
                                 <?php if ($rosterPage > 1): ?>
-                                    <a class="table-page-button" href="<?php echo e(allocationRosterPageUrl($rosterPage - 1, $programme)); ?>" aria-label="Previous supervisor roster page">&lt;</a>
+                                    <a class="table-page-button" href="<?php echo ssasEscape(allocationRosterPageUrl($rosterPage - 1, $programme)); ?>" aria-label="Previous supervisor roster page">&lt;</a>
                                 <?php else: ?>
                                     <span class="table-page-button disabled" aria-hidden="true">&lt;</span>
                                 <?php endif; ?>
 
-                                <span class="table-page-count">Page <?php echo e($rosterPage); ?> of <?php echo e($supervisorTotalPages); ?></span>
+                                <span class="table-page-count">Page <?php echo ssasEscape($rosterPage); ?> of <?php echo ssasEscape($supervisorTotalPages); ?></span>
 
                                 <?php if ($rosterPage < $supervisorTotalPages): ?>
-                                    <a class="table-page-button" href="<?php echo e(allocationRosterPageUrl($rosterPage + 1, $programme)); ?>" aria-label="Next supervisor roster page">&gt;</a>
+                                    <a class="table-page-button" href="<?php echo ssasEscape(allocationRosterPageUrl($rosterPage + 1, $programme)); ?>" aria-label="Next supervisor roster page">&gt;</a>
                                 <?php else: ?>
                                     <span class="table-page-button disabled" aria-hidden="true">&gt;</span>
                                 <?php endif; ?>

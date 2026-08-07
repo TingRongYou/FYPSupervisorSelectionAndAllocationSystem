@@ -56,7 +56,7 @@ function auditDate($value) {
 <body>
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="content-shell">
-        <?php echo adminReportSidebar("reviews"); ?>
+        <?php echo ssasPortalSidebar("reviews"); ?>
         <main class="main admin-review-audit-main">
             <div class="report-shell">
                 <section class="hero-card review-audit-hero">
@@ -68,15 +68,15 @@ function auditDate($value) {
                     <div class="review-audit-metrics">
                         <div>
                             <span>Total Reviews</span>
-                            <strong><?php echo e($totalReviews); ?></strong>
+                            <strong><?php echo ssasEscape($totalReviews); ?></strong>
                         </div>
                         <div>
                             <span>Average Rating</span>
-                            <strong><?php echo e($averageRating); ?>/5.0</strong>
+                            <strong><?php echo ssasEscape($averageRating); ?>/5.0</strong>
                         </div>
                         <div>
                             <span>Visible Records</span>
-                            <strong><?php echo e($visibleReviews); ?></strong>
+                            <strong><?php echo ssasEscape($visibleReviews); ?></strong>
                         </div>
                     </div>
                 </section>
@@ -90,7 +90,7 @@ function auditDate($value) {
                     </article>
                     <article class="audit-stat-card">
                         <span>Anonymous to Supervisor</span>
-                        <strong><?php echo e($anonymousReviews); ?></strong>
+                        <strong><?php echo ssasEscape($anonymousReviews); ?></strong>
                     </article>
                 </section>
 
@@ -98,7 +98,7 @@ function auditDate($value) {
                     <div class="table-headline">
                         <div>
                             <h2>Submitted Reviews</h2>
-                            <p>Showing <?php echo e($totalReviews); ?> audit record(s)</p>
+                            <p>Showing <?php echo ssasEscape($totalReviews); ?> audit record(s)</p>
                         </div>
                     </div>
                     <div class="table-scroll">
@@ -122,16 +122,16 @@ function auditDate($value) {
                                 <?php else: ?>
                                     <?php foreach ($reviews as $review): ?>
                                         <tr>
-                                            <td>#<?php echo e($review["reviewID"]); ?></td>
+                                            <td>#<?php echo ssasEscape($review["reviewID"]); ?></td>
                                             <td>
-                                                <strong><?php echo e($review["trueStudentName"]); ?></strong>
-                                                <div class="meta"><?php echo e($review["trueStudentID"]); ?></div>
+                                                <strong><?php echo ssasEscape($review["trueStudentName"]); ?></strong>
+                                                <div class="meta"><?php echo ssasEscape($review["trueStudentID"]); ?></div>
                                             </td>
                                             <td>
-                                                <strong><?php echo e($review["supervisorName"]); ?></strong>
-                                                <div class="meta"><?php echo e($review["supervisorID"]); ?></div>
+                                                <strong><?php echo ssasEscape($review["supervisorName"]); ?></strong>
+                                                <div class="meta"><?php echo ssasEscape($review["supervisorID"]); ?></div>
                                             </td>
-                                            <td><span class="stars"><?php echo e(reviewStars($review["starRating"])); ?></span></td>
+                                            <td><span class="stars"><?php echo ssasEscape(reviewStars($review["starRating"])); ?></span></td>
                                             <td>
                                                 <?php if (!empty($review["isAnonymous"])): ?>
                                                     <span class="identity-pill anonymous">Anonymous to Supervisor</span>
@@ -139,10 +139,10 @@ function auditDate($value) {
                                                     <span class="identity-pill visible">Visible to Supervisor</span>
                                                 <?php endif; ?>
                                             </td>
-                                            <td class="feedback"><?php echo e(trim((string) $review["textFeedback"]) !== "" ? $review["textFeedback"] : "No written feedback."); ?></td>
+                                            <td class="feedback"><?php echo ssasEscape(trim((string) $review["textFeedback"]) !== "" ? $review["textFeedback"] : "No written feedback."); ?></td>
                                             <td>
-                                                <?php echo e(auditDate($review["allocationDate"])); ?>
-                                                <div class="meta"><?php echo e($review["allocationMethod"]); ?></div>
+                                                <?php echo ssasEscape(auditDate($review["allocationDate"])); ?>
+                                                <div class="meta"><?php echo ssasEscape($review["allocationMethod"]); ?></div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

@@ -2,7 +2,7 @@
 
 require_once __DIR__ . "/../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/SupervisorReportFacade.php";
-require_once __DIR__ . "/supervisorLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 require_once __DIR__ . "/supervisorReportComponents.php";
 
 // Supervisor Access Control
@@ -33,9 +33,9 @@ $maxTrendValue =max(1, (float) ($utilization["maxTrendValue"] ?? 1));
     ?>
 </head>
 <body>
-    <?php echo supervisorTopbar(); ?>
+    <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="content-shell">
-        <?php echo supervisorSidebar("report-utilization"); ?>
+        <?php echo ssasPortalSidebar("report-utilization"); ?>
         <main class="main">
             <div class="report-shell">
                 <section class="report-head report-hero">
@@ -56,14 +56,14 @@ $maxTrendValue =max(1, (float) ($utilization["maxTrendValue"] ?? 1));
                         <section class="report-card utilization-hero">
                             <div class="live-label">Live Utilization</div>
                             <div class="slot-value">
-                                <?php echo e($utilization["currentSlots"]); ?>/<?php echo e($utilization["quota"]); ?>
+                                <?php echo ssasEscape($utilization["currentSlots"]); ?>/<?php echo ssasEscape($utilization["quota"]); ?>
                                 <span>Slots Filled</span>
                             </div>
                             <div class="health-row">
-                                <span class="status-pill <?php echo $utilization["isFull"] ? "gray" : "green"; ?>">
-                                    <?php echo $utilization["isFull"] ? "Quota Filled" : "Optimal Utilization"; ?>
+                                <span class="status-pill <?php echo ssasEscape($utilization["isFull"] ? "gray" : "green"); ?>">
+                                    <?php echo ssasEscape($utilization["isFull"] ? "Quota Filled" : "Optimal Utilization"); ?>
                                 </span>
-                                <span class="stat-note"><?php echo e($utilization["availableSlots"]); ?> slot(s) remain available.</span>
+                                <span class="stat-note"><?php echo ssasEscape($utilization["availableSlots"]); ?> slot(s) remain available.</span>
                             </div>
                         </section>
 
@@ -90,17 +90,17 @@ $maxTrendValue =max(1, (float) ($utilization["maxTrendValue"] ?? 1));
                                     ?>
                                     <div class="bar-stack">
                                         <span class="bar department"
-                                              title="Department average: <?php echo e($day["departmentAverage"]); ?>"
-                                              style="height: <?php echo e($departmentHeight); ?>px;"></span>
+                                              title="Department average: <?php echo ssasEscape($day["departmentAverage"]); ?>"
+                                              style="height: <?php echo ssasEscape($departmentHeight); ?>px;"></span>
                                         <span class="bar personal"
-                                              title="Personal: <?php echo e($day["personal"]); ?>"
-                                              style="height: <?php echo e($personalHeight); ?>px;"></span>
+                                              title="Personal: <?php echo ssasEscape($day["personal"]); ?>"
+                                              style="height: <?php echo ssasEscape($personalHeight); ?>px;"></span>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
                             <div class="bar-labels">
                                 <?php foreach ($utilization["weeklyTrend"] as $day): ?>
-                                    <span><?php echo e($day["label"]); ?></span>
+                                    <span><?php echo ssasEscape($day["label"]); ?></span>
                                 <?php endforeach; ?>
                             </div>
                         </section>
@@ -112,16 +112,16 @@ $maxTrendValue =max(1, (float) ($utilization["maxTrendValue"] ?? 1));
                             <div class="benchmark-row">
                                 <div class="benchmark-label">
                                     <span>Your Fill Speed</span>
-                                    <strong><?php echo e($utilization["fillRate"]); ?>%</strong>
+                                    <strong><?php echo ssasEscape($utilization["fillRate"]); ?>%</strong>
                                 </div>
-                                <div class="track"><span style="width: <?php echo e($fillWidth); ?>%;"></span></div>
+                                <div class="track"><span style="width: <?php echo ssasEscape($fillWidth); ?>%;"></span></div>
                             </div>
                             <div class="benchmark-row">
                                 <div class="benchmark-label">
                                     <span>Department Avg</span>
-                                    <strong><?php echo e($utilization["departmentAverage"]); ?>%</strong>
+                                    <strong><?php echo ssasEscape($utilization["departmentAverage"]); ?>%</strong>
                                 </div>
-                                <div class="track gray"><span style="width: <?php echo e($departmentWidth); ?>%;"></span></div>
+                                <div class="track gray"><span style="width: <?php echo ssasEscape($departmentWidth); ?>%;"></span></div>
                             </div>
                             <p class="stat-note" style="margin-top: 18px;">The department average is anonymized and aggregated.</p>
                         </section>
@@ -131,15 +131,15 @@ $maxTrendValue =max(1, (float) ($utilization["maxTrendValue"] ?? 1));
                             <div class="health-list">
                                 <div class="health-item green">
                                     <div class="health-title">Slot Efficiency</div>
-                                    <div class="health-copy">Slot utilization is currently <?php echo e($utilization["fillRate"]); ?>% compared to your quota.</div>
+                                    <div class="health-copy">Slot utilization is currently <?php echo ssasEscape($utilization["fillRate"]); ?>% compared to your quota.</div>
                                 </div>
                                 <div class="health-item">
                                     <div class="health-title">Unused Capacity</div>
-                                    <div class="health-copy"><?php echo e($utilization["availableSlots"]); ?> slot(s) remain before the quota is full.</div>
+                                    <div class="health-copy"><?php echo ssasEscape($utilization["availableSlots"]); ?> slot(s) remain before the quota is full.</div>
                                 </div>
                                 <div class="health-item orange">
                                     <div class="health-title">Available Capacity</div>
-                                    <div class="health-copy"><?php echo e($utilization["message"] === "" ? "Quota is fully filled." : $utilization["message"]); ?></div>
+                                    <div class="health-copy"><?php echo ssasEscape($utilization["message"] === "" ? "Quota is fully filled." : $utilization["message"]); ?></div>
                                 </div>
                             </div>
                         </section>

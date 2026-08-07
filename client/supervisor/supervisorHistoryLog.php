@@ -2,7 +2,7 @@
 
 require_once __DIR__ . "/../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/SupervisorReportFacade.php";
-require_once __DIR__ . "/supervisorLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 require_once __DIR__ . "/supervisorReportComponents.php";
 
 // Supervisor Access Control
@@ -83,9 +83,9 @@ function historyPageUrl($page, $year, $semester) {
     ?>
 </head>
 <body>
-    <?php echo supervisorTopbar(); ?>
+    <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="content-shell">
-        <?php echo supervisorSidebar("report-history"); ?>
+        <?php echo ssasPortalSidebar("report-history"); ?>
         <main class="main">
             <div class="report-shell">
                 <section class="report-head history-hero">
@@ -100,13 +100,13 @@ function historyPageUrl($page, $year, $semester) {
                     <div class="history-stat-card">
                         <div>
                             <div class="label">Total Career Supervisions</div>
-                            <div class="value"><?php echo e($history["careerTotal"]); ?></div>
+                            <div class="value"><?php echo ssasEscape($history["careerTotal"]); ?></div>
                         </div>
-                        <span class="year-pill"><?php echo e(reportYearLabel($year)); ?></span>
+                        <span class="year-pill"><?php echo ssasEscape(reportYearLabel($year)); ?></span>
                     </div>
                     <div class="report-card field-card">
                         <div class="label">Primary Field</div>
-                        <div class="value"><?php echo e($history["primaryField"]); ?></div>
+                        <div class="value"><?php echo ssasEscape($history["primaryField"]); ?></div>
                         <p class="stat-note">Based on your supervisor expertise profile</p>
                     </div>
                 </section>
@@ -117,16 +117,16 @@ function historyPageUrl($page, $year, $semester) {
                         <select name="year" aria-label="Year">
                             <option value="">All Years</option>
                             <?php foreach ($history["years"] as $availableYear): ?>
-                                <option value="<?php echo e($availableYear); ?>" <?php echo (string) $year === (string) $availableYear ? "selected" : ""; ?>>
-                                    <?php echo e($availableYear); ?>
+                                <option value="<?php echo ssasEscape($availableYear); ?>" <?php echo (string) $year === (string) $availableYear ? "selected" : ""; ?>>
+                                    <?php echo ssasEscape($availableYear); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
                         <select name="semester" aria-label="Semester">
-                            <option value="" <?php echo $semester === "" ? "selected" : ""; ?>>All Semesters</option>
-                            <option value="1" <?php echo $semester === "1" ? "selected" : ""; ?>>Semester 1</option>
-                            <option value="2" <?php echo $semester === "2" ? "selected" : ""; ?>>Semester 2</option>
-                            <option value="3" <?php echo $semester === "3" ? "selected" : ""; ?>>Semester 3</option>
+                            <option value="" <?php echo ssasEscape($semester) === "" ? "selected" : ""; ?>>All Semesters</option>
+                            <option value="1" <?php echo ssasEscape($semester) === "1" ? "selected" : ""; ?>>Semester 1</option>
+                            <option value="2" <?php echo ssasEscape($semester) === "2" ? "selected" : ""; ?>>Semester 2</option>
+                            <option value="3" <?php echo ssasEscape($semester) === "3" ? "selected" : ""; ?>>Semester 3</option>
                         </select>
                         <button class="btn-apply" type="submit">Apply</button>
                     </form>
@@ -139,11 +139,11 @@ function historyPageUrl($page, $year, $semester) {
                             <h2 class="panel-title">Assignment Log</h2>
                             <p class="panel-subtitle">Sorted by newest allocation first, then student name A-Z.</p>
                         </div>
-                        <span class="year-pill"><?php echo e(reportSemesterLabel($semester)); ?></span>
+                        <span class="year-pill"><?php echo ssasEscape(reportSemesterLabel($semester)); ?></span>
                     </div>
                     <?php if ($history["message"] !== ""): ?>
                         <div style="padding: 0 24px 24px;">
-                            <div class="empty-message"><?php echo e($history["message"]); ?></div>
+                            <div class="empty-message"><?php echo ssasEscape($history["message"]); ?></div>
                         </div>
                     <?php else: ?>
                         <div class="table-scroll">
@@ -160,18 +160,18 @@ function historyPageUrl($page, $year, $semester) {
                                 <tbody>
                                     <?php foreach ($visibleHistoryRecords as $index => $record): ?>
                                         <tr>
-                                            <td><strong><?php echo e($record["completionYear"]); ?></strong></td>
-                                            <td><?php echo e(historySemesterLabel($record["currentSem"] ?? "")); ?></td>
+                                            <td><strong><?php echo ssasEscape($record["completionYear"]); ?></strong></td>
+                                            <td><?php echo ssasEscape(historySemesterLabel($record["currentSem"] ?? "")); ?></td>
                                             <td>
-                                                <span class="student-chip" style="background: <?php echo e(reportPalette()[$index % count(reportPalette())]); ?>">
-                                                    <?php echo e(reportInitials($record["alumniName"])); ?>
+                                                <span class="student-chip" style="background: <?php echo ssasEscape(reportPalette()[$index % count(reportPalette())]); ?>">
+                                                    <?php echo ssasEscape(reportInitials($record["alumniName"])); ?>
                                                 </span>
-                                                <?php echo e($record["alumniName"]); ?>
+                                                <?php echo ssasEscape($record["alumniName"]); ?>
                                             </td>
-                                            <td><?php echo e($record["projectTitle"]); ?></td>
+                                            <td><?php echo ssasEscape($record["projectTitle"]); ?></td>
                                             <td>
                                                 <span class="status-pill <?php echo ($record["allocationMethod"] ?? "") === "System Auto-Match" ? "blue" : "green"; ?>">
-                                                    <?php echo e($record["statusLabel"] ?? "Active"); ?>
+                                                    <?php echo ssasEscape($record["statusLabel"] ?? "Active"); ?>
                                                 </span>
                                             </td>
                                         </tr>
@@ -180,18 +180,18 @@ function historyPageUrl($page, $year, $semester) {
                             </table>
                         </div>
                         <div class="pagination-note">
-                            <span>Showing <?php echo e($historyStart); ?>-<?php echo e($historyEnd); ?> of <?php echo e($historyTotal); ?> historical record(s)</span>
+                            <span>Showing <?php echo ssasEscape($historyStart); ?>-<?php echo ssasEscape($historyEnd); ?> of <?php echo ssasEscape($historyTotal); ?> historical record(s)</span>
                             <div class="table-pager" aria-label="Supervision history pagination">
                                 <?php if ($historyPage > 1): ?>
-                                    <a class="table-page-button" href="<?php echo e(historyPageUrl($historyPage - 1, $year, $semester)); ?>" aria-label="Previous history page">&lt;</a>
+                                    <a class="table-page-button" href="<?php echo ssasEscape(historyPageUrl($historyPage - 1, $year, $semester)); ?>" aria-label="Previous history page">&lt;</a>
                                 <?php else: ?>
                                     <span class="table-page-button disabled" aria-hidden="true">&lt;</span>
                                 <?php endif; ?>
 
-                                <span class="table-page-count">Page <?php echo e($historyPage); ?> of <?php echo e($historyTotalPages); ?></span>
+                                <span class="table-page-count">Page <?php echo ssasEscape($historyPage); ?> of <?php echo ssasEscape($historyTotalPages); ?></span>
 
                                 <?php if ($historyPage < $historyTotalPages): ?>
-                                    <a class="table-page-button" href="<?php echo e(historyPageUrl($historyPage + 1, $year, $semester)); ?>" aria-label="Next history page">&gt;</a>
+                                    <a class="table-page-button" href="<?php echo ssasEscape(historyPageUrl($historyPage + 1, $year, $semester)); ?>" aria-label="Next history page">&gt;</a>
                                 <?php else: ?>
                                     <span class="table-page-button disabled" aria-hidden="true">&gt;</span>
                                 <?php endif; ?>

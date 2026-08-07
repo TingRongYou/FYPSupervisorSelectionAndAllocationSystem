@@ -3,7 +3,7 @@
 require_once __DIR__ . "/../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/SupervisorProfileService.php";
 require_once __DIR__ . "/../../server/business/services/TagManagementService.php";
-require_once __DIR__ . "/supervisorLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 
 SessionManager::startSession();
 SessionManager::requireRole("Supervisor");
@@ -74,11 +74,11 @@ if ($profile) {
     ?>
 </head>
 <body>
-    <?php echo supervisorTopbar(); ?>
+    <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="content-shell">
-        <?php echo supervisorSidebar("business-card"); ?>
+        <?php echo ssasPortalSidebar("business-card"); ?>
         <main class="main">
-            <?php echo statusMessage(); ?>
+            <?php echo ssasStatusMessage(); ?>
 
             <section class="hero">
                 <div>
@@ -87,8 +87,8 @@ if ($profile) {
                 </div>
                 <div class="hero-stat">
                     <div class="stat-label">Profile Completion</div>
-                    <div class="stat-value"><?php echo e($completion); ?>%</div>
-                    <div class="progress"><span style="width: <?php echo e($completion); ?>%;"></span></div>
+                    <div class="stat-value"><?php echo ssasEscape($completion); ?>%</div>
+                    <div class="progress"><span style="width: <?php echo ssasEscape($completion); ?>%;"></span></div>
                 </div>
             </section>
 
@@ -97,15 +97,15 @@ if ($profile) {
             <?php else: ?>
                 <section class="profile-grid">
                     <form class="card form-card" action="../../server/application/supervisor/updateSupervisorProfile.php" method="POST" enctype="multipart/form-data">
-                        <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($_SESSION["csrf_token"]); ?>">
                         <h2 class="form-title">Basic Information</h2>
                         <div class="basic-layout">
                             <div>
                                 <div class="photo-box" id="photoPreview">
                                     <?php if (!empty($profile["profilePhotoPath"])): ?>
-                                        <img src="<?php echo e($profile["profilePhotoPath"]); ?>" alt="Profile photo">
+                                        <img src="<?php echo ssasEscape($profile["profilePhotoPath"]); ?>" alt="Profile photo">
                                     <?php else: ?>
-                                        <?php echo e(supervisorInitials($profile["fullName"])); ?>
+                                        <?php echo ssasEscape(ssasInitials($profile["fullName"])); ?>
                                     <?php endif; ?>
                                     <span>*</span>
                                 </div>
@@ -123,34 +123,34 @@ if ($profile) {
                             <div class="field-grid">
                                 <div>
                                     <label>Full Name</label>
-                                    <input class="locked-field" type="text" value="<?php echo e($profile["fullName"]); ?>" readonly tabindex="-1">
+                                    <input class="locked-field" type="text" value="<?php echo ssasEscape($profile["fullName"]); ?>" readonly tabindex="-1">
                                 </div>
                                 <div class="two-col">
                                     <div>
                                         <label>Faculty Position</label>
-                                        <input class="locked-field" type="text" name="employmentCategory" value="<?php echo e($profile["employmentCategory"]); ?>" readonly tabindex="-1">
+                                        <input class="locked-field" type="text" name="employmentCategory" value="<?php echo ssasEscape($profile["employmentCategory"]); ?>" readonly tabindex="-1">
                                     </div>
                                     <div>
                                         <label>Programme</label>
-                                        <input class="locked-field" type="text" name="programme" value="<?php echo e($profile["programme"]); ?>" readonly tabindex="-1">
+                                        <input class="locked-field" type="text" name="programme" value="<?php echo ssasEscape($profile["programme"]); ?>" readonly tabindex="-1">
                                     </div>
                                 </div>
                                 <div>
                                     <label>Active Time</label>
-                                    <input type="text" name="activeTime" maxlength="100" value="<?php echo e($activeTime); ?>" placeholder="e.g. Monday 2:00 PM - 4:00 PM" required>
+                                    <input type="text" name="activeTime" maxlength="100" value="<?php echo ssasEscape($activeTime); ?>" placeholder="e.g. Monday 2:00 PM - 4:00 PM" required>
                                 </div>
                                 <div>
                                     <label>Short Biography</label>
-                                    <textarea name="supervisorBio" maxlength="500" required><?php echo e($defaultBio); ?></textarea>
+                                    <textarea name="supervisorBio" maxlength="500" required><?php echo ssasEscape($defaultBio); ?></textarea>
                                 </div>
                                 <div class="two-col">
                                     <div>
                                         <label>Email Address</label>
-                                        <input class="locked-field" type="email" value="<?php echo e($profile["universityEmail"]); ?>" readonly tabindex="-1">
+                                        <input class="locked-field" type="email" value="<?php echo ssasEscape($profile["universityEmail"]); ?>" readonly tabindex="-1">
                                     </div>
                                     <div>
                                         <label>Introductory Video Link</label>
-                                        <input type="text" name="introVideoLink" value="<?php echo e($profile["introVideoLink"]); ?>" placeholder="https://youtube.com/...">
+                                        <input type="text" name="introVideoLink" value="<?php echo ssasEscape($profile["introVideoLink"]); ?>" placeholder="https://youtube.com/...">
                                     </div>
                                 </div>
                                 <div>
@@ -160,7 +160,7 @@ if ($profile) {
                                             <span class="tag-pill">No tags selected</span>
                                         <?php else: ?>
                                             <?php foreach ($selectedTags as $tagName): ?>
-                                                <span class="tag-pill"><?php echo e($tagName); ?></span>
+                                                <span class="tag-pill"><?php echo ssasEscape($tagName); ?></span>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </div>
@@ -179,18 +179,18 @@ if ($profile) {
                             <div class="preview-body">
                                 <div class="preview-avatar">
                                     <?php if (!empty($profile["profilePhotoPath"])): ?>
-                                        <img src="<?php echo e($profile["profilePhotoPath"]); ?>" alt="Profile photo">
+                                        <img src="<?php echo ssasEscape($profile["profilePhotoPath"]); ?>" alt="Profile photo">
                                     <?php else: ?>
-                                        <?php echo e(supervisorInitials($profile["fullName"])); ?>
+                                        <?php echo ssasEscape(ssasInitials($profile["fullName"])); ?>
                                     <?php endif; ?>
                                 </div>
-                                <h2 class="preview-name"><?php echo e($profile["fullName"]); ?></h2>
-                                <div class="preview-role"><?php echo e($profile["employmentCategory"]); ?></div>
-                                <div class="preview-text">Programme: <?php echo e($profile["programme"]); ?></div>
-                                <div class="preview-text">Active Time: <?php echo e($activeTime); ?></div>
-                                <p class="preview-text"><?php echo e($defaultBio); ?></p>
-                                <p class="preview-text">Current supervision load: <?php echo e($profile["quotaText"] ?? "0/0 supervisees"); ?>.</p>
-                                <p class="preview-text"><?php echo e($profile["universityEmail"]); ?></p>
+                                <h2 class="preview-name"><?php echo ssasEscape($profile["fullName"]); ?></h2>
+                                <div class="preview-role"><?php echo ssasEscape($profile["employmentCategory"]); ?></div>
+                                <div class="preview-text">Programme: <?php echo ssasEscape($profile["programme"]); ?></div>
+                                <div class="preview-text">Active Time: <?php echo ssasEscape($activeTime); ?></div>
+                                <p class="preview-text"><?php echo ssasEscape($defaultBio); ?></p>
+                                <p class="preview-text">Current supervision load: <?php echo ssasEscape($profile["quotaText"] ?? "0/0 supervisees"); ?>.</p>
+                                <p class="preview-text"><?php echo ssasEscape($profile["universityEmail"]); ?></p>
                             </div>
                         </section>
                         <section class="insight">

@@ -233,6 +233,7 @@ if (!function_exists("ssasPortalSidebar")) {
         $role = $_SESSION["systemRole"] ?? "User";
         $roleTitle = "SSAS User";
         $roleSubtitle = "User Portal";
+        $roleIcon = "U"; // Default icon
         $links = [];
 
         /*
@@ -244,6 +245,7 @@ if (!function_exists("ssasPortalSidebar")) {
         if ($role === "Supervisor") {
             $roleTitle = "SSAS Supervisor";
             $roleSubtitle = "Supervisor Portal";
+            $roleIcon = "SU";
             $links = [
                 // format: [ID, Label, URL, Chevron, isParent, isSubnav]
                 ["dashboard", "Dashboard", "../../client/supervisor/supervisorDashboard.php", "", false],
@@ -276,6 +278,7 @@ if (!function_exists("ssasPortalSidebar")) {
         } elseif ($role === "Administrator") {
             $roleTitle = "SSAS Admin";
             $roleSubtitle = "Management Portal";
+            $roleIcon = "A";
             $links = [
                 // format: [ID, Label, URL, Chevron, isParent, isSubnav]
                 ["dashboard", "Dashboard", "../../client/admin/adminDashboard.php", "", false],
@@ -301,7 +304,7 @@ if (!function_exists("ssasPortalSidebar")) {
         } elseif ($role === "Student") {
             $roleTitle = "SSAS Student";
             $roleSubtitle = "Student Portal";
-            
+            $roleIcon = "S";
             // These paths MUST use ../../client/student/ because they are 
             // being rendered from inside the shared/ folder.
             $links = [
@@ -317,77 +320,76 @@ if (!function_exists("ssasPortalSidebar")) {
 
         // Store generated navigation HTML
         $navigation = "";
-        $subnavOpen = false;
+        $inSubnav = false;
+        $activeSubnavId = "";
 
-        /*
-        |--------------------------------------------------------------------------
-        | Generate Navigation Menu
-        |--------------------------------------------------------------------------
-        */
-        foreach ($links as $link) {
+        foreach ($links as $index => $item) {
+            $id = $item[0];
+            $label = $item[1];
+            $href = $item[2];
+            $chevron = $item[3] ? "<span class=\"portal-nav-chevron\">{$item[3]}</span>" : "";
+            $isParent = $item[4] ?? false;
+            $isSubnav = $item[5] ?? false;
 
-            $key = $link[0];
-            $label = $link[1];
-            $href = $link[2];
-            $chevron = $link[3];
-            $isParent = $link[4];
-            $isSubnav = $link[5] ?? false;
-            $isActive = $activePage === $key ? "active" : "";
+            $isActive = ($activePage === $id) ? "active" : "";
 
-            if ($isSubnav) {
-                if (!$subnavOpen) {
-                    $navigation .= "<div class=\"portal-subnav\" style=\"display: none;\">";
-                    $subnavOpen = true;
+            // Close an open subnav if we hit a new parent or a regular link
+            if ($inSubnav && !$isSubnav) {
+                $navigation .= "</div>\n";
+                $inSubnav = false;
+            }
+
+            if ($isParent) {
+                // Determine if any child of this parent is active to keep the menu open
+                $hasActiveChild = false;
+                $childIndex = $index + 1;
+                while (isset($links[$childIndex]) && ($links[$childIndex][5] ?? false)) {
+                    if ($activePage === $links[$childIndex][0]) {
+                        $hasActiveChild = true;
+                        break;
+                    }
+                    $childIndex++;
                 }
 
-                $navigation .= "
-                    <a class=\"{$isActive}\" href=\"" . ssasEscape($href) . "\">" . ssasEscape($label) . "</a>
-                ";
+                $parentActive = $hasActiveChild ? "active" : "";
+                $ariaExpanded = $hasActiveChild ? "true" : "false";
+                $display = $hasActiveChild ? "block" : "none";
+                $activeSubnavId = "subnav-{$id}";
 
-                continue;
+                // Upgraded to include ARIA attributes
+                $navigation .= "<button class=\"portal-nav-link nav-parent {$parentActive}\" aria-expanded=\"{$ariaExpanded}\" data-subnav-target=\"{$activeSubnavId}\" onclick=\"togglePortalSubnav(this)\">
+                                    <span class=\"portal-nav-icon\"></span>
+                                    <span class=\"portal-nav-text\">{$label}</span>
+                                    {$chevron}
+                                </button>\n";
+                $navigation .= "<div id=\"{$activeSubnavId}\" class=\"portal-subnav\" style=\"display: {$display};\">\n";
+                $inSubnav = true;
+
+            } elseif ($isSubnav) {
+                $navigation .= "<a href=\"{$href}\" class=\"{$isActive}\">{$label}</a>\n";
+            } else {
+                $navigation .= "<a href=\"{$href}\" class=\"portal-nav-link {$isActive}\">
+                                    <span class=\"portal-nav-icon\"></span>
+                                    <span class=\"portal-nav-text\">{$label}</span>
+                                </a>\n";
             }
-
-            if ($subnavOpen) {
-                $navigation .= "</div>";
-                $subnavOpen = false;
-            }
-
-            $tag = $isParent ? "div" : "a";
-            $hrefAttribute = $isParent ? " onclick=\"togglePortalSubnav(this)\" style=\"cursor: pointer;\"" : " href=\"" . ssasEscape($href) . "\"";
-            $chevronMarkup = $chevron !== "" ? "<span class=\"portal-nav-chevron\">" . ssasEscape($chevron) . "</span>" : "";
-
-            $navigation .= "
-                <{$tag} class=\"portal-nav-link {$isActive}\"{$hrefAttribute}>
-                    <span class=\"portal-nav-icon\"></span>
-                    <span class=\"portal-nav-text\">" . ssasEscape($label) . "</span>
-                    {$chevronMarkup}
-                </{$tag}>
-            ";
         }
 
-        if ($subnavOpen) {
-
-            $navigation .= "</div>";
+        // Close any trailing subnav
+        if ($inSubnav) {
+            $navigation .= "</div>\n";
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Return Sidebar HTML
-        |--------------------------------------------------------------------------
-        */
 
         return "
             <aside class=\"portal-sidebar\">
                 <div class=\"portal-role-card\">
-                    <div class=\"portal-role-icon\">" . ssasEscape(substr($role, 0, 1)) . "</div>
+                    <div class=\"portal-role-icon\">{$roleIcon}</div> <!-- Updated this line -->
                     <div>
-                        <p class=\"portal-role-title\">" . ssasEscape($roleTitle) . "</p>
-                        <p class=\"portal-role-subtitle\">" . ssasEscape($roleSubtitle) . "</p>
+                        <h3 class=\"portal-role-title\">{$roleTitle}</h3>
+                        <p class=\"portal-role-subtitle\">{$roleSubtitle}</p>
                     </div>
                 </div>
-
                 {$navigation}
-
             </aside>
         ";
     }

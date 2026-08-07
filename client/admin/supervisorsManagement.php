@@ -59,7 +59,6 @@ $supervisorManagementService = new SupervisorManagementService();
     }
     $averageLoad = $capacityTotal > 0 ? round(($allocatedTotal / $capacityTotal) * 100) : 0;
 
-    function e($v)                { return htmlspecialchars((string) $v, ENT_QUOTES, "UTF-8"); }
     function selected($a, $b)     { return (string) $a === (string) $b ? "selected" : ""; }
     function activeFilter($a, $b) { return (string) $a === (string) $b ? "active" : ""; }
 
@@ -75,12 +74,6 @@ $supervisorManagementService = new SupervisorManagementService();
         }
 
         return "supervisorsManagement.php?" . http_build_query($query);
-    }
-
-    function statusMessage() {
-        if (!isset($_GET["status"], $_GET["message"])) return "";
-        $cls = $_GET["status"] === "success" ? "success" : "error";
-        return '<div class="message ' . $cls . '">' . e($_GET["message"]) . '</div>';
     }
     
 ?>
@@ -100,33 +93,10 @@ $supervisorManagementService = new SupervisorManagementService();
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
 
     <div class="content-shell">
-        <aside class="sidebar">
-            <div class="role-card">
-                <div class="role-icon">A</div>
-                <div>
-                    <p class="role-title">SSAS Admin</p>
-                    <p class="role-subtitle">Management Portal</p>
-                </div>
-            </div>
-
-            <a class="nav-link" href="adminDashboard.php">Dashboard</a>
-            <a class="nav-link active" href="supervisorsManagement.php">Supervisors Management</a>
-            <a class="nav-link" href="studentEligibility.php">Students Eligibility</a>
-            <a class="nav-link" href="quotaManagement.php">Quota Management</a>
-            <a class="nav-link" href="autoAllocation.php">Allocations</a>
-            <a class="nav-link" href="adminSupervisorReviews.php">Supervisor Reviews Audit</a>
-            <button class="nav-link has-submenu" type="button" aria-expanded="false" aria-controls="admin-report-tree" onclick="toggleAdminReports(this)">
-                <span>Reports</span>
-                <span class="submenu-caret" aria-hidden="true">v</span>
-            </button>
-            <div class="report-tree" id="admin-report-tree">
-                <a class="report-child" href="adminCohortOverview.php">Cohort Overview</a>
-                <a class="report-child" href="adminAllocationSummary.php">Allocation Summary</a>
-            </div>
-        </aside>
+        <?php echo ssasPortalSidebar("supervisors"); ?>
         
         <main class="main supervisor-management-main">
-            <?php echo statusMessage(); ?>
+            <?php echo ssasStatusMessage(); ?>
 
             <section class="hero-grid">
                 <article class="hero-card">
@@ -136,11 +106,11 @@ $supervisorManagementService = new SupervisorManagementService();
                         <div class="hero-metrics">
                             <div class="metric">
                                 <div class="metric-label">Total Active</div>
-                                <div class="metric-value"><?php echo e($totalSupervisors); ?></div>
+                                <div class="metric-value"><?php echo ssasEscape($totalSupervisors); ?></div>
                             </div>
                             <div class="metric">
                                 <div class="metric-label">Allocated</div>
-                                <div class="metric-value"><?php echo e($averageLoad); ?>%</div>
+                                <div class="metric-value"><?php echo ssasEscape($averageLoad); ?>%</div>
                             </div>
                         </div>
                     </div>
@@ -161,7 +131,7 @@ $supervisorManagementService = new SupervisorManagementService();
                                 stroke-dashoffset="<?php echo $offset; ?>"/>
                         </svg>
                         <div class="ring-label">
-                            <strong><?php echo e($averageLoad); ?>%</strong>
+                            <strong><?php echo ssasEscape($averageLoad); ?>%</strong>
                             <span>Allocated</span>
                         </div>
                     </div>
@@ -175,7 +145,7 @@ $supervisorManagementService = new SupervisorManagementService();
                 <?php foreach ($programmeOptions as $prog): ?>
                     <a class="filter-pill <?php echo activeFilter($selectedProgramme, $prog["programme"]); ?>"
                        href="supervisorsManagement.php?programme=<?php echo urlencode($prog["programme"]); ?>">
-                        <?php echo e($prog["programme"]); ?>
+                        <?php echo ssasEscape($prog["programme"]); ?>
                     </a>
                 <?php endforeach; ?>
             </nav>
@@ -194,13 +164,13 @@ $supervisorManagementService = new SupervisorManagementService();
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                             </svg>
-                            <input type="text" name="searchName" value="<?php echo e($searchName); ?>" placeholder="Search staff...">
+                            <input type="text" name="searchName" value="<?php echo ssasEscape($searchName); ?>" placeholder="Search staff...">
                         </div>
                         <select name="programme">
                             <option value="">All Programmes</option>
                             <?php foreach ($programmeOptions as $prog): ?>
-                                <option value="<?php echo e($prog["programme"]); ?>" <?php echo selected($selectedProgramme, $prog["programme"]); ?>>
-                                    <?php echo e($prog["programme"]); ?>
+                                <option value="<?php echo ssasEscape($prog["programme"]); ?>" <?php echo selected($selectedProgramme, $prog["programme"]); ?>>
+                                    <?php echo ssasEscape($prog["programme"]); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -211,7 +181,7 @@ $supervisorManagementService = new SupervisorManagementService();
                 </div>
 
                 <form class="create-panel <?php echo $showCreatePanel ? "show" : ""; ?>" id="createSupervisorPanel" action="../../server/application/admin/createSupervisorProcess.php" method="POST">
-                    <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($csrfToken); ?>">
                     <input type="hidden" name="returnTo" value="supervisorsManagement">
                     <input type="hidden" name="quotaID" id="createQuotaID" required>
 
@@ -241,7 +211,7 @@ $supervisorManagementService = new SupervisorManagementService();
                             </div>
                             <datalist id="programmeList">
                                 <?php foreach ($programmeOptions as $prog): ?>
-                                    <option value="<?php echo e($prog["programme"]); ?>"></option>
+                                    <option value="<?php echo ssasEscape($prog["programme"]); ?>"></option>
                                 <?php endforeach; ?>
                             </datalist>
                         </div>
@@ -261,8 +231,8 @@ $supervisorManagementService = new SupervisorManagementService();
                             <select id="createEmploymentCategory" name="employmentCategory" required>
                                 <option value="">Select classification</option>
                                 <?php foreach ($classificationOptions as $classification => $qk): ?>
-                                    <option value="<?php echo e($classification); ?>">
-                                        <?php echo e($classification); ?>
+                                    <option value="<?php echo ssasEscape($classification); ?>">
+                                        <?php echo ssasEscape($classification); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -299,74 +269,74 @@ $supervisorManagementService = new SupervisorManagementService();
                             ?>
 
                             <form class="data-row" action="../../server/application/admin/updateSupervisorClassification.php" method="POST">
-                                <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
-                                <input type="hidden" name="supervisorID" value="<?php echo e($supervisor["userID"]); ?>">
-                                <input class="classification-quota-id" type="hidden" name="quotaID" value="<?php echo e($selectedQuotaID); ?>">
+                                <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($csrfToken); ?>">
+                                <input type="hidden" name="supervisorID" value="<?php echo ssasEscape($supervisor["userID"]); ?>">
+                                <input class="classification-quota-id" type="hidden" name="quotaID" value="<?php echo ssasEscape($selectedQuotaID); ?>">
 
                                 <div class="person-cell">
                                     <div class="avatar">
                                         <?php if ($profilePhoto !== ""): ?>
-                                            <img src="<?php echo e($profilePhoto); ?>" alt="">
+                                            <img src="<?php echo ssasEscape($profilePhoto); ?>" alt="">
                                         <?php else: ?>
-                                            <?php echo e($initials); ?>
+                                            <?php echo ssasEscape($initials); ?>
                                         <?php endif; ?>
                                     </div>
                                     <div style="min-width:0;">
-                                        <p class="person-name"><?php echo e($supervisor["fullName"]); ?></p>
-                                        <p class="person-meta"><?php echo e($supervisor["employmentCategory"]); ?></p>
+                                        <p class="person-name"><?php echo ssasEscape($supervisor["fullName"]); ?></p>
+                                        <p class="person-meta"><?php echo ssasEscape($supervisor["employmentCategory"]); ?></p>
                                     </div>
                                 </div>
 
-                                <div class="cell-text"><?php echo e($supervisor["userID"]); ?></div>
-                                <div class="cell-text"><?php echo e($supervisor["programme"]); ?></div>
+                                <div class="cell-text"><?php echo ssasEscape($supervisor["userID"]); ?></div>
+                                <div class="cell-text"><?php echo ssasEscape($supervisor["programme"]); ?></div>
 
                                 <div>
                                     <select class="classification-select" name="employmentCategory" required>
                                         <?php foreach ($classificationOptions as $classification => $qk): ?>
-                                            <option value="<?php echo e($classification); ?>" <?php echo selected($selectedClass, $classification); ?>>
-                                                <?php echo e($classification); ?>
+                                            <option value="<?php echo ssasEscape($classification); ?>" <?php echo selected($selectedClass, $classification); ?>>
+                                                <?php echo ssasEscape($classification); ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
 
-                                <div class="quota-status-cell" data-current-supervisees="<?php echo e($supervisor["currentSupervisees"]); ?>">
+                                <div class="quota-status-cell" data-current-supervisees="<?php echo ssasEscape($supervisor["currentSupervisees"]); ?>">
                                     <div class="load-row <?php echo $isFull ? "full" : ""; ?>">
-                                        <span><?php echo e($supervisor["quotaText"]); ?></span>
-                                        <span><?php echo e($supervisor["loadPercentage"]); ?>%</span>
+                                        <span><?php echo ssasEscape($supervisor["quotaText"]); ?></span>
+                                        <span><?php echo ssasEscape($supervisor["loadPercentage"]); ?>%</span>
                                     </div>
                                     <div class="bar-track">
-                                        <div class="bar-fill <?php echo $isFull ? "full" : ""; ?>" style="width: <?php echo e(min($supervisor["loadPercentage"], 100)); ?>%;"></div>
+                                        <div class="bar-fill <?php echo $isFull ? "full" : ""; ?>" style="width: <?php echo ssasEscape(min($supervisor["loadPercentage"], 100)); ?>%;"></div>
                                     </div>
-                                    <span class="avail-badge <?php echo e($badgeClass); ?>">
-                                        <?php echo e($supervisor["availabilityStatus"]); ?>
+                                    <span class="avail-badge <?php echo ssasEscape($badgeClass); ?>">
+                                        <?php echo ssasEscape($supervisor["availabilityStatus"]); ?>
                                     </span>
                                 </div>
 
                                 <div class="action-cell">
                                     <button class="save-btn" type="submit" title="Save changes" aria-label="Save changes">&#10003;</button>
                                     <button class="more-btn" type="button" title="Edit account particulars" data-edit-account
-                                        data-supervisor-id="<?php echo e($supervisor["userID"]); ?>"
-                                        data-full-name="<?php echo e($supervisor["fullName"]); ?>"
-                                        data-email="<?php echo e($supervisor["universityEmail"]); ?>"
-                                        data-active-status="<?php echo $supervisor["activeStatus"] ? "1" : "0"; ?>">...</button>
+                                        data-supervisor-id="<?php echo ssasEscape($supervisor["userID"]); ?>"
+                                        data-full-name="<?php echo ssasEscape($supervisor["fullName"]); ?>"
+                                        data-email="<?php echo ssasEscape($supervisor["universityEmail"]); ?>"
+                                        data-active-status="<?php echo ssasEscape($supervisor["activeStatus"] ? "1" : "0"); ?>">...</button>
                                 </div>
                             </form>
                         <?php endforeach; ?>
 
                         <div class="showing directory-footer">
-                            <span>Showing <?php echo e($firstVisibleEntry); ?>-<?php echo e($lastVisibleEntry); ?> of <?php echo e($totalSupervisors); ?> supervisors</span>
+                            <span>Showing <?php echo ssasEscape($firstVisibleEntry); ?>-<?php echo ssasEscape($lastVisibleEntry); ?> of <?php echo ssasEscape($totalSupervisors); ?> supervisors</span>
                             <nav class="table-pager" aria-label="Supervisor directory pagination">
                                 <?php if ($currentPage > 1): ?>
-                                    <a class="table-page-button" href="<?php echo e(pageUrl($currentPage - 1, $searchName, $selectedProgramme)); ?>" aria-label="Previous supervisor directory page">&lt;</a>
+                                    <a class="table-page-button" href="<?php echo ssasEscape(pageUrl($currentPage - 1, $searchName, $selectedProgramme)); ?>" aria-label="Previous supervisor directory page">&lt;</a>
                                 <?php else: ?>
                                     <span class="table-page-button disabled" aria-hidden="true">&lt;</span>
                                 <?php endif; ?>
 
-                                <span class="table-page-count">Page <?php echo e($currentPage); ?> of <?php echo e($totalPages); ?></span>
+                                <span class="table-page-count">Page <?php echo ssasEscape($currentPage); ?> of <?php echo ssasEscape($totalPages); ?></span>
 
                                 <?php if ($currentPage < $totalPages): ?>
-                                    <a class="table-page-button" href="<?php echo e(pageUrl($currentPage + 1, $searchName, $selectedProgramme)); ?>" aria-label="Next supervisor directory page">&gt;</a>
+                                    <a class="table-page-button" href="<?php echo ssasEscape(pageUrl($currentPage + 1, $searchName, $selectedProgramme)); ?>" aria-label="Next supervisor directory page">&gt;</a>
                                 <?php else: ?>
                                     <span class="table-page-button disabled" aria-hidden="true">&gt;</span>
                                 <?php endif; ?>
@@ -380,7 +350,7 @@ $supervisorManagementService = new SupervisorManagementService();
 
     <div class="modal-backdrop" id="accountModal" aria-hidden="true">
         <form class="account-modal" action="../../server/application/admin/updateSupervisorAccount.php" method="POST">
-            <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
+            <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($csrfToken); ?>">
             <div class="modal-head">
                 <div>
                     <h3>Edit Account Particulars</h3>

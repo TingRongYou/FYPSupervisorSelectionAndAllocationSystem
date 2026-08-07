@@ -2,7 +2,7 @@
 
 require_once __DIR__ . "/../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/StudentReviewService.php";
-require_once __DIR__ . "/studentLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 
 SessionManager::startSession();
 SessionManager::requireRole("Student");
@@ -15,28 +15,6 @@ $reviewService = new StudentReviewService();
 $payload = $reviewService->getReviewPagePayload($_SESSION["userID"]);
 $context = $payload["context"];
 $statistics = $payload["statistics"] ?? null;
-
-function e($value) {
-    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
-}
-
-function initials($name) {
-    $parts = preg_split("/\s+/", trim((string) $name));
-    $first = strtoupper(substr($parts[0] ?? "S", 0, 1));
-    $second = strtoupper(substr($parts[1] ?? "", 0, 1));
-
-    return $first . $second;
-}
-
-function statusMessage() {
-    if (!isset($_GET["status"], $_GET["message"])) {
-        return "";
-    }
-
-    $class = $_GET["status"] === "success" ? "success" : "error";
-
-    return "<div class=\"message {$class}\">" . e($_GET["message"]) . "</div>";
-}
 
 ?>
 
@@ -51,10 +29,10 @@ function statusMessage() {
 <body>
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="layout">
-        <?php echo studentSidebar("review"); ?>
+        <?php echo ssasPortalSidebar("review"); ?>
         <main class="main">
             <div class="review-shell">
-                <?php echo statusMessage(); ?>
+                <?php echo ssasStatusMessage(); ?>
                 <section class="page-header student-hero">
                     <div>
                         <p class="eyebrow">Student Supervision Assessment System</p>
@@ -74,30 +52,30 @@ function statusMessage() {
                             <div class="review-profile-top">
                                 <div class="avatar review-avatar">
                                     <?php if (!empty($context["profilePhotoPath"])): ?>
-                                        <img src="<?php echo e($context["profilePhotoPath"]); ?>" alt="Supervisor photo">
+                                        <img src="<?php echo ssasEscape($context["profilePhotoPath"]); ?>" alt="Supervisor photo">
                                     <?php else: ?>
-                                        <?php echo e(initials($context["supervisorName"])); ?>
+                                        <?php echo ssasEscape(ssasInitials($context["supervisorName"])); ?>
                                     <?php endif; ?>
                                 </div>
                                 <span class="review-profile-kicker">Assigned Supervisor</span>
-                                <h2 class="supervisor-name"><?php echo e($context["supervisorName"]); ?></h2>
+                                <h2 class="supervisor-name"><?php echo ssasEscape($context["supervisorName"]); ?></h2>
                             </div>
 
                             <div class="review-profile-meta">
-                                <span><?php echo e($context["employmentCategory"]); ?></span>
-                                <strong><?php echo e($context["programme"]); ?></strong>
+                                <span><?php echo ssasEscape($context["employmentCategory"]); ?></span>
+                                <strong><?php echo ssasEscape($context["programme"]); ?></strong>
                             </div>
 
                             <div class="score-card">
                                 <span class="score-label">Current Average</span>
                                 <strong>
-                                    <?php echo e(number_format((float) ($statistics["averageRating"] ?? 0), 1)); ?>
+                                    <?php echo ssasEscape(number_format((float) ($statistics["averageRating"] ?? 0), 1)); ?>
                                     <span>/ 5.0</span>
                                 </strong>
                                 <div class="score-stars" aria-hidden="true">
                                     <?php echo ssasRenderStars($statistics["averageRating"] ?? 0); ?>
                                 </div>
-                                <small><?php echo e((int) ($statistics["reviewCount"] ?? 0)); ?> submitted review(s)</small>
+                                <small><?php echo ssasEscape((int) ($statistics["reviewCount"] ?? 0)); ?> submitted review(s)</small>
                             </div>
                         </aside>
 
@@ -107,9 +85,9 @@ function statusMessage() {
                                     <div class="completed-review">
                                         <span class="badge">Completed</span>
                                         <span>You have already submitted an evaluation for your supervisor this semester.</span>
-                                        <span>Previous rating: <?php echo e((int) $context["starRating"]); ?> / 5</span>
+                                        <span>Previous rating: <?php echo ssasEscape((int) $context["starRating"]); ?> / 5</span>
                                         <?php if (trim((string) $context["textFeedback"]) !== ""): ?>
-                                            <span><?php echo e($context["textFeedback"]); ?></span>
+                                            <span><?php echo ssasEscape($context["textFeedback"]); ?></span>
                                         <?php endif; ?>
                                     </div>
                                 <?php elseif (!$payload["isReviewPeriod"]): ?>
@@ -117,19 +95,19 @@ function statusMessage() {
                                         <span class="badge" style="background:#e2e8f0;color:#64748b;">Closed</span>
                                         <strong>Review Period Not Active</strong>
                                         <span>Reviews can only be submitted during the Review Period.</span>
-                                        <span>Current phase: <?php echo e($payload["phase"]["phaseName"] ?? "No active phase"); ?></span>
+                                        <span>Current phase: <?php echo ssasEscape($payload["phase"]["phaseName"] ?? "No active phase"); ?></span>
                                     </div>
                                 <?php else: ?>
                                     <form action="../../server/application/student/submitSupervisorReview.php" method="POST" id="reviewForm">
-                                        <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
-                                        <input type="hidden" name="allocationID" value="<?php echo e($context["allocationID"]); ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($_SESSION["csrf_token"]); ?>">
+                                        <input type="hidden" name="allocationID" value="<?php echo ssasEscape($context["allocationID"]); ?>">
 
                                         <label>Overall Experience</label>
                                         <div>
                                             <div class="stars" aria-label="Star rating">
                                                 <?php for ($rating = 5; $rating >= 1; $rating--): ?>
-                                                    <input type="radio" id="rating<?php echo $rating; ?>" name="starRating" value="<?php echo $rating; ?>">
-                                                    <label for="rating<?php echo $rating; ?>">★</label>
+                                                    <input type="radio" id="rating<?php echo ssasEscape($rating); ?>" name="starRating" value="<?php echo ssasEscape($rating); ?>">
+                                                    <label for="rating<?php echo ssasEscape($rating); ?>">★</label>
                                                 <?php endfor; ?>
                                             </div>
                                             <span class="rating-text" id="ratingText">0 / 5.0</span>

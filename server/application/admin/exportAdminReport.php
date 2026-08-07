@@ -13,12 +13,12 @@ SessionManager::requireRole("Administrator");
 | Shared response helpers for CSV, Excel-compatible HTML, and printable PDF.
 */
 
-function e($value) {
-    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
-}
-
 function exportFilename($reportType, $extension) {
     return "admin_" . $reportType . "_report_" . date("Ymd_His") . "." . $extension;
+}
+
+function escapeExportData($value) {
+    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
 function sendCsv($filename, $headers, $rows) {
@@ -42,11 +42,11 @@ function sendExcel($filename, $title, $headers, $rows) {
     header("Content-Disposition: attachment; filename=\"{$filename}\"");
 
     echo "<table border=\"1\">";
-    echo "<tr><th colspan=\"" . count($headers) . "\">" . e($title) . "</th></tr>";
+    echo "<tr><th colspan=\"" . count($headers) . "\">" . escapeExportData($title) . "</th></tr>";
     echo "<tr>";
 
     foreach ($headers as $header) {
-        echo "<th>" . e($header) . "</th>";
+        echo "<th>" . escapeExportData($header) . "</th>";
     }
 
     echo "</tr>";
@@ -54,7 +54,7 @@ function sendExcel($filename, $title, $headers, $rows) {
     foreach ($rows as $row) {
         echo "<tr>";
         foreach ($row as $value) {
-            echo "<td>" . e($value) . "</td>";
+            echo "<td>" . escapeExportData($value) . "</td>";
         }
         echo "</tr>";
     }
@@ -71,7 +71,7 @@ function renderPrintPage($title, $summaryHtml, $tableHeaders, $tableRows) {
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title><?php echo e($title); ?></title>
+        <title><?php echo escapeExportData($title); ?></title>
         <style>
             body { margin: 0; padding: 30px; font-family: Arial, Helvetica, sans-serif; color: #10263d; }
             .head { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 4px solid #0d5be8; padding-bottom: 14px; margin-bottom: 18px; }
@@ -91,8 +91,8 @@ function renderPrintPage($title, $summaryHtml, $tableHeaders, $tableRows) {
     </head>
     <body>
         <div class="head">
-            <h1><?php echo e($title); ?></h1>
-            <div class="brand">TAR UMT SSAS<br>Generated <?php echo e(date("Y-m-d H:i")); ?></div>
+            <h1><?php echo escapeExportData($title); ?></h1>
+            <div class="brand">TAR UMT SSAS<br>Generated <?php echo escapeExportData(date("Y-m-d H:i")); ?></div>
         </div>
 
         <?php echo $summaryHtml; ?>
@@ -101,7 +101,7 @@ function renderPrintPage($title, $summaryHtml, $tableHeaders, $tableRows) {
             <thead>
                 <tr>
                     <?php foreach ($tableHeaders as $header): ?>
-                        <th><?php echo e($header); ?></th>
+                        <th><?php echo escapeExportData($header); ?></th>
                     <?php endforeach; ?>
                 </tr>
             </thead>
@@ -109,7 +109,7 @@ function renderPrintPage($title, $summaryHtml, $tableHeaders, $tableRows) {
                 <?php foreach ($tableRows as $row): ?>
                     <tr>
                         <?php foreach ($row as $value): ?>
-                            <td><?php echo e($value); ?></td>
+                            <td><?php echo escapeExportData($value); ?></td>
                         <?php endforeach; ?>
                     </tr>
                 <?php endforeach; ?>
@@ -199,11 +199,11 @@ if ($reportType === "cohort") {
 
     $summaryHtml = "
         <div class=\"summary\">
-            <div class=\"box\"><div class=\"label\">Total Students</div><div class=\"value\">" . e($report["totalStudents"]) . "</div></div>
-            <div class=\"box\"><div class=\"label\">Allocated</div><div class=\"value\">" . e($report["allocatedStudents"]) . "</div></div>
-            <div class=\"box\"><div class=\"label\">Unassigned</div><div class=\"value\">" . e($report["unassignedStudents"]) . "</div></div>
+            <div class=\"box\"><div class=\"label\">Total Students</div><div class=\"value\">" . escapeExportData($report["totalStudents"]) . "</div></div>
+            <div class=\"box\"><div class=\"label\">Allocated</div><div class=\"value\">" . escapeExportData($report["allocatedStudents"]) . "</div></div>
+            <div class=\"box\"><div class=\"label\">Unassigned</div><div class=\"value\">" . escapeExportData($report["unassignedStudents"]) . "</div></div>
         </div>
-        <div class=\"box\"><div class=\"label\">Allocation Progress</div><div class=\"value\">" . e($report["allocationProgress"]) . "%</div><div class=\"bar\"><span style=\"width:" . e(min($report["allocationProgress"], 100)) . "%\"></span></div><div class=\"label\">Filtered " . e($report["totalStudents"]) . " of " . e($report["systemTotalStudents"]) . " active students</div></div>
+        <div class=\"box\"><div class=\"label\">Allocation Progress</div><div class=\"value\">" . escapeExportData($report["allocationProgress"]) . "%</div><div class=\"bar\"><span style=\"width:" . escapeExportData(min($report["allocationProgress"], 100)) . "%\"></span></div><div class=\"label\">Filtered " . escapeExportData($report["totalStudents"]) . " of " . escapeExportData($report["systemTotalStudents"]) . " active students</div></div>
     ";
 
     renderPrintPage("Cohort Overview", $summaryHtml, $headers, $rows);
@@ -258,9 +258,9 @@ if ($reportType === "allocation") {
 
     $summaryHtml = "
         <div class=\"summary\">
-            <div class=\"box\"><div class=\"label\">Slot Utilization</div><div class=\"value\">" . e($report["slotUtilization"]) . "%</div><div class=\"bar\"><span style=\"width:" . e(min($report["slotUtilization"], 100)) . "%\"></span></div></div>
-            <div class=\"box\"><div class=\"label\">Supervisors at Capacity</div><div class=\"value\">" . e($report["atCapacity"]) . "</div></div>
-            <div class=\"box\"><div class=\"label\">Pending Requests</div><div class=\"value\">" . e($report["pendingRequests"]) . "</div></div>
+            <div class=\"box\"><div class=\"label\">Slot Utilization</div><div class=\"value\">" . escapeExportData($report["slotUtilization"]) . "%</div><div class=\"bar\"><span style=\"width:" . escapeExportData(min($report["slotUtilization"], 100)) . "%\"></span></div></div>
+            <div class=\"box\"><div class=\"label\">Supervisors at Capacity</div><div class=\"value\">" . escapeExportData($report["atCapacity"]) . "</div></div>
+            <div class=\"box\"><div class=\"label\">Pending Requests</div><div class=\"value\">" . escapeExportData($report["pendingRequests"]) . "</div></div>
         </div>
     ";
 

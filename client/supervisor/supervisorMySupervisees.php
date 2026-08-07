@@ -2,7 +2,7 @@
 
 require_once "../../server/application/auth/SessionManager.php";
 require_once "../../server/data/dao/RequestDAO.php";
-require_once __DIR__ . "/supervisorLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 
 SessionManager::startSession();
 SessionManager::requireRole("Supervisor");
@@ -44,9 +44,9 @@ function formatResearchTitle($title) {
     ?>
 </head>
 <body>
-    <?php echo supervisorTopbar(); ?>
+    <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="content-shell">
-        <?php echo supervisorSidebar("supervision"); ?>
+        <?php echo ssasPortalSidebar("supervision"); ?>
         <main class="main">
             <div class="page-shell">
                 <section class="page-head">
@@ -58,14 +58,14 @@ function formatResearchTitle($title) {
                     <div class="summary-item">
                         <span class="dot"></span>
                         <span class="summary-label">Total<br>Supervisees:</span>
-                        <span class="summary-value"><?php echo e($totalSupervisees); ?></span>
+                        <span class="summary-value"><?php echo ssasEscape($totalSupervisees); ?></span>
                     </div>
                     <div class="summary-item">
                         <span class="dot green"></span>
                         <span class="summary-label">Active<br>Students:</span>
-                        <span class="summary-value"><?php echo e($totalSupervisees); ?></span>
+                        <span class="summary-value"><?php echo ssasEscape($totalSupervisees); ?></span>
                     </div>
-                    <div class="updated">Last updated: Today, <?php echo e(date("h:i A")); ?></div>
+                    <div class="updated">Last updated: Today, <?php echo ssasEscape(date("h:i A")); ?></div>
                 </section>
 
                 <section class="table-card card">
@@ -90,27 +90,27 @@ function formatResearchTitle($title) {
                                             <div class="student-cell">
                                                 <div class="avatar">
                                                     <?php if (!empty($supervisee["profilePhotoPath"])): ?>
-                                                        <img src="<?php echo e($supervisee["profilePhotoPath"]); ?>" alt="">
+                                                        <img src="<?php echo ssasEscape($supervisee["profilePhotoPath"]); ?>" alt="">
                                                     <?php else: ?>
-                                                        <?php echo e(supervisorInitials($supervisee["fullName"])); ?>
+                                                        <?php echo ssasEscape(ssasInitials($supervisee["fullName"])); ?>
                                                     <?php endif; ?>
                                                 </div>
-                                                <div class="student-name"><?php echo e($supervisee["fullName"]); ?></div>
+                                                <div class="student-name"><?php echo ssasEscape($supervisee["fullName"]); ?></div>
                                             </div>
                                         </td>
-                                        <td><?php echo e($supervisee["studentID"]); ?></td>
-                                        <td><?php echo e(formatResearchTitle($supervisee["projectTitle"])); ?></td>
-                                        <td><div class="programme"><?php echo e($supervisee["programme"]); ?></div></td>
+                                        <td><?php echo ssasEscape($supervisee["studentID"]); ?></td>
+                                        <td><?php echo ssasEscape(formatResearchTitle($supervisee["projectTitle"])); ?></td>
+                                        <td><div class="programme"><?php echo ssasEscape($supervisee["programme"]); ?></div></td>
                                         <td><span class="status">Active</span></td>
                                         <td>
                                             <?php if (!empty($supervisee["requestID"]) && $supervisee["decisionStatus"] !== "Proposal Requested"): ?>
-                                                <a class="detail-link" href="supervisorRequestDecision.php?requestID=<?php echo e($supervisee["requestID"]); ?>&source=supervision">View<br>Details</a>
+                                                <a class="detail-link" href="supervisorRequestDecision.php?requestID=<?php echo ssasEscape($supervisee["requestID"]); ?>&source=supervision">View<br>Details</a>
                                             <?php elseif ($supervisee["decisionStatus"] === "Proposal Requested"): ?>
                                                 <span class="link-button requested">Proposal<br>Requested</span>
                                             <?php else: ?>
                                                 <form class="inline-form" action="../../server/application/supervisor/requestProposal.php" method="POST">
-                                                    <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
-                                                    <input type="hidden" name="allocationID" value="<?php echo e($supervisee["allocationID"]); ?>">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($_SESSION["csrf_token"]); ?>">
+                                                    <input type="hidden" name="allocationID" value="<?php echo ssasEscape($supervisee["allocationID"]); ?>">
                                                     <button class="link-button" type="submit">Request<br>Proposal</button>
                                                 </form>
                                             <?php endif; ?>
@@ -120,18 +120,18 @@ function formatResearchTitle($title) {
                             </tbody>
                         </table>
                         <div class="footer-row">
-                            <span>Showing <?php echo e($start); ?>-<?php echo e($end); ?> of <?php echo e($totalSupervisees); ?> supervisees</span>
+                            <span>Showing <?php echo ssasEscape($start); ?>-<?php echo ssasEscape($end); ?> of <?php echo ssasEscape($totalSupervisees); ?> supervisees</span>
                             <div class="table-pager" aria-label="Supervisees pagination">
                                 <?php if ($page > 1): ?>
-                                    <a class="table-page-button" href="?page=<?php echo e($page - 1); ?>" aria-label="Previous supervisees page">&lt;</a>
+                                    <a class="table-page-button" href="?page=<?php echo ssasEscape($page - 1); ?>" aria-label="Previous supervisees page">&lt;</a>
                                 <?php else: ?>
                                     <span class="table-page-button disabled" aria-hidden="true">&lt;</span>
                                 <?php endif; ?>
 
-                                <span class="table-page-count">Page <?php echo e($page); ?> of <?php echo e($totalPages); ?></span>
+                                <span class="table-page-count">Page <?php echo ssasEscape($page); ?> of <?php echo ssasEscape($totalPages); ?></span>
 
                                 <?php if ($page < $totalPages): ?>
-                                    <a class="table-page-button" href="?page=<?php echo e($page + 1); ?>" aria-label="Next supervisees page">&gt;</a>
+                                    <a class="table-page-button" href="?page=<?php echo ssasEscape($page + 1); ?>" aria-label="Next supervisees page">&gt;</a>
                                 <?php else: ?>
                                     <span class="table-page-button disabled" aria-hidden="true">&gt;</span>
                                 <?php endif; ?>

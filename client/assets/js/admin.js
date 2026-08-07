@@ -33,28 +33,6 @@ function prepareAdminReportExport(form) {
     return true;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Admin Sidebar Dropdown
-|--------------------------------------------------------------------------
-*/
-window.toggleAdminReports = function(element) {
-    const subnav = element.nextElementSibling;
-    
-    if (subnav && subnav.classList.contains('report-tree')) {
-        const isClosed = subnav.style.display === 'none' || window.getComputedStyle(subnav).display === 'none';
-        
-        subnav.style.display = isClosed ? 'block' : 'none';
-        
-        const chevron = element.querySelector('.submenu-caret');
-        if (chevron) {
-            chevron.style.transform = isClosed ? 'rotate(-180deg)' : 'rotate(0deg)';
-            chevron.style.transition = 'transform 0.2s ease';
-            chevron.style.display = 'inline-block'; 
-        }
-    }
-};
-
 /* |--------------------------------------------------------------------------
 | Admin Dashboard Timeline Validation
 |--------------------------------------------------------------------------

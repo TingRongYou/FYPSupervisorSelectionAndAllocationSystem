@@ -3,7 +3,7 @@
 // import another PHP file's code
 require_once __DIR__ . "/../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/StudentProfileFacade.php";
-require_once __DIR__ . "/studentLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 
 // Only allows access to students
 SessionManager::startSession(); // auth/sessionManager.php
@@ -28,19 +28,6 @@ $selectedTagIDs = $payload["selectedTagIDs"];
 
 SessionManager::setProfilePhotoPath($profile["profilePhotoPath"] ?? "");
 
-// Helper functions
-function e($value) { // Escape text before printing into HTMl, preventing XSS attacks
-    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
-}
-
-function initials($name) { // Turns name into abbreviation for profile pic
-    $parts = preg_split("/\s+/", trim((string) $name));
-    $first = strtoupper(substr($parts[0] ?? "S", 0, 1));
-    $second = strtoupper(substr($parts[1] ?? "", 0, 1));
-
-    return $first . $second;
-}
- 
 function researchTagCode($tagName) { // Turns tag name into short code for little badge next to the checkboxes
     $normalisedName = strtolower(preg_replace("/\s+/", " ", trim((string) $tagName)));
 
@@ -73,16 +60,6 @@ function researchTagCode($tagName) { // Turns tag name into short code for littl
     return $code !== "" ? $code : strtoupper(substr((string) $tagName, 0, 2));
 }
 
-function statusMessage() { // Build a successe or error HTML banner
-    if (!isset($_GET["status"], $_GET["message"])) {
-        return "";
-    }
-
-    $class = $_GET["status"] === "success" ? "success" : "error";
-
-    return "<div class=\"message {$class}\">" . e($_GET["message"]) . "</div>";
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -96,10 +73,10 @@ function statusMessage() { // Build a successe or error HTML banner
 <body>
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="layout">
-        <?php echo studentSidebar("student-profile"); ?>
+        <?php echo ssasPortalSidebar("student-profile"); ?>
         <main class="main">
             <div class="profile-shell">
-                <?php echo statusMessage(); ?>
+                <?php echo ssasStatusMessage(); ?>
                 <section class="page-header student-hero">
                     <div>
                         <p class="eyebrow">Profile Management</p>
@@ -109,7 +86,7 @@ function statusMessage() { // Build a successe or error HTML banner
                 </section>
 
                 <form id="studentProfileForm" class="profile-grid view-mode" action="../../server/application/student/updateStudentProfile.php" method="POST" enctype="multipart/form-data"> <!-- enctype="multipart/form-data" tells browser, this form is allowed to upload files -->
-                    <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>"> <!-- Security measures to ensure request to save profile actually comes from the page instead of a malicious third-party site -->
+                    <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($_SESSION["csrf_token"]); ?>"> <!-- Security measures to ensure request to save profile actually comes from the page instead of a malicious third-party site -->
                     <input type="hidden" name="MAX_FILE_SIZE" value="2097152">
 
                     <aside class="side-panel">
@@ -118,9 +95,9 @@ function statusMessage() { // Build a successe or error HTML banner
                             <label class="avatar interactive-photo" for="avatarFile">
                                 <div id="avatarPreview" style="width: 100%; height: 100%; display: grid; place-items: center;">
                                     <?php if (!empty($profile["profilePhotoPath"])): ?>
-                                        <img src="<?php echo e($profile["profilePhotoPath"]); ?>" alt="Profile photo" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <img src="<?php echo ssasEscape($profile["profilePhotoPath"]); ?>" alt="Profile photo" style="width: 100%; height: 100%; object-fit: cover;">
                                     <?php else: ?>
-                                        <?php echo e(initials($profile["fullName"])); ?>
+                                        <?php echo ssasEscape(ssasInitials($profile["fullName"])); ?>
                                     <?php endif; ?>
                                 </div>
                                 
@@ -132,8 +109,8 @@ function statusMessage() { // Build a successe or error HTML banner
                                 <input id="avatarFile" name="avatarFile" type="file" accept="image/jpeg,image/png" disabled style="display: none;">
                             </label>
                             
-                            <p class="identity-name"><?php echo e($profile["fullName"]); ?></p>
-                            <p class="identity-id"><?php echo e($profile["studentID"]); ?></p>
+                            <p class="identity-name"><?php echo ssasEscape($profile["fullName"]); ?></p>
+                            <p class="identity-id"><?php echo ssasEscape($profile["studentID"]); ?></p>
                             
                             <!-- Hidden element ensures existing student.js preview logic doesn't break -->
                             <span id="avatarFileName" style="display: none;"></span>
@@ -141,12 +118,12 @@ function statusMessage() { // Build a successe or error HTML banner
 
                         <section class="readonly-block"> <!-- Display academic record (read-only)-->
                             <p class="readonly-title">Academic Record</p>
-                            <div class="readonly-field"><span>Programme</span><strong><?php echo e($profile["programme"]); ?></strong></div>
-                            <div class="readonly-field"><span>Intake Batch</span><strong><?php echo e($profile["intakeBatch"]); ?></strong></div>
-                            <div class="readonly-field"><span>Current Semester</span><strong><?php echo e($profile["currentSem"]); ?></strong></div>
-                            <div class="readonly-field"><span>Academic Status</span><strong><?php echo e($profile["academicStatus"]); ?></strong></div>
-                            <div class="readonly-field"><span>CGPA</span><strong><?php echo e(number_format((float) $profile["cgpa"], 4)); ?></strong></div>
-                            <div class="readonly-field"><span>Email</span><strong><?php echo e($profile["universityEmail"]); ?></strong></div>
+                            <div class="readonly-field"><span>Programme</span><strong><?php echo ssasEscape($profile["programme"]); ?></strong></div>
+                            <div class="readonly-field"><span>Intake Batch</span><strong><?php echo ssasEscape($profile["intakeBatch"]); ?></strong></div>
+                            <div class="readonly-field"><span>Current Semester</span><strong><?php echo ssasEscape($profile["currentSem"]); ?></strong></div>
+                            <div class="readonly-field"><span>Academic Status</span><strong><?php echo ssasEscape($profile["academicStatus"]); ?></strong></div>
+                            <div class="readonly-field"><span>CGPA</span><strong><?php echo ssasEscape(number_format((float) $profile["cgpa"], 4)); ?></strong></div>
+                            <div class="readonly-field"><span>Email</span><strong><?php echo ssasEscape($profile["universityEmail"]); ?></strong></div>
                         </section>
                     </aside>
 
@@ -157,17 +134,17 @@ function statusMessage() { // Build a successe or error HTML banner
                                 <span class="counter" id="bioCounter">0 / 500</span>
                             </div>
                             <label for="personalBio">Personal Bio</label>
-                            <textarea id="personalBio" name="personalBio" maxlength="500" data-placeholder="Summarise your background, research interest, and project direction." disabled><?php echo e($profile["personalBio"]); ?></textarea>
+                            <textarea id="personalBio" name="personalBio" maxlength="500" data-placeholder="Summarise your background, research interest, and project direction." disabled><?php echo ssasEscape($profile["personalBio"]); ?></textarea>
                             <p class="field-note">Visible to supervisors reviewing your profile.</p>
 
                             <div class="two-col" style="margin-top: 16px;">
                                 <div>
                                     <label for="contactNumber">Mobile Number</label>
-                                    <input id="contactNumber" name="contactNumber" type="text" maxlength="20" pattern="0[0-9]{2}-[0-9]{3}\s[0-9]{4}" title="Format must be 0xx-xxx xxxx (e.g., 012-345 6789)" value="<?php echo e($profile["contactNumber"]); ?>" data-placeholder="e.g., 012-345 6789" disabled>
+                                    <input id="contactNumber" name="contactNumber" type="text" maxlength="20" pattern="0[0-9]{2}-[0-9]{3}\s[0-9]{4}" title="Format must be 0xx-xxx xxxx (e.g., 012-345 6789)" value="<?php echo ssasEscape($profile["contactNumber"]); ?>" data-placeholder="e.g., 012-345 6789" disabled>
                                 </div>
                                 <div>
                                     <label>Eligibility</label> <!-- Read-only field -->
-                                    <div class="readonly-field" style="margin: 0;"><strong><?php echo $profile["eligibilityStatus"] ? "Eligible for FYP" : "Not Eligible"; ?></strong></div>
+                                    <div class="readonly-field" style="margin: 0;"><strong><?php echo ssasEscape($profile["eligibilityStatus"]) ? "Eligible for FYP" : "Not Eligible"; ?></strong></div>
                                 </div>
                             </div>
                         </section>
@@ -185,11 +162,11 @@ function statusMessage() { // Build a successe or error HTML banner
                                         <label class="tag-option <?php echo $checked ? "selected" : ""; ?>">
                                             <span class="tag-name">
                                                 <span class="tag-info-group">
-                                                    <span class="tag-code"><?php echo e(researchTagCode($tag["tagName"])); ?></span>
-                                                    <?php echo e($tag["tagName"]); ?>
+                                                    <span class="tag-code"><?php echo ssasEscape(researchTagCode($tag["tagName"])); ?></span>
+                                                    <?php echo ssasEscape($tag["tagName"]); ?>
                                                 </span>
                                                 
-                                                <input type="checkbox" name="interestTags[]" value="<?php echo e($tag["tagID"]); ?>" data-name="<?php echo e($tag["tagName"]); ?>" <?php echo $checked ? "checked" : ""; ?> disabled>
+                                                <input type="checkbox" name="interestTags[]" value="<?php echo ssasEscape($tag["tagID"]); ?>" data-name="<?php echo ssasEscape($tag["tagName"]); ?>" <?php echo $checked ? "checked" : ""; ?> disabled>
                                             </span>
                                         </label>
                                     <?php endforeach; ?>
@@ -205,16 +182,16 @@ function statusMessage() { // Build a successe or error HTML banner
                             <div class="two-col">
                                 <div>
                                     <label for="linkedInURL">LinkedIn URL</label>
-                                    <input id="linkedInURL" name="linkedInURL" type="url" value="<?php echo e($profile["linkedInURL"]); ?>" data-placeholder="https://linkedin.com/in/username" disabled>
+                                    <input id="linkedInURL" name="linkedInURL" type="url" value="<?php echo ssasEscape($profile["linkedInURL"]); ?>" data-placeholder="https://linkedin.com/in/username" disabled>
                                 </div>
                                 <div>
                                     <label for="githubURL">GitHub URL</label>
-                                    <input id="githubURL" name="githubURL" type="url" value="<?php echo e($profile["githubURL"]); ?>" data-placeholder="https://github.com/username" disabled>
+                                    <input id="githubURL" name="githubURL" type="url" value="<?php echo ssasEscape($profile["githubURL"]); ?>" data-placeholder="https://github.com/username" disabled>
                                 </div>
                             </div>
                             <div style="margin-top: 16px;">
                                 <label for="portfolioURL">Portfolio URL</label>
-                                <input id="portfolioURL" name="portfolioURL" type="url" value="<?php echo e($profile["portfolioURL"]); ?>" data-placeholder="https://yourportfolio.com" disabled>
+                                <input id="portfolioURL" name="portfolioURL" type="url" value="<?php echo ssasEscape($profile["portfolioURL"]); ?>" data-placeholder="https://yourportfolio.com" disabled>
                             </div>
                         </section>
 

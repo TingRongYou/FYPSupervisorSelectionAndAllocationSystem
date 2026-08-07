@@ -4,7 +4,7 @@ require_once __DIR__ . "/../../server/application/auth/SessionManager.php";
 require_once __DIR__ . "/../../server/business/services/SupervisorProfileService.php";
 require_once __DIR__ . "/../../server/business/services/AllocationWindowService.php";
 require_once __DIR__ . "/../../server/data/dao/RequestDAO.php";
-require_once __DIR__ . "/studentLayout.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 
 SessionManager::startSession();
 SessionManager::requireRole("Student");
@@ -30,20 +30,6 @@ $allocationWindowService = new AllocationWindowService();
 $allocationWindow = $allocationWindowService->getWindow();
 $canApplyToSupervisor = $profile && ((bool) ($profile["canApply"] ?? false) || $requestedProposal !== null);
 
-function e($value) {
-    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
-}
-
-function statusMessage() {
-    if (!isset($_GET["status"], $_GET["message"])) {
-        return "";
-    }
-
-    $class = $_GET["status"] === "success" ? "success" : "error";
-
-    return "<div class=\"message {$class}\">" . e($_GET["message"]) . "</div>";
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -57,11 +43,11 @@ function statusMessage() {
 <body>
     <?php echo ssasTopbar("TAR UMT SSAS"); ?>
     <div class="layout">
-        <?php echo studentSidebar("discovery"); ?>
+        <?php echo ssasPortalSidebar("discovery"); ?>
         <main class="main">
             <div class="proposal-shell">
-                <div class="breadcrumb">Discovery > <?php echo $profile ? e($profile["fullName"]) : "Supervisor"; ?> > <?php echo $isResubmission ? "Resubmit Proposal" : "Submit Proposal"; ?></div>
-                <?php echo statusMessage(); ?>
+                <div class="breadcrumb">Discovery > <?php echo $profile ? ssasEscape($profile["fullName"]) : "Supervisor"; ?> > <?php echo $isResubmission ? "Resubmit Proposal" : "Submit Proposal"; ?></div>
+                <?php echo ssasStatusMessage(); ?>
                 
                 <section class="proposal-hero">
                     <h1><?php echo $isResubmission ? "Proposal Resubmission" : "Proposal Submission"; ?></h1>
@@ -75,14 +61,14 @@ function statusMessage() {
                 <?php if (!$profile): ?>
                     <section class="empty">Supervisor profile was not found.</section>
                 <?php elseif (!$allocationWindow["canStudentsSubmit"] && !$requestedProposal): ?>
-                    <section class="empty"><?php echo e($allocationWindow["statusText"]); ?></section>
+                    <section class="empty"><?php echo ssasEscape($allocationWindow["statusText"]); ?></section>
                 <?php elseif (!$canApplyToSupervisor): ?>
-                    <section class="empty"><?php echo e($profile["message"] ?? "This supervisor is not accepting proposals at this time."); ?></section>
+                    <section class="empty"><?php echo ssasEscape($profile["message"] ?? "This supervisor is not accepting proposals at this time."); ?></section>
                 <?php else: ?>
                     <form class="proposal-card" action="../../server/application/student/submitProposal.php" method="POST" enctype="multipart/form-data" id="proposalForm">
-                        <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION["csrf_token"]); ?>">
-                        <input type="hidden" name="supervisorID" value="<?php echo e($supervisorID); ?>">
-                        <input type="hidden" name="requestID" value="<?php echo e($requestID); ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo ssasEscape($_SESSION["csrf_token"]); ?>">
+                        <input type="hidden" name="supervisorID" value="<?php echo ssasEscape($supervisorID); ?>">
+                        <input type="hidden" name="requestID" value="<?php echo ssasEscape($requestID); ?>">
                         <section class="form-panel">
                             <div class="proposal-field">
                                 <label for="projectTitle">Project Title</label>
