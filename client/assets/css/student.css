@@ -1597,13 +1597,6 @@ button.selector {
     border-radius: 10px;
     padding: 13px;
     margin-bottom: 11px;
-    transition: border-color .18s, box-shadow .18s, transform .18s;
-}
-
-.readonly-field:hover {
-    border-color: #cfe0ef;
-    box-shadow: 0 8px 18px rgba(11, 79, 138, .06);
-    transform: translateY(-1px);
 }
 
 .readonly-field span {
@@ -1947,6 +1940,30 @@ button.selector {
     justify-content: flex-end;
     gap: 10px;
     margin-top: 22px;
+}
+
+/* Read-only (View Mode) overrides for Student Profile */
+.view-mode input:disabled, 
+.view-mode textarea:disabled {
+    background: #f8fafc; /* Keeps your standard input background */
+    color: #172033; /* Keeps standard text color */
+    -webkit-text-fill-color: #172033; /* Prevents Safari from forcing faded text */
+    border-color: #dbe6f0; /* Keeps standard border */
+    opacity: 1; /* Overrides default browser dimming */
+    pointer-events: none; /* Completely disables hover, click, and focus interactions */
+}
+
+/* Locks the avatar upload button without changing its color */
+.view-mode .avatar-upload {
+    pointer-events: none;
+    background: #eaf3ff;
+    color: #003f8f;
+    border: none;
+}
+
+/* Locks the tags without fading out the unselected ones */
+.view-mode .tag-option {
+    pointer-events: none;
 }
 
 /* ==========================================================================

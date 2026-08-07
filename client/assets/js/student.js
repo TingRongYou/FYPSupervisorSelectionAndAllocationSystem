@@ -105,6 +105,28 @@ document.addEventListener("DOMContentLoaded", function() {
     const selectedTags = document.getElementById("selectedTags");
     const tagInputs = Array.from(document.querySelectorAll('input[name="interestTags[]"]'));
     const maxAvatarBytes = 512 * 1024;
+    const editBtn = document.getElementById("editProfileBtn");
+    const cancelBtn = document.getElementById("cancelEditBtn");
+    const saveBtn = document.getElementById("saveProfileBtn");
+    const formElements = profileForm.querySelectorAll('input:not([type="hidden"]), textarea');
+
+    // Handle Edit Button Click
+    if (editBtn) {
+        editBtn.addEventListener("click", function() {
+            profileForm.classList.remove("view-mode"); 
+            formElements.forEach(el => {
+                el.disabled = false;
+                // Set the placeholder when editing starts (only if value is empty)
+                if (!el.value && el.dataset.placeholder) {
+                    el.placeholder = el.dataset.placeholder;
+                }
+            });
+            
+            editBtn.style.display = "none";
+            if (cancelBtn) cancelBtn.style.display = "inline-flex";
+            if (saveBtn) saveBtn.style.display = "inline-flex";
+        });
+    }
 
     function updateBioCounter() {
         if (bio && bioCounter) {
@@ -175,16 +197,30 @@ document.addEventListener("DOMContentLoaded", function() {
 
     profileForm.addEventListener("submit", function(event) {
         const selected = tagInputs.filter(input => input.checked);
+        const contactInput = document.getElementById("contactNumber");
 
+        // 1. Mobile Number Validation Check
+        if (contactInput && contactInput.value.trim() !== "") {
+            const phonePattern = /^0\d{2}-\d{3}\s\d{4}$/;
+            if (!phonePattern.test(contactInput.value)) {
+                event.preventDefault();
+                alert("Validation Error - Mobile number must follow the pattern: 0xx-xxx xxxx (e.g., 012-345 6789).");
+                contactInput.focus();
+                return;
+            }
+        }
+
+        // 2. Personal Bio Length Check
         if (bio && bio.value.length > 500) {
             event.preventDefault();
             alert("Validation Error - Personal Bio cannot exceed 500 characters.");
             return;
         }
 
+        // 3. Research Interests Check
         if (selected.length === 0 || selected.length > 5) {
             event.preventDefault();
-            alert("You can select a minimum of 1 and a maximum of 5 research interests . Please remove one to add another.");
+            alert("You can select a minimum of 1 and a maximum of 5 research interests. Please remove one to add another.");
             return;
         }
     });
@@ -194,6 +230,19 @@ document.addEventListener("DOMContentLoaded", function() {
             updateBioCounter();
             updateTags();
             if (avatarFileName) avatarFileName.textContent = "JPG or PNG, max 2.0MB.";
+            
+            if (editBtn && cancelBtn && saveBtn) {
+                profileForm.classList.add("view-mode");
+                formElements.forEach(el => {
+                    el.disabled = true;
+                    // Clear out the placeholder when locked so it stays blank
+                    el.placeholder = "";
+                });
+                
+                editBtn.style.display = "inline-flex";
+                cancelBtn.style.display = "none";
+                saveBtn.style.display = "none";
+            }
         }, 0);
     });
 
