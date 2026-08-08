@@ -2,7 +2,7 @@
 
 <br />
 <div align="center">
-  <a href="https://github.com/TingRongYou/FYPSupervisorSelectionAndAllocationSystem">
+  <a href="https://github.com/TingRongYou/fyp-supervisor-selection-and-allocation-system">
     <img src="client/assets/img/tarumt_logo_with_name.png" alt="Logo" width="250" height="80">
   </a>
 
@@ -11,14 +11,14 @@
   <p align="center">
     A streamlined system for managing student-supervisor selection and auto allocation processes.
     <br />
-    <a href="https://github.com/TingRongYou/FYPSupervisorSelectionAndAllocationSystem"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/TingRongYou/fyp-supervisor-selection-and-allocation-system"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/TingRongYou/FYPSupervisorSelectionAndAllocationSystem">View Demo</a>
+    <a href="https://github.com/TingRongYou/fyp-supervisor-selection-and-allocation-system">View Demo</a>
     &middot;
-    <a href="https://github.com/TingRongYou/FYPSupervisorSelectionAndAllocationSystem/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    <a href="https://github.com/TingRongYou/fyp-supervisor-selection-and-allocation-system">Report Bug</a>
     &middot;
-    <a href="https://github.com/TingRongYou/FYPSupervisorSelectionAndAllocationSystem/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+    <a href="https://github.com/TingRongYou/fyp-supervisor-selection-and-allocation-system">Request Feature</a>
   </p>
 </div>
 
@@ -118,7 +118,7 @@ Your local server needs to host the files. Do not clone this to your Desktop.
 1. Navigate to your XAMPP installation's public directory: `C:\xampp\htdocs\`
 2. Open your terminal in this folder and run:
    ```bash
-   git clone git@github.com:TingRongYou/FYPSupervisorSelectionAndAllocationSystem.git ssas
+   git clone git@github.com:TingRongYou/fyp-supervisor-selection-and-allocation-system.git ssas
    ```
 3. Open the newly created SSAS folder in VS Code
 
@@ -211,7 +211,7 @@ All implementation strictly follow:
 * System Architecture Design
 * Waterfall SDLC Documentation
 
-_For more information, please refer to the [Documentation](https://github.com/TingRongYou/FYPSupervisorSelectionAndAllocationSystem.git)_
+_For more information, please refer to the [Documentation](https://github.com/TingRongYou/fyp-supervisor-selection-and-allocation-system.git)_
 
 ### 3. Role-Based Access Control (RBAC)
 
@@ -307,6 +307,6 @@ This repository contains an academic Final Year Project (FYP) developed by under
 * Ting Rong You - [ryting999@gmail.com](ryting999@gmail.com) - [LinkedIn](https://linkedin.com/in/ting-rong-you-945aab3b6)
 * Yong Chong Xin - [yongchongxin0517@gmail.com](yongchongxin0517@gmail.com) - [LinkedIn](https://www.linkedin.com/in/yong-chong-xin-55aab13b6/)
 
-Project Link: https://github.com/TingRongYou/FYPSupervisorSelectionAndAllocationSystem.git
+Project Link: https://github.com/TingRongYou/fyp-supervisor-selection-and-allocation-system.git
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
