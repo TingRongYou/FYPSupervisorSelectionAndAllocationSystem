@@ -142,55 +142,73 @@ document.addEventListener("DOMContentLoaded", function() {
         window.history.replaceState({}, "", window.location.pathname);
     }
 
-    const toggleBtn = document.getElementById("togglePw");
-    const pwInput = document.getElementById("passwordInput");
-    const eyeIcon = document.getElementById("eyeIcon");
-    const eyeOffIcon = document.getElementById("eyeOffIcon");
-    const loginForm = document.querySelector(".login-card form");
-    const emailInput = loginForm ? loginForm.querySelector('input[name="email"]') : null;
+    const loginForm = document.querySelector(".login-card form, .card form");
+    const emailInput = loginForm ? loginForm.querySelector('input[type="email"]') : null;
+    const passwordInputs = document.querySelectorAll('input[type="password"]');
 
-    if (toggleBtn && pwInput) {
+    // 1. Dynamic Eye Toggle: Works for ANY password field on the page
+    document.querySelectorAll(".toggle-pw").forEach(function(toggleBtn) {
         toggleBtn.addEventListener("click", function () {
-            const isHidden = pwInput.type === "password";
-            pwInput.type = isHidden ? "text" : "password";
-            if (eyeIcon) eyeIcon.style.display = isHidden ? "none" : "block";
-            if (eyeOffIcon) eyeOffIcon.style.display = isHidden ? "block" : "none";
-            toggleBtn.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
+            const field = this.closest(".field");
+            const input = field.querySelector("input");
+            const icons = this.querySelectorAll("svg");
+            
+            const isHidden = input.type === "password";
+            input.type = isHidden ? "text" : "password";
+            
+            if (icons[0]) icons[0].style.display = isHidden ? "none" : "block";
+            if (icons[1]) icons[1].style.display = isHidden ? "block" : "none";
+            
+            this.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
         });
+    });
+
+    // 2. Dynamic Validation: Applies color logic to ALL password fields
+    function validateAnyPassword(input, showError) {
+        if (!input) return false;
+        if (input.value.trim() === "") {
+            if (showError) setFieldError(input, "Password is required.");
+            else clearFieldState(input);
+            return false;
+        }
+        setFieldValid(input);
+        return true;
     }
 
-    [emailInput, pwInput].forEach(function(input) {
-        if (!input) return;
+    if (emailInput) {
+        emailInput.addEventListener("input", function() { hideMessage(); validateEmailField(true); });
+        emailInput.addEventListener("blur", function() { validateEmailField(true); });
+    }
 
-        input.addEventListener("input", function() {
-            hideMessage();
-            if (input === emailInput) {
-                validateEmailField(true);
-            } else {
-                validatePasswordField(true);
-            }
-        });
-
-        input.addEventListener("blur", function() {
-            if (input === emailInput) {
-                validateEmailField(true);
-            } else {
-                validatePasswordField(true);
-            }
-        });
+    passwordInputs.forEach(function(input) {
+        input.addEventListener("input", function() { hideMessage(); validateAnyPassword(input, true); });
+        input.addEventListener("blur", function() { validateAnyPassword(input, true); });
     });
 
     if (loginForm) {
         loginForm.setAttribute("novalidate", "novalidate");
 
         loginForm.addEventListener("submit", function(event) {
-            const hasError =
-                !validateEmailField(true) ||
-                !validatePasswordField(true);
+            let hasError = false;
 
+            // 1. Only validate the email field IF it exists on the page
+            if (emailInput && !validateEmailField(true)) {
+                hasError = true;
+            }
+
+            // 2. Validate EVERY password field found on the page
+            if (typeof passwordInputs !== 'undefined') {
+                passwordInputs.forEach(function(input) {
+                    if (!validateAnyPassword(input, true)) {
+                        hasError = true;
+                    }
+                });
+            }
+
+            // 3. Block submission if any errors were found
             if (hasError) {
                 event.preventDefault();
-                showMessage("Please correct the highlighted login fields.", "error");
+                showMessage("Please correct the highlighted fields.", "error");
 
                 const firstInvalid = loginForm.querySelector("[aria-invalid='true']");
                 if (firstInvalid) {

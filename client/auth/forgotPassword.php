@@ -18,6 +18,7 @@ $resetLink = "";
 */
 
 require_once "../../server/data/database/database.php";
+require_once __DIR__ . "/../shared/accountLayout.php";
 
 $database = new Database();
 $pdo = $database->connect();
@@ -173,7 +174,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <h2>Reset Your Password</h2>
 
                 <?php if ($message !== ""): ?>
-                    <div class="message <?php echo ssasEscape($status); ?>">
+                    <div class="message show <?php echo ssasEscape($status); ?>">
                         <?php echo ssasEscape($message); ?>
                     </div>
                 <?php endif; ?>
@@ -189,6 +190,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <?php if ($resetLink === ""): ?>
                     <form method="POST" data-email-validation>
                         <div class="field">
+                            <span class="field-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                                </svg>
+                            </span>
                             <input type="email" name="email" placeholder="Enter your university email" value="<?php echo ssasEscape($_POST['email'] ?? ''); ?>" required>
                         </div>
                         <div class="button-row">
