@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system intercepts the form submission, and display alert error when a user attempts to submit a review without selecting a mandatory numerical star rating.</description>
+   <name>StudentReviewModule_StructuredRatingSystem_TC004</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>534b8766-3a46-4e63-84f2-c29e6a46958a</testCaseGuid>
+</TestCaseEntity>

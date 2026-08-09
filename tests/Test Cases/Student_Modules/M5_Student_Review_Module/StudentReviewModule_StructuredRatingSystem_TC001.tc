@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system successfully commits the review to the database, recalculates the aggregate score, and redirects to the “Completed” UI state when all conditions (valid allocation, no prior review, valid star rating, and valid text length) are met.</description>
+   <name>StudentReviewModule_StructuredRatingSystem_TC001</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>89357c5a-908d-4501-86d2-d817d4f70fad</testCaseGuid>
+</TestCaseEntity>

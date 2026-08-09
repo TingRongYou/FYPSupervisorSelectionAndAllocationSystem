@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system restricts or intercept text feedback exceeding the 1000-character limit, preventing invalid data submission.</description>
+   <name>StudentReviewModule_StructuredRatingSystem_TC005</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>a8ca9434-177e-4121-8b53-feb9e90f66a7</testCaseGuid>
+</TestCaseEntity>

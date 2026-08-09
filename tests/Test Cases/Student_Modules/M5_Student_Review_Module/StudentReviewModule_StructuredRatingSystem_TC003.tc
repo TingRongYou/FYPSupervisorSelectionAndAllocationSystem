@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system aborts rendering the review form and displays the “Already Reviewed” prompt when a student with a valid allocation attempts to access the page after a pre-existing review for this allocation already exists.</description>
+   <name>StudentReviewModule_StructuredRatingSystem_TC003</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>afe89644-6bb5-48f5-8c1f-6fd8c6769aad</testCaseGuid>
+</TestCaseEntity>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system aborts rendering the review form and instead displays an Access Error (empty state) when a student without a valid supervisor allocation attempts to access the page.</description>
+   <name>StudentReviewModule_StructuredRatingSystem_TC002</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>a9e4d6f0-7636-4abd-b7d3-39b887c79145</testCaseGuid>
+</TestCaseEntity>

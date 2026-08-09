@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that when the “Submit Anonymously” toggle is activated, the system successfully renders the author string as “Anonymous Student” on the public UI while binding the true Student ID in the backend.</description>
+   <name>StudentReviewModule_AnonymousToggle_TC001</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>67b112af-247a-4beb-a27e-b737f18cbb6e</testCaseGuid>
+</TestCaseEntity>

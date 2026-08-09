@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that when the “Submit Anonymously” toggle remains deactivated, the system renders the student’s true name on the supervisor UI, maintaining transparency.</description>
+   <name>StudentReviewModule_AnonymousToggle_TC002</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>4c570329-50c6-434e-a187-abc41b9dbfd0</testCaseGuid>
+</TestCaseEntity>
