@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description></description>
+   <name>SupervisorAvailabilityandStatusModule_DynamicStatusBadge_TC002</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>f9f233de-8b58-4db1-b0f8-0ac131f23833</testCaseGuid>
+</TestCaseEntity>

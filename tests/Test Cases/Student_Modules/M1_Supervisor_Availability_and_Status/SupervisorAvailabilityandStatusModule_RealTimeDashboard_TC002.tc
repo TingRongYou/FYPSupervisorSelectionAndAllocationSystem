@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>The supervisor account has valid database records for an active supervisee count (4) and predefined role limit (28). There is at least 1 “Pending” student proposal request assigned to this supervisor in the database.</description>
+   <name>SupervisorAvailabilityandStatusModule_RealTimeDashboard_TC002</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>1ac98a38-c323-4903-a786-c88938a9edc1</testCaseGuid>
+</TestCaseEntity>

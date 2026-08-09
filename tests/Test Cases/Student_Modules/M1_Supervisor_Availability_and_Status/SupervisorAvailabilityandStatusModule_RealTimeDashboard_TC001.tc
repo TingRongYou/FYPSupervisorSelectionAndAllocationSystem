@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>The supervisor account has valid database records for active supervisee count (3) and predefined role limit (28).</description>
+   <name>SupervisorAvailabilityandStatusModule_RealTimeDashboard_TC001</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>43f6425e-a64a-4a23-9307-0ccbf4fa7967</testCaseGuid>
+</TestCaseEntity>

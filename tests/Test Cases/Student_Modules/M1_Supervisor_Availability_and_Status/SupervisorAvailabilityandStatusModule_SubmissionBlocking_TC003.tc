@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system physically disables the application pipeline on the supervisor’s profile page when the student has reached the maximum allowed limit of pending application requests.</description>
+   <name>SupervisorAvailabilityandStatusModule_SubmissionBlocking_TC003</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>bf6d0c7b-d6d5-435c-9c5a-bd7dd28b8be3</testCaseGuid>
+</TestCaseEntity>

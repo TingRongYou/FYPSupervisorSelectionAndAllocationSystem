@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system enables the “Apply” button and permits navigation to the application form (allowing the backend POST request) when all prerequisite conditions are satisfied.</description>
+   <name>SupervisorAvailabilityandStatusModule_SubmissionBlocking_TC001</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>eed7d572-d76f-4eed-b862-5224b8badbc5</testCaseGuid>
+</TestCaseEntity>

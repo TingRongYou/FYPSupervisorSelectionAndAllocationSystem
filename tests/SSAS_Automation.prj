@@ -11,7 +11,7 @@
    <modifiedEdition>ENTERPRISE</modifiedEdition>
    <modifiedVersion>11.3.0</modifiedVersion>
    <pageLoadTimeout>0</pageLoadTimeout>
-   <projectFileLocation>C:\Users\Acer\Katalon Studio\SSAS_Automation\SSAS_Automation.prj</projectFileLocation>
+   <projectFileLocation>C:\xampp\htdocs\ssas\tests\SSAS_Automation.prj</projectFileLocation>
    <sourceContent>
       <sourceFolderList>
          <sourceFolderConfiguration>

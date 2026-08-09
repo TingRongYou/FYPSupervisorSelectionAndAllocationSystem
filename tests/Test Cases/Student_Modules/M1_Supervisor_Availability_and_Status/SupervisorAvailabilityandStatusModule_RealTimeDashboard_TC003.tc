@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify the dashboard's error handling and fallback rendering when a supervisor’s quota data is missing or invalid in the database.</description>
+   <name>SupervisorAvailabilityandStatusModule_RealTimeDashboard_TC003</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>7c41e276-3302-470a-ae51-167ec3d60c27</testCaseGuid>
+</TestCaseEntity>

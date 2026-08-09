@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system physically disables the application pipeline on the supervisor’s profile page when the submission phase is closed, even if the target supervisor is available.</description>
+   <name>SupervisorAvailabilityandStatusModule_SubmissionBlocking_TC005</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>c5220911-eb6e-45d5-b657-ddb1b10c050d</testCaseGuid>
+</TestCaseEntity>

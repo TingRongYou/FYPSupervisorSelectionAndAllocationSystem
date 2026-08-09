@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system physically disables the application pipeline on the supervisor’s profile page when the system phase is not set to “Submission Phase”, even when the supervisor is available and the student has fewer than 3 pending requests.</description>
+   <name>SupervisorAvailabilityandStatusModule_SubmissionBlocking_TC004</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>eeb01c51-44b9-4522-9f81-960c9630c824</testCaseGuid>
+</TestCaseEntity>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the dashboard correctly assigns the “Available” status and renders the green visual badge for a supervisor whose active supervisee count is below their predefined role limit.</description>
+   <name>SupervisorAvailabilityandStatusModule_DynamicStatusBadge_TC001</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>bafaf116-3287-4ab9-9776-72c2ad1cd07d</testCaseGuid>
+</TestCaseEntity>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>The target supervisor (Robin) has a “Full” status (Active Count >= Role Limit).</description>
+   <name>SupervisorAvailabilityandStatusModule_SubmissionBlocking_TC002</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>2fb3cc5a-e124-4bbc-b13a-d1ec5ece0cd0</testCaseGuid>
+</TestCaseEntity>
