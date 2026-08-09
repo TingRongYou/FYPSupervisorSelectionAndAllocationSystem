@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const tagCounter = document.getElementById("tagCounter");
     const selectedTags = document.getElementById("selectedTags");
     const tagInputs = Array.from(document.querySelectorAll('input[name="interestTags[]"]'));
-    const maxAvatarBytes = 512 * 1024;
+    const maxAvatarBytes = 2 * 1024 * 1024; // 2.0MB
     const editBtn = document.getElementById("editProfileBtn");
     const cancelBtn = document.getElementById("cancelEditBtn");
     const saveBtn = document.getElementById("saveProfileBtn");

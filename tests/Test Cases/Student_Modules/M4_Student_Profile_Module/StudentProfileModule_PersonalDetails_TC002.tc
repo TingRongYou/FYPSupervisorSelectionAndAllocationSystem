@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system intercepts the upload and displays a UI error alert when a user attempts to upload an invalid avatar that violates the size or format constraints.</description>
+   <name>StudentProfileModule_PersonalDetails_TC002</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>b84d0252-92d6-4c80-832f-437794476610</testCaseGuid>
+</TestCaseEntity>

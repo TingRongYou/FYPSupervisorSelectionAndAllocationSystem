@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system successfully executes a partial database commit (saving contact number, bio, URLs, and avatar) and displays a “Profile Saved” UI notification when all input fields and the avatar meet size, format, and character/regex constraints.</description>
+   <name>StudentProfileModule_PersonalDetails_TC001</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>4837a4f4-612e-4b2f-8532-87be515ec33b</testCaseGuid>
+</TestCaseEntity>
