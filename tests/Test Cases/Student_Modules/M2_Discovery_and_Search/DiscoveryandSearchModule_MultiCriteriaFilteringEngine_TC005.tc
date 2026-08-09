@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the filtering engine correctly removes a supervisor’s profile card from the UI view when the availability status tab selection does not match the supervisor’s actual capacity state, even if search text, programme and interest match.</description>
+   <name>DiscoveryandSearchModule_MultiCriteriaFilteringEngine_TC005</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>43570e8d-51f6-4554-b963-994a40958b92</testCaseGuid>
+</TestCaseEntity>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the recommendation algorithm excludes an unavailable supervisor (Robin) from the “Top Matches” UI display entirely, even if the supervisor shares matching expertise tags with the student.</description>
+   <name>DiscoveryandSearchModule_RecommendationAlgorithm_TC003</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>2cdd3910-36e7-48a1-9845-14cd32312807</testCaseGuid>
+</TestCaseEntity>

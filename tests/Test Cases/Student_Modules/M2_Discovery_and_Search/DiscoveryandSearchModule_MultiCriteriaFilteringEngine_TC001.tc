@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the filtering engine correctly remains and displays a supervisor’s profile card when the search text, programme, research interest, and availability status all perfectly match the supervisor’s record.</description>
+   <name>DiscoveryandSearchModule_MultiCriteriaFilteringEngine_TC001</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>44c8f3f2-62a3-4d94-bbc1-5e8c85ad430c</testCaseGuid>
+</TestCaseEntity>

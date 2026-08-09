@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description></description>
+   <name>DiscoveryandSearchModule_RecommendationAlgorithm_TC001</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>a35ce715-d468-4c2c-a133-a936b414f660</testCaseGuid>
+</TestCaseEntity>

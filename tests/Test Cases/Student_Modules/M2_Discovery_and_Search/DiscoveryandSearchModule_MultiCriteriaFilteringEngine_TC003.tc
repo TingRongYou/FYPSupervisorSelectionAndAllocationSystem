@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the filtering engine correctly removes a supervisor’s profile card from the UI view when the programme dropdown selection does not match the supervisor’s registered programme.</description>
+   <name>DiscoveryandSearchModule_MultiCriteriaFilteringEngine_TC003</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>66646725-c2a3-4e66-ac4a-c8966624c455</testCaseGuid>
+</TestCaseEntity>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the recommendation algorithm excludes a supervisor from the “Top Matches” UI display entirely when the supervisor shares zero intersecting expertise tags with the student, even if the supervisor is currently “Available”.</description>
+   <name>DiscoveryandSearchModule_RecommendationAlgorithm_TC002</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>10e91d13-7004-4a89-94b3-8d06ea03f2c5</testCaseGuid>
+</TestCaseEntity>

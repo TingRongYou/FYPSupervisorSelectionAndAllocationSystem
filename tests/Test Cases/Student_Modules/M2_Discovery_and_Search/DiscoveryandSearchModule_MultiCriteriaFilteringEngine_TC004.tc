@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the filtering engine correctly removes a supervisor’s profile card from the UI view when the research interest dropdown selection does not match the supervisor’s profile.</description>
+   <name>DiscoveryandSearchModule_MultiCriteriaFilteringEngine_TC004</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>41ee869d-50d1-4cd4-9d45-23e6fe205cf6</testCaseGuid>
+</TestCaseEntity>

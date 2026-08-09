@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the filtering engine correctly removes a supervisor’s profile card from the UI view when the search text input does not match the supervisor’s name, even if all other dropdown and tab criteria perfectly match.</description>
+   <name>DiscoveryandSearchModule_MultiCriteriaFilteringEngine_TC002</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>f72afa48-733c-4646-9d6d-b3f13b85979f</testCaseGuid>
+</TestCaseEntity>
