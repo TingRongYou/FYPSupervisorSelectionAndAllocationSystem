@@ -59,7 +59,7 @@ try {
     WebUI.navigateToUrl('http://localhost/ssas/client/supervisor/supervisorStudentReviews.php')
     WebUI.waitForElementVisible(reviewAuthorText, 10, FailureHandling.STOP_ON_FAILURE)
 
-    // VERIFICATION: Verify True Name is rendered (e.g., "Rayden" or full name in DB)
+    // VERIFICATION: Verify True Name is rendered (e.g., "Sherry" or full name in DB)
     String renderedAuthor = WebUI.getText(reviewAuthorText)
     println("Author rendered as: " + renderedAuthor)
     

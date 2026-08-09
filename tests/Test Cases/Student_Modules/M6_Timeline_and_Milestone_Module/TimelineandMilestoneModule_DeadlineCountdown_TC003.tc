@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that when the active system phase is the “Submission Phase” but the remaining time allowance has expired or reached 00:00:00, the system automatically invokes a global system lock on the Request &amp; Proposal module and halts the timer.</description>
+   <name>TimelineandMilestoneModule_DeadlineCountdown_TC003</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>a7aee011-b335-45e7-9e45-3c4ddd5d0e47</testCaseGuid>
+</TestCaseEntity>

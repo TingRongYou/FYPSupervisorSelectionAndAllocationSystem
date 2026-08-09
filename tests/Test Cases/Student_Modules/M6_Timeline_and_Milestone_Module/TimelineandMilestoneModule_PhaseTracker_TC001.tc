@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that when the central server time falls within a predefined phase’s start and end timestamps, the system renders the persistent visual widget explicitly broadcasting the active phase title and details on the student timeline dashboard.</description>
+   <name>TimelineandMilestoneModule_PhaseTracker_TC001</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>7769f640-eb8d-4344-a2cb-e1212c7152ed</testCaseGuid>
+</TestCaseEntity>

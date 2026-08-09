@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that when the active system phase is the “Submission Phase” and the remaining time allowance is greater than 00:00:00, the system successfully renders and continuously updates the dynamic visual countdown timer on the UI.</description>
+   <name>TimelineandMilestoneModule_DeadlineCountdown_TC001</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>4a983ad6-2690-4f9a-afd2-00d9c1d060dd</testCaseGuid>
+</TestCaseEntity>

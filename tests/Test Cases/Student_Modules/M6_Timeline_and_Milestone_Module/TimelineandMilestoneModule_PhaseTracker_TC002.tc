@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that when the central server time does not fall within any predefined phase’s start and end timestamps, the system gracefully handles the state by rendering an inactive or “No active phase” state preventing UI errors.</description>
+   <name>TimelineandMilestoneModule_PhaseTracker_TC002</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>78432ae6-b98b-4948-a85c-cd4d077bd699</testCaseGuid>
+</TestCaseEntity>

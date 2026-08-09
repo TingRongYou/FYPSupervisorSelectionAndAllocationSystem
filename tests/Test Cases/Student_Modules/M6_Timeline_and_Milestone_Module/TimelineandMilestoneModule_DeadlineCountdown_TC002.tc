@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that when the active system phase is not the “Submission Phase”, the system omits the submission countdown timer from the UI since it is not applicable to the current phase.</description>
+   <name>TimelineandMilestoneModule_DeadlineCountdown_TC002</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>0e962bbe-5c28-4643-85c6-a90fa8627e99</testCaseGuid>
+</TestCaseEntity>
