@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the application status page renders the proposal table, aggregated count tiles, a yellow “Pending” status badge, and the live 72-hour TTL countdown timer when the system retrieves at least one proposal record in the “Pending” state.</description>
+   <name>RequestandProposalModule_StatusTracking_TC001</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>5c016f12-54bc-4639-a4b0-a1ab00f325b8</testCaseGuid>
+</TestCaseEntity>

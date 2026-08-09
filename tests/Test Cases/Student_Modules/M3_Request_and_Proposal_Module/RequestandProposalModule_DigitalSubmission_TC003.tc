@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system intercepts the submission and displays a contextual validation error when the uploaded document file size exceeds the 5.0 MB limit, even if a project title is provided and the format is .pdf.</description>
+   <name>RequestandProposalModule_DigitalSubmission_TC003</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>2e2dd617-218d-424d-b881-520a004c5eff</testCaseGuid>
+</TestCaseEntity>

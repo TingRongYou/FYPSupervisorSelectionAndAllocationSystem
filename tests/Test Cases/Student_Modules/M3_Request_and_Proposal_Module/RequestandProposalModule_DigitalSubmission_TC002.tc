@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system intercepts the submission and displays a contextual validation error when the project title input field is left blank, even if a valid PDF document is uploaded.</description>
+   <name>RequestandProposalModule_DigitalSubmission_TC002</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>67ef3632-495d-4862-a910-87e3043eb0a8</testCaseGuid>
+</TestCaseEntity>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system successfully processes the upload, redirects the user, and displays a “Submission Successful” UI notification when the project title is populated, the file size is within the 5.0 MB limit, and the file format is strictly .pdf.</description>
+   <name>RequestandProposalModule_DigitalSubmission_TC001</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>914bf3b1-1e73-4b4b-ae0f-40ee96ae8bca</testCaseGuid>
+</TestCaseEntity>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the application status page renders the visual “Empty State” graphic and the Discovery redirect hyperlink when the system retrieves zero proposal records for the authenticated student.</description>
+   <name>RequestandProposalModule_StatusTracking_TC003</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>f378483a-24d5-40f1-9414-5c09939e14ad</testCaseGuid>
+</TestCaseEntity>

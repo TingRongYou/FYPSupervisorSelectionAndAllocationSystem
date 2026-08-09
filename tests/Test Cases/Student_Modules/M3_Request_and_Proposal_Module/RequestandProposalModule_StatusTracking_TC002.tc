@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the application status page renders the proposal table, aggregated count tiles, a finalised status badge (Green/Red/Gray) without the countdown timer when the system retrieves a proposal record in a finalised state.</description>
+   <name>RequestandProposalModule_StatusTracking_TC002</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>67e76c50-3f94-4dc8-b68e-5d5600db2739</testCaseGuid>
+</TestCaseEntity>

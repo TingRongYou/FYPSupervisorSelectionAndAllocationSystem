@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system intercepts the submission and displays a contextual validation error when the uploaded document file format is not strictly .pdf even if a project title is provided and the file size is within limits.</description>
+   <name>RequestandProposalModule_DigitalSubmission_TC004</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>79ec455d-9835-4742-a3e9-8986f4529f32</testCaseGuid>
+</TestCaseEntity>
