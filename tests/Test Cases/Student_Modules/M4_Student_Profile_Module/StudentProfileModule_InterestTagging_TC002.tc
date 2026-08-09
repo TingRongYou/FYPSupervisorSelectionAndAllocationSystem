@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system intercepts the action and displays a blocking UI alert when the user attempts to submit the form with zero research interest tags selected.</description>
+   <name>StudentProfileModule_InterestTagging_TC002</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>2268bb07-c936-4810-aef6-07407c305e5b</testCaseGuid>
+</TestCaseEntity>

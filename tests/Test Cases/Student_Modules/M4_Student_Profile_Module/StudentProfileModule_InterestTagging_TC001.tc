@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system allows the UI toggle click and successfully commits the tag array to the database when the total number of selected research tags is between 1 and 5.</description>
+   <name>StudentProfileModule_InterestTagging_TC001</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>2d1e21a9-4dac-4e91-98b3-696ea463a335</testCaseGuid>
+</TestCaseEntity>

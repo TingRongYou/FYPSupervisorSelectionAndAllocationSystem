@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system intercepts the form submission and displays a UI error when a user enters invalid URL formats for the LinkedIn, GitHub, or Portfolio fields.</description>
+   <name>StudentProfileModule_PersonalDetails_TC004</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>feabfe47-325b-45f7-8a0e-452656995b57</testCaseGuid>
+</TestCaseEntity>

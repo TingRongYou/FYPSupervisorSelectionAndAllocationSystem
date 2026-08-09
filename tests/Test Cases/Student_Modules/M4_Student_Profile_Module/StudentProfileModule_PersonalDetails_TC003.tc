@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system intercepts the form submission and displays a UI error alert when a user enters a personal bio that exceeds the 500-character limit.</description>
+   <name>StudentProfileModule_PersonalDetails_TC003</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>e0600e58-bfaf-4eac-b91a-1b6adf9c3c09</testCaseGuid>
+</TestCaseEntity>

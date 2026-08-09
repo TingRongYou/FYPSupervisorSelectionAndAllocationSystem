@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system instantly rolls back the toggle state and triggers a blocking native browser alert when a user attempts to select a 6th research interest tag.</description>
+   <name>StudentProfileModule_InterestTagging_TC003</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>f1c98219-8398-4dd6-ad40-87aa43a105f8</testCaseGuid>
+</TestCaseEntity>

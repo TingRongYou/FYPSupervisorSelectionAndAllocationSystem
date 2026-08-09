@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>To verify that the system intercepts the form submission and displays a UI error when a user enters an invalid contact number that violates the required format pattern.</description>
+   <name>StudentProfileModule_PersonalDetails_TC005</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>f9211912-1ef9-4a36-9fda-1ada2c0c5025</testCaseGuid>
+</TestCaseEntity>
