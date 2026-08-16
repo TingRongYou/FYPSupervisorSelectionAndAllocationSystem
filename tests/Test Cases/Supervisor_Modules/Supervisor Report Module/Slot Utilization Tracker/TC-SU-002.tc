@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Negative</description>
+   <name>TC-SU-002</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>30f8583c-e635-4c5c-9aa4-f48424ec14aa</testCaseGuid>
+</TestCaseEntity>

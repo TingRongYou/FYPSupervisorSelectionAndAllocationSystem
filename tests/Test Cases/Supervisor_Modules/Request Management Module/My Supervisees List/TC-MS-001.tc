@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Positive Test Case</description>
+   <name>TC-MS-001</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>f30739a2-6839-462d-baa3-9b9110a6d9a2</testCaseGuid>
+</TestCaseEntity>

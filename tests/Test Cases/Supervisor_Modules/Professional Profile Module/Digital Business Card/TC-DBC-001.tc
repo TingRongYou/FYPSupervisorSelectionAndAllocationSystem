@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Positive Test Case</description>
+   <name>TC-DBC-001</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>c165ac27-df22-4dd2-b8e2-2fe64798c67d</testCaseGuid>
+</TestCaseEntity>

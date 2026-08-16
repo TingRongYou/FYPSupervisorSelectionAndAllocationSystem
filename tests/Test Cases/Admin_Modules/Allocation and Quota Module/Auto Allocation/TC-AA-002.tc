@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Negative Test Case</description>
+   <name>TC-AA-002</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>dff4b5fa-fe4c-462b-80b2-9a4ad96c2d79</testCaseGuid>
+</TestCaseEntity>

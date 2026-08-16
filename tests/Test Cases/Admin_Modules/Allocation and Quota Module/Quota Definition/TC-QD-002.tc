@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Negative Test Case</description>
+   <name>TC-QD-002</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>3e7e33cd-b6c4-4c25-ad78-55e403b69448</testCaseGuid>
+</TestCaseEntity>

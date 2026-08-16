@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Positive Test Case</description>
+   <name>TC-IR-001</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>0f62743f-bf4c-43d7-a7da-6e89f5e65e2b</testCaseGuid>
+</TestCaseEntity>

@@ -55,7 +55,7 @@ try {
     
     // Step 9: Upload a project proposal document
     // IMPORTANT: Update this string to a valid PDF path on your computer!
-    String dummyFilePath = "C:\\Users\\Acer\\Downloads\\Student Answer Sheet practical 6-2.docx.pdf" 
+    String dummyFilePath = "C:\\xampp\\htdocs\\ssas\\tests\\assets\\valid_proposal.pdf" 
     WebUI.uploadFile(proposalUpload, dummyFilePath, FailureHandling.STOP_ON_FAILURE)
     
     // Step 10 (Labeled 8 in template): Click the "Submit Proposal" button
