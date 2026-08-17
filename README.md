@@ -33,6 +33,7 @@
         <li><a href="#2-cloning-the-repository">2. Cloning The Repository</a></li>
         <li><a href="#3-database-initialisation">3. Database Initialisation</a></li>
         <li><a href="#4-architecture-overview">4. Architecture Overview</a></li>
+        <li><a href="#5-running-the-application">5. Running the Application</a></li>
       </ul>
     </li>
     <li><a href="#development">Development</a>
@@ -43,6 +44,7 @@
         <li><a href="#4-coding-standards">Coding Standards</a></li>
       </ul>
     </li>
+    <li><a href="#automated-testing">Automated Testing</a>
     <li><a href="#demo">Demo</a>
       <ul>
         <li><a href="#1-student">Student</a></li>
