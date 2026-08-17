@@ -103,6 +103,7 @@ This section lists the tools used for the SSAS project.
 
 ## Getting Started
 To ensure code compatibility and prevent database conflicts, please follow these exact steps to set up the SSAS project on your local workstation.
+_(Note: You can directly access the deployed website through: [https://tarumt-ssas.duckdns.org](https://tarumt-ssas.duckdns.org))_
 
 ### 1. Prerequisites
 You **must** use the exact same XAMPP version as the rest of the team to ensure PHP 8.0 compatibility.
@@ -176,6 +177,14 @@ ssas/
 │   ├── profile_photos/
 │   └── proposals/
 │
+├── tests/                          # Automated E2E Testing (Katalon Studio)
+│   ├── Object Repository/
+│   ├── Scripts/
+│   │   ├── Admin_Modules/
+│   │   ├── Student_Modules/
+│   │   └── Supervisor_Modules/
+│   └── Test Cases/
+│
 ├── .gitignore
 ├── .htaccess
 └── README.md
@@ -187,6 +196,19 @@ ssas/
 * `/server/data` - The Data Access Layer containing Data Access Objects (`dao`), PDO database connection scripts (`database`), and file system managers (`storage`).
 * `/database` - SQL schema blueprints and CSV data required to initialize the local environment.
 * `/storage` - Local directory for user-uploaded media (`proposals`, `profile_photos`, `intro_videos`). This is intentionally ignored by Git to prevent repository bloat.
+* `/tests` - Katalon Studio automated testing workspace. Contains End-to-End (E2E) test Scripts and Test Cases strictly organized by role modules.
+
+### 5. Running the Application
+Once the database is initialized, you can access the system via your local web browser.
+
+**Entry Point:**
+* `http://localhost/ssas/client/auth/login.php`
+
+**Test Accounts:**
+To evaluate the system's Role-Based Access Control (RBAC), please use the following default credentials:
+* **Student:** Email: `yongcx-wp23@student.tarc.edu.my` | Password: `Jasden7181@`
+* **Supervisor:** Email: `leezq1129@tarc.edu.my` | Password: `LeeZQ7181@`
+* **Administrator:** Email: `admin@tarc.edu.my` | Password: `admin7181!`
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -247,6 +269,17 @@ The system implements strict role-based authorization.
 * **Consistency:** Follow naming consistency across all modules and files.
 * **Documentation Compliance:** Preserve ERD relationships, database constraints, class relationships, and workflow integrity exactly as defined in the project documentation.
 * **DRY Principle (Don't Repeat Yourself):** Avoid duplicate business logic implementations.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Automated Testing
+This project utilizes Katalon Studio for End-to-End (E2E) functional testing to validate business logic, concurrency limits, and UI stability.
+
+**To run the test suites:**
+1. Download and open [Katalon Studio](https://katalon.com/).
+2. Click `File > Open Project` and select the `ssas/tests/` directory.
+3. In the Test Explorer panel, expand the `Test Cases` folder.
+4. Select a designated role module (e.g., `Student_Modules`), select a specific automated script and click **Run** to execute the automated browser scripts.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
