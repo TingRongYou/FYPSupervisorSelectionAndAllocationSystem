@@ -45,13 +45,6 @@
       </ul>
     </li>
     <li><a href="#automated-testing">Automated Testing</a>
-    <li><a href="#demo">Demo</a>
-      <ul>
-        <li><a href="#1-student">Student</a></li>
-        <li><a href="#2-supervisor">Supervisor</a></li>
-        <li><a href="#3-admin">Admin</a></li>
-      </ul>
-    </li>
     <li><a href="#license">License</a></li>
     <ul>
       <li><a href="#disclaimer">Disclaimer</a></li>
@@ -282,46 +275,6 @@ This project utilizes Katalon Studio for End-to-End (E2E) functional testing to 
 2. Click `File > Open Project` and select the `ssas/tests/` directory.
 3. In the Test Explorer panel, expand the `Test Cases` folder.
 4. Select a designated role module (e.g., `Student_Modules`), select a specific automated script and click **Run** to execute the automated browser scripts.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Demo
-
-### 1. Student
-
-<div align="center">
-
-  <a href="https://github.com/x">
-    <img src="docs/gif/x.gif" alt="Placeholder" width="1500" height="900">
-  </a>
-
-   <h3 align="center">This is a Placeholder</h3>
-
-</div>
-
-### 2. Supervisor
-
-<div align="center">
-
-  <a href="https://github.com/x">
-    <img src="docs/gif/x.gif" alt="Placeholder" width="1500" height="900">
-  </a>
-
-   <h3 align="center">This is a Placeholder</h3>
-
-</div>
-
-### 3. Admin
-
-<div align="center">
-
-  <a href="https://github.com/x">
-    <img src="docs/gif/x.gif" alt="Placeholder" width="1500" height="900">
-  </a>
-
-   <h3 align="center">This is a Placeholder</h3>
-
-</div>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
