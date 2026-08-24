@@ -10,15 +10,6 @@
 
   <p align="center">
     A streamlined system for managing student-supervisor selection and auto allocation processes.
-    <br />
-    <a href="https://github.com/TingRongYou/fyp-supervisor-selection-and-allocation-system"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/TingRongYou/fyp-supervisor-selection-and-allocation-system">View Demo</a>
-    &middot;
-    <a href="https://github.com/TingRongYou/fyp-supervisor-selection-and-allocation-system">Report Bug</a>
-    &middot;
-    <a href="https://github.com/TingRongYou/fyp-supervisor-selection-and-allocation-system">Request Feature</a>
   </p>
 </div>
 
@@ -88,6 +79,8 @@ This section lists the tools used for the SSAS project.
     * PHP 8.0.30
 * **Database**:
     * MySQL
+* **Testing & Quality Assurance**:
+    * Katalon Studio (for automated E2E Functional testing)
 * **Development Environment & Tools**:
     * XAMPP (Apache/MySQL)
     * Visual Studio Code
@@ -121,8 +114,8 @@ Your local server needs to host the files. Do not clone this to your Desktop.
 ### 3. Database Initialisation
 We are using a single "idempotent" SQL script to build the entire database architecture at once.
 1. Open the XAMPP Control Panel and Start both Apache and MySQL.
-2. Inside VS Code, locate the `database/schema.sql` file.
-3. You can execute this file using the VS Code Database Client extension. _(Note: Our schema.sql includes a DROP DATABASE IF EXISTS command. You can run this file as many times as you want to instantly reset your local database to a clean slate during testing.)_
+2. Inside VS Code, locate the `database/ssas_db.sql` file.
+3. You can execute this file using the VS Code Database Client extension. _(Note: Our ssas_db.sql includes a DROP DATABASE IF EXISTS command. You can run this file as many times as you want to instantly reset your local database to a clean slate during testing.)_
 
 ### 4. Architecture Overview
 This project strictly follows a 2-Tier Client-Server Layered Architecture. Please ensure new files are created in their designated layers:
@@ -227,8 +220,6 @@ All implementation strictly follow:
 * Allocation Algorithms
 * System Architecture Design
 * Waterfall SDLC Documentation
-
-_For more information, please refer to the [Documentation](https://github.com/TingRongYou/fyp-supervisor-selection-and-allocation-system.git)_
 
 ### 3. Role-Based Access Control (RBAC)
 
